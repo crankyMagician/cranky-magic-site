@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import ThemeService from '../services/ThemeService';
 // Define an array of theme modes you want to support
-const themes = ['light', 'dark', 'altTheme', 'professional', 'memphis', 'startup', 'sunset', 'mint', 'retro_neon'];
+const themes = ['light', 'dark', 'altTheme', 'professional', 'memphis', 'startup', 'sunset', 'mint', 'retro_neon', 'high_contrast'];
 
 const initialState = {
     mode: themes[0],

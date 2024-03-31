@@ -10,6 +10,7 @@ import {
 import {sunsetPalette} from "./palettes/sunsetPalette";
 import {mintPalette} from "./palettes/mintPalette";
 import {retroNeonPalette} from "./palettes/retroNeonPalette";
+import {highContrastPalette} from "./palettes/highContrastPalette";
 
 const themeModeMappings = {
     light: paletteLightMode,
@@ -20,7 +21,8 @@ const themeModeMappings = {
     startup: techStartupInnovationPalette,
     sunset: sunsetPalette,
     mint: mintPalette,
-    retro_neon: retroNeonPalette
+    retro_neon: retroNeonPalette,
+    high_contrast: highContrastPalette,
 };
 
 export const getPaletteByMode = (mode) => themeModeMappings[mode] || paletteLightMode;

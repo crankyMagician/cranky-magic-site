@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setTheme } from '../reducers/themeSlice'; // make sure to import setTheme
+import { setTheme } from '../reducers/themeSlice'; // Ensure setTheme is imported
 import { Select, MenuItem } from '@mui/material';
 import ThemeService from "../services/ThemeService";
 
@@ -28,10 +28,11 @@ const ThemeToggle = () => {
         setCurrentTheme(newTheme);
     };
 
-    // Define the theme options you have available
+    // Updated theme options with High Contrast added
     const themes = [
         { label: 'Light', value: 'light' },
         { label: 'Dark', value: 'dark' },
+        { label: 'High Contrast', value: 'high_contrast' }, // New High Contrast theme option
         { label: 'Alternative', value: 'altTheme' },
         { label: 'Professional', value: 'professional' },
         { label: 'Corporate Memphis', value: 'memphis' },

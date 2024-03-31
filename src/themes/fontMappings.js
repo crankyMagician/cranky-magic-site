@@ -7,6 +7,7 @@ import techStartupTypography from "./typography/techStartupTypography";
 import mintTypography from "./typography/mintTypography";
 import sunsetTypography from "./typography/sunsetTypography";
 import retroNeonTypography from "./typography/retroNeonTypography";
+import highContrastAccessibilityTypography from "./typography/highContrastAccessibilityTypography";
 
 const typographyModeMappings = {
     light: lightTypography,
@@ -17,7 +18,8 @@ const typographyModeMappings = {
     startup: techStartupTypography,
     sunset: sunsetTypography,
     mint: mintTypography,
-    retro_neon: retroNeonTypography
+    retro_neon: retroNeonTypography,
+    high_contrast: highContrastAccessibilityTypography,
 };
 
 export const getTypographyByMode = (mode) => typographyModeMappings[mode] || lightTypography;
