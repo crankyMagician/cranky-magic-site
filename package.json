@@ -1,0 +1,89 @@
+{
+  "name": "nova-grant-react",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@aws-amplify/ui-react": "^6.1.6",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/assistant": "^5.0.17",
+    "@fontsource/bitter": "^5.0.17",
+    "@fontsource/fira-sans": "^5.0.19",
+    "@fontsource/inter": "^5.0.17",
+    "@fontsource/kanit": "^5.0.19",
+    "@fontsource/lato": "^5.0.20",
+    "@fontsource/libre-baskerville": "^5.0.12",
+    "@fontsource/lobster": "^5.0.19",
+    "@fontsource/lora": "^5.0.16",
+    "@fontsource/merriweather": "^5.0.12",
+    "@fontsource/montserrat": "^5.0.17",
+    "@fontsource/nunito": "^5.0.17",
+    "@fontsource/open-sans": "^5.0.27",
+    "@fontsource/oswald": "^5.0.19",
+    "@fontsource/playfair-display": "^5.0.23",
+    "@fontsource/poppins": "^5.0.12",
+    "@fontsource/rajdhani": "^5.0.12",
+    "@fontsource/raleway": "^5.0.17",
+    "@fontsource/righteous": "^5.0.19",
+    "@fontsource/roboto": "^5.0.12",
+    "@fontsource/roboto-condensed": "^5.0.15",
+    "@fontsource/roboto-slab": "^5.0.19",
+    "@fontsource/sintony": "^5.0.19",
+    "@fontsource/source-sans-pro": "^5.0.8",
+    "@fontsource/space-grotesk": "^5.0.17",
+    "@fontsource/work-sans": "^5.0.17",
+    "@fullcalendar/core": "^6.1.11",
+    "@fullcalendar/daygrid": "^6.1.11",
+    "@fullcalendar/interaction": "^6.1.11",
+    "@fullcalendar/react": "^6.1.11",
+    "@mui/icons-material": "^5.15.14",
+    "@mui/material": "^5.15.14",
+    "@progress/kendo-data-query": "^1.7.0",
+    "@progress/kendo-react-grid": "^7.0.2",
+    "@progress/kendo-react-intl": "^7.0.2",
+    "@reduxjs/toolkit": "^2.2.2",
+    "axios": "^1.6.7",
+    "i18next": "^23.10.1",
+    "i18next-browser-languagedetector": "^7.2.0",
+    "i18next-http-backend": "^2.5.0",
+    "loglevel": "^1.8.1",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^14.1.0",
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.3",
+    "react-scripts": "^5.0.1",
+    "react-toastify": "^10.0.4",
+    "redux": "^5.0.1"
+  },
+  "scripts": {
+    "fancy-start": "cross-env HTTPS=true react-scripts start",
+    "start": "set NODE_OPTIONS=--trace-deprecation && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "cross-env": "^7.0.3"
+  }
+}
