@@ -10,7 +10,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useLogout } from '../hooks/useLogout';
 import useCustomTranslation from "../hooks/useCustomTranslation"; // Import custom translation hook
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 
 const Dashboard = () => {
     const { translate } = useCustomTranslation(); // Use the translation hook
@@ -28,7 +29,7 @@ const Dashboard = () => {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ my: 2 }}>
-                {translate('Nova Grant')}
+                {translate('Company Name')}
             </Typography>
             <MenuItem component={RouterLink} to="/theme" onClick={handleDrawerToggle}>{translate('Theme')}</MenuItem>
             {isAuthenticated && (
@@ -67,7 +68,7 @@ const Dashboard = () => {
                         <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                             <Branding logoUrl={logoUrl} />
                             <Typography variant="h6" component="div">
-                                {translate('Nova Grant')}
+                                {translate('Company Name')}
                             </Typography>
                         </RouterLink>
                     </Box>

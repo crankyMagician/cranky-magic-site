@@ -9,7 +9,8 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { useLogout } from '../hooks/useLogout';
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 // Import the useCustomTranslation hook
 import useCustomTranslation from "../hooks/useCustomTranslation";
 
@@ -78,7 +79,7 @@ const Sidebar = () => {
                     <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                         <Branding logoUrl={logoUrl} />
                         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                            {translate("Nova Grant")}
+                            {translate("Company Name")}
                         </Typography>
                     </RouterLink>
                 </Toolbar>

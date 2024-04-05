@@ -38,7 +38,7 @@ const HeroSection = () => {
                         variant="h2"
                         sx={{ fontWeight: 'bold', mb: 3, color: 'white', textAlign: 'center' }}
                     >
-                        {translate('Welcome to Nova Solutions!')}
+                        {translate('Welcome to Our Website')}
                     </Typography>
                     <Typography
                         component="p"

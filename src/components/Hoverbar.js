@@ -12,7 +12,8 @@ import { useLogout } from '../hooks/useLogout';
 import useCustomTranslation from "../hooks/useCustomTranslation";
 
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 
 const Hoverbar = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -108,7 +109,7 @@ const Hoverbar = () => {
                     <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                         <Branding logoUrl={logoUrl} />
                         <Typography variant="h6" component="div">
-                            {translate('Nova Grant')}
+                            {translate('Company Name')}
                         </Typography>
                     </RouterLink>
                 </Box>

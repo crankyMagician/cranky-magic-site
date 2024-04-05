@@ -4,6 +4,8 @@ This document provides details about the Blazar Magic React Kit, a comprehensive
 
 ## Featured in
 - Nova Grant
+- Manage Mint
+- GoWell Enrollment
 
 ## Features
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Typography, Grid } from '@mui/material';
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
 import { logDebug } from '../utilities/Logger';
 
 import useCustomTranslation from "../hooks/useCustomTranslation";

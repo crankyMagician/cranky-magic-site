@@ -11,7 +11,8 @@ import { SignUpTextHere} from './SignUpText';
 import {ForgotPasswordLink} from "./ForgotPasswordText";
 import {Box} from "@mui/material";
 import Branding from "./Branding";
-import logoImage from "../assets/logo/NovaLogo.png";
+import logoImage from '../assets/logo/default_logo.png';
+
 import useCustomTranslation from "../hooks/useCustomTranslation";
 
 function LoginUser() {

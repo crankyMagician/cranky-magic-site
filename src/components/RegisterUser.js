@@ -5,7 +5,8 @@ import { SuccessToast } from "./SuccessToast";
 import { ErrorToast } from "./ErrorToast";
 import { logInfo, logError, logDebug } from '../utilities/Logger';
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 import {Box} from "@mui/material";
 import useCustomTranslation from "../hooks/useCustomTranslation";
 

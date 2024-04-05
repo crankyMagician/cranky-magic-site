@@ -2,7 +2,8 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Container, Typography, Link, Grid, useTheme } from '@mui/material';
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -88,8 +89,8 @@ const Footer = () => {
                     }}
                 >
                     © 2024 {translate('Copyright:')}
-                    <Link href="https://novagrant.com/" color="inherit" underline="hover">
-                        {translate('Nova Grant')}
+                    <Link href="https://blazarsoftware.com/" color="inherit" underline="hover">
+                        {translate('Company Name')}
                     </Link>
                 </Box>
             </Container>

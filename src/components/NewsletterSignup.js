@@ -3,7 +3,8 @@ import { TextField, Button, Container, Box, Typography } from '@mui/material';
 import Branding from './Branding';
 import { logDebug } from '../utilities/Logger';
 import useCustomTranslation from "../hooks/useCustomTranslation"; // Import custom translation hook
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 
 const NewsletterSignup = () => {
     const [email, setEmail] = useState('');

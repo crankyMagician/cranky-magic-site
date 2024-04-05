@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, Container, Box, Typography, Grid } from '@mui/material';
 import AuthTokenService from '../services/AuthTokenService';
 import Branding from './Branding';
-import logoImage from '../assets/logo/NovaLogo.png';
+import logoImage from '../assets/logo/default_logo.png';
+
 import { logDebug } from '../utilities/Logger';
 import useCustomTranslation from "../hooks/useCustomTranslation"; // Import the custom hook
 
