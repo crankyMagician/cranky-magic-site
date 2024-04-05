@@ -13,7 +13,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Alert } from "@mui/material";
-import GrantSearchResults from "./GrantSearchResults";
+import SearchResults from "./SearchResults";
 import { SuccessToast } from "./SuccessToast";
 import { useTheme } from '@mui/material/styles';
 import useCustomTranslation from "../hooks/useCustomTranslation";
@@ -194,7 +194,7 @@ const GrantSearchComponent = () => {
                 overflow: 'auto',
                 maxHeight: 'calc(100vh - 200px)'
             }}>
-                <GrantSearchResults
+                <SearchResults
                     data={searchResults}
                     page={page}
                     rowsPerPage={rowsPerPage}

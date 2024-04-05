@@ -80,7 +80,7 @@ const columns = [
     },
 ];
 
-function GrantSearchResults({ data, page, rowsPerPage, totalCount, handleChangePage, handleChangeRowsPerPage }) {
+function SearchResults({ data, page, rowsPerPage, totalCount, handleChangePage, handleChangeRowsPerPage }) {
     const defaultColumns = ['opportunityTitle', 'awardFloor', 'awardCeiling', 'grantorContactEmail'];
     const [selectedColumns, setSelectedColumns] = useState(defaultColumns);
     const { translate } = useCustomTranslation();
@@ -95,7 +95,7 @@ function GrantSearchResults({ data, page, rowsPerPage, totalCount, handleChangeP
 
 
 // Define PropTypes
-    GrantSearchResults.propTypes = {
+    SearchResults.propTypes = {
         data: PropTypes.shape({
             items: PropTypes.array.isRequired,
             // You might have more data properties that you could validate as needed
@@ -186,4 +186,4 @@ function GrantSearchResults({ data, page, rowsPerPage, totalCount, handleChangeP
 
 
 }
-export default GrantSearchResults;
+export default SearchResults;
