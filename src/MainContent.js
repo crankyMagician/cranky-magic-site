@@ -14,6 +14,7 @@ import AboutUs from "./components/AboutUs";
 import StreamVideo  from "./components/StreamVideo";
 import Calendar from "./components/Calendar";
 import LandingPage from "./components/LandingPage";
+import MovesList from "./components/API/movesList";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -25,6 +26,9 @@ const MainContent = () => {
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPassword/>}/>
                 <Route path="/edit-account" element={<AuthRouteWrapper><AccountSettingsPage/></AuthRouteWrapper>}/>
+
+                {/* API Routes*/}
+                <Route path="/moves-list" element={<MovesList/>}/>
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>
