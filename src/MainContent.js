@@ -4,8 +4,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ForgotPassword from './components/ForgotPassword';
 import LoginUser from './components/LoginUser';
 import RegisterUser from './components/RegisterUser';
-import ChooseGrantCategoriesComponent from "./components/ChooseGrantCategoriesComponent";
-import GrantSearchComponent from "./components/GrantSearchComponent";
 import Example from "./example/Example";
 import AuthRouteWrapper from './utilities/AuthRouteWrapper';
 import AccountSettingsPage from "./components/AccountSettingsPage";
@@ -26,8 +24,6 @@ const MainContent = () => {
                 <Route path="/login" element={!isAuthenticated ? <LoginUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPassword/>}/>
-                <Route path="/grant-search" element={<AuthRouteWrapper><GrantSearchComponent/></AuthRouteWrapper>}/>
-                <Route path="/grant-categories" element={<AuthRouteWrapper><ChooseGrantCategoriesComponent/></AuthRouteWrapper>}/>
                 <Route path="/edit-account" element={<AuthRouteWrapper><AccountSettingsPage/></AuthRouteWrapper>}/>
 
                 {/* Unauthenticated Routes*/}

@@ -1,25 +1,13 @@
-import lightTypography   from "./typography/lightTypography";
-import altTypography from "./typography/altTypography";
-import professionalTypography   from "./typography/professionalTypography";
-import darkTypography from "./typography/darkTypography";
-import corporateMemphisTypography    from "./typography/corporateMemphisTypography";
-import techStartupTypography from "./typography/techStartupTypography";
-import mintTypography from "./typography/mintTypography";
-import sunsetTypography from "./typography/sunsetTypography";
-import retroNeonTypography from "./typography/retroNeonTypography";
-import highContrastAccessibilityTypography from "./typography/highContrastAccessibilityTypography";
+// src/themes/typographyMappings.js
+
+// Simplify the mappings to use only Munchie options
+import munchieTypography from "./typography/munchieTypography";
 
 const typographyModeMappings = {
-    light: lightTypography,
-    dark: darkTypography,
-    altTheme: altTypography,
-    professional: professionalTypography,
-    memphis: corporateMemphisTypography,
-    startup: techStartupTypography,
-    sunset: sunsetTypography,
-    mint: mintTypography,
-    retro_neon: retroNeonTypography,
-    high_contrast: highContrastAccessibilityTypography,
+    munchie: munchieTypography,
 };
 
-export const getTypographyByMode = (mode) => typographyModeMappings[mode] || lightTypography;
+// Function to always return MunchieTypography
+export const getTypographyByMode = () => munchieTypography;
+
+export default typographyModeMappings; // Optional if you want to export mappings for extensibility

@@ -1,29 +1,12 @@
-// src/themes/themeMappings.js
-import {
-    paletteLightMode,
-    paletteDarkMode,
-    altThemePalette,
-    professionalModernPalette,
-    corporateMemphisPalette,
-    techStartupInnovationPalette
-} from "./palettes/palettes";
-import {sunsetPalette} from "./palettes/sunsetPalette";
-import {mintPalette} from "./palettes/mintPalette";
-import {retroNeonPalette} from "./palettes/retroNeonPalette";
-import {highContrastPalette} from "./palettes/highContrastPalette";
+// src/themes/paletteMappings.js
+import { munchiePalette } from './palettes/munchiePalette'; // Import Munchie Palette
 
+// Simplify the mappings to use only Munchie options
 const themeModeMappings = {
-    light: paletteLightMode,
-    dark: paletteDarkMode,
-    altTheme: altThemePalette,
-    professional: professionalModernPalette,
-    memphis: corporateMemphisPalette,
-    startup: techStartupInnovationPalette,
-    sunset: sunsetPalette,
-    mint: mintPalette,
-    retro_neon: retroNeonPalette,
-    high_contrast: highContrastPalette,
+    munchie: munchiePalette,
 };
 
-export const getPaletteByMode = (mode) => themeModeMappings[mode] || paletteLightMode;
+// Function to always return MunchiePalette
+export const getPaletteByMode = () => munchiePalette;
 
+export default themeModeMappings; // Optional if you want to export mappings for extensibility
