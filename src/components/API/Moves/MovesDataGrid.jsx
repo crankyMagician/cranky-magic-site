@@ -73,6 +73,12 @@ const MovesDataGrid = () => {
                     <span>PP</span>
                 </Box>
             ),
+            renderCell: (params) => params?.row ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TimerIcon color="action" />
+                    <Typography><strong>{params.row.pp} / {params.row.max_pp}</strong></Typography>
+                </Box>
+            ) : null,
             valueGetter: (params) => (params?.row ? `${params.row.pp} / ${params.row.max_pp}` : '')
         },
         {
@@ -96,6 +102,12 @@ const MovesDataGrid = () => {
                     <span>Type</span>
                 </Box>
             ),
+            renderCell: (params) => params?.row ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TypeIcon color="warning" />
+                    <Typography><strong>{params.row.type?.type_name}</strong></Typography>
+                </Box>
+            ) : null,
             valueGetter: (params) => params?.row?.type?.type_name || ''
         },
         {
