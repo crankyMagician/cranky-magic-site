@@ -24,7 +24,7 @@ import {
     Star as CriticalIcon,
     Search as SearchIcon
 } from '@mui/icons-material';
-import { useGetAllMovesQuery } from '../../api/apiSlice';
+import { useGetAllMovesQuery } from '../../../api/apiSlice';
 
 const LoadingSkeleton = () => (
     <Container>

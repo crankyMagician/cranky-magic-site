@@ -14,7 +14,8 @@ import AboutUs from "./components/AboutUs";
 import StreamVideo  from "./components/StreamVideo";
 import Calendar from "./components/Calendar";
 import LandingPage from "./components/LandingPage";
-import MovesList from "./components/API/movesList";
+import MovesList from "./components/API/Moves/movesList";
+import MovesDataGrid from "./components/API/Moves/MovesDataGrid";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -29,6 +30,7 @@ const MainContent = () => {
 
                 {/* API Routes*/}
                 <Route path="/moves-list" element={<MovesList/>}/>
+                <Route path="/moves-grid" element={<MovesDataGrid/>}/>
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>
