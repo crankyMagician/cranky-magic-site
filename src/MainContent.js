@@ -16,6 +16,7 @@ import Calendar from "./components/Calendar";
 import LandingPage from "./components/LandingPage";
 import MovesList from "./components/API/Moves/movesList";
 import MovesDataGrid from "./components/API/Moves/MovesDataGrid";
+import MunchieDataGrid from "./components/API/Munchies/MunchieDataGrid";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -31,6 +32,7 @@ const MainContent = () => {
                 {/* API Routes*/}
                 <Route path="/moves-list" element={<MovesList/>}/>
                 <Route path="/moves-grid" element={<MovesDataGrid/>}/>
+                <Route path="/munchie-grid" element={<MunchieDataGrid/>}/>
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>
