@@ -17,6 +17,8 @@ import LandingPage from "./components/LandingPage";
 import MovesList from "./components/API/Moves/movesList";
 import MovesDataGrid from "./components/API/Moves/MovesDataGrid";
 import MunchieDataGrid from "./components/API/Munchies/MunchieDataGrid";
+import AbilitiesDataGrid from "./components/API/Abilities/AbilitiesDataGrid";
+import CreateAbility from "./components/API/Abilities/CreateAbility";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -33,6 +35,8 @@ const MainContent = () => {
                 <Route path="/moves-list" element={<MovesList/>}/>
                 <Route path="/moves-grid" element={<MovesDataGrid/>}/>
                 <Route path="/munchie-grid" element={<MunchieDataGrid/>}/>
+                <Route path="/abilities-grid" element={<AbilitiesDataGrid/>}/>
+                <Route path="/abilities-create" element={<CreateAbility/>}/>
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>
