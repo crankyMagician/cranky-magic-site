@@ -1,0 +1,5271 @@
+[
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Disables one of the target's moves.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 2932,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 215,
+    "max_pp": 5,
+    "move_name": "Blizzard",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 120,
+    "pp": 5,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 216,
+    "max_pp": 5,
+    "move_name": "Hyper Beam",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 100,
+    "pp": 5,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 217,
+    "max_pp": 10,
+    "move_name": "Ice Beam",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 95,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 218,
+    "max_pp": 10,
+    "move_name": "Ice Cream Slam",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Surrounds the user in a healing aura, restoring HP each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 2,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 219,
+    "max_pp": 10,
+    "move_name": "Peppermint Breeze",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 85,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.1,
+        "description": "Forces the target to faint in three turns.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 865,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 220,
+    "max_pp": 10,
+    "move_name": "Vanilla Freeze",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 85,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Forces the user to recharge on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 4,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 221,
+    "max_pp": 15,
+    "move_name": "Spaghetti Swirl",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 1,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 222,
+    "max_pp": 15,
+    "move_name": "Vanilla Swirl",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Drains the target's energy with a leeching seed.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 5,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 223,
+    "max_pp": 15,
+    "move_name": "Pasta Twirl",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 1,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 80,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 224,
+    "max_pp": 10,
+    "move_name": "Beefy Bash",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 100,
+    "pp": 10,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 225,
+    "max_pp": 15,
+    "move_name": "Double Edge",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 100,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 226,
+    "max_pp": 20,
+    "move_name": "Frosty Bite",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 75,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 227,
+    "max_pp": 10,
+    "move_name": "Hazelnut Hammer",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 100,
+    "pp": 10,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user flies into the air, becoming immune to ground attacks.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 6,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 228,
+    "max_pp": 15,
+    "move_name": "Headbutt",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 70,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 229,
+    "max_pp": 15,
+    "move_name": "Almond Crush",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 90,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 230,
+    "max_pp": 15,
+    "move_name": "Coconut Crush",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 90,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 231,
+    "max_pp": 10,
+    "move_name": "Meatball Bash",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Paralyzes the target with a shocking sensation.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 7,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 232,
+    "max_pp": 10,
+    "move_name": "Mint Blast",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 85,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 233,
+    "max_pp": 15,
+    "move_name": "Nutty Crunch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 234,
+    "max_pp": 15,
+    "move_name": "Nutty Strike",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 235,
+    "max_pp": 15,
+    "move_name": "Waffle Slam",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Temporarily confuses the target.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 3272,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 236,
+    "max_pp": 15,
+    "move_name": "Almond Strike",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 237,
+    "max_pp": 25,
+    "move_name": "Banana Slam",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 50,
+    "pp": 25,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 238,
+    "max_pp": 15,
+    "move_name": "Caramel Crush",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Confuses the target with a dizzying aroma.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 9,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 239,
+    "max_pp": 15,
+    "move_name": "Carrot Crunch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 240,
+    "max_pp": 20,
+    "move_name": "Nutty Bash",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 80,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 241,
+    "max_pp": 15,
+    "move_name": "Pecan Punch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 242,
+    "max_pp": 15,
+    "move_name": "Peppermint Crush",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 243,
+    "max_pp": 10,
+    "move_name": "Vanilla Beam",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 244,
+    "max_pp": 15,
+    "move_name": "Vanilla Crush",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 245,
+    "max_pp": 10,
+    "move_name": "Vanilla Wave",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 246,
+    "max_pp": 20,
+    "move_name": "Cream Cannon",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Spoils the target, causing them to take damage each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 10,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 247,
+    "max_pp": 15,
+    "move_name": "Egg Smash",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 75,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 248,
+    "max_pp": 20,
+    "move_name": "Banana Kick",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 249,
+    "max_pp": 20,
+    "move_name": "Butter Bash",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Makes the target drowsy, causing them to yawn on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 11,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Undercooked",
+          "id": 47
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 250,
+    "max_pp": 20,
+    "move_name": "Caramel Beam",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Makes the target drowsy, causing them to yawn on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 12,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Undercooked",
+          "id": 47
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 251,
+    "max_pp": 20,
+    "move_name": "Mint Punch",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Traps the target, preventing them from switching out.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 13,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 252,
+    "max_pp": 20,
+    "move_name": "Nutty Blast",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Causes the target to flinch.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 2937,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 253,
+    "max_pp": 20,
+    "move_name": "Peppermint Twist",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 254,
+    "max_pp": 20,
+    "move_name": "Vanilla Punch",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 255,
+    "max_pp": 20,
+    "move_name": "Cheese Beam",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 256,
+    "max_pp": 25,
+    "move_name": "Fruit Punch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 65,
+    "pp": 25,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 257,
+    "max_pp": 30,
+    "move_name": "Carrot Strike",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 60,
+    "pp": 30,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 258,
+    "max_pp": 25,
+    "move_name": "Peach Punch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 259,
+    "max_pp": 25,
+    "move_name": "Vanilla Spray",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Gives the target nightmares, damaging them while asleep.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 15,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 260,
+    "max_pp": 30,
+    "move_name": "Carrot Chop",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 50,
+    "pp": 30,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Torments the target, preventing them from using the same move twice in a row.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 16,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 261,
+    "max_pp": 30,
+    "move_name": "Ice Shard",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 40,
+    "pp": 30,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 262,
+    "max_pp": 35,
+    "move_name": "Leek Slap",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 40,
+    "pp": 35,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 263,
+    "max_pp": 35,
+    "move_name": "Scratch",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 40,
+    "pp": 35,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 264,
+    "max_pp": 20,
+    "move_name": "Minty Fresh",
+    "munchie_type_id": 11,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 11,
+      "type_name": "Frozen"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 265,
+    "max_pp": 15,
+    "move_name": "Sand Attack",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 0,
+    "pp": 15,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 266,
+    "max_pp": 30,
+    "move_name": "Sugar Rush",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 0,
+    "pp": 30,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Drains the target's energy with a leeching seed.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 17,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 267,
+    "max_pp": 30,
+    "move_name": "Sugarcoat",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 0,
+    "pp": 30,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 268,
+    "max_pp": 30,
+    "move_name": "Tail Whip",
+    "munchie_type_id": 10,
+    "object_name": null,
+    "power": 0,
+    "pp": 30,
+    "type": {
+      "id": 10,
+      "type_name": "Staple"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.5,
+        "description": "Identifies the target, revealing their type and abilities.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 18,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Overcooked",
+          "id": 46
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 269,
+    "max_pp": 10,
+    "move_name": "Chocolate Wave",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 1,
+    "pp": 10,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 270,
+    "max_pp": 10,
+    "move_name": "Wasabi Wave",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 65,
+    "pp": 10,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 271,
+    "max_pp": 15,
+    "move_name": "Melon Splash",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 1,
+    "pp": 15,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 272,
+    "max_pp": 15,
+    "move_name": "Caramel Splash",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 273,
+    "max_pp": 15,
+    "move_name": "Waterfall",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 274,
+    "max_pp": 20,
+    "move_name": "Milk Wave",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Makes the target drowsy, causing them to yawn on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 19,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Undercooked",
+          "id": 47
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 275,
+    "max_pp": 20,
+    "move_name": "Salty Surge",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 276,
+    "max_pp": 15,
+    "move_name": "Berry Burst",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 70,
+    "pp": 15,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Paralyzes the target with a shocking sensation.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 20,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 277,
+    "max_pp": 20,
+    "move_name": "Syrup Slide",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 278,
+    "max_pp": 25,
+    "move_name": "Choco Syrup",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Forces the target to repeat their last used move.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 21,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 279,
+    "max_pp": 25,
+    "move_name": "Lemonade Spray",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Binds the target with sticky syrup.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 22,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Spoiled",
+          "id": 48
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 280,
+    "max_pp": 25,
+    "move_name": "Syrup Splash",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 281,
+    "max_pp": 25,
+    "move_name": "Water Gun",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 40,
+    "pp": 25,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 282,
+    "max_pp": 20,
+    "move_name": "Olive Oil Slick",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Negates the target's type immunities.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 23,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Moldy",
+          "id": 49
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 283,
+    "max_pp": 20,
+    "move_name": "Onion Tears",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 284,
+    "max_pp": 20,
+    "move_name": "Soy Sauce",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.7,
+        "description": "Spices up the target, increasing their Attack.",
+        "duration": 0,
+        "effect_type": "stat_change",
+        "heal_amount": 0,
+        "id": 24,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 1,
+        "stat": "Attack",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 285,
+    "max_pp": 20,
+    "move_name": "Syrup Shield",
+    "munchie_type_id": 1,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 1,
+      "type_name": "Liquid"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 286,
+    "max_pp": 10,
+    "move_name": "Solar Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user fades into the shadows, becoming harder to hit.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 25,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 287,
+    "max_pp": 10,
+    "move_name": "Maple Blast",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 60,
+    "pp": 10,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Forces the target to repeat their last used move.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 26,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 288,
+    "max_pp": 15,
+    "move_name": "Nectar Blast",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 1,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user thrashes about, attacking for multiple turns but becoming confused afterward.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 27,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 289,
+    "max_pp": 15,
+    "move_name": "Avocado Smash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 290,
+    "max_pp": 15,
+    "move_name": "Carrot Crush",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Lifts the user into the air, making them immune to ground attacks.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 28,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 291,
+    "max_pp": 15,
+    "move_name": "Corn Blast",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 292,
+    "max_pp": 15,
+    "move_name": "Corn Cob Crush",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Protects the user from critical hits.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 1314,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 293,
+    "max_pp": 15,
+    "move_name": "Mango Mash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Makes the target drowsy, causing them to yawn on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 30,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Undercooked",
+          "id": 47
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 294,
+    "max_pp": 15,
+    "move_name": "Pumpkin Pound",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 295,
+    "max_pp": 15,
+    "move_name": "Pumpkin Smash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 296,
+    "max_pp": 15,
+    "move_name": "Tomato Burst",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Taunts the target, forcing them to use only attacking moves.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 31,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 297,
+    "max_pp": 20,
+    "move_name": "Beetroot Bash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 298,
+    "max_pp": 20,
+    "move_name": "Berry Blast",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 299,
+    "max_pp": 20,
+    "move_name": "Berry Blend",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 300,
+    "max_pp": 20,
+    "move_name": "Berry Blitz",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Makes the target float in the air, becoming immune to ground attacks.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 32,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 301,
+    "max_pp": 20,
+    "move_name": "Carrot Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.7,
+        "description": "Spices up the target, increasing their Attack.",
+        "duration": 0,
+        "effect_type": "stat_change",
+        "heal_amount": 0,
+        "id": 33,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 1,
+        "stat": "Attack",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 302,
+    "max_pp": 20,
+    "move_name": "Maple Punch",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 303,
+    "max_pp": 20,
+    "move_name": "Mushroom Mash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 304,
+    "max_pp": 20,
+    "move_name": "Strawberry Crush",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Causes the target to flinch.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 2814,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 305,
+    "max_pp": 20,
+    "move_name": "Apple Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 306,
+    "max_pp": 20,
+    "move_name": "Apple Punch",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 307,
+    "max_pp": 20,
+    "move_name": "Berry Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Pickles the target, increasing their Defense but lowering their Special Attack.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 35,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 308,
+    "max_pp": 20,
+    "move_name": "Berry Bomb",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 309,
+    "max_pp": 20,
+    "move_name": "Berry Jam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 310,
+    "max_pp": 20,
+    "move_name": "Berry Punch",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 311,
+    "max_pp": 20,
+    "move_name": "Berry Storm",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 312,
+    "max_pp": 20,
+    "move_name": "Coconut Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Forces the user to recharge on the next turn.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 36,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 313,
+    "max_pp": 20,
+    "move_name": "Lime Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 314,
+    "max_pp": 20,
+    "move_name": "Maple Beam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Ferments the target, increasing their Special Attack but lowering their Speed.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 37,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 315,
+    "max_pp": 25,
+    "move_name": "Spinach Slam",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 70,
+    "pp": 25,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 316,
+    "max_pp": 25,
+    "move_name": "Grape Splash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 65,
+    "pp": 25,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user takes aim, increasing their accuracy for the next attack.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 38,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 317,
+    "max_pp": 20,
+    "move_name": "Lime Lash",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.5,
+        "description": "Burns the target with a searing heat.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 1055,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 318,
+    "max_pp": 25,
+    "move_name": "Lime Punch",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 65,
+    "pp": 25,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 319,
+    "max_pp": 20,
+    "move_name": "Radish Rush",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Roots the user in place, restoring HP each turn but preventing them from switching out.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 40,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 320,
+    "max_pp": 20,
+    "move_name": "Berry Whirl",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 321,
+    "max_pp": 20,
+    "move_name": "Corn Crush",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.5,
+        "description": "Poisons the target with a mild toxin.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 41,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 322,
+    "max_pp": 25,
+    "move_name": "Kiwi Kick",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 55,
+    "pp": 25,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.1,
+        "description": "Forces the target to faint in three turns.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 42,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 323,
+    "max_pp": 30,
+    "move_name": "Pineapple Poke",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 55,
+    "pp": 30,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Puts the target to sleep with a lullaby of flavors.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 155,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 324,
+    "max_pp": 25,
+    "move_name": "Lettuce Leaf",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 50,
+    "pp": 25,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Paralyzes the target with a shocking sensation.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 44,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 325,
+    "max_pp": 35,
+    "move_name": "Apple Toss",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 40,
+    "pp": 35,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user undergoes a dramatic transformation, becoming incredibly powerful.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 45,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 326,
+    "max_pp": 10,
+    "move_name": "Vine Whip",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 35,
+    "pp": 10,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 327,
+    "max_pp": 15,
+    "move_name": "Berry Barrage",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 30,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user digs underground, becoming immune to most attacks.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 46,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 328,
+    "max_pp": 15,
+    "move_name": "Fruit Barrage",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 30,
+    "pp": 15,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 329,
+    "max_pp": 20,
+    "move_name": "Berry Rain",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 330,
+    "max_pp": 20,
+    "move_name": "Berry Shield",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Spoils the target, causing them to take damage each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 47,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 331,
+    "max_pp": 20,
+    "move_name": "Maple Shield",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 332,
+    "max_pp": 20,
+    "move_name": "Maple Syrup",
+    "munchie_type_id": 12,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 12,
+      "type_name": "Herb"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 333,
+    "max_pp": 15,
+    "move_name": "Thunderbolt",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 95,
+    "pp": 15,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Blocks the target's healing abilities.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 160,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 334,
+    "max_pp": 10,
+    "move_name": "Coffee Jolt",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Prevents the target from using held items.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 161,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 335,
+    "max_pp": 10,
+    "move_name": "Grapefruit Beam",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 336,
+    "max_pp": 20,
+    "move_name": "Cherry Charge",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 337,
+    "max_pp": 20,
+    "move_name": "Sour Shot",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Drains the target's energy with a leeching seed.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 162,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 338,
+    "max_pp": 20,
+    "move_name": "Citrus Burst",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 339,
+    "max_pp": 20,
+    "move_name": "Citrus Punch",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 340,
+    "max_pp": 10,
+    "move_name": "Lemon Zap",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 85,
+    "pp": 10,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Ferments the target, increasing their Special Attack but lowering their Speed.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 171,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 341,
+    "max_pp": 20,
+    "move_name": "Citrus Zap",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Curses the target with bad luck.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 172,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 342,
+    "max_pp": 20,
+    "move_name": "Lemon Rush",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Infatuates the target with its charming appearance.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 177,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 343,
+    "max_pp": 20,
+    "move_name": "Sour Burst",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Undercooks the target, lowering their stats.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 179,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 344,
+    "max_pp": 30,
+    "move_name": "Thunder Shock",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 40,
+    "pp": 30,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 345,
+    "max_pp": 25,
+    "move_name": "Lemon Spray",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 346,
+    "max_pp": 20,
+    "move_name": "Thunder Wave",
+    "munchie_type_id": 13,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 13,
+      "type_name": "Zesty"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Sweetens the target, restoring some HP.",
+        "duration": 0,
+        "effect_type": "heal",
+        "heal_amount": 0.25,
+        "id": 1643,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 347,
+    "max_pp": 5,
+    "move_name": "Chili Blast",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 100,
+    "pp": 5,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 348,
+    "max_pp": 5,
+    "move_name": "Spice Storm",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 100,
+    "pp": 5,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Traps the target, preventing them from switching out.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 191,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 349,
+    "max_pp": 15,
+    "move_name": "Flamethrower",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 95,
+    "pp": 15,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 350,
+    "max_pp": 10,
+    "move_name": "Barbecue Blaze",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Causes the target to flinch in fear.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 4076,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 351,
+    "max_pp": 10,
+    "move_name": "Cherry Bomb",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 352,
+    "max_pp": 10,
+    "move_name": "Pepper Blast",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Spoils the target, causing them to take damage each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 193,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 353,
+    "max_pp": 10,
+    "move_name": "Spicy Salsa",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 90,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.1,
+        "description": "Forces the target to faint in three turns.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 194,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 354,
+    "max_pp": 15,
+    "move_name": "Barbecue Blitz",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 355,
+    "max_pp": 15,
+    "move_name": "Nutmeg Storm",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user fades into the shadows, becoming harder to hit.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 195,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 356,
+    "max_pp": 15,
+    "move_name": "Spicy Breath",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user takes aim, increasing their accuracy for the next attack.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 196,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 357,
+    "max_pp": 20,
+    "move_name": "Spicy Roll",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.7,
+        "description": "Chills the target, decreasing their Speed.",
+        "duration": 0,
+        "effect_type": "stat_change",
+        "heal_amount": 0,
+        "id": 197,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": -1,
+        "stat": "Speed",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 358,
+    "max_pp": 25,
+    "move_name": "Chili Pepper",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 70,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.7,
+        "description": "Spices up the target, increasing their Attack.",
+        "duration": 0,
+        "effect_type": "stat_change",
+        "heal_amount": 0,
+        "id": 198,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 1,
+        "stat": "Attack",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 359,
+    "max_pp": 25,
+    "move_name": "Ginger Punch",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 70,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user fades into the shadows, becoming harder to hit.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 199,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 360,
+    "max_pp": 25,
+    "move_name": "Pepper Punch",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 70,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 361,
+    "max_pp": 25,
+    "move_name": "Salsa Slap",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 70,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Binds the target with sticky syrup.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 200,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": {
+          "condition_name": "Spoiled",
+          "id": 48
+        }
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 362,
+    "max_pp": 20,
+    "move_name": "Cinnamon Shot",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 363,
+    "max_pp": 20,
+    "move_name": "Cheese Melt",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.7,
+        "description": "Chills the target, decreasing their Speed.",
+        "duration": 0,
+        "effect_type": "stat_change",
+        "heal_amount": 0,
+        "id": 201,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": -1,
+        "stat": "Speed",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 364,
+    "max_pp": 20,
+    "move_name": "Pepper Flake",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Undercooks the target, lowering their stats.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 202,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 365,
+    "max_pp": 10,
+    "move_name": "Cinnamon Burst",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 85,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 366,
+    "max_pp": 10,
+    "move_name": "Ginger Blast",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.1,
+        "description": "Forces the target to faint in three turns.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 209,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 367,
+    "max_pp": 10,
+    "move_name": "Spice Zap",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 80,
+    "pp": 10,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 368,
+    "max_pp": 20,
+    "move_name": "Ginger Beam",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user fades into the shadows, becoming harder to hit.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 212,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 369,
+    "max_pp": 20,
+    "move_name": "Ginger Slash",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 370,
+    "max_pp": 20,
+    "move_name": "Spice Strike",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user undergoes a dramatic transformation, becoming incredibly powerful.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 216,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 371,
+    "max_pp": 25,
+    "move_name": "Ember",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 40,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 372,
+    "max_pp": 20,
+    "move_name": "Ginger Kick",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 373,
+    "max_pp": 25,
+    "move_name": "Ginger Snap",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Surrounds the user in a healing aura, restoring HP each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 228,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 374,
+    "max_pp": 20,
+    "move_name": "Caramelize",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 375,
+    "max_pp": 20,
+    "move_name": "Ginger Zest",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.5,
+        "description": "Burns the target with a searing heat.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 230,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 376,
+    "max_pp": 15,
+    "move_name": "Spice Scatter",
+    "munchie_type_id": 14,
+    "object_name": null,
+    "power": 0,
+    "pp": 15,
+    "type": {
+      "id": 14,
+      "type_name": "Spicy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 377,
+    "max_pp": 20,
+    "move_name": "Candy Crush",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Torments the target, preventing them from using the same move twice in a row.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 241,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 378,
+    "max_pp": 15,
+    "move_name": "Marshmallow Smash",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 379,
+    "max_pp": 15,
+    "move_name": "Doughnut Dash",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Traps the target, preventing them from switching out.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 442,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 380,
+    "max_pp": 20,
+    "move_name": "Sugar Beam",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 381,
+    "max_pp": 25,
+    "move_name": "Sprinkle Shot",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Lifts the user into the air, making them immune to ground attacks.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 249,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 382,
+    "max_pp": 20,
+    "move_name": "Sugar Crash",
+    "munchie_type_id": 15,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 15,
+      "type_name": "Sweet"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 383,
+    "max_pp": 10,
+    "move_name": "Earthquake",
+    "munchie_type_id": 16,
+    "object_name": null,
+    "power": 100,
+    "pp": 10,
+    "type": {
+      "id": 16,
+      "type_name": "Earthy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Torments the target, preventing them from using the same move twice in a row.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 382,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 384,
+    "max_pp": 15,
+    "move_name": "Potato Crush",
+    "munchie_type_id": 16,
+    "object_name": null,
+    "power": 75,
+    "pp": 15,
+    "type": {
+      "id": 16,
+      "type_name": "Earthy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "Increases the user's critical hit ratio.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 3245,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 385,
+    "max_pp": 5,
+    "move_name": "Fissure",
+    "munchie_type_id": 16,
+    "object_name": null,
+    "power": 0,
+    "pp": 5,
+    "type": {
+      "id": 16,
+      "type_name": "Earthy"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 386,
+    "max_pp": 25,
+    "move_name": "Bite",
+    "munchie_type_id": 18,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 18,
+      "type_name": "Bitter"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 387,
+    "max_pp": 15,
+    "move_name": "Choco Crash",
+    "munchie_type_id": 18,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 18,
+      "type_name": "Bitter"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Overcooks the target, causing them to take damage each turn.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 518,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 388,
+    "max_pp": 15,
+    "move_name": "Cocoa Crush",
+    "munchie_type_id": 18,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 18,
+      "type_name": "Bitter"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 389,
+    "max_pp": 15,
+    "move_name": "Fudge Smash",
+    "munchie_type_id": 18,
+    "object_name": null,
+    "power": 85,
+    "pp": 15,
+    "type": {
+      "id": 18,
+      "type_name": "Bitter"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 390,
+    "max_pp": 15,
+    "move_name": "Crunch",
+    "munchie_type_id": 18,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 18,
+      "type_name": "Bitter"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.1,
+        "description": "Forces the target to faint in three turns.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 870,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 391,
+    "max_pp": 15,
+    "move_name": "Mustard Missile",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 75,
+    "pp": 15,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 392,
+    "max_pp": 20,
+    "move_name": "Mustard Spray",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Infatuates the target with its charming appearance.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 871,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 393,
+    "max_pp": 20,
+    "move_name": "Sour Punch",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.5,
+        "description": "Poisons the target with a mild toxin.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 872,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 394,
+    "max_pp": 20,
+    "move_name": "Wasabi Kick",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 395,
+    "max_pp": 20,
+    "move_name": "Ginger Jab",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 65,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 396,
+    "max_pp": 25,
+    "move_name": "Sour Sting",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 60,
+    "pp": 25,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 397,
+    "max_pp": 25,
+    "move_name": "Pickle Toss",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 55,
+    "pp": 25,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 398,
+    "max_pp": 20,
+    "move_name": "Garlic Shot",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 50,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 399,
+    "max_pp": 20,
+    "move_name": "Sour Beam",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 75,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 400,
+    "max_pp": 20,
+    "move_name": "Garlic Slash",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 70,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 1,
+        "description": "The user dives underwater, becoming immune to most attacks.",
+        "duration": 1,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 884,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 401,
+    "max_pp": 25,
+    "move_name": "Grape Shot",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 40,
+    "pp": 25,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 95,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 402,
+    "max_pp": 20,
+    "move_name": "Pepper Spray",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 60,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 403,
+    "max_pp": 10,
+    "move_name": "Toxic",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 0,
+    "pp": 10,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.2,
+        "description": "Covers the target in mold, lowering their stats.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 896,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 404,
+    "max_pp": 20,
+    "move_name": "Garlic Breath",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "status",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Freezes the target in a block of ice.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 897,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 405,
+    "max_pp": 20,
+    "move_name": "Garlic Defense",
+    "munchie_type_id": 19,
+    "object_name": null,
+    "power": 0,
+    "pp": 20,
+    "type": {
+      "id": 19,
+      "type_name": "Toxic"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 406,
+    "max_pp": 10,
+    "move_name": "Rock Slide",
+    "munchie_type_id": 21,
+    "object_name": null,
+    "power": 75,
+    "pp": 10,
+    "type": {
+      "id": 21,
+      "type_name": "Mineral"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Paralyzes the target with a shocking sensation.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 987,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 407,
+    "max_pp": 15,
+    "move_name": "Salt Crush",
+    "munchie_type_id": 21,
+    "object_name": null,
+    "power": 90,
+    "pp": 15,
+    "type": {
+      "id": 21,
+      "type_name": "Mineral"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 85,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.3,
+        "description": "Paralyzes the target with a shocking sensation.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 988,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 408,
+    "max_pp": 15,
+    "move_name": "Salt Smash",
+    "munchie_type_id": 21,
+    "object_name": null,
+    "power": 90,
+    "pp": 15,
+    "type": {
+      "id": 21,
+      "type_name": "Mineral"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 90,
+    "category": "special",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 409,
+    "max_pp": 15,
+    "move_name": "Salt Blast",
+    "munchie_type_id": 21,
+    "object_name": null,
+    "power": 80,
+    "pp": 15,
+    "type": {
+      "id": 21,
+      "type_name": "Mineral"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 65,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [
+      {
+        "chance": 0.4,
+        "description": "Confuses the target with a dizzying aroma.",
+        "duration": 3,
+        "effect_type": "status",
+        "heal_amount": 0,
+        "id": 1008,
+        "max_hits": 0,
+        "min_hits": 0,
+        "recoil_amount": 0,
+        "stages": 0,
+        "stat": "HP",
+        "status_condition": null
+      }
+    ],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 410,
+    "max_pp": 15,
+    "move_name": "Rock Throw",
+    "munchie_type_id": 21,
+    "object_name": null,
+    "power": 50,
+    "pp": 15,
+    "type": {
+      "id": 21,
+      "type_name": "Mineral"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  },
+  {
+    "accuracy": 100,
+    "category": "physical",
+    "created_at": "Thu, 19 Dec 2024 23:09:13 GMT",
+    "effects": [],
+    "hide_flags": 0,
+    "high_critical_hit_ratio": false,
+    "id": 411,
+    "max_pp": 30,
+    "move_name": "Lick",
+    "munchie_type_id": 23,
+    "object_name": null,
+    "power": 20,
+    "pp": 30,
+    "type": {
+      "id": 23,
+      "type_name": "Spoiled"
+    },
+    "updated_at": "Sat, 21 Dec 2024 03:52:40 GMT"
+  }
+]
