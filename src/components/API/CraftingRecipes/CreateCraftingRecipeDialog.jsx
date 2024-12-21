@@ -10,6 +10,10 @@ import {
     DialogActions,
     IconButton,
     Typography,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import {
     Save as SaveIcon,
@@ -18,6 +22,7 @@ import {
     Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useCreateRecipeMutation } from '../../../api/apiSlice';
+import ItemSelect from '../Items/ItemSelect';
 
 const CreateCraftingRecipeDialog = ({ open, onClose }) => {
     const [createRecipe, { isLoading }] = useCreateRecipeMutation();
@@ -27,15 +32,34 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
         crafting_time: 0,
         experience_gained: 0,
         required_crafting_level: 1,
-        result_item_id: null,
-        result_munchie_id: null,
+        result_item_id: '',
+        result_munchie_id: '',
         recipe_type: '',
         ingredients: []
     });
 
+    const recipeTypes = [
+        'Crafting',
+        'Cooking',
+        'Alchemy',
+        'Smithing',
+        'Engineering',
+        'Enchanting'
+    ];
+
     const handleSubmit = async () => {
         try {
-            await createRecipe(formData);
+            const submissionData = {
+                ...formData,
+                result_item_id: formData.result_item_id || null,
+                result_munchie_id: formData.result_munchie_id || null,
+                ingredients: formData.ingredients.map(ing => ({
+                    ...ing,
+                    item_id: Number(ing.item_id),
+                    quantity: Number(ing.quantity)
+                }))
+            };
+            await createRecipe(submissionData);
             handleClear();
             onClose();
         } catch (err) {
@@ -50,8 +74,8 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
             crafting_time: 0,
             experience_gained: 0,
             required_crafting_level: 1,
-            result_item_id: null,
-            result_munchie_id: null,
+            result_item_id: '',
+            result_munchie_id: '',
             recipe_type: '',
             ingredients: []
         });
@@ -78,6 +102,16 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
                 i === index ? { ...ingredient, [field]: value } : ingredient
             )
         }));
+    };
+
+    const isFormValid = () => {
+        return (
+            formData.recipe_name &&
+            formData.recipe_type &&
+            (formData.result_item_id || formData.result_munchie_id) &&
+            formData.ingredients.length > 0 &&
+            formData.ingredients.every(ing => ing.item_id && ing.quantity > 0)
+        );
     };
 
     return (
@@ -146,40 +180,46 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
                         />
                     </Box>
 
-                    <TextField
-                        required
-                        fullWidth
-                        label="Recipe Type"
-                        value={formData.recipe_type}
-                        onChange={(e) => setFormData({
-                            ...formData,
-                            recipe_type: e.target.value
-                        })}
-                    />
-
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <TextField
-                            type="number"
-                            label="Result Item ID"
-                            value={formData.result_item_id || ''}
+                    <FormControl required fullWidth>
+                        <InputLabel>Recipe Type</InputLabel>
+                        <Select
+                            value={formData.recipe_type}
+                            label="Recipe Type"
                             onChange={(e) => setFormData({
                                 ...formData,
-                                result_item_id: e.target.value ? Number(e.target.value) : null,
-                                result_munchie_id: null
+                                recipe_type: e.target.value
                             })}
-                            inputProps={{ min: 0 }}
+                        >
+                            {recipeTypes.map((type) => (
+                                <MenuItem key={type} value={type}>
+                                    {type}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <ItemSelect
+                            value={formData.result_item_id}
+                            onChange={(e) => setFormData({
+                                ...formData,
+                                result_item_id: e.target.value,
+                                result_munchie_id: ''
+                            })}
+                            label="Result Item"
                         />
 
                         <TextField
                             type="number"
                             label="Result Munchie ID"
-                            value={formData.result_munchie_id || ''}
+                            value={formData.result_munchie_id}
                             onChange={(e) => setFormData({
                                 ...formData,
-                                result_munchie_id: e.target.value ? Number(e.target.value) : null,
-                                result_item_id: null
+                                result_munchie_id: e.target.value,
+                                result_item_id: ''
                             })}
                             inputProps={{ min: 0 }}
+                            helperText="Leave empty if using Result Item"
                         />
                     </Box>
 
@@ -189,20 +229,20 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
                             <Button
                                 startIcon={<AddIcon />}
                                 onClick={handleAddIngredient}
+                                variant="contained"
+                                color="secondary"
                             >
                                 Add Ingredient
                             </Button>
                         </Box>
 
                         {formData.ingredients.map((ingredient, index) => (
-                            <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                                <TextField
-                                    required
-                                    type="number"
-                                    label="Item ID"
+                            <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                                <ItemSelect
                                     value={ingredient.item_id}
-                                    onChange={(e) => handleIngredientChange(index, 'item_id', Number(e.target.value))}
-                                    inputProps={{ min: 0 }}
+                                    onChange={(e) => handleIngredientChange(index, 'item_id', e.target.value)}
+                                    label={`Ingredient ${index + 1}`}
+                                    required
                                 />
                                 <TextField
                                     required
@@ -211,10 +251,12 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
                                     value={ingredient.quantity}
                                     onChange={(e) => handleIngredientChange(index, 'quantity', Number(e.target.value))}
                                     inputProps={{ min: 1 }}
+                                    sx={{ width: '150px' }}
                                 />
                                 <IconButton
                                     onClick={() => handleRemoveIngredient(index)}
                                     color="error"
+                                    size="large"
                                 >
                                     <DeleteIcon />
                                 </IconButton>
@@ -239,7 +281,7 @@ const CreateCraftingRecipeDialog = ({ open, onClose }) => {
                     variant="contained"
                     color="primary"
                     startIcon={isLoading ? <CircularProgress size={20} /> : <SaveIcon />}
-                    disabled={isLoading}
+                    disabled={isLoading || !isFormValid()}
                 >
                     Create Recipe
                 </Button>

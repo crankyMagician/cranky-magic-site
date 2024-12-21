@@ -1,7 +1,7 @@
 import extendedApi from './extendedApi';
 
 export const apiSlice = extendedApi.enhanceEndpoints({
-    addTagTypes: ['Moves', 'Munchies', 'CraftingRecipes'],
+    addTagTypes: ['Moves', 'Munchies', 'CraftingRecipes', 'Items', 'Abilities'],
     endpoints: () => ({}),
 });
 
@@ -11,6 +11,13 @@ export const {
     useGetAbilityByIdQuery,
     useCreateAbilityMutation,
     useUpdateAbilityMutation,
+    
+    // Items endpoints
+    useGetAllItemsQuery,
+    useGetItemByIdQuery,
+    useCreateItemMutation,
+    useUpdateItemMutation,
+
 
     // Moves endpoints
     useGetAllMovesQuery,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CreateCraftingRecipeDialog from './CreateCraftingRecipeDialog';
+import ItemSelect from '../Items/ItemSelect';
 import {
     Box,
     Paper,
@@ -15,6 +16,10 @@ import {
     DialogActions,
     Button,
     CircularProgress,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import {
@@ -25,6 +30,7 @@ import {
     Category as TypeIcon,
     Search as SearchIcon,
     Edit as EditIcon,
+    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import {
     useGetAllRecipesQuery,
@@ -44,11 +50,20 @@ const CraftingRecipesDataGrid = () => {
         crafting_time: 0,
         experience_gained: 0,
         required_crafting_level: 1,
-        result_item_id: null,
-        result_munchie_id: null,
+        result_item_id: '',
+        result_munchie_id: '',
         recipe_type: '',
         ingredients: []
     });
+
+    const recipeTypes = [
+        'Crafting',
+        'Cooking',
+        'Alchemy',
+        'Smithing',
+        'Engineering',
+        'Enchanting'
+    ];
 
     const handleEditClick = (params) => {
         setSelectedRecipe(params);
@@ -68,14 +83,55 @@ const CraftingRecipesDataGrid = () => {
 
     const handleSave = async () => {
         try {
-            await updateRecipe({
+            const submissionData = {
                 id: selectedRecipe.id,
-                ...editForm
-            });
+                ...editForm,
+                result_item_id: editForm.result_item_id || null,
+                result_munchie_id: editForm.result_munchie_id || null,
+                ingredients: editForm.ingredients.map(ing => ({
+                    ...ing,
+                    item_id: Number(ing.item_id),
+                    quantity: Number(ing.quantity)
+                }))
+            };
+            await updateRecipe(submissionData);
             setOpenDialog(false);
         } catch (err) {
             console.error('Failed to update recipe:', err);
         }
+    };
+
+    const handleAddIngredient = () => {
+        setEditForm(prev => ({
+            ...prev,
+            ingredients: [...prev.ingredients, { item_id: '', quantity: 1 }]
+        }));
+    };
+
+    const handleRemoveIngredient = (index) => {
+        setEditForm(prev => ({
+            ...prev,
+            ingredients: prev.ingredients.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleIngredientChange = (index, field, value) => {
+        setEditForm(prev => ({
+            ...prev,
+            ingredients: prev.ingredients.map((ingredient, i) =>
+                i === index ? { ...ingredient, [field]: value } : ingredient
+            )
+        }));
+    };
+
+    const isFormValid = () => {
+        return (
+            editForm.recipe_name &&
+            editForm.recipe_type &&
+            (editForm.result_item_id || editForm.result_munchie_id) &&
+            editForm.ingredients.length > 0 &&
+            editForm.ingredients.every(ing => ing.item_id && ing.quantity > 0)
+        );
     };
 
     const columns = [
@@ -225,7 +281,7 @@ const CraftingRecipesDataGrid = () => {
                     Edit {selectedRecipe?.recipe_name}
                 </DialogTitle>
                 <DialogContent dividers>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
                         <TextField
                             fullWidth
                             label="Recipe Name"
@@ -283,44 +339,99 @@ const CraftingRecipesDataGrid = () => {
                             />
                         </Box>
 
-                        <TextField
-                            fullWidth
-                            label="Recipe Type"
-                            value={editForm.recipe_type}
-                            onChange={(e) => setEditForm({
-                                ...editForm,
-                                recipe_type: e.target.value
-                            })}
-                        />
-
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <TextField
-                                type="number"
-                                label="Result Item ID"
-                                value={editForm.result_item_id || ''}
+                        <FormControl fullWidth required>
+                            <InputLabel>Recipe Type</InputLabel>
+                            <Select
+                                value={editForm.recipe_type}
+                                label="Recipe Type"
                                 onChange={(e) => setEditForm({
                                     ...editForm,
-                                    result_item_id: e.target.value ? Number(e.target.value) : null,
-                                    result_munchie_id: null
+                                    recipe_type: e.target.value
                                 })}
+                            >
+                                {recipeTypes.map((type) => (
+                                    <MenuItem key={type} value={type}>
+                                        {type}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <ItemSelect
+                                value={editForm.result_item_id}
+                                onChange={(e) => setEditForm({
+                                    ...editForm,
+                                    result_item_id: e.target.value,
+                                    result_munchie_id: ''
+                                })}
+                                label="Result Item"
                             />
 
                             <TextField
                                 type="number"
                                 label="Result Munchie ID"
-                                value={editForm.result_munchie_id || ''}
+                                value={editForm.result_munchie_id}
                                 onChange={(e) => setEditForm({
                                     ...editForm,
-                                    result_munchie_id: e.target.value ? Number(e.target.value) : null,
-                                    result_item_id: null
+                                    result_munchie_id: e.target.value,
+                                    result_item_id: ''
                                 })}
+                                inputProps={{ min: 0 }}
+                                helperText="Leave empty if using Result Item"
                             />
+                        </Box>
+
+                        <Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography variant="h6">Ingredients</Typography>
+                                <Button
+                                    startIcon={<Add />}
+                                    onClick={handleAddIngredient}
+                                    variant="contained"
+                                    color="secondary"
+                                >
+                                    Add Ingredient
+                                </Button>
+                            </Box>
+
+                            {editForm.ingredients.map((ingredient, index) => (
+                                <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                                    <ItemSelect
+                                        value={ingredient.item_id}
+                                        onChange={(e) => handleIngredientChange(index, 'item_id', e.target.value)}
+                                        label={`Ingredient ${index + 1}`}
+                                        required
+                                    />
+                                    <TextField
+                                        required
+                                        type="number"
+                                        label="Quantity"
+                                        value={ingredient.quantity}
+                                        onChange={(e) => handleIngredientChange(index, 'quantity', Number(e.target.value))}
+                                        inputProps={{ min: 1 }}
+                                        sx={{ width: '150px' }}
+                                    />
+                                    <IconButton
+                                        onClick={() => handleRemoveIngredient(index)}
+                                        color="error"
+                                        size="large"
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Box>
+                            ))}
                         </Box>
                     </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSave} variant="contained" color="primary">
+                    <Button
+                        onClick={handleSave}
+                        variant="contained"
+                        color="primary"
+                        disabled={!isFormValid()}
+                    >
                         Save Changes
                     </Button>
                 </DialogActions>

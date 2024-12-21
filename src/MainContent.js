@@ -20,6 +20,7 @@ import MunchieDataGrid from "./components/API/Munchies/MunchieDataGrid";
 import AbilitiesDataGrid from "./components/API/Abilities/AbilitiesDataGrid";
 import CreateAbility from "./components/API/Abilities/CreateAbility";
 import CraftingRecipesDataGrid from "./components/API/CraftingRecipes/CraftingRecipesDataGrid";
+import ItemsDataGrid from "./components/API/Items/ItemsDataGrid";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -37,9 +38,10 @@ const MainContent = () => {
                 <Route path="/moves-grid" element={<MovesDataGrid/>}/>
                 <Route path="/munchie-grid" element={<MunchieDataGrid/>}/>
                 <Route path="/abilities-grid" element={<AbilitiesDataGrid/>}/>
-                <Route path="/abilities-create" element={<CreateAbility/>}/>
 
                 <Route path="/recipe-grid" element={<CraftingRecipesDataGrid/>}/>
+                <Route path="/items-grid" element={<ItemsDataGrid/>}/>
+
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>
