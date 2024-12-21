@@ -5,6 +5,10 @@ import {munchiesEndpoints} from "./controllers/munchiesController";
 import {abilitiesEndpoints} from "./controllers/abilitiesController";
 import {craftingRecipesEndpoints} from "./controllers/craftingRecipeController";
 import {itemsEndpoints} from "./controllers/itemsController";
+import {moveEffectsEndpoints} from "./controllers/moveEffectsController";
+import {munchieTypesEndpoints} from "./controllers/munchieTypesController";
+import {statusConditionsEndpoints} from "./controllers/statusCondtionsController";
+import {effectsEndpoints} from "./controllers/effectsController";
 
 const extendedApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -13,6 +17,10 @@ const extendedApi = baseApi.injectEndpoints({
         ...abilitiesEndpoints(builder), // Inject the abilities endpoints
         ...craftingRecipesEndpoints(builder), // Inject the crafting recipes endpoints
         ...itemsEndpoints(builder), // Inject the items endpoints
+        ...moveEffectsEndpoints(builder), // Inject the move effects endpoints
+        ...munchieTypesEndpoints(builder), // Inject the munchie types endpoints
+        ...statusConditionsEndpoints(builder), // Inject the status conditions endpoints
+        ...effectsEndpoints(builder), // Inject the effects endpoints
     }),
     overrideExisting: false,
 });
