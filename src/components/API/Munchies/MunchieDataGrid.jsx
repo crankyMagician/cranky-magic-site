@@ -24,6 +24,7 @@ import {
     Search as SearchIcon,
     Edit as EditIcon,
     Category as CategoryIcon, // MUI Icon for Munchie Type
+    ArrowForward as EvolutionIcon,
 } from '@mui/icons-material';
 import { useGetAllMunchiesQuery } from '../../../api/apiSlice';
 
@@ -93,7 +94,7 @@ const MunchiesDataGrid = () => {
             ),
         },
         {
-            field: 'munchie_type',
+            field: 'munchie_types',
             headerName: 'Type',
             width: 130,
             renderHeader: () => (
@@ -114,6 +115,44 @@ const MunchiesDataGrid = () => {
                     <span>Description</span>
                 </Box>
             ),
+        },
+        {
+            field: 'evolution_1',
+            headerName: 'Evolution 1',
+            width: 180,
+            renderHeader: () => (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <EvolutionIcon color="success" />
+                    <span>Evolution 1</span>
+                </Box>
+            ),
+            renderCell: (params) => {
+                const evolution = params.row.evolutions?.[0];
+                return evolution ? (
+                    <Typography>{evolution.to_munchie}</Typography>
+                ) : (
+                    'None'
+                );
+            },
+        },
+        {
+            field: 'evolution_2',
+            headerName: 'Evolution 2',
+            width: 180,
+            renderHeader: () => (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <EvolutionIcon color="secondary" />
+                    <span>Evolution 2</span>
+                </Box>
+            ),
+            renderCell: (params) => {
+                const evolution = params.row.evolutions?.[1];
+                return evolution ? (
+                    <Typography>{evolution.to_munchie}</Typography>
+                ) : (
+                    'None'
+                );
+            },
         },
         {
             field: 'actions',
@@ -212,7 +251,7 @@ const MunchiesDataGrid = () => {
                         <strong>Rarity:</strong> {selectedMunchie?.rarity}
                     </Typography>
                     <Typography variant="body1">
-                        <strong>Type:</strong> {selectedMunchie?.munchie_type}
+                        <strong>Type:</strong> {selectedMunchie?.munchie_types}
                     </Typography>
                     <Box sx={{ textAlign: 'center', mt: 2 }}>
                         <img
