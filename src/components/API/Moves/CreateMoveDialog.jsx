@@ -13,10 +13,10 @@ import {
     Select,
     MenuItem,
     Typography,
-    IconButton,
+    Grid,
     Card,
     CardContent,
-    Grid,
+    IconButton,
 } from '@mui/material';
 import {
     Save as SaveIcon,
@@ -26,18 +26,16 @@ import {
 } from '@mui/icons-material';
 import {
     useCreateMoveMutation,
+    useCreateMoveEffectMutation,
     useGetAllTypesQuery,
-    useGetAllStatusConditionsQuery,
-    useCreateEffectMutation,
-    useAssignEffectMutation,
 } from '../../../api/apiSlice';
+import EffectTypeSelect from '../Effects/EffectTypeSelect';
+import StatusConditionSelect from '../StatusConditions/StatusConditionSelect';
 
 const CreateMoveDialog = ({ open, onClose }) => {
     const [createMove, { isLoading: isMoveSaving }] = useCreateMoveMutation();
-    const [createEffect] = useCreateEffectMutation();
-    const [assignEffect] = useAssignEffectMutation();
+    const [createMoveEffect] = useCreateMoveEffectMutation();
     const { data: munchieTypes = [], isLoading: isTypesLoading } = useGetAllTypesQuery();
-    const { data: statusConditions = [], isLoading: isStatusLoading } = useGetAllStatusConditionsQuery();
 
     const [moveData, setMoveData] = useState({
         move_name: '',
@@ -52,36 +50,17 @@ const CreateMoveDialog = ({ open, onClose }) => {
         hide_flags: 0,
     });
 
-    const [effects, setEffects] = useState([
-        {
-            description: '',
-            effect_type: 'DAMAGE',
-            chance: 100,
-            status_condition: null,
-            duration: 0,
-            stat: '',
-            stages: 0,
-            heal_amount: 0,
-            min_hits: 1,
-            max_hits: 1,
-            recoil_amount: 0,
-            name: '',
-            hide_flags: 0,
-        },
-    ]);
+    const [effect, setEffect] = useState(null); // Single effect
 
     const categoryOptions = ['PHYSICAL', 'SPECIAL', 'STATUS'];
-    const effectTypes = ['DAMAGE', 'STATUS', 'HEAL', 'RECOIL', 'OTHER', 'STAT_CHANGE'];
     const statOptions = ['ATTACK', 'DEFENSE', 'SPECIAL_ATTACK', 'SPECIAL_DEFENSE', 'SPEED', 'ACCURACY', 'EVASION'];
 
-    const handleEffectChange = (index, field, value) => {
-        const updatedEffects = [...effects];
-        updatedEffects[index] = { ...updatedEffects[index], [field]: value };
-        setEffects(updatedEffects);
+    const handleEffectChange = (field, value) => {
+        setEffect((prev) => ({ ...prev, [field]: value }));
     };
 
     const addEffect = () => {
-        setEffects([...effects, {
+        setEffect({
             description: '',
             effect_type: 'DAMAGE',
             chance: 100,
@@ -95,11 +74,11 @@ const CreateMoveDialog = ({ open, onClose }) => {
             recoil_amount: 0,
             name: '',
             hide_flags: 0,
-        }]);
+        });
     };
 
-    const removeEffect = (index) => {
-        setEffects(effects.filter((_, i) => i !== index));
+    const removeEffect = () => {
+        setEffect(null);
     };
 
     const handleClear = () => {
@@ -115,32 +94,24 @@ const CreateMoveDialog = ({ open, onClose }) => {
             object_name: '',
             hide_flags: 0,
         });
-        setEffects([
-            {
-                description: '',
-                effect_type: 'DAMAGE',
-                chance: 100,
-                status_condition: null,
-                duration: 0,
-                stat: '',
-                stages: 0,
-                heal_amount: 0,
-                min_hits: 1,
-                max_hits: 1,
-                recoil_amount: 0,
-                name: '',
-                hide_flags: 0,
-            },
-        ]);
+        setEffect(null);
     };
 
     const handleSubmit = async () => {
         try {
+            // Create the move first
             const moveResult = await createMove(moveData).unwrap();
-            for (const effect of effects) {
-                const effectResult = await createEffect(effect).unwrap();
-                await assignEffect({ move_id: moveResult.id, effect_id: effectResult.id });
+
+            // Create the effect if it exists
+            if (effect) {
+                await createMoveEffect({
+                    ...effect,
+                    move_id: moveResult.id,
+                    // Convert chance from percentage to decimal
+                    chance: effect.chance / 100,
+                }).unwrap();
             }
+
             handleClear();
             onClose();
         } catch (error) {
@@ -178,27 +149,141 @@ const CreateMoveDialog = ({ open, onClose }) => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        {/* Other Fields */}
+                        <Grid item xs={12} md={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Category</InputLabel>
+                                <Select
+                                    value={moveData.category}
+                                    onChange={(e) => setMoveData({ ...moveData, category: e.target.value })}
+                                >
+                                    {categoryOptions.map((option) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Power"
+                                value={moveData.power}
+                                onChange={(e) => setMoveData({ ...moveData, power: parseInt(e.target.value) || 0 })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="number"
+                                label="Accuracy"
+                                value={moveData.accuracy}
+                                onChange={(e) => setMoveData({ ...moveData, accuracy: parseInt(e.target.value) || 0 })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="number"
+                                label="PP"
+                                value={moveData.pp}
+                                onChange={(e) => setMoveData({ ...moveData, pp: parseInt(e.target.value) || 0 })}
+                            />
+                        </Grid>
                     </Grid>
 
-                    {/* Effects */}
                     <Box>
-                        <Typography variant="h6">Effects</Typography>
-                        <Button startIcon={<AddIcon />} onClick={addEffect}>
-                            Add Effect
-                        </Button>
-                        {effects.map((effect, index) => (
-                            <Card key={index} sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="h6">Effect</Typography>
+                            <Button
+                                startIcon={<AddIcon />}
+                                onClick={addEffect}
+                                disabled={!!effect} // Disable if an effect exists
+                            >
+                                Add Effect
+                            </Button>
+                        </Box>
+
+                        {effect && (
+                            <Card sx={{ mb: 2 }}>
                                 <CardContent>
                                     <Grid container spacing={2}>
-                                        {/* Map all effects inputs here */}
+                                        <Grid item xs={12} md={6}>
+                                            <EffectTypeSelect
+                                                value={effect.effect_type}
+                                                onChange={(e) => handleEffectChange('effect_type', e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                required
+                                                fullWidth
+                                                label="Effect Description"
+                                                value={effect.description}
+                                                onChange={(e) => handleEffectChange('description', e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                type="number"
+                                                label="Effect Chance (%)"
+                                                value={effect.chance}
+                                                onChange={(e) => handleEffectChange('chance', parseInt(e.target.value) || 0)}
+                                            />
+                                        </Grid>
+                                        {effect.effect_type === 'STATUS' && (
+                                            <Grid item xs={12} md={6}>
+                                                <StatusConditionSelect
+                                                    value={effect.status_condition}
+                                                    onChange={(e) => handleEffectChange('status_condition', e.target.value)}
+                                                />
+                                            </Grid>
+                                        )}
+                                        {effect.effect_type === 'STAT_CHANGE' && (
+                                            <>
+                                                <Grid item xs={12} md={6}>
+                                                    <FormControl fullWidth>
+                                                        <InputLabel>Stat</InputLabel>
+                                                        <Select
+                                                            value={effect.stat}
+                                                            onChange={(e) => handleEffectChange('stat', e.target.value)}
+                                                        >
+                                                            {statOptions.map((option) => (
+                                                                <MenuItem key={option} value={option}>
+                                                                    {option}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12} md={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        type="number"
+                                                        label="Stages"
+                                                        value={effect.stages}
+                                                        onChange={(e) => handleEffectChange('stages', parseInt(e.target.value) || 0)}
+                                                    />
+                                                </Grid>
+                                            </>
+                                        )}
+                                        <Grid item xs={12}>
+                                            <Button
+                                                startIcon={<DeleteIcon />}
+                                                color="error"
+                                                onClick={removeEffect}
+                                            >
+                                                Remove Effect
+                                            </Button>
+                                        </Grid>
                                     </Grid>
-                                    <IconButton onClick={() => removeEffect(index)}>
-                                        <DeleteIcon />
-                                    </IconButton>
                                 </CardContent>
                             </Card>
-                        ))}
+                        )}
                     </Box>
                 </Box>
             </DialogContent>
@@ -212,6 +297,7 @@ const CreateMoveDialog = ({ open, onClose }) => {
                     variant="contained"
                     color="primary"
                     startIcon={isMoveSaving ? <CircularProgress size={20} /> : <SaveIcon />}
+                    disabled={isMoveSaving}
                 >
                     Create Move
                 </Button>

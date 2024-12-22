@@ -42,6 +42,7 @@ export const {
 
     // Move Effects endpoints
     useAssignEffectMutation,
+    useCreateMoveEffectMutation,
     useRemoveEffectMutation,
     useGetMoveEffectsQuery,
 

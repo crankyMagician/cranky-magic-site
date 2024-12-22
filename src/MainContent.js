@@ -21,6 +21,7 @@ import AbilitiesDataGrid from "./components/API/Abilities/AbilitiesDataGrid";
 import CreateAbility from "./components/API/Abilities/CreateAbility";
 import CraftingRecipesDataGrid from "./components/API/CraftingRecipes/CraftingRecipesDataGrid";
 import ItemsDataGrid from "./components/API/Items/ItemsDataGrid";
+import EffectsDataGrid from "./components/API/Effects/EffectsDataGrid";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -41,6 +42,8 @@ const MainContent = () => {
 
                 <Route path="/recipe-grid" element={<CraftingRecipesDataGrid/>}/>
                 <Route path="/items-grid" element={<ItemsDataGrid/>}/>
+
+                <Route path="/effects-grid" element={<EffectsDataGrid/>}/>
 
 
                 {/* Unauthenticated Routes*/}

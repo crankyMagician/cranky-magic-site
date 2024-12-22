@@ -37,4 +37,13 @@ export const effectsEndpoints = (builder) => ({
         transformResponse: (response) => response,
         invalidatesTags: (result, error, { id }) => [{ type: 'Effects', id }],
     }),
+    createMoveEffect: builder.mutation({
+        query: (effectData) => ({
+            url: '/move-effects/create-effect',
+            method: 'POST',
+            data: effectData,
+        }),
+        transformResponse: (response) => response,
+        invalidatesTags: ['Effects', 'MoveEffects'],
+    }),
 });
