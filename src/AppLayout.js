@@ -38,9 +38,23 @@ const AppLayout = ({ children }) => {
             padding="0" // Ensure no padding
         >
             {renderNavbar()}
-            <Box flexGrow={1} margin="0" padding="0">
+
+            {/*
+              We offset the main content area to start below the AppBar.
+              On desktop, the default AppBar height is 64px.
+            */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    margin: 0,
+                    padding: 0,
+                    marginTop: '64px', // Ensures content starts below the fixed AppBar
+                }}
+            >
                 {children}
             </Box>
+
             <Footer />
         </Box>
     );

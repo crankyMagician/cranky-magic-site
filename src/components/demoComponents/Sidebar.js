@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
-    Box, Drawer, IconButton, List, ListItem, ListItemIcon,
-    ListItemText, AppBar, Toolbar, Typography, Divider
+    Box,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    AppBar,
+    Toolbar,
+    Typography,
+    Divider
 } from '@mui/material';
 import {
     Menu as MenuIcon,
@@ -129,11 +138,12 @@ const Sidebar = () => {
                                 display: { xs: 'none', sm: 'block' }
                             }}
                         >
-                            {translate("Dashboard")}
+                            {translate("Company Name")}
                         </Typography>
                     </RouterLink>
                 </Toolbar>
             </AppBar>
+
             <Drawer
                 anchor="left"
                 open={isDrawerOpen}
@@ -142,17 +152,15 @@ const Sidebar = () => {
                     '& .MuiDrawer-paper': {
                         width: 250,
                         boxSizing: 'border-box',
+                        marginTop: '64px', // Offset from the top by the AppBar height
                     },
                 }}
             >
-                <Box
-                    sx={{ width: 250 }}
-                    role="presentation"
-                >
+                <Box sx={{ width: 250 }} role="presentation">
                     <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
                         <Typography variant="h6">
-                            {translate('Dashboard')}
+                            {translate('Company Name')}
                         </Typography>
                     </Box>
                     <Divider />
