@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import Navbar from './components/NavBar';
-import Footer from './components/Footer';
+import Navbar from './components/demoComponents/NavBar';
+import Footer from './components/demoComponents/Footer';
 import { Box } from "@mui/material";
-import Dashboard from './components/Dashboard';
-import Hoverbar from "./components/Hoverbar";
-import Sidebar from "./components/Sidebar";
+import Dashboard from './components/demoComponents/Dashboard';
+import Hoverbar from "./components/demoComponents/Hoverbar";
+import Sidebar from "./components/demoComponents/Sidebar";
 
 const AppLayout = ({ children }) => {
     // Accessing preferences from the Redux store

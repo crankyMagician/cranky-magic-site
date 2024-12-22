@@ -4,7 +4,7 @@
 //src/utilities/axios.js
 import axios from 'axios';
 import { logError } from './Logger';
-import { ErrorToast } from '../components/ErrorToast';
+import { ErrorToast } from '../components/demoComponents/ErrorToast';
 import {API_BASE_URL} from "./apiConstants";
 
 const axiosServices = axios.create({

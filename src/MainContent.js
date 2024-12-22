@@ -1,19 +1,19 @@
 import React from "react";
 import { useSelector } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import ForgotPassword from './components/ForgotPassword';
-import LoginUser from './components/LoginUser';
-import RegisterUser from './components/RegisterUser';
+import ForgotPassword from './components/demoComponents/ForgotPassword';
+import LoginUser from './components/demoComponents/LoginUser';
+import RegisterUser from './components/demoComponents/RegisterUser';
 import Example from "./example/Example";
 import AuthRouteWrapper from './utilities/AuthRouteWrapper';
-import AccountSettingsPage from "./components/AccountSettingsPage";
+import AccountSettingsPage from "./components/demoComponents/AccountSettingsPage";
 // Import the ContactUs component
-import ContactUs from "./components/ContactUsComponent"; // Make sure this path is correct
-import NewsletterSignup from "./components/NewsletterSignup";
-import AboutUs from "./components/AboutUs";
-import StreamVideo  from "./components/StreamVideo";
-import Calendar from "./components/Calendar";
-import LandingPage from "./components/LandingPage";
+import ContactUs from "./components/demoComponents/ContactUsComponent"; // Make sure this path is correct
+import NewsletterSignup from "./components/demoComponents/NewsletterSignup";
+import AboutUs from "./components/demoComponents/AboutUs";
+import StreamVideo  from "./components/demoComponents/StreamVideo";
+import Calendar from "./components/demoComponents/Calendar";
+import LandingPage from "./components/demoComponents/LandingPage";
 import MovesList from "./components/API/Moves/movesList";
 import MovesDataGrid from "./components/API/Moves/MovesDataGrid";
 import MunchieDataGrid from "./components/API/Munchies/MunchieDataGrid";
@@ -22,6 +22,7 @@ import CreateAbility from "./components/API/Abilities/CreateAbility";
 import CraftingRecipesDataGrid from "./components/API/CraftingRecipes/CraftingRecipesDataGrid";
 import ItemsDataGrid from "./components/API/Items/ItemsDataGrid";
 import EffectsDataGrid from "./components/API/Effects/EffectsDataGrid";
+import MunchiePhotoUploadWrapper from "./components/API/MunchiePhotos/MunchiePhotoUploadWrapper";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -44,6 +45,8 @@ const MainContent = () => {
                 <Route path="/items-grid" element={<ItemsDataGrid/>}/>
 
                 <Route path="/effects-grid" element={<EffectsDataGrid/>}/>
+
+                <Route path="/munchie-photo" element={<MunchiePhotoUploadWrapper/>}/>
 
 
                 {/* Unauthenticated Routes*/}

@@ -10,7 +10,8 @@ export const apiSlice = extendedApi.enhanceEndpoints({
         'Effects',
         'MoveEffects',
         'MunchieTypes',
-        'StatusConditions'
+        'StatusConditions',
+        'MunchiePhotos',
     ],
     endpoints: () => ({}),
 });
@@ -46,8 +47,17 @@ export const {
     useRemoveEffectMutation,
     useGetMoveEffectsQuery,
 
+    //munchie photos endpoints
+    useGetAllMunchiePhotosQuery,
+    useGetMunchiePhotoByIdQuery,
+    useGetMunchiePhotoByNameQuery,
+    useUploadMunchiePhotoMutation,
+    useGetPrimaryPhotoByMunchieNameQuery,
+    useGetPrimaryPhotoByMunchieIdQuery,
+
     // Munchie Types endpoints
     useGetAllTypesQuery,
+
 
     // Status Conditions endpoints
     useGetAllStatusConditionsQuery,

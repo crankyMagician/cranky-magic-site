@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Typography, Button, Box, Grid } from '@mui/material';
-import ThemeToggle from "../components/ThemeToggle";
-import NewsletterSignup from "../components/NewsletterSignup";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import ThemeToggle from "../components/demoComponents/ThemeToggle";
+import NewsletterSignup from "../components/demoComponents/NewsletterSignup";
+import LanguageSwitcher from "../components/demoComponents/LanguageSwitcher";
 import useCustomTranslation from "../hooks/useCustomTranslation";
 
 const Example = () => {

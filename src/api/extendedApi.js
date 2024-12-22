@@ -9,6 +9,7 @@ import {moveEffectsEndpoints} from "./controllers/moveEffectsController";
 import {munchieTypesEndpoints} from "./controllers/munchieTypesController";
 import {statusConditionsEndpoints} from "./controllers/statusCondtionsController";
 import {effectsEndpoints} from "./controllers/effectsController";
+import {munchiePhotosEndpoints} from "./controllers/munchiePhotosController";
 
 const extendedApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -21,6 +22,7 @@ const extendedApi = baseApi.injectEndpoints({
         ...munchieTypesEndpoints(builder), // Inject the munchie types endpoints
         ...statusConditionsEndpoints(builder), // Inject the status conditions endpoints
         ...effectsEndpoints(builder), // Inject the effects endpoints
+        ...munchiePhotosEndpoints(builder), // Inject the munchie photos endpoints
     }),
     overrideExisting: false,
 });
