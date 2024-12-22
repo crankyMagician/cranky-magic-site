@@ -229,6 +229,7 @@ const CreateMoveDialog = ({ open, onClose }) => {
                             </Grid>
                         </Grid>
 
+{/*
                         <Box>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h6">Effect</Typography>
@@ -308,6 +309,7 @@ const CreateMoveDialog = ({ open, onClose }) => {
                                 </Card>
                             )}
                         </Box>
+*/}
                     </Box>
                 </DialogContent>
                 <DialogActions>
@@ -333,11 +335,11 @@ const CreateMoveDialog = ({ open, onClose }) => {
                 </DialogActions>
             </Dialog>
 
-            <CreateEffectDialog
+           {/* <CreateEffectDialog
                 open={isEffectDialogOpen}
                 onClose={handleEffectClose}
                 onSubmit={handleEffectSubmit}
-            />
+            />*/}
         </>
     )};
 
