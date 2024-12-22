@@ -25,6 +25,7 @@ import EffectsDataGrid from "./components/API/Effects/EffectsDataGrid";
 import MunchiePhotoUploadWrapper from "./components/API/MunchiePhotos/MunchiePhotoUploadWrapper";
 import ItemPhotoUploadWrapper from "./components/API/ItemPhotos/ItemPhotoUploadWrapper";
 import PhotoDisplayTest from "./components/Photos/PhotoDisplayTest";
+import TestMunchieDisplay from "./components/API/Munchies/TestMunchieDisplay";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -54,6 +55,8 @@ const MainContent = () => {
 
                 {/* Test Routes*/}
                 <Route path="/test-photo" element={<PhotoDisplayTest/>}/>
+                <Route path="/test-md" element={<TestMunchieDisplay/>}/>
+
 
                 {/* Unauthenticated Routes*/}
                 <Route path="/contact-us" element={<ContactUs/>}/>

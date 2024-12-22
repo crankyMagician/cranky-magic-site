@@ -34,4 +34,12 @@ export const munchiesEndpoints = (builder) => ({
         transformResponse: (response) => response,
         providesTags: (result, error, name) => [{ type: 'Munchies', id: `${name}-allinfo` }],
     }),
+    getMunchieAllInfoById: builder.query({
+        query: (id) => ({
+            url: `/munchies/allinfo/id/${id}`,
+            method: 'GET',
+        }),
+        transformResponse: (response) => response,
+        providesTags: (result, error, id) => [{ type: 'Munchies', id: `${id}-allinfo` }],
+    }),
 });

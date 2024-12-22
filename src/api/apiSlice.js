@@ -36,6 +36,14 @@ export const {
     useCreateMoveMutation,
     useUpdateMoveMutation,
 
+    // Munchie Updates Controller endpoints
+    useUpdateBaseInfoMutation,
+    useUpdateAbilitiesMutation,
+    useUpdateEvolutionChainMutation,
+    useRemoveEvolutionMutation,
+    useCreateMunchieMutation,
+
+
     // Effects endpoints
     useGetAllEffectsQuery,
     useGetEffectByIdQuery,
@@ -76,6 +84,7 @@ export const {
 
     // Munchies endpoints
     useGetAllMunchiesQuery,
+    useGetMunchieAllInfoByIdQuery,
     useGetMunchieByNameQuery,
     useGetLearnableMovesByMunchieQuery,
     useGetMunchieAllInfoQuery,
