@@ -24,7 +24,7 @@ const AppLayout = ({ children }) => {
             case 'navbar':
                 return <Navbar />;
             default:
-                return <Navbar />;
+                return  <Sidebar />;;
         }
     };
 

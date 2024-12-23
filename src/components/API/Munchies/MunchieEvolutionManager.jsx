@@ -35,24 +35,33 @@ const MunchieEvolutionManager = ({ munchieId }) => {
         if (munchieInfo?.evolutions) {
             // Sort evolutions by evolution_step to maintain chain order
             const sortedEvolutions = [...munchieInfo.evolutions].sort((a, b) => a.evolution_step - b.evolution_step);
-            setEvolutionChain(sortedEvolutions.map(evo => ({
-                target_munch_id: evo.target_id,
-                required_level: evo.required_level,
-                required_item_id: evo.required_item_id || null,
-                required_friendship: evo.required_friendship || null,
-                from_munchie: evo.from_munchie,
-                to_munchie: evo.to_munchie,
-                evolution_step: evo.evolution_step
-            })));
+
+            // Build evolution chain with source IDs
+            const chain = sortedEvolutions.map((evo, index) => {
+                const sourceId = index === 0 ? munchieId : sortedEvolutions[index - 1].target_id;
+                return {
+                    source_munch_id: sourceId,
+                    target_munch_id: evo.target_id,
+                    required_level: evo.required_level,
+                    required_item_id: evo.required_item_id || null,
+                    required_friendship: evo.required_friendship || null,
+                    from_munchie: evo.from_munchie,
+                    to_munchie: evo.to_munchie,
+                    evolution_step: evo.evolution_step
+                };
+            });
+            setEvolutionChain(chain);
         }
-    }, [munchieInfo]);
+    }, [munchieInfo, munchieId]);
 
     const handleAddEvolution = () => {
         const lastEvolution = evolutionChain[evolutionChain.length - 1];
         const fromMunchie = lastEvolution ? lastEvolution.to_munchie : munchieInfo?.munchie?.name;
+        const sourceId = lastEvolution ? lastEvolution.target_munch_id : munchieId;
         const newStep = lastEvolution ? lastEvolution.evolution_step + 1 : 1;
 
         setEvolutionChain([...evolutionChain, {
+            source_munch_id: sourceId,
             target_munch_id: '',
             required_level: 1,
             required_item_id: null,
@@ -63,10 +72,13 @@ const MunchieEvolutionManager = ({ munchieId }) => {
         }]);
     };
 
-    const handleRemoveEvolution = async (index, targetId) => {
-        if (targetId && munchieId) {
+    const handleRemoveEvolution = async (index, sourceId, targetId) => {
+        if (targetId && sourceId) {
             try {
-                await removeEvolution({ munchieId, targetId }).unwrap();
+                await removeEvolution({
+                    munchieId: sourceId,
+                    targetId
+                }).unwrap();
                 // Remove this evolution and any subsequent evolutions in the chain
                 const newChain = evolutionChain.slice(0, index);
                 setEvolutionChain(newChain);
@@ -87,12 +99,13 @@ const MunchieEvolutionManager = ({ munchieId }) => {
             [field]: value
         };
 
-        // Track edited fields
+        // Track edited fields with source munchie ID
         setEditedFields({
             ...editedFields,
-            [index]: {
-                ...editedFields[index],
-                [field]: true
+            [newChain[index].source_munch_id]: {
+                ...editedFields[newChain[index].source_munch_id],
+                [field]: true,
+                evolutionData: newChain[index]
             }
         });
 
@@ -101,14 +114,15 @@ const MunchieEvolutionManager = ({ munchieId }) => {
 
     const handleSave = async () => {
         try {
-            // Only include evolutions that have been edited
-            const editedEvolutions = evolutionChain.filter((_, index) =>
-                editedFields[index] && Object.keys(editedFields[index]).length > 0
-            ).map(evo => ({
-                target_munch_id: evo.target_munch_id,
-                required_level: evo.required_level,
-                required_item_id: evo.required_item_id,
-                required_friendship: evo.required_friendship
+            // Group edited evolutions by source munchie
+            const editedEvolutions = Object.entries(editedFields).map(([sourceId, data]) => ({
+                id: parseInt(sourceId),
+                evolutions: [{
+                    target_munch_id: data.evolutionData.target_munch_id,
+                    required_level: data.evolutionData.required_level,
+                    required_item_id: data.evolutionData.required_item_id,
+                    required_friendship: data.evolutionData.required_friendship
+                }]
             }));
 
             if (editedEvolutions.length === 0) {
@@ -116,10 +130,13 @@ const MunchieEvolutionManager = ({ munchieId }) => {
                 return;
             }
 
-            await updateEvolutionChain({
-                id: munchieId,
-                evolutions: editedEvolutions
-            }).unwrap();
+            // Update each evolution relationship separately
+            for (const evolution of editedEvolutions) {
+                await updateEvolutionChain({
+                    id: evolution.id,
+                    evolutions: evolution.evolutions
+                }).unwrap();
+            }
 
             setSuccess('Evolution chain updated successfully');
             setError(null);
@@ -175,7 +192,7 @@ const MunchieEvolutionManager = ({ munchieId }) => {
                             Evolution Step {evolution.evolution_step}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Typography>{evolution.from_munchie}</Typography>
+                            <Typography>{evolution.from_munchie} (ID: {evolution.source_munch_id})</Typography>
                             <ArrowDownwardIcon sx={{ mx: 1 }} />
                             <Typography>{evolution.to_munchie || 'Select Target'}</Typography>
                         </Box>
@@ -218,7 +235,7 @@ const MunchieEvolutionManager = ({ munchieId }) => {
                             </Grid>
                             <Grid item xs={12} md={2}>
                                 <IconButton
-                                    onClick={() => handleRemoveEvolution(index, evolution.target_munch_id)}
+                                    onClick={() => handleRemoveEvolution(index, evolution.source_munch_id, evolution.target_munch_id)}
                                     color="error"
                                     disabled={isRemoving}
                                 >
