@@ -113,11 +113,28 @@ const MunchieDisplay = ({ munchieId }) => {
                                     <Typography variant="h4" component="h1">
                                         {munchie.name}
                                     </Typography>
-                                    <StyledChip
-                                        label={munchie.rarity}
-                                        color="primary"
-                                        variant="outlined"
-                                    />
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <StyledChip
+                                            label={munchie.rarity}
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                backgroundColor: 'success.main',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                width: '24px',
+                                                height: '24px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            {munchie.id}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
                                     {types && types.length > 0 ? (
