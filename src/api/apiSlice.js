@@ -13,6 +13,7 @@ export const apiSlice = extendedApi.enhanceEndpoints({
         'StatusConditions',
         'MunchiePhotos',
         'ItemPhotos',
+        'LearnableMoves',
     ],
     endpoints: () => ({}),
 });
@@ -35,6 +36,11 @@ export const {
     useGetMoveByIdQuery,
     useCreateMoveMutation,
     useUpdateMoveMutation,
+
+    //learnableMoves endpoints
+    useGetLearnableMovesByMunchieNameQuery,
+    useAddLearnableMovesMutation,
+    useRemoveLearnableMovesMutation,
 
     // Munchie Updates Controller endpoints
     useUpdateBaseInfoMutation,
