@@ -1,7 +1,7 @@
 export const munchieUpdatesEndpoints = (builder) => ({
     updateBaseInfo: builder.mutation({
         query: ({ id, ...data }) => ({
-            url: `/munchie/update/${id}`,
+            url: `/munchie-updates/update/${id}`,
             method: 'PUT',
             data,
         }),
@@ -10,7 +10,7 @@ export const munchieUpdatesEndpoints = (builder) => ({
 
     updateAbilities: builder.mutation({
         query: ({ id, ...data }) => ({
-            url: `/munchie/${id}/abilities`,
+            url: `/munchie-updates/${id}/abilities`,
             method: 'POST',
             data,
         }),
@@ -22,7 +22,7 @@ export const munchieUpdatesEndpoints = (builder) => ({
 
     updateEvolutionChain: builder.mutation({
         query: ({ id, ...data }) => ({
-            url: `/munchie/${id}/evolution`,
+            url: `/munchie-updates/${id}/evolution`,
             method: 'PUT',
             data,
         }),
@@ -34,7 +34,7 @@ export const munchieUpdatesEndpoints = (builder) => ({
 
     removeEvolution: builder.mutation({
         query: ({ munchieId, targetId }) => ({
-            url: `/munchie/${munchieId}/evolution/${targetId}`,
+            url: `/munchie-updates/${munchieId}/evolution/${targetId}`,
             method: 'DELETE',
         }),
         invalidatesTags: (result, error, { munchieId }) => [
@@ -45,7 +45,7 @@ export const munchieUpdatesEndpoints = (builder) => ({
 
     createMunchie: builder.mutation({
         query: (data) => ({
-            url: '/munchie/create',
+            url: '/munchie-updates/create',
             method: 'POST',
             data,
         }),

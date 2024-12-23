@@ -26,6 +26,7 @@ import MunchiePhotoUploadWrapper from "./components/API/MunchiePhotos/MunchiePho
 import ItemPhotoUploadWrapper from "./components/API/ItemPhotos/ItemPhotoUploadWrapper";
 import PhotoDisplayTest from "./components/Photos/PhotoDisplayTest";
 import TestMunchieDisplay from "./components/API/Munchies/TestMunchieDisplay";
+import CreateMunchieForm from "./components/API/Munchies/CreateMunchieForm";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -52,6 +53,8 @@ const MainContent = () => {
                 <Route path="/munchie-photo" element={<MunchiePhotoUploadWrapper/>}/>
 
                 <Route path="/item-photo" element={<ItemPhotoUploadWrapper/>}/>
+
+                <Route path="/create-munchie" element={<CreateMunchieForm/>}/>
 
                 {/* Test Routes*/}
                 <Route path="/test-photo" element={<PhotoDisplayTest/>}/>

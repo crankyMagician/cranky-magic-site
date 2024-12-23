@@ -9,7 +9,7 @@ import {
     Chip,
     Typography
 } from '@mui/material';
-import { useGetAllAbilitiesQuery } from '../features/api/apiSlice';
+import { useGetAllAbilitiesQuery } from '../../../api/apiSlice';
 const AbilitySelect = ({
                            value,
                            onChange,

@@ -9,7 +9,7 @@ import {
     Chip,
     Typography
 } from '@mui/material';
-import { useGetAllMovesQuery } from '../features/api/apiSlice';
+import { useGetAllMovesQuery } from '../../../api/apiSlice';
 const MoveSelect = ({
                         value,
                         onChange,
