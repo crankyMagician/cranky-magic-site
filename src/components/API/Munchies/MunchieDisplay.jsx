@@ -32,6 +32,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
     flexDirection: 'column',
     '& .MuiCardContent-root': {
         flexGrow: 1,
+        padding: theme.spacing(2),
     },
 }));
 
@@ -66,8 +67,16 @@ const MunchieDisplay = ({ munchieId }) => {
 
     if (isLoading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-                <CircularProgress />
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="400px"
+                role="status"
+                aria-busy="true"
+                aria-live="polite"
+            >
+                <CircularProgress aria-label="Loading Munchie information" />
             </Box>
         );
     }
@@ -89,7 +98,7 @@ const MunchieDisplay = ({ munchieId }) => {
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
@@ -99,44 +108,63 @@ const MunchieDisplay = ({ munchieId }) => {
                 <Grid item xs={12} md={6}>
                     <StyledCard elevation={3}>
                         <CardContent>
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                <Typography variant="h4" component="h1">
-                                    {munchie.name}
-                                </Typography>
-                                <StyledChip
-                                    label={munchie.rarity}
-                                    color="primary"
-                                    variant="outlined"
-                                />
-                            </Box>
-                            <ReadOnlyMunchiePhotoDisplay munchieId={munchieId} />
-                            <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-                                {munchie.description}
-                            </Typography>
-                            <Box sx={{ mt: 2 }}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2">
-                                            Height: {munchie.height}cm
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2">
-                                            Weight: {munchie.weight}kg
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap' }}>
-                                {types.map((type) => (
+                            <Box sx={{ mb: 1 }}>
+                                <Box display="flex" justifyContent="space-between" alignItems="center">
+                                    <Typography variant="h4" component="h1">
+                                        {munchie.name}
+                                    </Typography>
                                     <StyledChip
-                                        key={type.id}
-                                        label={type.type_name}
-                                        color="secondary"
+                                        label={munchie.rarity}
+                                        color="primary"
                                         variant="outlined"
                                     />
-                                ))}
+                                </Box>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                                    {types && types.length > 0 ? (
+                                        types.map((type) => (
+                                            <StyledChip
+                                                key={type.id}
+                                                label={String(type.type_name || 'Unknown')}
+                                                color="secondary"
+                                                variant="outlined"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    backgroundColor: 'inherit',
+                                                    borderColor: 'currentColor',
+                                                }}
+                                            />
+                                        ))
+                                    ) : (
+                                        <Typography variant="body2" color="text.secondary">
+                                            No types available
+                                        </Typography>
+                                    )}
+                                </Box>
                             </Box>
+
+                            <Box sx={{ mt: 1, mb: 2 }}>
+                                <ReadOnlyMunchiePhotoDisplay
+                                    munchieId={munchieId}
+                                    altText={`${munchie.name} photo`}
+                                />
+                            </Box>
+
+                            <Typography variant="body1" sx={{ mt: 2 }}>
+                                {munchie.description}
+                            </Typography>
+
+                            <Grid container spacing={2} sx={{ mt: 1 }}>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2">
+                                        Height: {munchie.height}cm
+                                    </Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2">
+                                        Weight: {munchie.weight}kg
+                                    </Typography>
+                                </Grid>
+                            </Grid>
                         </CardContent>
                     </StyledCard>
                 </Grid>
@@ -148,12 +176,12 @@ const MunchieDisplay = ({ munchieId }) => {
                                 value={tabValue}
                                 onChange={handleTabChange}
                                 variant="fullWidth"
-                                aria-label="Munchie information tabs"
+                                aria-label="Munchie Information Tabs"
                             >
-                                <Tab label="Stats" />
-                                <Tab label="Abilities" />
-                                <Tab label="Moves" />
-                                <Tab label="Evolution" />
+                                <Tab label="Stats" id="tab-0" aria-controls="tabpanel-0" />
+                                <Tab label="Abilities" id="tab-1" aria-controls="tabpanel-1" />
+                                <Tab label="Moves" id="tab-2" aria-controls="tabpanel-2" />
+                                <Tab label="Evolution" id="tab-3" aria-controls="tabpanel-3" />
                             </Tabs>
 
                             <TabPanel value={tabValue} index={0}>
