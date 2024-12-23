@@ -13,6 +13,7 @@ import {munchiePhotosEndpoints} from "./controllers/munchiePhotosController";
 import {itemPhotosEndpoints} from "./controllers/itemPhotosController";
 import {munchieUpdatesEndpoints} from "./controllers/munchieUpdatesController";
 import {learnableMovesEndpoints} from "./controllers/learnableMovesController";
+import {munchieStatsEndpoints} from "./controllers/munchieStatsController";
 const extendedApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         ...movesEndpoints(builder), // Inject the moves endpoints
@@ -28,6 +29,7 @@ const extendedApi = baseApi.injectEndpoints({
         ...itemPhotosEndpoints(builder), // Inject the items photos endpoints
         ...munchieUpdatesEndpoints(builder), // Inject the munchie updates endpoints
         ...learnableMovesEndpoints(builder), // Inject the learnable moves endpoints
+        ...munchieStatsEndpoints(builder), // Inject the munchie stats endpoints
     }),
     overrideExisting: false,
 });

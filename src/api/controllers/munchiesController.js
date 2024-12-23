@@ -42,4 +42,21 @@ export const munchiesEndpoints = (builder) => ({
         transformResponse: (response) => response,
         providesTags: (result, error, id) => [{ type: 'Munchies', id: `${id}-allinfo` }],
     }),
+    getPaginatedMunchies: builder.query({
+        query: (page = 0) => ({
+            url: `/munchies/paginated?page=${page}`,
+            method: 'GET',
+        }),
+        transformResponse: (response) => response,
+        providesTags: ['Munchies'],
+    }),
+    getAllMunchieIds: builder.query({
+    query: () => ({
+        url: '/munchies/ids',
+        method: 'GET',
+    }),
+    transformResponse: (response) => response,
+    providesTags: ['Munchies'],
+}),
+
 });

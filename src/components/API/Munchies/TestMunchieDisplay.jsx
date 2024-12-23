@@ -2,7 +2,8 @@ import React from 'react';
 import MunchieDisplay from './MunchieDisplay';
 import MunchieAbilitiesManager from "./MunchieAbilitiesManager";
 import MunchieEvolutionManager from "./MunchieEvolutionManager";
-import MunchieLearnableMovesManager from "./MunchieLearnableMovesManager"; // Adjust the path if needed
+import MunchieLearnableMovesManager from "./MunchieLearnableMovesManager";
+import ComprehensiveMunchieManager from "./ComprehensiveMunchieManager"; // Adjust the path if needed
 
 const TestMunchieDisplay = () => {
     return (
@@ -14,7 +15,10 @@ const TestMunchieDisplay = () => {
 {/*
             <MunchieEvolutionManager munchieId={465} />
 */}
+{/*
             <MunchieLearnableMovesManager munchieId={465} munchieName="Affrogato" />
+*/}
+            <ComprehensiveMunchieManager munchieId={465} munchieName="Affrogato" />
         </div>
     );
 };

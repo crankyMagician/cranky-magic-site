@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box,
-    Paper,
     Typography,
     Alert,
     Stack,
@@ -10,14 +9,16 @@ import {
     IconButton,
     Grid,
     TextField,
-    Divider,
     AppBar,
     Toolbar,
     Card,
     CardContent,
-    Tooltip
+    Tooltip,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
-import { Save as SaveIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
+import { ExpandMore as ExpandMoreIcon, Save as SaveIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import MoveSelect from '../Moves/MoveSelect';
 import {
     useGetLearnableMovesByMunchieNameQuery,
@@ -202,59 +203,70 @@ const MunchieLearnableMovesManager = ({ munchieId, munchieName }) => {
                 )}
             </AppBar>
 
-            <Stack spacing={2} sx={{ px: 2 }}>
-                {pendingMoves.map((move, index) => (
-                    <Card key={index} elevation={1}>
-                        <CardContent>
-                            <Grid container spacing={2} alignItems="center">
-                                <Grid item xs={12} md={6}>
-                                    <MoveSelect
-                                        value={move.move_id}
-                                        onChange={(e) => handleMoveChange(index, 'move_id', e.target.value)}
-                                        label="Move"
-                                        required
-                                        error={hasDuplicateMoves() && pendingMoves.filter(m => m.move_id === move.move_id).length > 1}
-                                        helperText={hasDuplicateMoves() && pendingMoves.filter(m => m.move_id === move.move_id).length > 1
-                                            ? "This move is already assigned"
-                                            : ""}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={4}>
-                                    <TextField
-                                        fullWidth
-                                        label="Level Learned"
-                                        type="number"
-                                        value={move.level_learned}
-                                        onChange={(e) => handleMoveChange(index, 'level_learned', parseInt(e.target.value))}
-                                        inputProps={{ min: 1 }}
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12} md={2}>
-                                    <Tooltip title="Remove move">
-                                        <IconButton
-                                            onClick={() => handleRemoveMove(index, move.move_id)}
-                                            color="error"
-                                            disabled={isRemoving}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                </Grid>
-                            </Grid>
-                        </CardContent>
-                    </Card>
-                ))}
-                {pendingMoves.length === 0 && (
-                    <Card>
-                        <CardContent>
-                            <Typography color="textSecondary" align="center">
-                                No moves added yet. Click 'Add Move' to begin.
-                            </Typography>
-                        </CardContent>
-                    </Card>
-                )}
-            </Stack>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="learnable-moves-content"
+                    id="learnable-moves-header"
+                >
+                    <Typography>Learnable Moves</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Stack spacing={2} sx={{ px: 2 }}>
+                        {pendingMoves.map((move, index) => (
+                            <Card key={index} elevation={1}>
+                                <CardContent>
+                                    <Grid container spacing={2} alignItems="center">
+                                        <Grid item xs={12} md={6}>
+                                            <MoveSelect
+                                                value={move.move_id}
+                                                onChange={(e) => handleMoveChange(index, 'move_id', e.target.value)}
+                                                label="Move"
+                                                required
+                                                error={hasDuplicateMoves() && pendingMoves.filter(m => m.move_id === move.move_id).length > 1}
+                                                helperText={hasDuplicateMoves() && pendingMoves.filter(m => m.move_id === move.move_id).length > 1
+                                                    ? "This move is already assigned"
+                                                    : ""}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                label="Level Learned"
+                                                type="number"
+                                                value={move.level_learned}
+                                                onChange={(e) => handleMoveChange(index, 'level_learned', parseInt(e.target.value))}
+                                                inputProps={{ min: 1 }}
+                                                required
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} md={2}>
+                                            <Tooltip title="Remove move">
+                                                <IconButton
+                                                    onClick={() => handleRemoveMove(index, move.move_id)}
+                                                    color="error"
+                                                    disabled={isRemoving}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
+                        {pendingMoves.length === 0 && (
+                            <Card>
+                                <CardContent>
+                                    <Typography color="textSecondary" align="center">
+                                        No moves added yet. Click 'Add Move' to begin.
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </Stack>
+                </AccordionDetails>
+            </Accordion>
         </Box>
     );
 };

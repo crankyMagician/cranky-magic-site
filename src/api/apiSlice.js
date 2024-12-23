@@ -94,6 +94,11 @@ export const {
     useGetMunchieByNameQuery,
     useGetLearnableMovesByMunchieQuery,
     useGetMunchieAllInfoQuery,
+    useGetPaginatedMunchiesQuery,
+    useGetAllMunchieIdsQuery,
+
+    //munchie stats
+    useUpsertStatsMutation,
 
     // Crafting Recipes endpoints
     useGetAllRecipesQuery,
