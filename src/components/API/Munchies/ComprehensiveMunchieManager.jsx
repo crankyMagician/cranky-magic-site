@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
     Stepper,
@@ -17,18 +17,18 @@ import MunchieDisplay from './MunchieDisplay';
 import MunchieAbilitiesManager from './MunchieAbilitiesManager';
 import MunchieEvolutionManager from './MunchieEvolutionManager';
 import MunchieLearnableMovesManager from './MunchieLearnableMovesManager';
-import MunchieStatManager from "./MunchieStatManager";
+import MunchieStatManager from './MunchieStatManager';
 
 const steps = [
-
     'Basic Information',
     'Stats',
     'Abilities',
     'Evolution Chain',
-    'Learnable Moves'
+    'Learnable Moves',
 ];
 
-const ComprehensiveMunchieManager = ({ munchieId, munchieName }) => {
+const ComprehensiveMunchieManager = () => {
+    const { munchieId, munchieName } = useParams(); // Correctly extract params here
     const [activeStep, setActiveStep] = useState(0);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -67,7 +67,6 @@ const ComprehensiveMunchieManager = ({ munchieId, munchieName }) => {
         switch (step) {
             case 0:
                 return <MunchieDisplay munchieId={munchieId} />;
-
             case 1:
                 return <MunchieStatManager munchieId={munchieId} />;
             case 2:
@@ -102,9 +101,7 @@ const ComprehensiveMunchieManager = ({ munchieId, munchieName }) => {
                     </Alert>
                 )}
 
-                <Box sx={{ mb: 4 }}>
-                    {getStepContent(activeStep)}
-                </Box>
+                <Box sx={{ mb: 4 }}>{getStepContent(activeStep)}</Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
                     <Button

@@ -101,6 +101,8 @@ export const {
     useGetMunchieAllInfoQuery,
     useGetPaginatedMunchiesQuery,
     useGetAllMunchieIdsQuery,
+    useGetAllMunchieIdsAndNamesQuery,
+
 
 
     // Crafting Recipes endpoints

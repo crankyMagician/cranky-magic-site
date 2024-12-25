@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from 'react-redux';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import {Routes, Route, Navigate, useParams} from 'react-router-dom';
 import ForgotPassword from './components/demoComponents/ForgotPassword';
 import LoginUser from './components/demoComponents/LoginUser';
 import RegisterUser from './components/demoComponents/RegisterUser';
@@ -28,6 +28,8 @@ import PhotoDisplayTest from "./components/Photos/PhotoDisplayTest";
 import TestMunchieDisplay from "./components/API/Munchies/TestMunchieDisplay";
 import CreateMunchieForm from "./components/API/Munchies/CreateMunchieForm";
 import MunchieCarousel from "./components/API/Munchies/MunchieCarousel";
+import ComprehensiveMunchieManager from "./components/API/Munchies/ComprehensiveMunchieManager";
+import MunchieViewer from "./components/API/Munchies/MunchieViewer";
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
 
@@ -57,10 +59,8 @@ const MainContent = () => {
 
                 <Route path="/create-munchie" element={<CreateMunchieForm/>}/>
                 <Route path="/munchie-carousel" element={<MunchieCarousel/>}/>
-
-
-                {/* Test Routes*/}
-                <Route path="/test-photo" element={<PhotoDisplayTest/>}/>
+                <Route path="/munchie-viewer" element={<MunchieViewer/>}/>
+                <Route path="/munchies/manage/:munchieId/:munchieName" element={<ComprehensiveMunchieManager />} />                <Route path="/test-photo" element={<PhotoDisplayTest/>}/>
                 <Route path="/test-md" element={<TestMunchieDisplay/>}/>
 
 
