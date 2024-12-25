@@ -10,7 +10,7 @@ import {
     Paper,
     Container,
     CircularProgress,
-    Alert
+    Alert,
 } from '@mui/material';
 import { useGetMunchieAllInfoByIdQuery } from '../../../api/apiSlice';
 import MunchieDisplay from './MunchieDisplay';
@@ -18,6 +18,7 @@ import MunchieAbilitiesManager from './MunchieAbilitiesManager';
 import MunchieEvolutionManager from './MunchieEvolutionManager';
 import MunchieLearnableMovesManager from './MunchieLearnableMovesManager';
 import MunchieStatManager from './MunchieStatManager';
+import MunchiePhotoEditor from '../MunchiePhotos/MunchiePhotoEditor';
 
 const steps = [
     'Basic Information',
@@ -25,10 +26,11 @@ const steps = [
     'Abilities',
     'Evolution Chain',
     'Learnable Moves',
+    'Edit Photo',
 ];
 
 const ComprehensiveMunchieManager = () => {
-    const { munchieId, munchieName } = useParams(); // Correctly extract params here
+    const { munchieId, munchieName } = useParams(); // Extract parameters from the route
     const [activeStep, setActiveStep] = useState(0);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -37,7 +39,7 @@ const ComprehensiveMunchieManager = () => {
 
     const handleNext = () => {
         if (activeStep === steps.length - 1) {
-            navigate('/munchie-grid');
+            navigate('/munchie-grid'); // Navigate to the grid view after the last step
         } else {
             setActiveStep((prevStep) => prevStep + 1);
         }
@@ -45,6 +47,25 @@ const ComprehensiveMunchieManager = () => {
 
     const handleBack = () => {
         setActiveStep((prevStep) => prevStep - 1);
+    };
+
+    const getStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return <MunchieDisplay munchieId={munchieId} />;
+            case 1:
+                return <MunchieStatManager munchieId={munchieId} />;
+            case 2:
+                return <MunchieAbilitiesManager munchieId={munchieId} />;
+            case 3:
+                return <MunchieEvolutionManager munchieId={munchieId} />;
+            case 4:
+                return <MunchieLearnableMovesManager munchieId={munchieId} munchieName={munchieName} />;
+            case 5:
+                return <MunchiePhotoEditor munchieId={munchieId} />;
+            default:
+                return 'Unknown step';
+        }
     };
 
     if (isLoading) {
@@ -62,23 +83,6 @@ const ComprehensiveMunchieManager = () => {
             </Alert>
         );
     }
-
-    const getStepContent = (step) => {
-        switch (step) {
-            case 0:
-                return <MunchieDisplay munchieId={munchieId} />;
-            case 1:
-                return <MunchieStatManager munchieId={munchieId} />;
-            case 2:
-                return <MunchieAbilitiesManager munchieId={munchieId} />;
-            case 3:
-                return <MunchieEvolutionManager munchieId={munchieId} />;
-            case 4:
-                return <MunchieLearnableMovesManager munchieId={munchieId} munchieName={munchieName} />;
-            default:
-                return 'Unknown step';
-        }
-    };
 
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -124,3 +128,4 @@ const ComprehensiveMunchieManager = () => {
 };
 
 export default ComprehensiveMunchieManager;
+

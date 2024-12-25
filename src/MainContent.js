@@ -60,7 +60,9 @@ const MainContent = () => {
                 <Route path="/create-munchie" element={<CreateMunchieForm/>}/>
                 <Route path="/munchie-carousel" element={<MunchieCarousel/>}/>
                 <Route path="/munchie-viewer" element={<MunchieViewer/>}/>
-                <Route path="/munchies/manage/:munchieId/:munchieName" element={<ComprehensiveMunchieManager />} />                <Route path="/test-photo" element={<PhotoDisplayTest/>}/>
+                <Route path="/munchies/manage/:munchieId/:munchieName" element={<ComprehensiveMunchieManager />} />
+
+                <Route path="/test-photo" element={<PhotoDisplayTest/>}/>
                 <Route path="/test-md" element={<TestMunchieDisplay/>}/>
 
 
