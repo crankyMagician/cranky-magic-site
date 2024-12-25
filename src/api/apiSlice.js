@@ -14,6 +14,7 @@ export const apiSlice = extendedApi.enhanceEndpoints({
         'MunchiePhotos',
         'ItemPhotos',
         'LearnableMoves',
+        'MunchieStats',
     ],
     endpoints: () => ({}),
 });
@@ -64,6 +65,10 @@ export const {
     useGetPrimaryPhotoByItemNameQuery,
     useGetPrimaryPhotoByItemIdQuery,
 
+    // Munchie Stats exports
+    useGetMunchieStatsQuery,
+    useUpsertMunchieStatsMutation,
+
     // Move Effects endpoints
     useAssignEffectMutation,
     useCreateMoveEffectMutation,
@@ -97,8 +102,6 @@ export const {
     useGetPaginatedMunchiesQuery,
     useGetAllMunchieIdsQuery,
 
-    //munchie stats
-    useUpsertStatsMutation,
 
     // Crafting Recipes endpoints
     useGetAllRecipesQuery,

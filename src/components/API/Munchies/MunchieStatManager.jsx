@@ -11,11 +11,11 @@ import {
     Grid
 } from '@mui/material';
 import { Save as SaveIcon } from '@mui/icons-material';
-import { useUpsertStatsMutation, useGetMunchieStatsQuery } from '../../../api/apiSlice';
+import { useUpsertMunchieStatsMutation, useGetMunchieStatsQuery } from '../../../api/apiSlice';
 
 const MunchieStatManager = ({ munchieId }) => {
-    const [upsertStats, { isLoading }] = useUpsertStatsMutation();
-    const { data: currentStats, isLoading: isLoadingStats } = useGetMunchieStatsQuery(munchieId);
+    const [upsertStats, { isLoading }] = useUpsertMunchieStatsMutation();
+    const { data: currentStats, isLoading: isLoadingStats, isError: isStatsError, error: statsError } = useGetMunchieStatsQuery(munchieId);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState('');
     const [stats, setStats] = useState({
@@ -28,16 +28,22 @@ const MunchieStatManager = ({ munchieId }) => {
     });
 
     useEffect(() => {
+        console.log('Fetching current stats for Munchie ID:', munchieId);
         if (currentStats) {
+            console.log('Received stats:', currentStats);
             const formattedStats = currentStats.reduce((acc, stat) => ({
                 ...acc,
                 [stat.stat_type]: stat.value
             }), {});
             setStats(formattedStats);
+        } else if (isStatsError) {
+            console.error('Error fetching stats:', statsError);
+            setError('Failed to load stats');
         }
-    }, [currentStats]);
+    }, [currentStats, isStatsError, statsError, munchieId]);
 
     const handleStatChange = (statType) => (event, value) => {
+        console.log(`Changing stat [${statType}] to value:`, value);
         setStats(prev => ({
             ...prev,
             [statType]: value
@@ -45,20 +51,25 @@ const MunchieStatManager = ({ munchieId }) => {
     };
 
     const handleSave = async () => {
+        console.log('Saving stats:', stats);
         try {
             const statsArray = Object.entries(stats).map(([stat_type, value]) => ({
                 stat_type,
                 value
             }));
 
+            console.log('Formatted stats for API:', statsArray);
+
             await upsertStats({
-                munchie_id: munchieId,
+                munchieId, // Ensure munchieId is passed correctly
                 stats: statsArray
             }).unwrap();
 
+            console.log('Stats successfully saved');
             setSuccess('Stats updated successfully');
             setError(null);
         } catch (err) {
+            console.error('Error saving stats:', err);
             setError(err?.data?.error || 'Failed to update stats');
             setSuccess('');
         }
@@ -74,6 +85,7 @@ const MunchieStatManager = ({ munchieId }) => {
     };
 
     if (isLoadingStats) {
+        console.log('Stats are loading...');
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

@@ -1,14 +1,19 @@
 export const munchieStatsEndpoints = (builder) => ({
-    upsertStats: builder.mutation({
-        query: ({ munchie_id, stats }) => ({
-            url: `/munchie-stats/${munchie_id}/stats`,
-            method: 'POST',
-            data: { stats }
-        }),
-        invalidatesTags: (result, error, { munchie_id }) => [{ type: 'Munchies', id: munchie_id }]
-    }),
     getMunchieStats: builder.query({
-        query: (munchie_id) => `/munchie-stats/${munchie_id}/stats`,
-        providesTags: (result, error, munchie_id) => [{ type: 'Munchies', id: munchie_id }]
-    })
+        query: (munchieId) => ({
+            url: `/munchie-stats/${munchieId}/stats`,
+            method: 'GET',
+        }),
+        transformResponse: (response) => response,
+        providesTags: (result, error, munchieId) => [{ type: 'MunchieStats', id: munchieId }],
+    }),
+
+    upsertMunchieStats: builder.mutation({
+        query: ({ munchieId, stats }) => ({
+            url: `/munchie-stats/${munchieId}/stats`,
+            method: 'POST',
+            data: { stats },
+        }),
+        invalidatesTags: (result, error, { munchieId }) => [{ type: 'MunchieStats', id: munchieId }],
+    }),
 });
