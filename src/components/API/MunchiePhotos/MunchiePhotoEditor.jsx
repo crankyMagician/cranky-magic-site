@@ -65,42 +65,7 @@ const MunchiePhotoEditor = ({ munchieId }) => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                <Box
-                    sx={{
-                        width: 300,
-                        height: 300,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {isFetching ? (
-                        <Box sx={{ textAlign: 'center' }}>
-                            <CircularProgress />
-                            <Typography variant="body2" sx={{ mt: 1 }}>
-                                Loading current photo...
-                            </Typography>
-                        </Box>
-                    ) : isFetchError ? (
-                        <Alert severity="error" sx={{ width: '100%' }}>
-                            Failed to load current photo
-                        </Alert>
-                    ) : !primaryPhoto?.data?.base64_data ? (
-                        <Paper sx={{ p: 2, textAlign: 'center', width: '100%' }}>
-                            <PhotoCamera color="action" />
-                            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                                No photo available. Upload a PNG image.
-                            </Typography>
-                        </Paper>
-                    ) : (
-                        <img
-                            src={`data:image/png;base64,${primaryPhoto.data.base64_data}`}
-                            alt="Current Munchie"
-                            style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: '8px' }}
-                        />
-                    )}
-                </Box>
+
 
                 <PNGPhotoUploader
                     onPhotoProcessed={handlePhotoProcessed}

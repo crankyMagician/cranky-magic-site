@@ -49,6 +49,7 @@ export const {
     useUpdateEvolutionChainMutation,
     useRemoveEvolutionMutation,
     useCreateMunchieMutation,
+    useUpdateMunchieTypeMutation,
 
 
     // Effects endpoints
@@ -102,6 +103,7 @@ export const {
     useGetPaginatedMunchiesQuery,
     useGetAllMunchieIdsQuery,
     useGetAllMunchieIdsAndNamesQuery,
+
 
 
 

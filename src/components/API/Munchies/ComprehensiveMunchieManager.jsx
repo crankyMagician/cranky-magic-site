@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useGetMunchieAllInfoByIdQuery } from '../../../api/apiSlice';
 import MunchieDisplay from './MunchieDisplay';
+import MunchieTypeManager from './MunchieTypeManager';
 import MunchieAbilitiesManager from './MunchieAbilitiesManager';
 import MunchieEvolutionManager from './MunchieEvolutionManager';
 import MunchieLearnableMovesManager from './MunchieLearnableMovesManager';
@@ -22,6 +23,7 @@ import MunchiePhotoEditor from '../MunchiePhotos/MunchiePhotoEditor';
 
 const steps = [
     'Basic Information',
+    'Manage Types',
     'Stats',
     'Abilities',
     'Evolution Chain',
@@ -54,14 +56,16 @@ const ComprehensiveMunchieManager = () => {
             case 0:
                 return <MunchieDisplay munchieId={munchieId} />;
             case 1:
-                return <MunchieStatManager munchieId={munchieId} />;
+                return <MunchieTypeManager munchieId={munchieId} />;
             case 2:
-                return <MunchieAbilitiesManager munchieId={munchieId} />;
+                return <MunchieStatManager munchieId={munchieId} />;
             case 3:
-                return <MunchieEvolutionManager munchieId={munchieId} />;
+                return <MunchieAbilitiesManager munchieId={munchieId} />;
             case 4:
-                return <MunchieLearnableMovesManager munchieId={munchieId} munchieName={munchieName} />;
+                return <MunchieEvolutionManager munchieId={munchieId} />;
             case 5:
+                return <MunchieLearnableMovesManager munchieId={munchieId} munchieName={munchieName} />;
+            case 6:
                 return <MunchiePhotoEditor munchieId={munchieId} />;
             default:
                 return 'Unknown step';
@@ -128,4 +132,3 @@ const ComprehensiveMunchieManager = () => {
 };
 
 export default ComprehensiveMunchieManager;
-

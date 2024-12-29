@@ -9,6 +9,10 @@ import {
     Paper,
     Stack,
     Container,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
 import { useGetAllMunchieIdsAndNamesQuery } from '../../../api/apiSlice';
 import MunchieDisplay from './MunchieDisplay';
@@ -18,22 +22,34 @@ const MunchieViewer = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const navigate = useNavigate();
 
+    // Handles navigation to the next munchie
     const handleNext = () => {
         if (munchies && currentIndex < munchies.length - 1) {
             setCurrentIndex((prevIndex) => prevIndex + 1);
         }
     };
 
+    // Handles navigation to the previous munchie
     const handlePrevious = () => {
         if (munchies && currentIndex > 0) {
             setCurrentIndex((prevIndex) => prevIndex - 1);
         }
     };
 
+    // Handles dropdown selection
+    const handleDropdownChange = (event) => {
+        const selectedIndex = munchies.findIndex((munchie) => munchie.name === event.target.value);
+        if (selectedIndex !== -1) {
+            setCurrentIndex(selectedIndex);
+        }
+    };
+
+    // Navigates to the edit page for the current munchie
     const handleEdit = (munchieId, munchieName) => {
         navigate(`/munchies/manage/${munchieId}/${munchieName}`, { state: { munchieName } });
     };
 
+    // Loading state
     if (isLoading) {
         return (
             <Box
@@ -50,6 +66,7 @@ const MunchieViewer = () => {
         );
     }
 
+    // Error state
     if (isError) {
         return (
             <Alert severity="error" sx={{ m: 2 }}>
@@ -58,6 +75,7 @@ const MunchieViewer = () => {
         );
     }
 
+    // No data state
     if (!munchies || munchies.length === 0) {
         return (
             <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -74,6 +92,22 @@ const MunchieViewer = () => {
                 <Typography variant="h4" component="h1" align="center" gutterBottom>
                     Munchie Viewer
                 </Typography>
+
+                <FormControl fullWidth sx={{ mb: 4 }}>
+                    <InputLabel id="munchie-dropdown-label">Select Munchie</InputLabel>
+                    <Select
+                        labelId="munchie-dropdown-label"
+                        value={currentMunchie.name}
+                        onChange={handleDropdownChange}
+                        label="Select Munchie"
+                    >
+                        {munchies.map((munchie) => (
+                            <MenuItem key={munchie.id} value={munchie.name}>
+                                {munchie.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
                 <Box sx={{ mb: 4 }}>
                     <MunchieDisplay munchieId={currentMunchie.id} />

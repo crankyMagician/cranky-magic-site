@@ -51,4 +51,16 @@ export const munchieUpdatesEndpoints = (builder) => ({
         }),
         invalidatesTags: ['Munchies'],
     }),
+    updateMunchieType: builder.mutation({
+        query: ({ munchieId, typeId }) => ({
+            url: `/munchie-updates/${munchieId}/type`,
+            method: 'PUT',
+            data: { type_id: typeId },
+        }),
+        invalidatesTags: (result, error, { munchieId }) => [
+            { type: 'Munchies', id: munchieId },
+            'MunchieTypes',
+        ],
+    }),
+
 });
