@@ -45,8 +45,6 @@ jobs:
           output_location: "build" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           app_build_command: 'CI=false npm run build'
-          env: # Add environment variables here
-            CI: false
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
