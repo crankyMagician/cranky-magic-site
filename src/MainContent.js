@@ -24,7 +24,7 @@ const MainContent = () => {
     return (
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
-                <Route path="/" element={<BusinessSignupPage />} />
+                <Route path="/" element={<Example />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
