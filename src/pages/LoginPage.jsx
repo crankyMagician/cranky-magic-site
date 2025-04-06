@@ -1,30 +1,31 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 import Login from '../components/Auth/Login';
-import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { selectIsAuthenticated } from '../reducers/authReducer';
 
 const LoginPage = () => {
-  const { isAuthenticated } = useAuth();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // If user is already authenticated, redirect to dashboard
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
+    if (isAuthenticated) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
-  return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'background.default',
-      }}
-    >
-      <Login />
-    </Box>
-  );
+    return (
+        <Box
+            sx={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'background.default',
+                p: 2,
+            }}
+        >
+            <Login />
+        </Box>
+    );
 };
 
 export default LoginPage; 

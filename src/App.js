@@ -10,6 +10,7 @@ import AppLayout from './AppLayout';
 import MainContent from './MainContent';
 import useAppInitialization from './hooks/useAppInitialization';
 import useCustomTranslation from "./hooks/useCustomTranslation";
+import DebugPanel from './components/common/DebugPanel';
 
 function App() {
     const dispatch = useDispatch();
@@ -23,6 +24,9 @@ function App() {
     // Get the theme object based on the current theme mode and language direction
     const theme = getTheme(themeMode, currentLanguageDirection);
 
+    // Only show debug panel in development mode
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     return (
         <ThemeProvider theme={theme}>
             <Router>
@@ -31,6 +35,7 @@ function App() {
                 <AppLayout>
                     <MainContent />
                 </AppLayout>
+                {isDevelopment && <DebugPanel />}
             </Router>
         </ThemeProvider>
     );

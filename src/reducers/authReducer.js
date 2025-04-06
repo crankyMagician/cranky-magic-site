@@ -2,10 +2,14 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import { logWarning } from '../utilities/Logger'; 
+import AuthTokenService from '../services/AuthTokenService';
 
 const initialState = {
     user: null,
     token: null,
+    roles: [],
+    businesses: [],
+    activeBusiness: null,
     isAuthenticated: false,
     loading: false,
     error: null,
@@ -18,8 +22,21 @@ const authSlice = createSlice({
         setCredentials: (state, { payload }) => {
             state.user = payload.user;
             state.token = payload.token;
+            state.roles = payload.roles || [];
+            state.businesses = payload.businesses || [];
+            state.activeBusiness = payload.activeBusiness || null;
             state.isAuthenticated = true;
             state.error = null;
+            
+            // Save to localStorage via AuthTokenService
+            AuthTokenService.setAuthInfo({
+                isAuthenticated: true,
+                user: payload.user,
+                authToken: payload.token,
+                roles: payload.roles || [],
+                businesses: payload.businesses || [],
+                activeBusiness: payload.activeBusiness || null
+            });
         },
         setLoading: (state, { payload }) => {
             state.loading = payload;
@@ -29,18 +46,49 @@ const authSlice = createSlice({
             state.loading = false;
         },
         logout: (state) => {
+            // Clear localStorage via AuthTokenService
+            AuthTokenService.clearAuthInfo();
+            
+            // Reset state
             state.user = null;
             state.token = null;
+            state.roles = [];
+            state.businesses = [];
+            state.activeBusiness = null;
             state.isAuthenticated = false;
             state.error = null;
         },
         setAuthentication: (state, { payload }) => {
-            state.isAuthenticated = payload;
+            state.isAuthenticated = payload.isAuthenticated;
+            state.user = payload.user || state.user;
+            state.token = payload.token || state.token;
+            state.roles = payload.roles || state.roles;
+            state.businesses = payload.businesses || state.businesses;
+            state.activeBusiness = payload.activeBusiness || state.activeBusiness;
+            
+            // Save to localStorage if authenticated
+            if (payload.isAuthenticated && payload.token) {
+                AuthTokenService.setAuthInfo({
+                    isAuthenticated: payload.isAuthenticated,
+                    user: payload.user || state.user,
+                    authToken: payload.token,
+                    roles: payload.roles || state.roles,
+                    businesses: payload.businesses || state.businesses,
+                    activeBusiness: payload.activeBusiness || state.activeBusiness
+                });
+            }
         },
         clearAuthentication: (state) => {
+            // Clear localStorage
+            AuthTokenService.clearAuthInfo();
+            
+            // Reset state
             state.isAuthenticated = false;
             state.user = null;
             state.token = null;
+            state.roles = [];
+            state.businesses = [];
+            state.activeBusiness = null;
         }
     },
 });
@@ -62,4 +110,7 @@ export const selectCurrentToken = (state) => state.auth.token;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
+export const selectUserRoles = (state) => state.auth.roles;
+export const selectUserBusinesses = (state) => state.auth.businesses;
+export const selectActiveBusiness = (state) => state.auth.activeBusiness;
 

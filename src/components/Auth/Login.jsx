@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import {
@@ -7,226 +8,185 @@ import {
   Button,
   TextField,
   Typography,
-  Paper,
+  Link,
+  CircularProgress,
   Divider,
   IconButton,
   InputAdornment,
-  CircularProgress,
-  Alert,
-  Stack,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useLoginMutation } from '../../api/apiSlice';
+import { setCredentials } from '../../reducers/authReducer';
 import { styled } from '@mui/material/styles';
-import { useCustomTranslation } from '../../hooks/useCustomTranslation';
-import { useAuth } from '../../contexts/AuthContext';
-import { login } from '../../api/controllers/authController';
+import useCustomTranslation from "../../hooks/useCustomTranslation";
+import AuthTokenService from '../../services/AuthTokenService';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
-  maxWidth: 480,
-  margin: 'auto',
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.shadows[3],
-}));
-
-const SSOButton = styled(Button)(({ theme }) => ({
-  width: '100%',
-  marginBottom: theme.spacing(2),
-  textTransform: 'none',
-  padding: theme.spacing(1.5),
-  justifyContent: 'flex-start',
-  '& .MuiButton-startIcon': {
-    marginRight: theme.spacing(2),
-  },
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  maxWidth: 400,
+  margin: '0 auto',
 }));
 
 const Login = () => {
-  const { t } = useCustomTranslation();
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const dispatch = useDispatch();
+  const { translate } = useCustomTranslation();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
+  const [login, { isLoading }] = useLoginMutation();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
+    setError,
+  } = useForm();
 
-  const loginMutation = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      setAuth(data);
+  const handleLogin = async (data) => {
+    try {
+      const result = await login(data).unwrap();
+      console.log('Login result:', result);
+      
+      // Save token in localStorage first via AuthTokenService
+      AuthTokenService.setAuthInfo({
+        isAuthenticated: true,
+        user: result.user,
+        authToken: result.token,
+        roles: result.roles || [],
+        businesses: result.businesses || [],
+        activeBusiness: result.activeBusiness || null
+      });
+      
+      // Update Redux state
+      dispatch(setCredentials(result));
+      
       navigate('/dashboard');
-    },
-    onError: (error) => {
-      setError(error.response?.data?.error || t('LoginErrorGeneral'));
-    },
-  });
-
-  const onSubmit = async (data) => {
-    setError(null);
-    loginMutation.mutate(data);
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('root', {
+        type: 'manual',
+        message: translate('LoginErrorGeneral'),
+      });
+    }
   };
 
   const handleSSO = (provider) => {
-    window.location.href = `/auth/${provider}`;
+    // Implement SSO logic here
+    console.log(`SSO with ${provider}`);
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'background.default',
-        p: 2,
-      }}
-    >
-      <StyledPaper>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          {t('LoginTitle')}
-        </Typography>
-        <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 4 }}>
-          {t('LoginSubtitle')}
-        </Typography>
+    <StyledPaper>
+      <Typography variant="h4" gutterBottom>
+        {translate('LoginTitle')}
+      </Typography>
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        {translate('LoginSubtitle')}
+      </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
+      <Box component="form" onSubmit={handleSubmit(handleLogin)} sx={{ mt: 2, width: '100%' }}>
+        <TextField
+          fullWidth
+          label={translate('Email')}
+          {...register('email', {
+            required: translate('LoginErrorEmailRequired'),
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: translate('LoginErrorInvalidEmail'),
+            },
+          })}
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          margin="normal"
+        />
+
+        <TextField
+          fullWidth
+          label={translate('Password')}
+          type={showPassword ? 'text' : 'password'}
+          {...register('password', {
+            required: translate('LoginErrorPasswordRequired'),
+            minLength: {
+              value: 8,
+              message: translate('LoginErrorPasswordLength'),
+            },
+          })}
+          error={!!errors.password}
+          helperText={errors.password?.message}
+          margin="normal"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        {errors.root && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {errors.root.message}
+          </Typography>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={3}>
-            <TextField
-              {...register('email', {
-                required: t('LoginErrorEmailRequired'),
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: t('LoginErrorInvalidEmail'),
-                },
-              })}
-              label={t('Email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              fullWidth
-            />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            translate('LoginButton')
+          )}
+        </Button>
 
-            <TextField
-              {...register('password', {
-                required: t('LoginErrorPasswordRequired'),
-                minLength: {
-                  value: 8,
-                  message: t('LoginErrorPasswordLength'),
-                },
-              })}
-              label={t('Password')}
-              type={showPassword ? 'text' : 'password'}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              fullWidth
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
+          <Link href="/forgot-password" variant="body2">
+            {translate('ForgotPassword')}
+          </Link>
+        </Box>
 
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loginMutation.isPending}
-              fullWidth
-            >
-              {loginMutation.isPending ? (
-                <CircularProgress size={24} />
-              ) : (
-                t('LoginButton')
-              )}
-            </Button>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
-                <Typography variant="body2" color="primary">
-                  {t('ForgotPassword')}
-                </Typography>
-              </Link>
-            </Box>
-          </Stack>
-        </form>
-
-        <Divider sx={{ my: 3 }}>
+        <Divider sx={{ my: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            {t('OrContinueWith')}
+            {translate('OrContinueWith')}
           </Typography>
         </Divider>
 
-        <Stack spacing={2}>
-          <SSOButton
-            variant="outlined"
-            startIcon={<img src="/apple-logo.svg" alt="Apple" width={24} />}
-            onClick={() => handleSSO('apple')}
-          >
-            {t('ContinueWithApple')}
-          </SSOButton>
-
-          <SSOButton
-            variant="outlined"
-            startIcon={<img src="/google-logo.svg" alt="Google" width={24} />}
-            onClick={() => handleSSO('google')}
-          >
-            {t('ContinueWithGoogle')}
-          </SSOButton>
-
-          <SSOButton
-            variant="outlined"
-            startIcon={<img src="/facebook-logo.svg" alt="Facebook" width={24} />}
-            onClick={() => handleSSO('facebook')}
-          >
-            {t('ContinueWithFacebook')}
-          </SSOButton>
-
-          <SSOButton
-            variant="outlined"
-            startIcon={<img src="/microsoft-logo.svg" alt="Microsoft" width={24} />}
-            onClick={() => handleSSO('microsoft')}
-          >
-            {t('ContinueWithMicrosoft')}
-          </SSOButton>
-        </Stack>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
+          <IconButton onClick={() => handleSSO('apple')}>
+            <img src="/apple-logo.svg" alt="Apple" width={24} height={24} />
+          </IconButton>
+          <IconButton onClick={() => handleSSO('google')}>
+            <img src="/google-logo.svg" alt="Google" width={24} height={24} />
+          </IconButton>
+          <IconButton onClick={() => handleSSO('facebook')}>
+            <img src="/facebook-logo.svg" alt="Facebook" width={24} height={24} />
+          </IconButton>
+          <IconButton onClick={() => handleSSO('microsoft')}>
+            <img src="/microsoft-logo.svg" alt="Microsoft" width={24} height={24} />
+          </IconButton>
+        </Box>
 
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            {t('NoAccount')}{' '}
-            <Link to="/signup" style={{ textDecoration: 'none' }}>
-              <Typography
-                component="span"
-                variant="body2"
-                color="primary"
-                sx={{ fontWeight: 'medium' }}
-              >
-                {t('SignUpHere')}
-              </Typography>
+            {translate('NoAccount')}{' '}
+            <Link href="/signup" variant="body2">
+              {translate('SignUpHere')}
             </Link>
           </Typography>
         </Box>
-      </StyledPaper>
-    </Box>
+      </Box>
+    </StyledPaper>
   );
 };
 
