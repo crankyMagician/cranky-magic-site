@@ -20,6 +20,8 @@ import { setCredentials } from '../../reducers/authReducer';
 import { styled } from '@mui/material/styles';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import AuthTokenService from '../../services/AuthTokenService';
+import { FaApple, FaGoogle, FaFacebook, FaMicrosoft } from 'react-icons/fa';
+import validatePassword from '../../utilities/PasswordValidator';
 
 const StyledPaper = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -44,7 +46,25 @@ const Login = () => {
     setError,
   } = useForm();
 
+  // Custom validator using our password validator
+  const passwordValidator = (value) => {
+    if (!value) return translate('LoginErrorPasswordRequired');
+    
+    const validation = validatePassword(value);
+    return validation.success || validation.message;
+  };
+
   const handleLogin = async (data) => {
+    // Validate password before submitting
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.success) {
+      setError('password', {
+        type: 'manual',
+        message: passwordValidation.message,
+      });
+      return;
+    }
+    
     try {
       const result = await login(data).unwrap();
       console.log('Login result:', result);
@@ -108,10 +128,7 @@ const Login = () => {
           type={showPassword ? 'text' : 'password'}
           {...register('password', {
             required: translate('LoginErrorPasswordRequired'),
-            minLength: {
-              value: 8,
-              message: translate('LoginErrorPasswordLength'),
-            },
+            validate: passwordValidator
           })}
           error={!!errors.password}
           helperText={errors.password?.message}
@@ -129,6 +146,18 @@ const Login = () => {
             ),
           }}
         />
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            {translate('NoAccount')}{' '}
+            <Link href="/signup" variant="body2">
+              {translate('SignUpHere')}
+            </Link>
+          </Typography>
+          <Link href="/forgot-password" variant="body2">
+            {translate('ForgotPassword')}
+          </Link>
+        </Box>
 
         {errors.root && (
           <Typography color="error" sx={{ mt: 1 }}>
@@ -150,40 +179,19 @@ const Login = () => {
           )}
         </Button>
 
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
-          <Link href="/forgot-password" variant="body2">
-            {translate('ForgotPassword')}
-          </Link>
-        </Box>
-
-        <Divider sx={{ my: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            {translate('OrContinueWith')}
-          </Typography>
-        </Divider>
-
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
-          <IconButton onClick={() => handleSSO('apple')}>
-            <img src="/apple-logo.svg" alt="Apple" width={24} height={24} />
+          <IconButton onClick={() => console.log('SSO with Apple')}>
+            <FaApple size={40} />
           </IconButton>
-          <IconButton onClick={() => handleSSO('google')}>
-            <img src="/google-logo.svg" alt="Google" width={24} height={24} />
+          <IconButton onClick={() => console.log('SSO with Google')}>
+            <FaGoogle size={40} />
           </IconButton>
-          <IconButton onClick={() => handleSSO('facebook')}>
-            <img src="/facebook-logo.svg" alt="Facebook" width={24} height={24} />
+          <IconButton onClick={() => console.log('SSO with Facebook')}>
+            <FaFacebook size={40} />
           </IconButton>
-          <IconButton onClick={() => handleSSO('microsoft')}>
-            <img src="/microsoft-logo.svg" alt="Microsoft" width={24} height={24} />
+          <IconButton onClick={() => console.log('SSO with Microsoft')}>
+            <FaMicrosoft size={40} />
           </IconButton>
-        </Box>
-
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            {translate('NoAccount')}{' '}
-            <Link href="/signup" variant="body2">
-              {translate('SignUpHere')}
-            </Link>
-          </Typography>
         </Box>
       </Box>
     </StyledPaper>

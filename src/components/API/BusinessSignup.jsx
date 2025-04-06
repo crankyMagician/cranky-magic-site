@@ -10,17 +10,25 @@ import {
     Container,
     Alert,
     CircularProgress,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    FormHelperText
 } from '@mui/material';
 import { useAuth } from "../../hooks/useAuth";
 import { 
     useBusinessSignupMutation, 
     useConfirmSignupMutation,
+    useConfirmPhoneMutation,
     useResendConfirmationMutation,
+    useResendPhoneConfirmationMutation,
     useLoginMutation 
 } from "../../api/apiSlice";
 import { useNavigate } from 'react-router-dom';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import ConfirmationModal from '../common/ConfirmationModal';
+import validatePassword from '../../utilities/PasswordValidator';
 
 // Helper function to generate a slug from business name
 const generateSlug = (businessName) => {
@@ -37,8 +45,10 @@ const BusinessSignup = () => {
     
     // API mutations
     const [businessSignup, { isLoading: isSigningUp }] = useBusinessSignupMutation();
-    const [confirmSignup, { isLoading: isConfirming }] = useConfirmSignupMutation();
-    const [resendConfirmation, { isLoading: isResending }] = useResendConfirmationMutation();
+    const [confirmSignup, { isLoading: isConfirmingEmail }] = useConfirmSignupMutation();
+    const [confirmPhone, { isLoading: isConfirmingPhone }] = useConfirmPhoneMutation();
+    const [resendConfirmation, { isLoading: isResendingEmail }] = useResendConfirmationMutation();
+    const [resendPhoneConfirmation, { isLoading: isResendingPhone }] = useResendPhoneConfirmationMutation();
     const [login] = useLoginMutation();
 
     // Form state
@@ -52,7 +62,8 @@ const BusinessSignup = () => {
         city: '',
         state: '',
         zipCode: '',
-        country: ''
+        country: '',
+        preferredMfaMethod: 'email' // Default to email
     });
 
     // UI state
@@ -61,11 +72,15 @@ const BusinessSignup = () => {
     const [confirmationCode, setConfirmationCode] = useState('');
     const [signupData, setSignupData] = useState(null);
 
+    // Step state
+    const [confirmStep, setConfirmStep] = useState('email'); // 'email' or 'phone'
+    const [phoneConfirmed, setPhoneConfirmed] = useState(false);
+    const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
+
     // Validation patterns
     const patterns = {
         businessName: /^[a-zA-Z0-9\s\-.,&'()]+$/,
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/,
         phoneNumber: /^\+?[\d\s-()]{10,}$/,
         zipCode: /^[a-zA-Z0-9\s-]{3,10}$/,
         text: /^[a-zA-Z0-9\s\-.,#]+$/
@@ -84,7 +99,9 @@ const BusinessSignup = () => {
                 break;
             case 'password':
                 if (!value) return translate('BusinessSignupErrorPasswordRequired');
-                if (!patterns.password.test(value)) return translate('BusinessSignupErrorInvalidPassword');
+                // Use our password validator
+                const passwordValidation = validatePassword(value);
+                if (!passwordValidation.success) return passwordValidation.message;
                 break;
             case 'confirmPassword':
                 if (!value) return translate('BusinessSignupErrorConfirmPasswordRequired');
@@ -96,6 +113,12 @@ const BusinessSignup = () => {
                 break;
             case 'zipCode':
                 if (value && !patterns.zipCode.test(value)) return translate('BusinessSignupErrorInvalidZipCode');
+                break;
+            case 'preferredMfaMethod':
+                if (!value) return translate('PreferredMfaMethodRequired');
+                if (value === 'phone' && !formData.phoneNumber) {
+                    return translate('PhoneNumberRequiredForMfa');
+                }
                 break;
             default:
                 if (value && !patterns.text.test(value)) return translate('BusinessSignupErrorInvalidText');
@@ -124,6 +147,11 @@ const BusinessSignup = () => {
             if (error) newErrors[key] = error;
         });
 
+        // Specific validation: if phone MFA is selected, phone must be provided
+        if (formData.preferredMfaMethod === 'phone' && !formData.phoneNumber) {
+            newErrors.phoneNumber = translate('PhoneNumberRequiredForMfa');
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -137,7 +165,8 @@ const BusinessSignup = () => {
                 phoneNumber: formData.phoneNumber,
                 businessName: formData.businessName,
                 businessSlug,
-                businessDescription: `${formData.businessName} - ${formData.city}, ${formData.state}`
+                businessDescription: `${formData.businessName} - ${formData.city}, ${formData.state}`,
+                preferredMfaMethod: formData.preferredMfaMethod
             };
 
             const response = await businessSignup(signupPayload).unwrap();
@@ -145,6 +174,8 @@ const BusinessSignup = () => {
             if (response.requiresConfirmation) {
                 setSignupData(signupPayload); // Store signup data for later use
                 setShowConfirmationModal(true);
+                // Default to email confirmation first, then do phone if needed
+                setConfirmStep('email');
             }
         } catch (error) {
             setErrors(prev => ({
@@ -156,15 +187,45 @@ const BusinessSignup = () => {
 
     const handleConfirmationSubmit = async () => {
         try {
-            const response = await confirmSignup({
-                email: formData.email,
-                confirmationCode,
-                password: formData.password
-            }).unwrap();
+            // First confirm email
+            if (confirmStep === 'email') {
+                const response = await confirmSignup({
+                    email: formData.email,
+                    confirmationCode,
+                }).unwrap();
 
-            setShowConfirmationModal(false);
+                // If phone is provided and not yet confirmed, move to phone confirmation
+                if (formData.phoneNumber && !phoneConfirmed) {
+                    setConfirmStep('phone');
+                    return;
+                }
 
-            // After confirmation, attempt to log in
+                // Otherwise proceed to login
+                completeSignupAndLogin();
+            } 
+            // Then confirm phone if needed
+            else if (confirmStep === 'phone') {
+                const response = await confirmPhone({
+                    phoneNumber: formData.phoneNumber,
+                    confirmationCode: phoneConfirmationCode,
+                }).unwrap();
+
+                setPhoneConfirmed(true);
+                completeSignupAndLogin();
+            }
+        } catch (error) {
+            setErrors(prev => ({
+                ...prev,
+                confirmation: error.data?.error || translate('BusinessSignupErrorConfirmation')
+            }));
+        }
+    };
+
+    const completeSignupAndLogin = async () => {
+        setShowConfirmationModal(false);
+
+        // After confirmation, attempt to log in
+        try {
             const loginResponse = await login({
                 email: formData.email,
                 password: formData.password
@@ -173,10 +234,10 @@ const BusinessSignup = () => {
             if (loginResponse.token) {
                 navigate('/dashboard');
             }
-        } catch (error) {
+        } catch (loginError) {
             setErrors(prev => ({
                 ...prev,
-                confirmation: error.data?.error || translate('BusinessSignupErrorConfirmation')
+                submit: loginError.data?.error || translate('LoginErrorGeneral')
             }));
         }
     };
@@ -197,6 +258,117 @@ const BusinessSignup = () => {
         }
     };
 
+    const handleResendPhoneCode = async () => {
+        try {
+            await resendPhoneConfirmation({ phoneNumber: formData.phoneNumber }).unwrap();
+            // Show success message
+            setErrors(prev => ({
+                ...prev,
+                confirmation: translate('PhoneConfirmationCodeResent')
+            }));
+        } catch (error) {
+            setErrors(prev => ({
+                ...prev,
+                confirmation: error.data?.error || translate('ResendPhoneCodeError')
+            }));
+        }
+    };
+
+    // Render confirmation modal content based on current step
+    const renderConfirmationModalContent = () => {
+        if (confirmStep === 'email') {
+            return (
+                <>
+                    <Typography variant="h6" gutterBottom>
+                        {translate('BusinessSignupConfirmEmailTitle')}
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                        {translate('BusinessSignupConfirmEmailInstructions', { email: formData.email })}
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label={translate('ConfirmationCode')}
+                        value={confirmationCode}
+                        onChange={(e) => setConfirmationCode(e.target.value)}
+                        margin="normal"
+                        error={!!errors.confirmation}
+                        helperText={errors.confirmation}
+                    />
+                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                        <Button 
+                            variant="outlined" 
+                            onClick={handleResendCode}
+                            disabled={isResendingEmail}
+                        >
+                            {isResendingEmail ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                translate('ResendCode')
+                            )}
+                        </Button>
+                        <Button 
+                            variant="contained" 
+                            onClick={handleConfirmationSubmit}
+                            disabled={!confirmationCode || isConfirmingEmail}
+                        >
+                            {isConfirmingEmail ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                translate('ConfirmSignup')
+                            )}
+                        </Button>
+                    </Box>
+                </>
+            );
+        } else if (confirmStep === 'phone') {
+            return (
+                <>
+                    <Typography variant="h6" gutterBottom>
+                        {translate('BusinessSignupConfirmPhoneTitle')}
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                        {translate('BusinessSignupConfirmPhoneInstructions', { phone: formData.phoneNumber })}
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label={translate('PhoneConfirmationCode')}
+                        value={phoneConfirmationCode}
+                        onChange={(e) => setPhoneConfirmationCode(e.target.value)}
+                        margin="normal"
+                        error={!!errors.confirmation}
+                        helperText={errors.confirmation}
+                    />
+                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                        <Button 
+                            variant="outlined" 
+                            onClick={handleResendPhoneCode}
+                            disabled={isResendingPhone}
+                        >
+                            {isResendingPhone ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                translate('ResendCode')
+                            )}
+                        </Button>
+                        <Button 
+                            variant="contained" 
+                            onClick={handleConfirmationSubmit}
+                            disabled={!phoneConfirmationCode || isConfirmingPhone}
+                        >
+                            {isConfirmingPhone ? (
+                                <CircularProgress size={24} />
+                            ) : (
+                                translate('ConfirmPhone')
+                            )}
+                        </Button>
+                    </Box>
+                </>
+            );
+        }
+        return null;
+    };
+
+    // Render the business signup form
     return (
         <Container maxWidth="md">
             <Paper 
@@ -354,6 +526,30 @@ const BusinessSignup = () => {
                         </Grid>
 
                         <Grid item xs={12}>
+                            <FormControl 
+                                fullWidth 
+                                error={!!errors.preferredMfaMethod}
+                            >
+                                <InputLabel>{translate('PreferredMfaMethod')}</InputLabel>
+                                <Select
+                                    name="preferredMfaMethod"
+                                    value={formData.preferredMfaMethod}
+                                    onChange={handleChange}
+                                    label={translate('PreferredMfaMethod')}
+                                >
+                                    <MenuItem value="email">{translate('Email')}</MenuItem>
+                                    <MenuItem value="phone">{translate('PhoneNumber')}</MenuItem>
+                                </Select>
+                                {errors.preferredMfaMethod && (
+                                    <FormHelperText>{errors.preferredMfaMethod}</FormHelperText>
+                                )}
+                                <FormHelperText>
+                                    {translate('MfaMethodExplanation')}
+                                </FormHelperText>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                                 <Button
                                     type="submit"
@@ -384,17 +580,10 @@ const BusinessSignup = () => {
             <ConfirmationModal
                 open={showConfirmationModal}
                 onClose={() => setShowConfirmationModal(false)}
-                onConfirm={handleConfirmationSubmit}
-                onResendCode={handleResendCode}
-                title={translate('BusinessSignupConfirmationTitle')}
-                description={translate('BusinessSignupConfirmationDescription')}
-                confirmationCode={confirmationCode}
-                setConfirmationCode={setConfirmationCode}
-                isLoading={isConfirming}
-                isResending={isResending}
                 error={errors.confirmation}
-                showResendOption={true}
-            />
+            >
+                {renderConfirmationModalContent()}
+            </ConfirmationModal>
         </Container>
     );
 };

@@ -28,13 +28,16 @@ export const {
     useLoginMutation,
     useRegisterMutation,
     useConfirmSignupMutation,
+    useConfirmPhoneMutation,
     useResendConfirmationMutation,
+    useResendPhoneConfirmationMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
     useChangePasswordMutation,
     useLogoutMutation,
     useDecodeTokenMutation,
     useBusinessSignupMutation,
+    useUpdateMfaPreferenceMutation,
 
     // Business endpoints
     useGetActiveBusinessQuery,

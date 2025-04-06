@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector } from 'react-redux';
 import {Routes, Route, Navigate, useParams} from 'react-router-dom';
-import ForgotPassword from './components/demoComponents/ForgotPassword';
 import RegisterUser from './components/demoComponents/RegisterUser';
 import Example from "./example/Example";
 import AuthRouteWrapper from './utilities/AuthRouteWrapper';
@@ -10,11 +9,14 @@ import AccountSettingsPage from "./components/demoComponents/AccountSettingsPage
 import ContactUs from "./components/demoComponents/ContactUsComponent"; // Make sure this path is correct
 import NewsletterSignup from "./components/demoComponents/NewsletterSignup";
 import AboutUs from "./components/demoComponents/AboutUs";
-import StreamVideo  from "./components/demoComponents/StreamVideo";
+import StreamVideo from "./components/demoComponents/StreamVideo";
 import Calendar from "./components/demoComponents/Calendar";
 import LandingPage from "./components/demoComponents/LandingPage";
 import BusinessSignupPage from "./pages/BusinessSignupPage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
+import DirectPasswordReset from "./components/Auth/DirectPasswordReset";
 
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -25,7 +27,9 @@ const MainContent = () => {
                 <Route path="/" element={<BusinessSignupPage />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
-                <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+                <Route path="/direct-reset" element={<DirectPasswordReset/>}/>
+                <Route path="/change-password" element={<ChangePasswordPage/>}/>
                 <Route path="/edit-account" element={<AuthRouteWrapper><AccountSettingsPage/></AuthRouteWrapper>}/>
                 <Route path="/business-signup" element={<BusinessSignupPage />} />
 

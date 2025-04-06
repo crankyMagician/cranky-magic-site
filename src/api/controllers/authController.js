@@ -25,6 +25,14 @@ export const authEndpoints = (builder) => ({
         }),
     }),
 
+    confirmPhone: builder.mutation({
+        query: (confirmationData) => ({
+            url: '/auth/confirm-phone',
+            method: 'POST',
+            data: confirmationData,
+        }),
+    }),
+
     forgotPassword: builder.mutation({
         query: (data) => ({
             url: '/auth/forgot-password',
@@ -76,6 +84,22 @@ export const authEndpoints = (builder) => ({
     resendConfirmation: builder.mutation({
         query: (data) => ({
             url: '/auth/resend-confirmation',
+            method: 'POST',
+            data,
+        }),
+    }),
+
+    resendPhoneConfirmation: builder.mutation({
+        query: (data) => ({
+            url: '/auth/resend-phone-confirmation',
+            method: 'POST',
+            data,
+        }),
+    }),
+
+    updateMfaPreference: builder.mutation({
+        query: (data) => ({
+            url: '/auth/update-mfa-preference',
             method: 'POST',
             data,
         }),

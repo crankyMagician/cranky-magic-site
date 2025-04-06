@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Button, Typography, Paper, IconButton, Collapse, TextField, Badge } from '@mui/material';
+import { Box, Button, Typography, Paper, IconButton, Collapse, TextField, Badge, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { 
   Close as CloseIcon, 
   ExpandLess as ExpandLessIcon, 
@@ -8,13 +8,15 @@ import {
   Settings as SettingsIcon,
   Info as InfoIcon,
   Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon
+  VisibilityOff as VisibilityOffIcon,
+  LockReset as LockResetIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
-import { useLoginMutation } from '../../api/apiSlice';
+import { useLoginMutation, useResetPasswordMutation, useForgotPasswordMutation, useChangePasswordMutation } from '../../api/apiSlice';
 import TokenDecoder from '../../utilities/TokenDecoder';
 import AuthTokenService from '../../services/AuthTokenService';
 import { setCredentials } from '../../reducers/authReducer';
+import validatePassword from '../../utilities/PasswordValidator';
 
 // Matrix-style font animation
 const useMatrixEffect = () => {
@@ -33,6 +35,9 @@ const useMatrixEffect = () => {
 const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   const dispatch = useDispatch();
   const [login] = useLoginMutation();
+  const [resetPassword] = useResetPasswordMutation();
+  const [forgotPassword] = useForgotPasswordMutation();
+  const [changePassword] = useChangePasswordMutation();
   const matrixTick = useMatrixEffect();
   
   // Panel state
@@ -52,13 +57,20 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     lastCheck: null
   });
 
-  // Test login state
+  // Test state
+  const [testType, setTestType] = useState('login'); // 'login', 'forgotPassword', 'changePassword'
+  const [authMethod, setAuthMethod] = useState('email'); // 'email' or 'phone'
   const [testCredentials, setTestCredentials] = useState({
     email: 'brian.s.redpath@gmail.com',
-    password: 'P@$$w0rd#1!'
+    phoneNumber: '+15555555555',
+    password: 'P@$$w0rd#1!',
+    newPassword: 'Astroboy#1!',
+    confirmationCode: ''
   });
   const [testStatus, setTestStatus] = useState({ success: false, message: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [resetCodeSent, setResetCodeSent] = useState(false);
 
   // Matrix-style random character for animation effect
   const getRandomChar = () => {
@@ -195,6 +207,174 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     }
   };
 
+  // Request password reset code
+  const handleRequestResetCode = async () => {
+    try {
+      setTestStatus({ success: false, message: 'Requesting reset code...' });
+      
+      // Create the request payload based on auth method
+      const payload = authMethod === 'email' 
+        ? { email: testCredentials.email } 
+        : { phoneNumber: testCredentials.phoneNumber };
+      
+      await forgotPassword(payload).unwrap();
+      setResetCodeSent(true);
+      setTestStatus({ 
+        success: true, 
+        message: `Reset code sent to ${authMethod === 'email' ? testCredentials.email : testCredentials.phoneNumber}. Please check your ${authMethod === 'email' ? 'email' : 'phone'}.`
+      });
+    } catch (error) {
+      console.error('Reset code request error:', error);
+      setTestStatus({ 
+        success: false, 
+        message: `Failed to send reset code: ${error.data?.message || error.message || 'Unknown error'}`
+      });
+    }
+  };
+
+  // Reset password using a code
+  const handleResetPasswordWithCode = async () => {
+    try {
+      // Validate the new password first
+      const passwordValidation = validatePassword(testCredentials.newPassword);
+      if (!passwordValidation.success) {
+        setTestStatus({ 
+          success: false, 
+          message: passwordValidation.message
+        });
+        return;
+      }
+      
+      setTestStatus({ success: false, message: 'Resetting password...' });
+      
+      // Create the payload based on auth method
+      const payload = {
+        resetCode: testCredentials.confirmationCode,
+        newPassword: testCredentials.newPassword
+      };
+      
+      // Add the identifier based on auth method
+      if (authMethod === 'email') {
+        payload.email = testCredentials.email;
+      } else {
+        payload.phoneNumber = testCredentials.phoneNumber;
+      }
+      
+      // Reset the password
+      const response = await resetPassword(payload).unwrap();
+      
+      // Check if we received a token in the response
+      if (response.token) {
+        console.log('Reset password successful with token!', response);
+        
+        // Save auth info to localStorage
+        AuthTokenService.setAuthInfo({
+          isAuthenticated: true,
+          user: response.user || {},
+          authToken: response.token,
+          roles: response.roles || [],
+          businesses: response.businesses || [],
+          activeBusiness: response.activeBusiness || null
+        });
+        
+        // Update Redux state
+        dispatch(setCredentials(response));
+        
+        setTestStatus({ 
+          success: true, 
+          message: 'Password reset successful. Auth token received and stored. You can now access protected routes.'
+        });
+      } else {
+        // Handle legacy response without token
+        setTestStatus({ 
+          success: true, 
+          message: 'Password reset successful. You can now login with your new password.'
+        });
+      }
+      
+      // Reset the form
+      setResetCodeSent(false);
+      setTestCredentials({
+        ...testCredentials,
+        confirmationCode: '',
+        newPassword: ''
+      });
+    } catch (error) {
+      console.error('Password reset error:', error);
+      setTestStatus({ 
+        success: false, 
+        message: `Failed to reset password: ${error.data?.message || error.message || 'Unknown error'}`
+      });
+    }
+  };
+
+  // Change password while logged in
+  const handleChangePassword = async () => {
+    if (!tokenInfo.hasToken || !tokenInfo.tokenData) {
+      setTestStatus({ 
+        success: false, 
+        message: `You must be logged in to change your password.`
+      });
+      return;
+    }
+
+    // Validate the new password first
+    const passwordValidation = validatePassword(testCredentials.newPassword);
+    if (!passwordValidation.success) {
+      setTestStatus({ 
+        success: false, 
+        message: passwordValidation.message
+      });
+      return;
+    }
+
+    try {
+      setTestStatus({ success: false, message: 'Changing password...' });
+      await changePassword({
+        userId: tokenInfo.tokenData.id,
+        currentPassword: testCredentials.password,
+        newPassword: testCredentials.newPassword
+      }).unwrap();
+      
+      setTestStatus({ 
+        success: true, 
+        message: `Password changed successfully!`
+      });
+    } catch (error) {
+      console.error('Change password error:', error);
+      setTestStatus({ 
+        success: false, 
+        message: `Password change failed: ${error.data?.message || error.message || 'Unknown error'}`
+      });
+    }
+  };
+
+  // Function to reset password to a hardcoded value (for Settings panel)
+  const handleResetPassword = async () => {
+    if (!tokenInfo.hasToken || !tokenInfo.tokenData) {
+      console.error('Password reset error: User not logged in');
+      return;
+    }
+
+    // Validate the hardcoded password
+    const passwordValidation = validatePassword('Astroboy#1!');
+    if (!passwordValidation.success) {
+      console.error('Password reset error:', passwordValidation.message);
+      return;
+    }
+
+    try {
+      await changePassword({
+        userId: tokenInfo.tokenData.id,
+        currentPassword: testCredentials.password,
+        newPassword: 'Astroboy#1!'
+      });
+      console.log('Password reset to Astroboy#1!');
+    } catch (error) {
+      console.error('Password reset error:', error);
+    }
+  };
+
   // Matrix-style text effect 
   const MatrixText = ({ children, glitchChance = 0.1 }) => {
     const shouldGlitch = Math.random() < glitchChance;
@@ -221,7 +401,7 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       elevation={3}
       sx={{
         position: 'fixed',
-        zIndex: 9999,
+        zIndex: 9998,
         width: 300,
         maxHeight: expanded ? 500 : 40,
         overflow: 'hidden',
@@ -426,101 +606,561 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
           </Box>
         )}
 
-        {/* Test Login Tab */}
+        {/* Test Tab */}
         {tab === 'test' && (
           <Box sx={{ p: 2, bgcolor: 'black', color: '#00ff00', fontFamily: 'monospace' }}>
-            <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
-              $ LOGIN_TEST
-            </Typography>
-            
-            <TextField
-              label="Email"
-              fullWidth
-              margin="dense"
-              size="small"
-              value={testCredentials.email}
-              onChange={(e) => setTestCredentials({...testCredentials, email: e.target.value})}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
+            <FormControl fullWidth variant="outlined" size="small" sx={{ mb: 2 }}>
+              <InputLabel sx={{ color: '#007700' }}>Test Type</InputLabel>
+              <Select
+                value={testType}
+                onChange={(e) => {
+                  setTestType(e.target.value);
+                  setResetCodeSent(false);
+                  setTestStatus({ success: false, message: '' });
+                }}
+                label="Test Type"
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: 'black',
+                      color: '#00ff00',
+                      border: '1px solid #00ff00',
+                      borderRadius: 1,
+                      '& .MuiMenuItem-root': {
+                        fontFamily: 'monospace',
+                        '&:hover': {
+                          bgcolor: 'rgba(0, 255, 0, 0.1)',
+                        },
+                        '&.Mui-selected': {
+                          bgcolor: 'rgba(0, 255, 0, 0.2)',
+                          '&:hover': {
+                            bgcolor: 'rgba(0, 255, 0, 0.3)',
+                          }
+                        }
+                      }
+                    }
+                  },
+                  sx: { zIndex: 10000 }
+                }}
+                sx={{
+                  color: '#00ff00',
+                  fontFamily: 'monospace',
+                  '& .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#007700',
                   },
-                  '&:hover fieldset': {
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#00ff00',
                   },
-                  '&.Mui-focused fieldset': {
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: '#00ff00',
                   },
-                  color: '#00ff00',
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#007700',
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#00ff00',
-                },
-              }}
-            />
-            
-            <TextField
-              label="Password"
-              fullWidth
-              margin="dense"
-              size="small"
-              type={showPassword ? 'text' : 'password'}
-              value={testCredentials.password}
-              onChange={(e) => setTestCredentials({...testCredentials, password: e.target.value})}
-              InputProps={{
-                endAdornment: (
-                  <IconButton
-                    size="small"
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                    sx={{ color: '#00ff00' }}
-                  >
-                    {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                  </IconButton>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#007700',
+                  '& .MuiSvgIcon-root': {
+                    color: '#00ff00',
                   },
-                  '&:hover fieldset': {
-                    borderColor: '#00ff00',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#00ff00',
-                  },
-                  color: '#00ff00',
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#007700',
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#00ff00',
-                },
-              }}
-            />
+                  '& .MuiSelect-select': {
+                    fontFamily: 'monospace',
+                  }
+                }}
+              >
+                <MenuItem value="login">Login Test</MenuItem>
+                <MenuItem value="forgotPassword">Forgot Password</MenuItem>
+                <MenuItem value="changePassword">Change Password</MenuItem>
+              </Select>
+            </FormControl>
 
-            <Button 
-              variant="contained"
-              fullWidth
-              sx={{ 
-                mt: 2, 
-                bgcolor: 'rgba(0, 128, 0, 0.7)',
-                color: '#ffffff',
-                '&:hover': {
-                  bgcolor: 'rgba(0, 200, 0, 0.7)',
-                },
-                fontFamily: 'monospace',
-                fontWeight: 'bold'
-              }}
-              onClick={handleTestLogin}
-            >
-              EXECUTE_LOGIN()
-            </Button>
+            {testType === 'login' && (
+              <>
+                <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
+                  $ LOGIN_TEST
+                </Typography>
+                
+                <TextField
+                  label="Email"
+                  fullWidth
+                  margin="dense"
+                  size="small"
+                  value={testCredentials.email}
+                  onChange={(e) => setTestCredentials({...testCredentials, email: e.target.value})}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#007700',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      color: '#00ff00',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#007700',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#00ff00',
+                    },
+                  }}
+                />
+                
+                <TextField
+                  label="Password"
+                  fullWidth
+                  margin="dense"
+                  size="small"
+                  type={showPassword ? 'text' : 'password'}
+                  value={testCredentials.password}
+                  onChange={(e) => setTestCredentials({...testCredentials, password: e.target.value})}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: '#00ff00' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                      </IconButton>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#007700',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      color: '#00ff00',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#007700',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#00ff00',
+                    },
+                  }}
+                />
+
+                <Button 
+                  variant="contained"
+                  fullWidth
+                  sx={{ 
+                    mt: 2, 
+                    bgcolor: 'rgba(0, 128, 0, 0.7)',
+                    color: '#ffffff',
+                    '&:hover': {
+                      bgcolor: 'rgba(0, 200, 0, 0.7)',
+                    },
+                    fontFamily: 'monospace',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={handleTestLogin}
+                >
+                  EXECUTE_LOGIN()
+                </Button>
+              </>
+            )}
+
+            {testType === 'forgotPassword' && (
+              <>
+                <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
+                  $ FORGOT_PASSWORD_TEST
+                </Typography>
+
+                <FormControl fullWidth variant="outlined" size="small" sx={{ mb: 2 }}>
+                  <InputLabel sx={{ color: '#007700' }}>Auth Method</InputLabel>
+                  <Select
+                    value={authMethod}
+                    onChange={(e) => setAuthMethod(e.target.value)}
+                    label="Auth Method"
+                    disabled={resetCodeSent}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          bgcolor: 'black',
+                          color: '#00ff00',
+                          border: '1px solid #00ff00',
+                          borderRadius: 1,
+                          '& .MuiMenuItem-root': {
+                            fontFamily: 'monospace',
+                            '&:hover': {
+                              bgcolor: 'rgba(0, 255, 0, 0.1)',
+                            },
+                            '&.Mui-selected': {
+                              bgcolor: 'rgba(0, 255, 0, 0.2)',
+                              '&:hover': {
+                                bgcolor: 'rgba(0, 255, 0, 0.3)',
+                              }
+                            }
+                          }
+                        }
+                      },
+                      sx: { zIndex: 10000 }
+                    }}
+                    sx={{
+                      color: '#00ff00',
+                      fontFamily: 'monospace',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#007700',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#00ff00',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#00ff00',
+                      },
+                      '& .MuiSvgIcon-root': {
+                        color: '#00ff00',
+                      },
+                      '& .MuiSelect-select': {
+                        fontFamily: 'monospace',
+                      }
+                    }}
+                  >
+                    <MenuItem value="email">Email</MenuItem>
+                    <MenuItem value="phone">Phone</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {!resetCodeSent ? (
+                  <>
+                    {authMethod === 'email' ? (
+                      <TextField
+                        label="Email"
+                        fullWidth
+                        margin="dense"
+                        size="small"
+                        value={testCredentials.email}
+                        onChange={(e) => setTestCredentials({...testCredentials, email: e.target.value.trim().toLowerCase()})}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#007700',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#00ff00',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#00ff00',
+                            },
+                            color: '#00ff00',
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#007700',
+                          },
+                          '& .MuiInputLabel-root.Mui-focused': {
+                            color: '#00ff00',
+                          },
+                        }}
+                      />
+                    ) : (
+                      <TextField
+                        label="Phone Number"
+                        fullWidth
+                        margin="dense"
+                        size="small"
+                        value={testCredentials.phoneNumber}
+                        onChange={(e) => setTestCredentials({...testCredentials, phoneNumber: e.target.value.replace(/[^\d+]/g, '')})}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#007700',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#00ff00',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#00ff00',
+                            },
+                            color: '#00ff00',
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#007700',
+                          },
+                          '& .MuiInputLabel-root.Mui-focused': {
+                            color: '#00ff00',
+                          },
+                        }}
+                      />
+                    )}
+
+                    <Button 
+                      variant="contained"
+                      fullWidth
+                      sx={{ 
+                        mt: 2, 
+                        bgcolor: 'rgba(0, 128, 0, 0.7)',
+                        color: '#ffffff',
+                        '&:hover': {
+                          bgcolor: 'rgba(0, 200, 0, 0.7)',
+                        },
+                        fontFamily: 'monospace',
+                        fontWeight: 'bold'
+                      }}
+                      onClick={handleRequestResetCode}
+                      disabled={
+                        authMethod === 'email' 
+                          ? !testCredentials.email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(testCredentials.email) 
+                          : !testCredentials.phoneNumber || testCredentials.phoneNumber.length < 10
+                      }
+                    >
+                      REQUEST_RESET_CODE()
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <TextField
+                      label="Reset Code"
+                      fullWidth
+                      margin="dense"
+                      size="small"
+                      value={testCredentials.confirmationCode}
+                      onChange={(e) => setTestCredentials({...testCredentials, confirmationCode: e.target.value})}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#007700',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#00ff00',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#00ff00',
+                          },
+                          color: '#00ff00',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#007700',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#00ff00',
+                        },
+                      }}
+                    />
+                    
+                    <TextField
+                      label="New Password"
+                      fullWidth
+                      margin="dense"
+                      size="small"
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={testCredentials.newPassword}
+                      onChange={(e) => setTestCredentials({...testCredentials, newPassword: e.target.value})}
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton
+                            size="small"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            edge="end"
+                            sx={{ color: '#00ff00' }}
+                          >
+                            {showNewPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                          </IconButton>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#007700',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#00ff00',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#00ff00',
+                          },
+                          color: '#00ff00',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#007700',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#00ff00',
+                        },
+                      }}
+                    />
+
+                    <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                      <Button 
+                        variant="contained"
+                        fullWidth
+                        sx={{ 
+                          bgcolor: 'rgba(0, 128, 0, 0.7)',
+                          color: '#ffffff',
+                          '&:hover': {
+                            bgcolor: 'rgba(0, 200, 0, 0.7)',
+                          },
+                          fontFamily: 'monospace',
+                          fontWeight: 'bold'
+                        }}
+                        onClick={handleResetPasswordWithCode}
+                        disabled={
+                          !testCredentials.confirmationCode || 
+                          !testCredentials.newPassword || 
+                          !validatePassword(testCredentials.newPassword).success
+                        }
+                      >
+                        RESET_PASSWORD()
+                      </Button>
+                      
+                      <Button 
+                        variant="outlined"
+                        fullWidth
+                        sx={{ 
+                          color: '#00ff00',
+                          borderColor: '#00ff00',
+                          '&:hover': {
+                            borderColor: '#00ff00',
+                            bgcolor: 'rgba(0, 255, 0, 0.1)'
+                          },
+                          fontFamily: 'monospace'
+                        }}
+                        onClick={() => {
+                          setResetCodeSent(false);
+                          setTestStatus({ success: false, message: '' });
+                        }}
+                      >
+                        BACK()
+                      </Button>
+                    </Box>
+                  </>
+                )}
+              </>
+            )}
+
+            {testType === 'changePassword' && (
+              <>
+                <Typography variant="subtitle2" gutterBottom sx={{ color: '#00ff00', fontFamily: 'monospace' }}>
+                  $ CHANGE_PASSWORD_TEST
+                </Typography>
+
+                <TextField
+                  label="Current Password"
+                  fullWidth
+                  margin="dense"
+                  size="small"
+                  type={showPassword ? 'text' : 'password'}
+                  value={testCredentials.password}
+                  onChange={(e) => setTestCredentials({...testCredentials, password: e.target.value})}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: '#00ff00' }}
+                      >
+                        {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                      </IconButton>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#007700',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      color: '#00ff00',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#007700',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#00ff00',
+                    },
+                  }}
+                />
+                
+                <TextField
+                  label="New Password"
+                  fullWidth
+                  margin="dense"
+                  size="small"
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={testCredentials.newPassword}
+                  onChange={(e) => setTestCredentials({...testCredentials, newPassword: e.target.value})}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        edge="end"
+                        sx={{ color: '#00ff00' }}
+                      >
+                        {showNewPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                      </IconButton>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#007700',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00ff00',
+                      },
+                      color: '#00ff00',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#007700',
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: '#00ff00',
+                    },
+                  }}
+                />
+
+                <Button 
+                  variant="contained"
+                  fullWidth
+                  sx={{ 
+                    mt: 2, 
+                    bgcolor: 'rgba(0, 128, 0, 0.7)',
+                    color: '#ffffff',
+                    '&:hover': {
+                      bgcolor: 'rgba(0, 200, 0, 0.7)',
+                    },
+                    fontFamily: 'monospace',
+                    fontWeight: 'bold'
+                  }}
+                  onClick={handleChangePassword}
+                  disabled={
+                    !tokenInfo.hasToken || 
+                    !testCredentials.password || 
+                    !testCredentials.newPassword || 
+                    !validatePassword(testCredentials.newPassword).success
+                  }
+                >
+                  CHANGE_PASSWORD()
+                </Button>
+
+                {!tokenInfo.hasToken && (
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      display: 'block',
+                      color: '#ff0000',
+                      fontFamily: 'monospace',
+                      mt: 1
+                    }}
+                  >
+                    [ERROR] User must be logged in to change password
+                  </Typography>
+                )}
+              </>
+            )}
 
             {testStatus.message && (
               <Box
@@ -590,6 +1230,24 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
               onClick={() => setOpacity(opacity === 0.9 ? 0.3 : 0.9)}
             >
               {opacity === 0.9 ? 'SET_OPACITY(0.3)' : 'SET_OPACITY(0.9)'}
+            </Button>
+            
+            <Button 
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ 
+                color: '#00ff00',
+                borderColor: '#00ff00',
+                '&:hover': {
+                  borderColor: '#00ff00',
+                  bgcolor: 'rgba(0, 255, 0, 0.1)'
+                },
+                fontFamily: 'monospace'
+              }}
+              onClick={handleResetPassword}
+            >
+              RESET_PASSWORD()
             </Button>
             
             <Typography variant="caption" sx={{ display: 'block', mt: 2, color: '#007700', fontFamily: 'monospace' }}>
