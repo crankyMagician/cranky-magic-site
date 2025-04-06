@@ -1,16 +1,14 @@
 // src/state/store/store.jsx
 import { configureStore } from '@reduxjs/toolkit';
 import rootReducer from '../../reducers/rootReducer';
-import {apiSlice} from "../../api/apiSlice";
-
-
+import { extendedApi } from "../../api/extendedApi";
 
 const store = configureStore({
     reducer: rootReducer,
     // Manages the RTK Query Cache
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware().concat(
-            apiSlice.middleware,
+            extendedApi.middleware,
         )
 });
 

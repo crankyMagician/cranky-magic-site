@@ -6,12 +6,27 @@ import axios from 'axios';
 import { logError } from './Logger';
 import { ErrorToast } from '../components/demoComponents/ErrorToast';
 import {API_BASE_URL} from "./apiConstants";
+import store from "../state/store";
 
 const axiosServices = axios.create({
     baseURL: process.env.REACT_APP_API_URL || API_BASE_URL
 });
 
-// Interceptor for http
+// Request interceptor
+axiosServices.interceptors.request.use(
+    (config) => {
+        const token = store.getState().auth.token;
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response interceptor
 axiosServices.interceptors.response.use(
     response => response,
     error => {
@@ -33,9 +48,13 @@ axiosServices.interceptors.response.use(
         // Be mindful of exposing sensitive information in the toast
         ErrorToast(`Request failed: ${errorDetails.message} (Status: ${errorDetails.status})`);
 
+        // Handle 401 Unauthorized errors
+        if (error.response?.status === 401) {
+            store.dispatch({ type: 'auth/logout' });
+        }
+
         return Promise.reject(error);
     }
 );
-
 
 export default axiosServices;

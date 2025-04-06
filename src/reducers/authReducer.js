@@ -4,34 +4,62 @@ import { createSlice } from '@reduxjs/toolkit';
 import { logWarning } from '../utilities/Logger'; 
 
 const initialState = {
-    isAuthenticated: false,
     user: null,
     token: null,
+    isAuthenticated: false,
+    loading: false,
+    error: null,
 };
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setAuthentication(state, action) {
-            state.isAuthenticated = action.payload.isAuthenticated;
-            state.user = action.payload.user;
-            state.token = action.payload.token;
-            // Logging a shallow copy of the state for readability
-            console.log('State after setAuthentication:', {...state});
-            logWarning('authReducer: User authentication state changed', 'orange');
+        setCredentials: (state, { payload }) => {
+            state.user = payload.user;
+            state.token = payload.token;
+            state.isAuthenticated = true;
+            state.error = null;
         },
-
-        clearAuthentication(state) {
+        setLoading: (state, { payload }) => {
+            state.loading = payload;
+        },
+        setError: (state, { payload }) => {
+            state.error = payload;
+            state.loading = false;
+        },
+        logout: (state) => {
+            state.user = null;
+            state.token = null;
+            state.isAuthenticated = false;
+            state.error = null;
+        },
+        setAuthentication: (state, { payload }) => {
+            state.isAuthenticated = payload;
+        },
+        clearAuthentication: (state) => {
             state.isAuthenticated = false;
             state.user = null;
             state.token = null;
-
-            logWarning('authReducer: User authentication cleared', 'orange');
-        },
+        }
     },
 });
 
-export const { setAuthentication, clearAuthentication } = authSlice.actions;
+export const { 
+    setCredentials, 
+    setLoading, 
+    setError, 
+    logout, 
+    setAuthentication,
+    clearAuthentication 
+} = authSlice.actions;
+
 export default authSlice.reducer;
+
+// Selectors
+export const selectCurrentUser = (state) => state.auth.user;
+export const selectCurrentToken = (state) => state.auth.token;
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectAuthLoading = (state) => state.auth.loading;
+export const selectAuthError = (state) => state.auth.error;
 
