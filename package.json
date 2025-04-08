@@ -89,6 +89,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "ts-prune": "^0.10.3"
   }
 }
