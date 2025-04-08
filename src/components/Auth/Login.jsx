@@ -150,7 +150,7 @@ const Login = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="body2" color="text.secondary">
             {translate('NoAccount')}{' '}
-            <Link href="/signup" variant="body2">
+            <Link href="/business-signup" variant="body2">
               {translate('SignUpHere')}
             </Link>
           </Typography>
