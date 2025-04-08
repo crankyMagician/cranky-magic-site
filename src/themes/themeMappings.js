@@ -1,12 +1,18 @@
-// src/themes/paletteMappings.js
-import { munchiePalette } from './palettes/munchiePalette'; // Import Munchie Palette
+// src/themes/themeMappings.js
+import {spatialModsLight} from "./palettes/spatialModsLight";
+import {spatialModsDark} from "./palettes/spatialModsDark";
 
-// Simplify the mappings to use only Munchie options
+// Map theme modes to their respective palettes
 const themeModeMappings = {
-    munchie: munchiePalette,
+    light: spatialModsLight,
+    dark: spatialModsDark,
+    // Preserve other existing theme mappings
 };
 
-// Function to always return MunchiePalette
-export const getPaletteByMode = () => munchiePalette;
+// Function to get the palette by mode
+export const getPaletteByMode = (mode) => {
+    // Return the specific palette if it exists, otherwise default to spatialModsLight
+    return themeModeMappings[mode] || spatialModsDark;
+};
 
-export default themeModeMappings; // Optional if you want to export mappings for extensibility
+export default themeModeMappings;

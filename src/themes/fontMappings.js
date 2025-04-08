@@ -1,13 +1,19 @@
-// src/themes/typographyMappings.js
+// src/themes/fontMappings.js
 
-// Simplify the mappings to use only Munchie options
-import munchieTypography from "./typography/munchieTypography";
+// Map theme modes to their respective typography settings
+import spatialModsTypography from "./typography/spatialTypograhpy";
 
 const typographyModeMappings = {
-    munchie: munchieTypography,
+    light: spatialModsTypography,
+    dark: spatialModsTypography,
+    // Same typography for light and dark modes in spatial theme
+    // Add other theme mappings as needed
 };
 
-// Function to always return MunchieTypography
-export const getTypographyByMode = () => munchieTypography;
+// Function to get typography settings by mode
+export const getTypographyByMode = (mode) => {
+    // Return the specific typography if it exists, otherwise default to spatialModsTypography
+    return typographyModeMappings[mode] || spatialModsTypography;
+};
 
-export default typographyModeMappings; // Optional if you want to export mappings for extensibility
+export default typographyModeMappings;
