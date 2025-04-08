@@ -17,6 +17,7 @@ import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import DirectPasswordReset from "./components/Auth/DirectPasswordReset";
+import SpatialDemoPanel from "./components/demo/SpatialDemoPanel";
 
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -25,6 +26,7 @@ const MainContent = () => {
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
                 <Route path="/" element={<Example />} />
+                <Route path="/spatial-mods" element={<SpatialDemoPanel />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>

@@ -24,12 +24,13 @@ import {
     Alert,
     Stack,
 } from '@mui/material';
-import { useSpatialTheme, useMatrixText } from '../../hooks/useSpatialTheme';
+import { useSpatialTheme, } from '../../hooks/useSpatialTheme';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import CodeIcon from '@mui/icons-material/Code';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+import {useMatrixText} from "../../hooks/useMatrixText";
 
 // Data Display Component for futuristic metrics
 const DataDisplay = ({ label, value, icon, pulseColor = false }) => {
