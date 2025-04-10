@@ -1,7 +1,7 @@
 // src/components/common/ThemeToggle.js
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTheme } from '../../reducers/themeSlice';
+import { setTheme, selectAvailableThemes } from '../../reducers/themeSlice';
 import {
     Select,
     MenuItem,
@@ -24,6 +24,14 @@ import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import SpeedIcon from '@mui/icons-material/Speed';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import PaletteIcon from '@mui/icons-material/Palette';
+import CodeIcon from '@mui/icons-material/Code';
+import BusinessIcon from '@mui/icons-material/Business';
+import FilterVintageIcon from '@mui/icons-material/FilterVintage';
+import WbTwilightIcon from '@mui/icons-material/WbTwilight';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import GradientIcon from '@mui/icons-material/Gradient';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 const ThemeToggle = () => {
     const dispatch = useDispatch();
@@ -54,11 +62,13 @@ const ThemeToggle = () => {
         ThemeService.setThemePreferences(newPrefs);
     };
 
-    // Toggle dark/light mode
+    // Toggle dark/light mode (only for spatial themes)
     const toggleDarkMode = () => {
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        dispatch(setTheme(newTheme));
-        ThemeService.setTheme(newTheme);
+        if (currentTheme === 'dark' || currentTheme === 'light') {
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            dispatch(setTheme(newTheme));
+            ThemeService.setTheme(newTheme);
+        }
     };
 
     // Animation level labels
@@ -91,19 +101,20 @@ const ThemeToggle = () => {
         }
     };
 
-    // All available themes
+    // All available themes with icons
     const themes = [
         { label: 'Light', value: 'light', icon: <LightModeIcon /> },
         { label: 'Dark', value: 'dark', icon: <DarkModeIcon /> },
         { label: 'High Contrast', value: 'high_contrast', icon: <SettingsBrightnessIcon /> },
-        { label: 'Munchie', value: 'munchie', icon: null },
-        { label: 'Alternative', value: 'altTheme', icon: null },
-        { label: 'Professional', value: 'professional', icon: null },
-        { label: 'Corporate Memphis', value: 'memphis', icon: null },
-        { label: 'Startup', value: 'startup', icon: null },
-        { label: 'Sunset', value: 'sunset', icon: null },
-        { label: 'Mint', value: 'mint', icon: null },
-        { label: 'Retro Neon', value: 'retro_neon', icon: null },
+        { label: 'Munchie', value: 'munchie', icon: <LightbulbIcon /> },
+        { label: 'Munchie Dark', value: 'munchie_dark', icon: <LightbulbIcon /> },
+        { label: 'Alternative', value: 'altTheme', icon: <ColorLensIcon /> },
+        { label: 'Professional', value: 'professional', icon: <BusinessIcon /> },
+        { label: 'Corporate Memphis', value: 'memphis', icon: <PaletteIcon /> },
+        { label: 'Startup', value: 'startup', icon: <CodeIcon /> },
+        { label: 'Sunset', value: 'sunset', icon: <WbTwilightIcon /> },
+        { label: 'Mint', value: 'mint', icon: <FilterVintageIcon /> },
+        { label: 'Retro Neon', value: 'retro_neon', icon: <GradientIcon /> },
     ];
 
     // Get the name of the current theme
