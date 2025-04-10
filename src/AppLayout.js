@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import Navbar from './components/demoComponents/NavBar';
-import Footer from './components/demoComponents/Footer';
 import { Box } from "@mui/material";
-import Dashboard from './components/demoComponents/Dashboard';
-import Hoverbar from "./components/demoComponents/Hoverbar";
 import Sidebar from "./components/demoComponents/Sidebar";
+import Hoverbar from "./components/demoComponents/Hoverbar";
+import {Dashboard} from "@mui/icons-material";
+import MegaMenu from "./components/demoComponents/MegaMenu";
+import Navbar from "./components/demoComponents/NavBar";
+import Footer from "./components/demoComponents/Footer";
+
 
 const AppLayout = ({ children }) => {
     // Accessing preferences from the Redux store
@@ -14,20 +16,36 @@ const AppLayout = ({ children }) => {
 
     // Determine which Navbar to render based on the preference
     const renderNavbar = () => {
-        switch (preferences.navbar) {
+        switch (preferences?.navbar) {
             case 'vertical-sidebar':
                 return <Sidebar />;
             case 'hoverbar':
                 return <Hoverbar />;
             case 'dashboard':
                 return <Dashboard />;
+            case 'megamenu':
+                return <MegaMenu />;
             case 'navbar':
                 return <Navbar />;
             default:
-                return  <Sidebar />;;
+                return <Navbar />;
         }
     };
 
+    // Check if the current navigation is a layout manager
+    const isLayoutManager = preferences?.navbar === 'vertical-sidebar' || preferences?.navbar === 'dashboard';
+
+    // If using a layout manager, the component manages its own content layout
+    if (isLayoutManager) {
+        return (
+            <>
+                {renderNavbar()}
+                {/* For sidebar and dashboard, content positioning is managed internally */}
+            </>
+        );
+    }
+
+    // Standard layout for other navigation types
     return (
         <Box
             display="flex"
@@ -39,10 +57,6 @@ const AppLayout = ({ children }) => {
         >
             {renderNavbar()}
 
-            {/*
-              We offset the main content area to start below the AppBar.
-              On desktop, the default AppBar height is 64px.
-            */}
             <Box
                 component="main"
                 sx={{

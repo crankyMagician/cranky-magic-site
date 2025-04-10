@@ -13,39 +13,47 @@ import {
     List,
     ListItem,
     ListItemText,
-    ListItemIcon
+    ListItemIcon,
+    Card,
+    CardContent,
+    Grid,
+    Paper,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import {
     Menu as MenuIcon,
-    GridView,
-    Photo,
+    Home,
+    CalendarMonth,
+    Info,
+    ContactMail,
+    Email,
+    Login,
+    AppRegistration,
+    VideoLibrary,
     Style as StyleIcon,
-    ViewList,
-    Science,
-    Construction,
-    Inventory,
-    Star
+    AccountCircle,
+    Logout,
+    Dashboard as DashboardIcon,
+    Close as CloseIcon
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Branding from './Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 
+// Navigation items aligned with MainContent.js routes
 const navigationItems = [
-    { path: '/theme', label: 'Theme', icon: <StyleIcon /> },
-    { path: '/moves-list', label: 'Moves List', icon: <ViewList /> },
-    { path: '/moves-grid', label: 'Moves Grid', icon: <GridView /> },
-    { path: '/munchie-grid', label: 'Munchie Grid', icon: <GridView /> },
-    { path: '/abilities-grid', label: 'Abilities Grid', icon: <Star /> },
-    { path: '/recipe-grid', label: 'Recipe Grid', icon: <Construction /> },
-    { path: '/items-grid', label: 'Items Grid', icon: <Inventory /> },
-    { path: '/effects-grid', label: 'Effects Grid', icon: <Science /> },
-    { path: '/munchie-photo', label: 'Munchie Photos', icon: <Photo /> },
-    { path: '/item-photo', label: 'Item Photos', icon: <Photo /> }
+    { path: '/', label: 'Home', icon: <Home />, requiresAuth: false },
+    { path: '/theme', label: 'Theme', icon: <StyleIcon />, requiresAuth: false },
+    { path: '/about-us', label: 'About Us', icon: <Info />, requiresAuth: false },
+    { path: '/contact-us', label: 'Contact Us', icon: <ContactMail />, requiresAuth: false },
+    { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary />, requiresAuth: false },
+    { path: '/calendar', label: 'Calendar', icon: <CalendarMonth />, requiresAuth: false },
+    { path: '/newsletter-signup', label: 'Newsletter', icon: <Email />, requiresAuth: false },
+    { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
 ];
 
 const Dashboard = () => {
@@ -58,13 +66,18 @@ const Dashboard = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const location = useLocation();
 
+    // Filter navigation items based on authentication status
+    const filteredNavItems = navigationItems.filter(item =>
+        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
+    );
+
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
     const NavigationList = ({ onClick }) => (
         <List>
-            {navigationItems.map((item) => (
+            {filteredNavItems.map((item) => (
                 <ListItem
                     key={item.path}
                     component={RouterLink}
@@ -72,6 +85,9 @@ const Dashboard = () => {
                     onClick={onClick}
                     selected={location.pathname === item.path}
                     sx={{
+                        borderRadius: 1,
+                        my: 0.5,
+                        mx: 1,
                         color: 'text.primary',
                         '&.Mui-selected': {
                             backgroundColor: 'action.selected',
@@ -81,39 +97,139 @@ const Dashboard = () => {
                         },
                     }}
                 >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemIcon sx={{ color: location.pathname === item.path ? 'primary.main' : 'inherit' }}>
+                        {item.icon}
+                    </ListItemIcon>
                     <ListItemText primary={translate(item.label)} />
                 </ListItem>
             ))}
         </List>
     );
 
-    const drawer = (
-        <Box sx={{ width: 250 }}>
-            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
-                <Typography variant="h6">
-                    {translate('Dashboard')}
-                </Typography>
-            </Box>
-            <Divider />
-            <NavigationList onClick={handleDrawerToggle} />
-            <Divider />
+    // Authentication section
+    const AuthSection = ({ onClick }) => (
+        <Box sx={{ p: 2 }}>
             {isAuthenticated ? (
-                <MenuItem onClick={() => { handleLogout(); handleDrawerToggle(); }}>
-                    {translate('Logout')}
-                </MenuItem>
+                <Button
+                    fullWidth
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<Logout />}
+                    onClick={() => {
+                        handleLogout();
+                        if (onClick) onClick();
+                    }}
+                >
+                    {translate("Logout")}
+                </Button>
             ) : (
-                <Box>
-                    <MenuItem component={RouterLink} to="/login" onClick={handleDrawerToggle}>
-                        {translate('Login')}
-                    </MenuItem>
-                    <MenuItem component={RouterLink} to="/register" onClick={handleDrawerToggle}>
-                        {translate('Register')}
-                    </MenuItem>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Button
+                        fullWidth
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<Login />}
+                        component={RouterLink}
+                        to="/login"
+                        onClick={onClick}
+                    >
+                        {translate("Login")}
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AppRegistration />}
+                        component={RouterLink}
+                        to="/register"
+                        onClick={onClick}
+                    >
+                        {translate("Register")}
+                    </Button>
                 </Box>
             )}
         </Box>
+    );
+
+    const drawer = (
+        <Box sx={{ width: 250, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {isMobile && (
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
+                        <Typography variant="h6">
+                            {translate('Dashboard')}
+                        </Typography>
+                    </Box>
+                    <IconButton onClick={handleDrawerToggle}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
+            )}
+
+            {!isMobile && (
+                <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
+                    <Typography variant="h6">
+                        {translate('Dashboard')}
+                    </Typography>
+                </Box>
+            )}
+
+            <Divider />
+
+            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                <NavigationList onClick={isMobile ? handleDrawerToggle : undefined} />
+            </Box>
+
+            <Divider />
+
+            <AuthSection onClick={isMobile ? handleDrawerToggle : undefined} />
+        </Box>
+    );
+
+    // Dashboard card component
+    const DashboardCard = ({ title, icon, description, to }) => (
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Card
+                component={RouterLink}
+                to={to}
+                sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    textDecoration: 'none',
+                    color: 'text.primary',
+                    '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: 6,
+                    }
+                }}
+            >
+                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', p: 3 }}>
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        mb: 2,
+                        width: 60,
+                        height: 60,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.light',
+                        color: 'primary.contrastText'
+                    }}>
+                        {icon}
+                    </Box>
+                    <Typography variant="h6" component="h2" align="center" gutterBottom>
+                        {translate(title)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" align="center">
+                        {translate(description)}
+                    </Typography>
+                </CardContent>
+            </Card>
+        </Grid>
     );
 
     return (
@@ -143,6 +259,7 @@ const Dashboard = () => {
                         {isAuthenticated ? (
                             <Button
                                 color="inherit"
+                                startIcon={<Logout />}
                                 onClick={handleLogout}
                                 sx={{ whiteSpace: 'nowrap' }}
                             >
@@ -154,14 +271,17 @@ const Dashboard = () => {
                                     color="inherit"
                                     component={RouterLink}
                                     to="/login"
+                                    startIcon={<Login />}
                                     sx={{ whiteSpace: 'nowrap' }}
                                 >
                                     {translate('Login')}
                                 </Button>
                                 <Button
                                     color="inherit"
+                                    variant="outlined"
                                     component={RouterLink}
                                     to="/register"
+                                    startIcon={<AppRegistration />}
                                     sx={{ whiteSpace: 'nowrap' }}
                                 >
                                     {translate('Register')}
@@ -181,13 +301,13 @@ const Dashboard = () => {
                     open={isMobile ? mobileOpen : true}
                     onClose={handleDrawerToggle}
                     ModalProps={{
-                        keepMounted: true,
+                        keepMounted: true, // Better mobile performance
                     }}
                     sx={{
                         '& .MuiDrawer-paper': {
                             width: 250,
                             boxSizing: 'border-box',
-                            top: ['56px', '64px'],
+                            top: ['56px', '64px'], // AppBar height
                             height: 'auto',
                             bottom: 0,
                         },
@@ -203,10 +323,34 @@ const Dashboard = () => {
                     flexGrow: 1,
                     p: 3,
                     width: { md: `calc(100% - 250px)` },
-                    mt: ['56px', '64px'],
+                    mt: ['56px', '64px'], // AppBar height
                 }}
             >
-                {/* Main content will be rendered here by React Router */}
+                {/* Dashboard welcome section */}
+                <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2, bgcolor: 'background.paper' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <DashboardIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
+                        <Typography variant="h4" component="h1">
+                            {translate('Welcome to Dashboard')}
+                        </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                        {translate('This is your application dashboard. Navigate through the available options using the sidebar or the cards below.')}
+                    </Typography>
+                </Paper>
+
+                {/* Dashboard cards */}
+                <Grid container spacing={3}>
+                    {filteredNavItems.map(item => (
+                        <DashboardCard
+                            key={item.path}
+                            title={item.label}
+                            icon={React.cloneElement(item.icon, { sx: { fontSize: 30 } })}
+                            description={`Access ${item.label} section`}
+                            to={item.path}
+                        />
+                    ))}
+                </Grid>
             </Box>
         </Box>
     );

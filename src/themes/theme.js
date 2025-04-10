@@ -2,14 +2,25 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { getPaletteByMode } from './themeMappings';
 import { getTypographyByMode } from "./fontMappings";
-import spatialComponentsOverrides from './muicomponents/spatialComponentsOverrides';
-import componentsOverrides from './muicomponents/muiComponentsOverrides'; // Original overrides
+import crankyComponentOverrides from './muicomponents/crankyComponentOverrides';
 import breakpoints from './breakpoints/breakpoints';
 import ThemeService from '../services/ThemeService';
+import * as colorUtils from "../utilities/colorUtilities";
+
+
+// Function to determine if a theme is a spatial theme
+const isSpatialTheme = (mode) => {
+    return mode === 'light' || mode === 'dark';
+};
+
+// Function to determine if a theme is a dark mode theme
+const isDarkTheme = (mode) => {
+    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'altTheme';
+};
 
 // Matrix-inspired effects for both dark and light themes
 const getMatrixEffects = (mode) => {
-    const isDark = mode === 'dark';
+    const isDark = isDarkTheme(mode);
 
     return {
         matrixEffects: {
@@ -91,58 +102,26 @@ const getMatrixEffects = (mode) => {
                     filter: `blur(1px) drop-shadow(0 0 2px ${isDark ? 'rgba(214, 90, 49, 0.8)' : 'rgba(214, 90, 49, 0.6)'}`,
                 },
             },
-
-            // Digital glitch effect for text
-            glitchText: {
-                animation: 'glitch 3s infinite',
-                '@keyframes glitch': {
-                    '0%': { transform: 'none', opacity: 1 },
-                    '7%': { transform: 'skew(-0.5deg, -0.9deg)', opacity: 1 },
-                    '10%': { transform: 'none', opacity: 1 },
-                    '27%': { transform: 'none', opacity: 1 },
-                    '30%': { transform: 'skew(0.8deg, -0.1deg)', opacity: 1 },
-                    '35%': { transform: 'none', opacity: 1 },
-                    '52%': { transform: 'none', opacity: 1 },
-                    '55%': { transform: 'skew(-1deg, 0.2deg)', opacity: 1 },
-                    '56%': { transform: 'none', opacity: 1 },
-                    '100%': { transform: 'none', opacity: 1 },
-                },
-            },
-
-            // Glass morphism effect
-            glassMorphism: {
-                background: isDark
-                    ? 'rgba(30, 30, 30, 0.7)'
-                    : 'rgba(255, 255, 255, 0.7)',
-                backdropFilter: 'blur(10px)',
-                border: isDark
-                    ? '1px solid rgba(214, 90, 49, 0.2)'
-                    : '1px solid rgba(255, 255, 255, 0.7)',
-                boxShadow: isDark
-                    ? '0 4px 12px rgba(0, 0, 0, 0.3)'
-                    : '0 4px 12px rgba(0, 0, 0, 0.1)',
-            },
         },
     };
 };
 
 // Function to create and return a theme based on the mode and optional direction
 export const getTheme = (mode, direction = 'ltr') => {
-    // Check if it's a spatial theme or use default
-    const isSpatialTheme = mode === 'light' || mode === 'dark';
-    const themeMode = isSpatialTheme ? mode : 'munchie'; // Use munchie as fallback
+    // Check if it's a spatial theme or use provided theme
+    const themeMode = mode || 'light'; // Default to light if no mode is provided
+    const usesSpatialEffects = isSpatialTheme(themeMode);
+    const isDark = isDarkTheme(themeMode);
 
     // Get palette and typography based on mode
-    const palette = getPaletteByMode(mode);
-    const typography = getTypographyByMode(mode);
+    const palette = getPaletteByMode(themeMode);
+    const typography = getTypographyByMode(themeMode);
 
     // Get theme preferences from ThemeService
     const themePrefs = ThemeService.getThemePreferences();
 
-    // Choose component overrides based on theme
-    const componentOverrides = isSpatialTheme
-        ? spatialComponentsOverrides
-        : componentsOverrides;
+    // We'll always use crankyComponentOverrides now
+    const componentOverrides = crankyComponentOverrides;
 
     // Create the base theme without mixins first to avoid circular reference
     let theme = createTheme({
@@ -152,7 +131,7 @@ export const getTheme = (mode, direction = 'ltr') => {
         breakpoints,
         direction,
         // Add Matrix-inspired effects only if using spatial theme
-        ...(isSpatialTheme && getMatrixEffects(mode)),
+        ...(usesSpatialEffects && getMatrixEffects(themeMode)),
     });
 
     // Now create a complete theme with custom mixins
@@ -161,17 +140,17 @@ export const getTheme = (mode, direction = 'ltr') => {
         mixins: {
             ...theme.mixins,
             futuristicCard: {
-                background: mode === 'dark'
-                    ? 'rgba(30, 30, 30, 0.7)'
-                    : 'rgba(255, 255, 255, 0.8)',
+                background: theme.palette.mode === 'light'
+                    ? 'rgba(255, 255, 255, 0.8)'
+                    : 'rgba(30, 30, 30, 0.7)',
                 backdropFilter: 'blur(10px)',
                 borderRadius: '8px',
-                border: mode === 'dark'
-                    ? '1px solid rgba(214, 90, 49, 0.2)'
-                    : '1px solid rgba(255, 255, 255, 0.7)',
-                boxShadow: mode === 'dark'
-                    ? '0 4px 12px rgba(0, 0, 0, 0.3)'
-                    : '0 4px 12px rgba(0, 0, 0, 0.1)',
+                border: theme.palette.mode === 'light'
+                    ? '1px solid rgba(255, 255, 255, 0.7)'
+                    : `1px solid ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
+                boxShadow: theme.palette.mode === 'light'
+                    ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+                    : '0 4px 12px rgba(0, 0, 0, 0.3)',
                 transition: 'all 0.3s ease',
                 position: 'relative',
                 overflow: 'hidden',
@@ -184,29 +163,29 @@ export const getTheme = (mode, direction = 'ltr') => {
                     bottom: 0,
                     borderRadius: '8px',
                     padding: '1px',
-                    background: `linear-gradient(135deg, transparent 40%, ${palette.primary.main}44 100%)`,
+                    background: `linear-gradient(135deg, transparent 40%, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.27)} 100%)`,
                     mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                     maskComposite: 'exclude',
                     pointerEvents: 'none',
                 },
                 '&:hover': {
                     transform: 'translateY(-3px)',
-                    boxShadow: mode === 'dark'
-                        ? `0 8px 16px rgba(0, 0, 0, 0.4), 0 0 10px rgba(214, 90, 49, 0.2)`
-                        : `0 8px 16px rgba(0, 0, 0, 0.15), 0 0 10px rgba(214, 90, 49, 0.1)`,
+                    boxShadow: theme.palette.mode === 'light'
+                        ? `0 8px 16px rgba(0, 0, 0, 0.15), 0 0 10px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.1)}`
+                        : `0 8px 16px rgba(0, 0, 0, 0.4), 0 0 10px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
                 },
             },
             dataDisplay: {
-                fontFamily: 'Orbitron, sans-serif',
+                fontFamily: theme.typography.h3.fontFamily,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
                 padding: '8px 12px',
-                background: mode === 'dark'
-                    ? 'rgba(30, 30, 30, 0.9)'
-                    : 'rgba(255, 255, 255, 0.9)',
-                border: `1px solid ${palette.primary.main}44`,
+                background: theme.palette.mode === 'light'
+                    ? 'rgba(255, 255, 255, 0.9)'
+                    : 'rgba(30, 30, 30, 0.9)',
+                border: `1px solid ${colorUtils.hexToRgba(theme.palette.primary.main, 0.27)}`,
                 borderRadius: '4px',
-                boxShadow: `0 0 8px ${palette.primary.main}33`,
+                boxShadow: `0 0 8px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
                 position: 'relative',
                 display: 'inline-block',
                 '&::before': {
@@ -216,7 +195,7 @@ export const getTheme = (mode, direction = 'ltr') => {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    background: `linear-gradient(90deg, transparent, ${palette.primary.main}22, transparent)`,
+                    background: `linear-gradient(90deg, transparent, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.13)}, transparent)`,
                     backgroundSize: '200% 100%',
                     animation: 'shimmer 2s infinite linear',
                 },
@@ -226,13 +205,13 @@ export const getTheme = (mode, direction = 'ltr') => {
                 },
             },
             matrixTerminal: {
-                fontFamily: 'Rajdhani, monospace',
-                backgroundColor: mode === 'dark' ? '#1a1a1a' : '#f0f0f0',
-                color: palette.primary.main,
+                fontFamily: 'monospace',
+                backgroundColor: theme.palette.mode === 'light' ? '#f0f0f0' : '#1a1a1a',
+                color: theme.palette.primary.main,
                 padding: '16px',
                 borderRadius: '4px',
-                border: `1px solid ${palette.primary.main}33`,
-                boxShadow: `inset 0 0 10px ${palette.primary.main}22`,
+                border: `1px solid ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
+                boxShadow: `inset 0 0 10px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.13)}`,
                 position: 'relative',
                 overflow: 'hidden',
                 '&::before': {
@@ -242,7 +221,7 @@ export const getTheme = (mode, direction = 'ltr') => {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    background: `repeating-linear-gradient(0deg, transparent, transparent 2px, ${palette.primary.main}11 2px, ${palette.primary.main}11 4px)`,
+                    background: `repeating-linear-gradient(0deg, transparent, transparent 2px, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.07)} 2px, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.07)} 4px)`,
                     pointerEvents: 'none',
                 },
             },
@@ -254,15 +233,15 @@ export const getTheme = (mode, direction = 'ltr') => {
 
     // Apply high contrast mode if enabled
     if (themePrefs.highContrast) {
-        theme.palette.text.primary = mode === 'dark' ? '#FFFFFF' : '#000000';
-        theme.palette.text.secondary = mode === 'dark' ? '#EEEEEE' : '#222222';
-        theme.palette.background.default = mode === 'dark' ? '#000000' : '#FFFFFF';
-        theme.palette.background.paper = mode === 'dark' ? '#111111' : '#F5F5F5';
+        theme.palette.text.primary = isDark ? '#FFFFFF' : '#000000';
+        theme.palette.text.secondary = isDark ? '#EEEEEE' : '#222222';
+        theme.palette.background.default = isDark ? '#000000' : '#FFFFFF';
+        theme.palette.background.paper = isDark ? '#111111' : '#F5F5F5';
 
         // Increase contrast for all colors
         const increaseContrast = (color, amount = 0.2) => {
             if (!color) return color;
-            return color.startsWith('#') ? color : color; // We'd need a color manipulation library for proper adjustment
+            return color.startsWith('#') ? color : color;
         };
 
         // Apply to primary and secondary
@@ -289,7 +268,7 @@ export const getTheme = (mode, direction = 'ltr') => {
                     .map(prop => `${prop} ${duration * durationFactor}ms ${easing} ${delay}ms`)
                     .join(',');
             },
-            // Custom duration settings for spatial theme
+            // Custom duration settings
             duration: {
                 shortest: themePrefs.reducedMotion ? 200 : 100,
                 shorter: themePrefs.reducedMotion ? 250 : 150,
@@ -302,16 +281,16 @@ export const getTheme = (mode, direction = 'ltr') => {
             // Special easing options
             easing: {
                 ...theme.transitions.easing,
-                // Custom easing functions for spatial theme
-                spatial: 'cubic-bezier(0.23, 1, 0.32, 1)', // Slightly more pronounced than easeOutQuint
-                digitalPulse: 'cubic-bezier(0.85, 0, 0.15, 1)', // Sharp movement with smooth finish
-                matrixGlitch: 'steps(5, end)', // Stuttering movement for glitch effects
+                // Custom easing functions
+                spatial: 'cubic-bezier(0.23, 1, 0.32, 1)',
+                digitalPulse: 'cubic-bezier(0.85, 0, 0.15, 1)',
+                matrixGlitch: 'steps(5, end)',
                 holographic: 'cubic-bezier(0.4, 0, 0.2, 1)',
             },
         },
     });
 
-    // Add custom spacing for futuristic layout
+    // Add custom spacing
     theme = createTheme({
         ...theme,
         spacing: (factor) => {
@@ -319,40 +298,7 @@ export const getTheme = (mode, direction = 'ltr') => {
         },
     });
 
-    // Add spatial theme-specific shadows
-    if (isSpatialTheme) {
-        theme = createTheme({
-            ...theme,
-            shadows: [
-                'none',
-                // Subtle shadow for elevation 1
-                mode === 'dark'
-                    ? '0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.4)'
-                    : '0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.15)',
-                // Moderate shadow for cards and panels - elevation 2
-                mode === 'dark'
-                    ? '0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.4)'
-                    : '0 4px 8px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.1)',
-                // Medium shadow with slight glow - elevation 3
-                mode === 'dark'
-                    ? `0 6px 12px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.4), 0 0 5px rgba(214,90,49,0.2)`
-                    : `0 6px 12px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.1), 0 0 5px rgba(214,90,49,0.1)`,
-                // Custom shadow with distinctive glow for key elements - elevation 4
-                mode === 'dark'
-                    ? `0 8px 16px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4), 0 0 8px rgba(214,90,49,0.3)`
-                    : `0 8px 16px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.1), 0 0 8px rgba(214,90,49,0.2)`,
-                // Modal/dialog shadow - elevation 5
-                mode === 'dark'
-                    ? `0 16px 24px rgba(0,0,0,0.5), 0 6px 12px rgba(0,0,0,0.5), 0 0 12px rgba(214,90,49,0.4)`
-                    : `0 16px 24px rgba(0,0,0,0.15), 0 6px 12px rgba(0,0,0,0.1), 0 0 12px rgba(214,90,49,0.3)`,
-                // Continue with the rest of the default shadows
-                // (Simplified for brevity - in a full implementation, you'd define all 25 shadow levels)
-                ...Array(20).fill('none'),
-            ],
-        });
-    }
-
-    // Add shape customization for futuristic elements
+    // Add custom shapes for futuristic elements
     theme = createTheme({
         ...theme,
         shape: {
@@ -379,8 +325,8 @@ export const getTheme = (mode, direction = 'ltr') => {
         },
     });
 
-    // Apply global CSS styles for Matrix effects if using spatial theme
-    if (isSpatialTheme && themePrefs.useScanlines) {
+    // Apply global CSS styles for Matrix effects if using spatial theme with scanlines enabled
+    if (usesSpatialEffects && themePrefs.useScanlines) {
         // Create global styles for scanlines and other Matrix effects
         theme = createTheme({
             ...theme,
@@ -400,7 +346,7 @@ export const getTheme = (mode, direction = 'ltr') => {
                             height: '100vh',
                             zIndex: 9999,
                             pointerEvents: 'none',
-                            opacity: mode === 'dark' ? 0.15 : 0.08,
+                            opacity: isDark ? 0.15 : 0.08,
                             background: `repeating-linear-gradient(
                                 0deg,
                                 rgba(214, 90, 49, 0.05) 0px,
