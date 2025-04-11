@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Container, Typography, Link, Grid, useTheme, Paper, Divider } from '@mui/material';
-import Branding from './Branding';
+import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 
 import LinkedInIcon from '@mui/icons-material/LinkedIn';

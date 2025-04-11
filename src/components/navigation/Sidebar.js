@@ -11,10 +11,15 @@ import {
     AppBar,
     Toolbar,
     Typography,
-    Divider
+    Divider,
+    CssBaseline,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import {
     Menu as MenuIcon,
+    ChevronLeft as ChevronLeftIcon,
+    ChevronRight as ChevronRightIcon,
     GridView,
     Photo,
     Style as StyleIcon,
@@ -22,7 +27,8 @@ import {
     Science,
     Construction,
     Inventory,
-    Star
+    Star,
+    Home
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
@@ -31,6 +37,7 @@ import logoImage from '../../assets/logo/default_logo.png';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 
 const navigationItems = [
+    { path: '/', label: 'Home', icon: <Home /> },
     { path: '/theme', label: 'Theme', icon: <StyleIcon /> },
     { path: '/moves-list', label: 'Moves List', icon: <ViewList /> },
     { path: '/moves-grid', label: 'Moves Grid', icon: <GridView /> },
@@ -43,19 +50,20 @@ const navigationItems = [
     { path: '/item-photo', label: 'Item Photos', icon: <Photo /> }
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ children }) => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
     const logoUrl = logoImage;
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [open, setOpen] = useState(false); // Start collapsed
     const { translate } = useCustomTranslation();
     const location = useLocation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    const toggleDrawer = (open) => (event) => {
-        if (event?.type === 'keydown' && (event?.key === 'Tab' || event?.key === 'Shift')) {
-            return;
-        }
-        setIsDrawerOpen(open);
+    const drawerWidth = 240;
+
+    const handleDrawerToggle = () => {
+        setOpen(!open);
     };
 
     const NavigationList = () => (
@@ -67,8 +75,10 @@ const Sidebar = () => {
                     component={RouterLink}
                     to={item.path}
                     selected={location.pathname === item.path}
-                    onClick={toggleDrawer(false)}
                     sx={{
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        px: 2.5,
                         '&.Mui-selected': {
                             backgroundColor: 'action.selected',
                             '&:hover': {
@@ -77,8 +87,19 @@ const Sidebar = () => {
                         },
                     }}
                 >
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={translate(item.label)} />
+                    <ListItemIcon
+                        sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : 'auto',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={translate(item.label)}
+                        sx={{ opacity: open ? 1 : 0 }}
+                    />
                 </ListItem>
             ))}
         </List>
@@ -87,36 +108,80 @@ const Sidebar = () => {
     const authLinks = isAuthenticated ? (
         <ListItem
             button
-            onClick={() => {
-                handleLogout();
-                toggleDrawer(false)();
-            }}
+            onClick={handleLogout}
             component={RouterLink}
             to="/"
+            sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+            }}
         >
-            <ListItemText primary={translate("Logout")} />
+            <ListItemText
+                primary={translate("Logout")}
+                sx={{ opacity: open ? 1 : 0 }}
+            />
         </ListItem>
     ) : (
         <>
-            <ListItem button onClick={toggleDrawer(false)} component={RouterLink} to="/login">
-                <ListItemText primary={translate("Login")} />
+            <ListItem
+                button
+                component={RouterLink}
+                to="/login"
+                sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                }}
+            >
+                <ListItemText
+                    primary={translate("Login")}
+                    sx={{ opacity: open ? 1 : 0 }}
+                />
             </ListItem>
-            <ListItem button onClick={toggleDrawer(false)} component={RouterLink} to="/register">
-                <ListItemText primary={translate("Register")} />
+            <ListItem
+                button
+                component={RouterLink}
+                to="/register"
+                sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                }}
+            >
+                <ListItemText
+                    primary={translate("Register")}
+                    sx={{ opacity: open ? 1 : 0 }}
+                />
             </ListItem>
         </>
     );
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <AppBar position="fixed">
+            <CssBaseline />
+            <AppBar
+                position="fixed"
+                sx={{
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    width: { md: `calc(100% - ${open ? drawerWidth : 73}px)` },
+                    ml: { md: `${open ? drawerWidth : 73}px` },
+                    transition: theme => theme.transitions.create(['width', 'margin'], {
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.leavingScreen,
+                    }),
+                }}
+            >
                 <Toolbar>
                     <IconButton
                         color="inherit"
-                        aria-label={translate("open drawer")}
+                        aria-label={translate("toggle drawer")}
                         edge="start"
-                        onClick={toggleDrawer(true)}
-                        sx={{ mr: 2 }}
+                        onClick={handleDrawerToggle}
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'flex', md: 'none' },
+                        }}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -144,31 +209,83 @@ const Sidebar = () => {
                 </Toolbar>
             </AppBar>
 
+            {/* Mobile drawer */}
+            {isMobile && (
+                <Drawer
+                    variant="temporary"
+                    open={open}
+                    onClose={handleDrawerToggle}
+                    sx={{
+                        display: { xs: 'block', md: 'none' },
+                        '& .MuiDrawer-paper': {
+                            width: drawerWidth,
+                            boxSizing: 'border-box',
+                        },
+                    }}
+                >
+                    <Toolbar />
+                    <Box sx={{ overflow: 'auto' }}>
+                        <NavigationList />
+                        <Divider />
+                        {authLinks}
+                    </Box>
+                </Drawer>
+            )}
+
+            {/* Desktop drawer - collapsible */}
             <Drawer
-                anchor="left"
-                open={isDrawerOpen}
-                onClose={toggleDrawer(false)}
+                variant="permanent"
+                open={open}
                 sx={{
+                    display: { xs: 'none', md: 'block' },
+                    width: open ? drawerWidth : 73,
+                    flexShrink: 0,
                     '& .MuiDrawer-paper': {
-                        width: 250,
+                        width: open ? drawerWidth : 73,
                         boxSizing: 'border-box',
-                        marginTop: '64px', // Offset from the top by the AppBar height
+                        overflowX: 'hidden',
+                        transition: theme => theme.transitions.create('width', {
+                            easing: theme.transitions.easing.sharp,
+                            duration: theme.transitions.duration.enteringScreen,
+                        }),
                     },
                 }}
             >
-                <Box sx={{ width: 250 }} role="presentation">
-                    <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
-                        <Typography variant="h6">
-                            {translate('Company Name')}
-                        </Typography>
-                    </Box>
-                    <Divider />
-                    <NavigationList />
-                    <Divider />
-                    {authLinks}
-                </Box>
+                <Toolbar
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        px: [1],
+                    }}
+                >
+                    <IconButton onClick={handleDrawerToggle}>
+                        {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    </IconButton>
+                </Toolbar>
+                <Divider />
+                <NavigationList />
+                <Divider />
+                {authLinks}
             </Drawer>
+
+            {/* Main content */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    width: { md: `calc(100% - ${open ? drawerWidth : 73}px)` },
+                    ml: { md: `${open ? drawerWidth : 73}px` },
+                    transition: theme => theme.transitions.create(['width', 'margin'], {
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.enteringScreen,
+                    }),
+                    mt: '64px', // Offset for AppBar
+                }}
+            >
+                {children}
+            </Box>
         </Box>
     );
 };
