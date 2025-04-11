@@ -15,7 +15,6 @@
 Welcome to **CrankyMagicReact** - where React components meet magical enchantments! This isn't your ordinary React framework... it's been infused with the CrankyMagician's special blend of code sorcery to make your development experience *MAGICAL*! 💫
 
 ## 🪄 Features That Will BLOW YOUR MIND! 🪄
-## 🪄 Features That Will BLOW YOUR MIND! 🪄
 
 ### 🌈 Theme Switching Sorcery
 Switch between themes faster than the CrankyMagician can say "ABRACADABRA"!
