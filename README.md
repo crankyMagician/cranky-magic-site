@@ -5,16 +5,40 @@
 [![Powered by Coffee](https://img.shields.io/badge/powered%20by-Coffee%20☕-brown.svg)](https://coffee.org)
 [![License](https://img.shields.io/badge/license-MAGICAL-orange.svg)](LICENSE)
 
-## 🪄 "Any sufficiently advanced technology is indistinguishable from magic."  
+## 🪄 "Any sufficiently advanced technology is indistinguishable from magic."
 — Arthur C. Clarke
 
-[Dev Tasks](https://www.notion.so/1cba97b3508c8116b3f5f3326e407b66?pvs=21) | [Documentation](https://www.notion.so/Documentation-1cba97b3508c802fa23ed50189ff90e4?pvs=21) | [Templates](https://www.notion.so/Templates-1d1a97b3508c8028aea3ec6c0ec6ff87?pvs=21)
+Here is the documentation structure for your README:
 
-## ✨ The Magical React Framework That Will Make You Say "WOW!" ✨
+## 📚 Documentation 📚
 
-Welcome to **CrankyMagicReact** - where React components meet magical enchantments! This isn't your ordinary React framework... it's been infused with the CrankyMagician's special blend of code sorcery to make your development experience *MAGICAL*! 💫
+Explore the magical components of our codebase through these specialized documentation guides:
 
-## 🪄 Features That Will BLOW YOUR MIND! 🪄
+### 📂 src/
+- [📡 API Documentation](./src/api/README.md) - Learn about our RTK Query API setup
+- [🪝 Hooks Documentation](./src/hooks/README.md) - Discover our custom React hooks
+- [🗃️ Reducers Documentation](./src/reducers/README.md) - Explore our Redux state management
+- [🧪 Services Documentation](./src/services/README.md) - Understand our service utilities
+- [🏛️ State Documentation](./src/state/README.md) - Explore our Redux store architecture
+- [🎨 Theme Documentation](./src/themes/README.md) - Discover our theming infrastructure
+- [🌐 Translations Documentation](./src/translations/README.md) - Learn about our i18n system
+- [🔧 Utilities Documentation](./src/utilities/README.md) - Browse our helper functions
+
+### 📂 src/analytics/
+- [📊 Analytics Overview](./src/analytics/README.md) - Learn about our analytics implementation
+    - 📂 **docs/**
+        - [📈 API Integration](./src/analytics/docs/analyitics_apic_integration.md) - See how our analytics tracks API calls
+        - [⚙️ Configuration Options](./src/analytics/docs/analytics_options.md) - Configure your analytics settings
+        - [🏠 Self-Hosted Evaluation](./src/analytics/docs/self_hosted_eval.md) - Learn about self-hosting analytics
+        - [💰 Cost Estimates](./src/analytics/docs/sentry_posthog_estimates.md) - Review analytics platform costs
+
+### 📂 docs/
+- [🎭 Dynamic Theme System Plan](./docs/dynamic_theme_system_plan.md) - Explore our future theming capabilities
+
+### 📂 cors-anywhere-server/
+- [🌐 CORS Proxy Server Documentation](./cors-anywhere-server/README.md) - Learn about our magical CORS proxy
+
+## ✨ Features That Will BLOW YOUR MIND! ✨
 
 ### 🌈 Theme Switching Sorcery
 Switch between themes faster than the CrankyMagician can say "ABRACADABRA"!
@@ -74,14 +98,6 @@ const { isAuthenticated, token } = await useAuth().login({
 useAuth().logout();
 ```
 
-Features:
-- 🔑 JWT token-based authentication
-- 👤 User profiles with roles and permissions
-- 🔄 Refresh token magic
-- 🧠 Token decoding and validation
-- 🛡️ Protected routes with AuthRouteWrapper
-- 📱 Multi-factor authentication (because ONE factor is for AMATEURS)
-
 ### 💼 Business Magic for Business Wizards
 Connect your magical business with these INCREDIBLE business features:
 
@@ -94,49 +110,66 @@ const { businessId } = await useBusiness().businessSignup({
 });
 ```
 
-Business features:
-- 🏢 Multi-business support
-- 👥 Team member management
-- 👑 Role-based permissions (Owner, Admin, Staff, Guest)
-- 📨 User invitations
-- 🔄 Business switching
+### 🔮 RTK Query API Magic 🔮
 
-### 🔮 Magical Analytics Tracking 🧙‍♂️
-Track user spells (actions) with mystical precision!
+The application uses the almighty **RTK Query** for API communication - because regular API calls are for MUGGLES! Our system combines the power of Redux Toolkit's Query features with the flexibility of Axios:
 
 ```javascript
-// Import the magical hook
-import useAnalytics from './analytics/hooks/useAnalytics';
+// Import our magical hooks from the apiSlice
+import { useLoginMutation, useGetActiveBusinessQuery } from '../api/apiSlice';
 
-const YourMagicalComponent = () => {
-  // Summon the analytics powers
-  const analytics = useAnalytics();
+// Use them in your components with EASE and STYLE!
+const MagicalLoginComponent = () => {
+  // This gives you a magical login function AND loading/error states! 🪄
+  const [login, { isLoading, error }] = useLoginMutation();
   
-  const castButtonSpell = () => {
-    // Track this AMAZING click event!
-    analytics.trackButtonClick('super_magical_button', {
-      spell_power: 'EXTREME',
-      mana_cost: 42
-    });
-    
-    // Do your magical stuff here...
+  const handleLoginClick = async () => {
+    try {
+      // Cast the login spell!
+      const result = await login({ username: 'merlin', password: 'expelliarmus123' }).unwrap();
+      console.log('Login successful!', result);
+    } catch (err) {
+      console.error('Login spell backfired!', err);
+    }
   };
   
-  return <button onClick={castButtonSpell}>✨ CLICK FOR MAGIC ✨</button>;
+  return <button onClick={handleLoginClick}>✨ Login ✨</button>;
 };
 ```
 
-Tracking features:
-- 🔍 Page views and time spent tracking
-- 🖱️ Button and element click tracking
-- 📊 Scroll depth measurement
-- 📝 Form interaction tracking
-- ⏱️ Performance monitoring
-- 💥 Error tracking
-- 🛫 Exit intent detection
-- 📱 Device and browser data collection
-- 🔄 Session tracking
-- 🗺️ User journey mapping
+### 🧙‍♂️ The RTK Query Advantage 🧙‍♂️
+
+Our API system provides these INCREDIBLE powers:
+
+- 🪄 **Automatic Loading & Error States** - No more manual tracking of API status!
+- 🔄 **Caching & Invalidation** - Data refreshes EXACTLY when it should!
+- 🔮 **Automatic Re-fetching** - Keep your data fresh without lifting a finger!
+- ⚡ **Optimistic Updates** - Update UI before the server confirms for LIGHTNING FAST experience!
+- ✨ **Normalized Cache** - Data stored efficiently, no duplicates!
+- 🛡️ **TypeScript Support** - Type safety that would make Dumbledore proud!
+
+### 🔍 Analytics Tracking Magic 🧙‍♂️
+Track user actions with mystical precision!
+
+```javascript
+// Import the magical hook
+import useAnalytics from './useAnalytics';
+
+const YourMagicalComponent = () => {
+    // Summon the analytics powers
+    const analytics = useAnalytics();
+
+    const castButtonSpell = () => {
+        // Track this AMAZING click event!
+        analytics.trackButtonClick('super_magical_button', {
+            spell_power: 'EXTREME',
+            mana_cost: 42
+        });
+    };
+
+    return <button onClick={castButtonSpell}>✨ CLICK FOR MAGIC ✨</button>;
+};
+```
 
 ### 🎨 Magical UI Components
 Components so beautiful, they'll bring a tear to your eye!
@@ -149,48 +182,6 @@ Components so beautiful, they'll bring a tear to your eye!
 <Card sx={theme.mixins.futuristicCard}>
   <CardContent>✨ Magical Content ✨</CardContent>
 </Card>
-```
-
-Component features:
-- 🌟 Glassmorphism effects
-- 🌌 Matrix-inspired UI elements
-- 📱 Mobile responsive EVERYTHING
-- 🖼️ Image handling utilities
-- 📝 Form components with validation
-- 📅 Calendar components
-- 📊 Data displays with magical animations
-- 🧠 Dynamic navigation systems (Sidebar, Navbar, MegaMenu, Hoverbar, Dashboard)
-
-### 🔧 Developer Utilities
-Tools to make your development experience LESS CRANKY!
-
-```javascript
-// Need to sanitize a hex color? PRESTO!
-const rgbaColor = hexToRgba('#FF0000', 0.5);
-
-// Log with STYLE
-logInfo('This is an important message!', 'blue');
-```
-
-Utility features:
-- 🎨 Color manipulation utilities
-- 📝 Advanced logging with colors
-- 🔧 Form validation
-- 🔄 API helper functions
-- 📊 Data formatting tools
-- 🛠️ Error handling utilities
-- 🌐 URL and path utilities
-
-### 🚨 Error Handling Magic
-Catch errors before they ruin your magical application!
-
-```javascript
-// Wrap your components in this magical shield!
-<ErrorBoundary 
-  fallback={<p>🧙‍♂️ Oops! The CrankyMagician sneezed during this spell!</p>}
->
-  <YourComponent />
-</ErrorBoundary>
 ```
 
 ## 🧪 Getting Started (SUPER EASY!) 🧪
@@ -238,20 +229,26 @@ npm run build
 yarn build
 ```
 
-## 🧙‍♂️ Project Structure (FOR THOSE WHO CARE ABOUT ORGANIZATION) 🧙‍♂️
+## 🧠 Project Structure 🧠
 
 ```
 src/
-├── analytics/             # 📊 Magical tracking system
-├── api/                   # 🌐 API integration
-├── components/            # 🧩 UI components galore!
-├── hooks/                 # 🪝 Custom hooks (SO MANY HOOKS!)
-├── reducers/              # 📉 State management
-├── services/              # 🔧 Service integrations
-├── state/                 # 🧠 Global state management
-├── themes/                # 🎨 All those AMAZING themes
-├── translations/          # 🗣️ Language magic
-└── utilities/             # 🛠️ Helper functions
+├── api/                  # API integration (RTK Query)
+├── analytics/            # Analytics tracking system
+├── assets/               # Static assets (images, logos)
+├── components/           # React components
+│   ├── Auth/             # Authentication components
+│   ├── common/           # Shared/common components
+│   ├── navigation/       # Navigation components
+│   └── ... other component directories
+├── hooks/                # Custom React hooks
+├── pages/                # Full page components
+├── reducers/             # Redux reducers/slices
+├── services/             # Services for external interactions
+├── state/                # Redux store configuration
+├── themes/               # Theme configuration
+├── translations/         # i18n translations
+└── utilities/            # Utility functions
 ```
 
 ## 🧙‍♂️ The CrankyMagician's Tips 🧙‍♂️
@@ -262,61 +259,7 @@ src/
 
 3. **CHECK THE CONSOLE!** The CrankyMagician leaves helpful messages, usually in BRIGHT COLORS!
 
-4. **RTFM!** (Read The Fantastic Manual) This README is your spellbook - study it!
-
-## 🧪 API Integration 🧪
-
-The application includes a comprehensive API system that magically connects to your backend:
-
-```javascript
-// Make API calls with the magic of axios!
-import axiosServices from './utilities/axios';
-
-// Cast a GET spell
-const fetchData = async () => {
-  const response = await axiosServices.get('/api/magical-data');
-  return response.data;
-};
-
-// Cast a POST spell
-const createMagicalItem = async (item) => {
-  const response = await axiosServices.post('/api/items', item);
-  return response.data;
-};
-```
-
-### Adding New API Endpoints
-
-Adding new endpoints is as easy as waving your wand!
-
-1. Define your endpoint in `apiConstants.js`
-2. Use the `axiosServices` instance for automatic token handling
-3. Wrap with try/catch for proper error handling
-4. Analytics will AUTOMATICALLY track your API calls!
-
-## 🔮 Troubleshooting 🔮
-
-- **Problem**: The app isn't starting?  
-  **Solution**: Did you forget to `npm install`? The magic needs ingredients!
-
-- **Problem**: Themes not changing?  
-  **Solution**: Make sure you're using the `useTheme` hook, NOT manually changing classes like a MUGGLE!
-
-- **Problem**: Authentication not working?  
-  **Solution**: Check your JWT token! It might be EXPIRED or CURSED!
-
-- **Problem**: Confused about how components work?  
-  **Solution**: Look at the examples folder! The CrankyMagician left you PLENTY of examples!
-
-## 📜 License 📜
-
-This project is licensed under the MAGICAL License - which means you can use it, but if it breaks, you get to keep BOTH pieces! 🧙‍♂️
-
-## 🧙‍♂️ About the CrankyMagician 🧙‍♂️
-
-The CrankyMagician (aka that developer who's had WAY too much coffee) has been casting JavaScript spells for over a decade. Legend has it, they once fixed a production bug using only TELEPATHY and INTERPRETIVE DANCE.
-
-For more magical creations, visit [The CrankyMagician's Chamber of Secrets](https://github.com/crankyMagician).
+4. **RTFM!** (Read The Fantastic Manual) Our READMEs are your spellbooks - study them!
 
 ---
 
