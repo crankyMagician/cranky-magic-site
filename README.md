@@ -5,21 +5,14 @@
 [![Powered by Coffee](https://img.shields.io/badge/powered%20by-Coffee%20☕-brown.svg)](https://coffee.org)
 [![License](https://img.shields.io/badge/license-MAGICAL-orange.svg)](LICENSE)
 
-## 🪄 "Any sufficiently advanced technology is indistinguishable from magic."
-
+## 🪄 "Any sufficiently advanced technology is indistinguishable from magic."  
 — Arthur C. Clarke
 
-[Dev Tasks](https://www.notion.so/1cba97b3508c8116b3f5f3326e407b66?pvs=21)
-
-[Documentation](https://www.notion.so/Documentation-1cba97b3508c802fa23ed50189ff90e4?pvs=21)
-
-[Templates](https://www.notion.so/Templates-1d1a97b3508c8028aea3ec6c0ec6ff87?pvs=21)
+[Dev Tasks](https://www.notion.so/1cba97b3508c8116b3f5f3326e407b66?pvs=21) | [Documentation](https://www.notion.so/Documentation-1cba97b3508c802fa23ed50189ff90e4?pvs=21) | [Templates](https://www.notion.so/Templates-1d1a97b3508c8028aea3ec6c0ec6ff87?pvs=21)
 
 ## ✨ The Magical React Framework That Will Make You Say "WOW!" ✨
 
 Welcome to **CrankyMagicReact** - where React components meet magical enchantments! This isn't your ordinary React framework... it's been infused with the CrankyMagician's special blend of code sorcery to make your development experience *MAGICAL*! 💫
-
-![CrankyMagicReact Logo](https://via.placeholder.com/800x200?text=CrankyMagicReact)
 
 ## 🪄 Features That Will BLOW YOUR MIND! 🪄
 
@@ -234,11 +227,15 @@ REACT_APP_ANALYTICS_SAMPLE_RATE=0.1
 ### 4️⃣ Cast the Development Spell
 ```bash
 npm start
+# Or with yarn:
+yarn start
 ```
 
 ### 5️⃣ Build for Production (WHEN YOU'RE READY TO SHARE YOUR MAGIC)
 ```bash
 npm run build
+# Or with yarn:
+yarn build
 ```
 
 ## 🧙‍♂️ Project Structure (FOR THOSE WHO CARE ABOUT ORGANIZATION) 🧙‍♂️
@@ -317,6 +314,7 @@ This project is licensed under the MAGICAL License - which means you can use it,
 
 ## 🧙‍♂️ About the CrankyMagician 🧙‍♂️
 
+The CrankyMagician (aka that developer who's had WAY too much coffee) has been casting JavaScript spells for over a decade. Legend has it, they once fixed a production bug using only TELEPATHY and INTERPRETIVE DANCE.
 
 For more magical creations, visit [The CrankyMagician's Chamber of Secrets](https://github.com/crankyMagician).
 
