@@ -38,7 +38,7 @@ import {
     Logout,
 } from '@mui/icons-material';
 
-import Branding from './Branding';
+import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";

@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
-import Branding from './Branding';
+import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 

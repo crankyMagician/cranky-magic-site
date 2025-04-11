@@ -8,13 +8,11 @@ import {
     Box,
     Drawer,
     IconButton,
+    Menu,
     MenuItem,
     useTheme,
     useMediaQuery,
-    List,
-    ListItem,
     ListItemIcon,
-    ListItemText,
     Divider
 } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -34,10 +32,10 @@ import {
 } from '@mui/icons-material';
 import { useLogout } from '../../hooks/useLogout';
 
-// Import the translation hook
+// Import the useCustomTranslation hook
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 
-import Branding from './Branding';
+import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 
 // Navigation items aligned with MainContent.js routes
@@ -52,19 +50,30 @@ const navigationItems = [
     { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
 ];
 
-const Navbar = () => {
+const Hoverbar = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
     const logoUrl = logoImage;
     const location = useLocation();
 
-    // Drawer state
+    const { translate } = useCustomTranslation();
+
+    // Drawer state for mobile
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Use the translate function from the hook
-    const { translate } = useCustomTranslation();
+    // Menu state for hover interactions
+    const [anchorEl, setAnchorEl] = useState(null);
+    const isMenuOpen = Boolean(anchorEl);
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     // Toggle drawer
     const toggleDrawer = (open) => (event) => {
@@ -79,56 +88,131 @@ const Navbar = () => {
         !item.requiresAuth || (item.requiresAuth && isAuthenticated)
     );
 
-    // Render navigation list for both drawer and desktop view
-    const renderNavItems = (onClick) => (
-        <List sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row' }}>
+    // Hover Menu Links
+    const renderHoverMenuLinks = () => (
+        <Menu
+            id="nav-menu"
+            anchorEl={anchorEl}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+            MenuListProps={{
+                'aria-labelledby': 'nav-button',
+                onMouseLeave: handleMenuClose,
+            }}
+            sx={{ mt: 1 }}
+        >
             {filteredNavItems.map((item) => (
-                <ListItem
-                    button
+                <MenuItem
                     key={item.path}
+                    onClick={handleMenuClose}
                     component={RouterLink}
                     to={item.path}
                     selected={location.pathname === item.path}
-                    onClick={onClick}
                     sx={{
-                        borderRadius: 1,
-                        mx: isMobile ? 0 : 0.5,
+                        minWidth: 200,
                         '&.Mui-selected': {
                             backgroundColor: 'action.selected',
-                            '&:hover': {
-                                backgroundColor: 'action.hover',
-                            },
-                        },
+                        }
                     }}
                 >
-                    <ListItemIcon sx={{ minWidth: isMobile ? 40 : 0, mr: isMobile ? 1 : 0.5, color: 'inherit' }}>
+                    <ListItemIcon>
                         {item.icon}
                     </ListItemIcon>
-                    <ListItemText
-                        primary={translate(item.label)}
-                        primaryTypographyProps={{
-                            variant: 'body2',
-                            sx: { display: isMobile ? 'block' : { xs: 'none', sm: 'block' } }
-                        }}
-                    />
-                </ListItem>
+                    {translate(item.label)}
+                </MenuItem>
             ))}
-        </List>
+        </Menu>
     );
 
-    // Render authentication buttons
-    const renderAuthButtons = (onClick) => (
-        <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 1, ml: isMobile ? 0 : 2 }}>
+    // Mobile drawer content
+    const renderDrawerContent = () => (
+        <Box sx={{ width: 280, p: 2 }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
+                <Typography variant="h6">
+                    {translate('Company Name')}
+                </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+
+            {filteredNavItems.map((item) => (
+                <MenuItem
+                    key={item.path}
+                    onClick={toggleDrawer(false)}
+                    component={RouterLink}
+                    to={item.path}
+                    selected={location.pathname === item.path}
+                    sx={{
+                        borderRadius: 1,
+                        mb: 0.5,
+                        '&.Mui-selected': {
+                            backgroundColor: 'action.selected',
+                        }
+                    }}
+                >
+                    <ListItemIcon>
+                        {item.icon}
+                    </ListItemIcon>
+                    {translate(item.label)}
+                </MenuItem>
+            ))}
+
+            <Divider sx={{ my: 2 }} />
+
+            {/* Authentication buttons */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {isAuthenticated ? (
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<Logout />}
+                        onClick={() => {
+                            handleLogout();
+                            toggleDrawer(false)();
+                        }}
+                        fullWidth
+                    >
+                        {translate('Logout')}
+                    </Button>
+                ) : (
+                    <>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<Login />}
+                            component={RouterLink}
+                            to="/login"
+                            onClick={toggleDrawer(false)}
+                            fullWidth
+                        >
+                            {translate('Login')}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AppRegistration />}
+                            component={RouterLink}
+                            to="/register"
+                            onClick={toggleDrawer(false)}
+                            fullWidth
+                        >
+                            {translate('Register')}
+                        </Button>
+                    </>
+                )}
+            </Box>
+        </Box>
+    );
+
+    // Authentication buttons for desktop view
+    const renderAuthButtons = () => (
+        <Box sx={{ display: 'flex', gap: 1 }}>
             {isAuthenticated ? (
                 <Button
                     variant="outlined"
                     color="inherit"
                     startIcon={<Logout />}
-                    onClick={() => {
-                        handleLogout();
-                        if (onClick) onClick();
-                    }}
-                    fullWidth={isMobile}
+                    onClick={handleLogout}
                 >
                     {translate('Logout')}
                 </Button>
@@ -140,8 +224,6 @@ const Navbar = () => {
                         startIcon={<Login />}
                         component={RouterLink}
                         to="/login"
-                        onClick={onClick}
-                        fullWidth={isMobile}
                     >
                         {translate('Login')}
                     </Button>
@@ -151,8 +233,6 @@ const Navbar = () => {
                         startIcon={<AppRegistration />}
                         component={RouterLink}
                         to="/register"
-                        onClick={onClick}
-                        fullWidth={isMobile}
                     >
                         {translate('Register')}
                     </Button>
@@ -164,7 +244,7 @@ const Navbar = () => {
     return (
         <AppBar position="static">
             <Toolbar>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
                     <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
                         <Branding logoUrl={logoUrl} />
                         <Typography variant="h6" component="div">
@@ -188,28 +268,25 @@ const Navbar = () => {
                             open={isDrawerOpen}
                             onClose={toggleDrawer(false)}
                         >
-                            <Box
-                                sx={{ width: 280, p: 2 }}
-                                role="presentation"
-                            >
-                                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                                    <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
-                                    <Typography variant="h6">
-                                        {translate('Company Name')}
-                                    </Typography>
-                                </Box>
-                                <Divider sx={{ mb: 2 }} />
-                                {renderNavItems(toggleDrawer(false))}
-                                <Divider sx={{ my: 2 }} />
-                                {renderAuthButtons(toggleDrawer(false))}
-                            </Box>
+                            {renderDrawerContent()}
                         </Drawer>
                     </>
                 ) : (
                     <>
-                        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                            {renderNavItems()}
-                        </Box>
+                        <Button
+                            color="inherit"
+                            id="nav-button"
+                            aria-controls={isMenuOpen ? 'nav-menu' : undefined}
+                            aria-haspopup="true"
+                            aria-expanded={isMenuOpen ? 'true' : undefined}
+                            onMouseEnter={handleMenuOpen}
+                            endIcon={<MenuIcon />}
+                            sx={{ mx: 2 }}
+                        >
+                            {translate('Navigation')}
+                        </Button>
+                        {renderHoverMenuLinks()}
+
                         <Box sx={{ flexGrow: 0 }}>
                             {renderAuthButtons()}
                         </Box>
@@ -220,4 +297,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar;
+export default Hoverbar;

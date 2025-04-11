@@ -41,7 +41,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
-import Branding from './Branding';
+import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 
 // Navigation items aligned with MainContent.js routes

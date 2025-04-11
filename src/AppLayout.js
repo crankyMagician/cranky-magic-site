@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Box } from "@mui/material";
-import Sidebar from "./components/demoComponents/Sidebar";
-import Hoverbar from "./components/demoComponents/Hoverbar";
+import Sidebar from "./components/navigation/Sidebar";
+import Hoverbar from "./components/navigation/Hoverbar";
 import {Dashboard} from "@mui/icons-material";
-import MegaMenu from "./components/demoComponents/MegaMenu";
-import Navbar from "./components/demoComponents/NavBar";
+import MegaMenu from "./components/navigation/MegaMenu";
+import Navbar from "./components/navigation/NavBar";
 import Footer from "./components/demoComponents/Footer";
 
 
