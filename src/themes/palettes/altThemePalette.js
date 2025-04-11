@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const altThemePalette = {
     // Standard MUI properties
     mode: 'light', // or 'dark'
@@ -12,12 +5,12 @@ export const altThemePalette = {
         main: '#FF9800', // A vibrant, attention-grabbing color for primary actions
         light: '#FFB74D', // Keeping it consistent for simplicity
         dark: '#F57C00', // Ensuring visibility and focus
-        contrastText: '#FFFFFF',
+        contrastText: '#000000', // Changed to black for better contrast
     },
     secondary: {
-        main: '#FFEB3B', // Bright and cheerful for secondary accents
+        main: '#F57F17', // Darkened for better contrast (was #FFEB3B)
         light: '#FFF176', // Consistent color for a harmonious look
-        dark: '#FDD835', // Maintains the theme's energy
+        dark: '#F9A825', // Adjusted for better contrast
         contrastText: '#000000',
     },
     error: {
@@ -27,9 +20,9 @@ export const altThemePalette = {
         contrastText: '#FFFFFF',
     },
     warning: {
-        main: '#9E9E9E', // A softer warning, using grey to differentiate from the usual orange
-        light: '#BDBDBD', // Simplified approach for consistency
-        dark: '#616161', // Subdued to keep the focus on primary and secondary colors
+        main: '#FF9800', // Changed to standard orange (was #9E9E9E)
+        light: '#FFB74D', // Simplified approach for consistency
+        dark: '#F57C00', // Subdued to keep the focus on primary and secondary colors
         contrastText: '#000000',
     },
     info: {
@@ -55,12 +48,12 @@ export const altThemePalette = {
     },
     action: {
         active: '#F57C00', // Giving a distinct look for active states
-        hover: '#FFEB3B',
-        hoverOpacity: 0.08, // Maintaining the standard for hover states
-        selected: '#FFB74D', // Slightly vibrant for selected states
+        hover: '#FFF8E1', // Lightened for better visibility (was #FFEB3B)
+        hoverOpacity: 0.1, // Increased for better visibility (was 0.08)
+        selected: '#FFE082', // Changed for better contrast (was #FFB74D)
         selectedOpacity: 0.14, // Slightly vibrant for selected states
-        disabled: '#FF9800', // Clearly indicating disabled states with a softer color
-        disabledBackground: '#FFEB3B',
+        disabled: '#BDBDBD', // Changed for better contrast (was #FF9800)
+        disabledBackground: '#F5F5F5', // Lightened for better contrast (was #FFEB3B)
         disabledOpacity: 0.38, // Clearly indicating disabled states with a softer color
         focus: '#F57C00', // Ensuring focus is noticeable
         focusOpacity: 0.12, // Ensuring focus is noticeable

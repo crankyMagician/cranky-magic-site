@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const mintPalette = {
     // Standard MUI properties
     mode: 'light',
@@ -12,13 +5,13 @@ export const mintPalette = {
         main: '#4DB6AC', // Mint Green
         light: '#82E9DE', // Light Mint Green
         dark: '#00867D', // Dark Mint Green
-        contrastText: '#FFFFFF', // White for contrast
+        contrastText: '#000000', // Changed to black for better contrast (was #FFFFFF)
     },
     secondary: {
-        main: '#80CBC4', // Soft Teal
-        light: '#B2FEF7', // Light Teal
-        dark: '#4F9A94', // Dark Teal
-        contrastText: '#000000', // Black for contrast on lighter teals
+        main: '#00796B', // Darkened for better contrast (was #80CBC4)
+        light: '#4DB6AC', // Darkened for better contrast (was #B2FEF7)
+        dark: '#004D40', // Darkened for better contrast (was #4F9A94)
+        contrastText: '#FFFFFF', // White for contrast on darker teal
     },
     error: {
         main: '#EF5350', // Red, for consistency with light themes
@@ -33,28 +26,28 @@ export const mintPalette = {
         contrastText: '#000000', // Black for contrast on light orange
     },
     info: {
-        main: '#4FC3F7', // Light Blue, for a refreshing contrast
+        main: '#039BE5', // Darkened for better contrast (was #4FC3F7)
         light: '#81D4FA', // Lighter Blue
-        dark: '#039BE5', // Darker Blue
-        contrastText: '#000000', // Black for contrast on light blue
+        dark: '#0277BD', // Darkened for better contrast (was #039BE5)
+        contrastText: '#FFFFFF', // Changed to white for contrast on darkened blue (was #000000)
     },
     success: {
-        main: '#81C784', // Soft Green, akin to light mode for consistency
-        light: '#A5D6A7', // Lighter green 
-        dark: '#43A047', // Darker green
-        contrastText: '#000000', // Black for contrast on light green
+        main: '#43A047', // Darkened for better contrast (was #81C784)
+        light: '#81C784', // Unchanged
+        dark: '#2E7D32', // Darkened for better contrast (was #43A047)
+        contrastText: '#FFFFFF', // Changed to white for contrast on darkened green (was #000000)
     },
     background: {
         default: '#E0F2F1', // Very light mint, emulating a serene sky
-        paper: '#B2DFDB', // Light Mint, for paper elements
+        paper: '#F5F5F5', // Lightened for better contrast (was #B2DFDB)
     },
     text: {
-        primary: '#37474F', // Dark Slate, for readability on light backgrounds
-        secondary: '#607D8B', // Blue Grey, for secondary text
+        primary: '#212121', // Darkened for better contrast (was #37474F)
+        secondary: '#424242', // Darkened for better contrast (was #607D8B)
         disabled: '#90A4AE', // Lighter variant for disabled text
     },
     action: {
-        active: '#607D8B', // Blue Grey, adjusted for visibility
+        active: '#00796B', // Darkened for better contrast (was #607D8B)
         hover: '#E0F7FA', // Very light blue, for hover states
         hoverOpacity: 0.08, // Standard opacity for hover states
         selected: '#B2EBF2', // Selected state has a soft blue
@@ -62,7 +55,7 @@ export const mintPalette = {
         disabled: '#CFCFCF', // Grey, for disabled state
         disabledBackground: '#ECEFF1', // Very light grey, for disabled background
         disabledOpacity: 0.38, // Higher opacity for disabled state to ensure visibility
-        focus: '#B0BEC5', // Cool Grey, for focus states
+        focus: '#00796B', // Darkened for better contrast (was #B0BEC5)
         focusOpacity: 0.12, // Standard focus opacity
         activatedOpacity: 0.12, // Similar to focus for consistency
     },
@@ -115,9 +108,9 @@ export const mintPalette = {
 
     // Add tertiary color just like spatial themes use
     tertiary: {
-        main: '#FFD740', // Amber, to complement the mint theme
-        light: '#FFECB3', // Light amber for subtle accents
-        dark: '#FFC400', // Darker amber for emphasis
-        contrastText: '#000000', // Black text for contrast on amber
+        main: '#F57C00', // Darkened for better contrast (was #FFD740)
+        light: '#FFB74D', // Light amber for subtle accents
+        dark: '#E65100', // Darkened for better contrast (was #FFC400)
+        contrastText: '#FFFFFF', // Changed to white for better contrast with darkened colors (was #000000)
     },
 };

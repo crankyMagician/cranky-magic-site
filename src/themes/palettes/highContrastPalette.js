@@ -1,17 +1,9 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- * This version of highContrastPalette has been updated for improved accessibility (WCAG compliant)
- */
 export const highContrastPalette = {
     // Standard MUI properties
     mode: 'light', // or 'dark'
     primary: {
         main: '#000000', // Black for maximum contrast
-        light: '#555555', // Dark Gray for lighter elements
+        light: '#444444', // Darkened for better contrast (was #555555)
         dark: '#000000', // Keeping dark elements consistent with maximum contrast
         contrastText: '#FFFFFF', // White to ensure high readability against dark backgrounds
     },
@@ -51,19 +43,19 @@ export const highContrastPalette = {
     },
     text: {
         primary: '#000000', // Black for primary text, ensuring maximum readability
-        secondary: '#555555', // Dark Gray for secondary text to maintain clear contrast
+        secondary: '#444444', // Darkened for better contrast (was #555555)
         disabled: '#757575', // Standard disabled text color for clarity without interference
     },
     action: {
-        active: '#555555', // Dark Gray for active elements
+        active: '#444444', // Darkened for better contrast (was #555555)
         hover: '#EEEEEE', // Very light gray for hover states to maintain visual clarity
-        hoverOpacity: 0.08, // Standard opacity for hover states
+        hoverOpacity: 0.1, // Increased for better visibility (was 0.08)
         selected: '#DDDDDD', // Light Gray for selected states, ensuring discernible contrast
-        selectedOpacity: 0.14, // Slightly higher opacity for visibility of selection states
+        selectedOpacity: 0.16, // Increased for better visibility (was 0.14)
         disabled: '#CCCCCC', // Light Gray for disabled elements to indicate non-interactivity
         disabledBackground: '#E0E0E0', // Very light gray for disabled backgrounds
         disabledOpacity: 0.38, // Enhanced opacity for disabled states to ensure they're noticeable
-        focus: '#CCCCCC', // Light Gray for focus states to subtly highlight interaction
+        focus: '#444444', // Darkened for better contrast (was #CCCCCC)
         focusOpacity: 0.12, // Standard focus opacity for consistency
         activatedOpacity: 0.12, // Matching opacity for activated states for uniformity
     },

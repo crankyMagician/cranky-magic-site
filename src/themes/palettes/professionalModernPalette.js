@@ -1,18 +1,11 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const professionalModernPalette = {
     // Standard MUI properties
     mode: 'light',
     primary: {
-        main: '#9E9E9E', // A neutral, versatile color for primary actions
+        main: '#757575', // Darkened for better contrast (was #9E9E9E)
         light: '#E0E0E0', // Provides a soft, accessible contrast
         dark: '#616161', // Ensures sufficient contrast and visibility
-        contrastText: '#000000', // For optimal readability against the neutral primary color
+        contrastText: '#FFFFFF', // Changed to white for better contrast (was #000000)
     },
     secondary: {
         main: '#2196F3', // Calm and professional for secondary accents
@@ -46,23 +39,23 @@ export const professionalModernPalette = {
     },
     background: {
         default: '#FFFFFF', // Clean and bright for clarity and focus
-        paper: '#E0E0E0', // Slightly off-white for depth and distinction
+        paper: '#F5F5F5', // Lightened for better contrast (was #E0E0E0)
     },
     text: {
         primary: '#000000', // Strong and legible for core text
-        secondary: '#616161', // Subdued for secondary information
+        secondary: '#424242', // Darkened for better contrast (was #616161)
         disabled: '#9E9E9E', // Grey for disabled text
     },
     action: {
-        active: '#616161', // Distinguished and clear for active states
-        hover: '#E0E0E0', // Lightly highlighted for interactivity
+        active: '#424242', // Darkened for better contrast (was #616161)
+        hover: 'rgba(0, 0, 0, 0.08)', // Lightly highlighted for interactivity
         hoverOpacity: 0.08, // Maintaining standard opacity for hover states
-        selected: '#9E9E9E', // Neutral for selected items, ensuring focus
+        selected: '#757575', // Darkened for better contrast (was #9E9E9E)
         selectedOpacity: 0.14, // Clear but unobtrusive selection state
-        disabled: '#E0E0E0', // Visibly disabled but integrated into the theme
-        disabledBackground: '#9E9E9E', // Consistent with the theme, ensuring accessibility
+        disabled: '#9E9E9E', // Visibly disabled but integrated into the theme
+        disabledBackground: '#E0E0E0', // Lightened for better contrast
         disabledOpacity: 0.38, // Clearly indicating disabled states while maintaining design
-        focus: '#616161', // Focused elements are highlighted for accessibility
+        focus: '#424242', // Darkened for better visibility (was #616161)
         focusOpacity: 0.12, // Visibility without distraction
         activatedOpacity: 0.12, // Consistency in interaction states
     },

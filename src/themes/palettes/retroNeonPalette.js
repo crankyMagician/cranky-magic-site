@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const retroNeonPalette = {
     // Standard MUI properties
     mode: 'dark',
@@ -15,9 +8,9 @@ export const retroNeonPalette = {
         contrastText: '#FFFFFF', // White for contrast
     },
     secondary: {
-        main: '#00E5FF', // Neon Blue
+        main: '#00ACC1', // Darkened for better contrast (was #00E5FF)
         light: '#18FFFF', // Light Neon Blue
-        dark: '#00B8D4', // Dark Neon Blue
+        dark: '#0097A7', // Darkened for better contrast (was #00B8D4)
         contrastText: '#000000', // Black for contrast on bright neon
     },
     error: {
@@ -45,24 +38,24 @@ export const retroNeonPalette = {
         contrastText: '#000000', // Black for contrast on bright lime
     },
     background: {
-        default: '#212121', // Deep Grey, mimicking a night sky
-        paper: '#424242', // Dark Grey, for paper elements, resembling urban asphalt
+        default: '#121212', // Darkened for better contrast (was #212121)
+        paper: '#1E1E1E', // Darkened for better contrast (was #424242)
     },
     text: {
-        primary: '#E0E0E0', // Light Grey, for readability against dark backgrounds
-        secondary: '#BDBDBD', // Medium Grey, for secondary text, ensuring contrast
-        disabled: '#757575', // Darker grey for disabled text
+        primary: '#FFFFFF', // White for primary text on dark backgrounds
+        secondary: '#E0E0E0', // Lightened for better contrast (was #BDBDBD)
+        disabled: '#9E9E9E', // Lightened for better visibility (was #757575)
     },
     action: {
-        active: '#BDBDBD', // Medium Grey, adjusted for visibility against dark backgrounds
-        hover: '#616161', // Dark Grey, for hover states, providing a subtle interaction cue
-        hoverOpacity: 0.08, // Standard opacity for hover states
-        selected: '#757575', // Selected state has a medium-dark grey
-        selectedOpacity: 0.14, // Slightly higher opacity for selected states
-        disabled: '#9E9E9E', // Grey, for disabled state
-        disabledBackground: '#757575', // Medium Dark Grey, for disabled background
+        active: '#FFFFFF', // Changed to white for better visibility (was #BDBDBD)
+        hover: 'rgba(255, 255, 255, 0.1)', // Slightly increased for visibility (was 0.08)
+        hoverOpacity: 0.1, // Increased for better visibility (was 0.08)
+        selected: 'rgba(255, 255, 255, 0.16)', // Stronger for visibility (was 0.14)
+        selectedOpacity: 0.16, // Increased for better visibility (was 0.14)
+        disabled: 'rgba(255, 255, 255, 0.3)', // Unchanged
+        disabledBackground: 'rgba(255, 255, 255, 0.12)', // Unchanged
         disabledOpacity: 0.38, // Higher opacity for disabled state to ensure visibility
-        focus: '#9E9E9E', // Grey, for focus states
+        focus: 'rgba(255, 255, 255, 0.12)', // Unchanged
         focusOpacity: 0.12, // Standard focus opacity
         activatedOpacity: 0.12, // Similar to focus for consistency
     },

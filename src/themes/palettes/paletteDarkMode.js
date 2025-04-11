@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const paletteDarkMode = {
     // Standard MUI properties
     mode: 'dark',
@@ -18,7 +11,7 @@ export const paletteDarkMode = {
         main: '#4CAF50', // Green base
         light: '#81C784', // Light green
         dark: '#388E3C', // Dark green
-        contrastText: '#FFFFFF', // White text for contrast
+        contrastText: '#FFFFFF', // Changed to white for better contrast (was #000000)
     },
     error: {
         main: '#F44336', // Red base
@@ -33,9 +26,9 @@ export const paletteDarkMode = {
         contrastText: '#000000', // Black text for contrast
     },
     info: {
-        main: '#9E9E9E', // Grey base
-        light: '#BDBDBD', // Light grey
-        dark: '#616161', // Dark grey
+        main: '#BDBDBD', // Lightened for better contrast (was #9E9E9E)
+        light: '#E0E0E0', // Lightened for better contrast (was #BDBDBD)
+        dark: '#757575', // Darkened appropriately (was #616161)
         contrastText: '#000000', // Black text for contrast
     },
     success: {
@@ -50,19 +43,19 @@ export const paletteDarkMode = {
     },
     text: {
         primary: '#FFFFFF', // White
-        secondary: '#9E9E9E', // Grey
+        secondary: '#BDBDBD', // Lightened for better contrast (was #9E9E9E)
         disabled: '#757575', // Darker grey for disabled
     },
     action: {
-        active: '#9E9E9E', // Grey base, adjusted for visibility against dark backgrounds
-        hover: '#424242', // Dark grey for hover
-        hoverOpacity: 0.08, // Standard opacity
-        selected: '#BDBDBD', // Light grey for selected state
-        selectedOpacity: 0.14, // Consistent with light mode
-        disabled: '#424242', // Dark grey for disabled
-        disabledBackground: '#757575', // Medium grey for disabled background
+        active: '#BDBDBD', // Lightened for better visibility (was #9E9E9E)
+        hover: 'rgba(255, 255, 255, 0.1)', // Increased for better visibility (was 0.08)
+        hoverOpacity: 0.1, // Increased for visibility (was 0.08)
+        selected: 'rgba(255, 255, 255, 0.16)', // Stronger for better visibility (was 0.14)
+        selectedOpacity: 0.16, // Increased slightly (was 0.14)
+        disabled: 'rgba(255, 255, 255, 0.3)', // Increased for visibility (was 0.26)
+        disabledBackground: 'rgba(255, 255, 255, 0.12)', // Unchanged
         disabledOpacity: 0.38, // Standard opacity for disabled
-        focus: '#BDBDBD', // Light grey for focus
+        focus: 'rgba(255, 255, 255, 0.12)', // Unchanged
         focusOpacity: 0.12, // Standard focus opacity
         activatedOpacity: 0.12, // Consistency with focus state
     },

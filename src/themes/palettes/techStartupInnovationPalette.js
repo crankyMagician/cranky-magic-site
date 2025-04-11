@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const techStartupInnovationPalette = {
     // Standard MUI properties
     mode: 'light',
@@ -18,7 +11,7 @@ export const techStartupInnovationPalette = {
         main: '#03DAC6', // A tech-inspired teal for secondary accents
         light: '#70EFDE', // Light teal for a fresh, modern look
         dark: '#018786', // Dark teal for contrast and visibility
-        contrastText: '#000000', // Black text for contrast on bright teal
+        contrastText: '#000000', // Black text on secondary.light only
     },
     error: {
         main: '#B00020', // A strong red for alerts and warnings
@@ -27,16 +20,16 @@ export const techStartupInnovationPalette = {
         contrastText: '#FFFFFF', // White text for contrast
     },
     warning: {
-        main: '#FFC107', // Amber for warnings, maintaining an energetic theme
+        main: '#FF9800', // Standardized from FFC107 for better contrast
         light: '#FFD54F', // Light amber for a softer warning
-        dark: '#FFA000', // Dark amber for a more serious tone
+        dark: '#F57C00', // Dark amber for a more serious tone
         contrastText: '#000000', // Black text for contrast on amber
     },
     info: {
         main: '#2196F3', // Bright blue for information and trust
         light: '#64B5F6', // Light blue for clarity and calmness
         dark: '#1976D2', // Dark blue for strength and reliability
-        contrastText: '#FFFFFF', // White text for contrast on dark blue
+        contrastText: '#000000', // Black text for contrast on light blue, changed to work with light variant
     },
     success: {
         main: '#4CAF50', // A confident green for success messages
@@ -50,14 +43,14 @@ export const techStartupInnovationPalette = {
     },
     text: {
         primary: '#212121', // Deep gray for primary text, ensuring readability
-        secondary: '#757575', // Lighter gray for secondary text or less important information
-        disabled: '#BDBDBD', // Light gray for disabled text
+        secondary: '#424242', // Darkened for better contrast (was #757575)
+        disabled: '#9E9E9E', // Light gray for disabled text
     },
     action: {
-        active: '#6200EA', // Vibrant purple for active states
-        hover: '#3700B3', // Dark purple for hover states, adding depth
+        active: '#424242', // Darkened for better contrast (was #6200EA)
+        hover: '#F5F5F5', // Unchanged
         hoverOpacity: 0.08, // Opacity for hover states
-        selected: '#9C47FF', // Lighter purple for selected items, adding visibility
+        selected: '#EDE7F6', // Lightened purple for better visibility (was #9C47FF)
         selectedOpacity: 0.14, // Opacity for selected states
         disabled: '#757575', // Gray for disabled states, ensuring readability
         disabledBackground: '#E0E0E0', // Light gray for disabled backgrounds, maintaining UI consistency

@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const paletteLightMode = {
     // Standard MUI properties
     mode: 'light',
@@ -16,7 +9,7 @@ export const paletteLightMode = {
     },
     secondary: {
         main: '#4CAF50', // Green base
-        light: '#81C784', // Light green 
+        light: '#81C784', // Light green
         dark: '#388E3C', // Dark green
         contrastText: '#FFFFFF', // White text for contrast
     },
@@ -33,7 +26,7 @@ export const paletteLightMode = {
         contrastText: '#000000', // Black text for contrast
     },
     info: {
-        main: '#9E9E9E', // Grey base
+        main: '#757575', // Darkened for better contrast (was #9E9E9E)
         light: '#BDBDBD', // Light grey
         dark: '#616161', // Dark grey
         contrastText: '#000000', // Black text for contrast
@@ -42,27 +35,27 @@ export const paletteLightMode = {
         main: '#4CAF50', // Green base (same as secondary)
         light: '#81C784', // Light green
         dark: '#388E3C', // Dark green
-        contrastText: '#FFFFFF', // White text for contrast
+        contrastText: '#FFFFFF', // White for contrast
     },
     background: {
         default: '#FFFFFF', // White
-        paper: '#9E9E9E', // Grey base for paper elements
+        paper: '#E0E0E0', // Lightened for better contrast (was #9E9E9E)
     },
     text: {
         primary: '#000000', // Black
-        secondary: '#9E9E9E', // Grey base
-        disabled: '#BDBDBD', // Light grey for disabled
+        secondary: '#424242', // Darkened for better contrast (was #9E9E9E)
+        disabled: '#9E9E9E', // Medium grey for disabled text
     },
     action: {
         active: '#424242', // Dark grey, more visible in light mode
-        hover: '#E0E0E0', // Light grey for hover
-        hoverOpacity: 0.08, // Standard opacity for hover states
-        selected: '#9E9E9E', // Grey base for selected
-        selectedOpacity: 0.14, // Slightly higher opacity for selected states
-        disabled: '#9E9E9E', // Grey base for disabled
-        disabledBackground: '#E0E0E0', // Light grey for disabled background
+        hover: 'rgba(0, 0, 0, 0.05)', // Slightly increased for better visibility (was 0.04)
+        hoverOpacity: 0.05, // Increased for better visibility (was 0.04)
+        selected: 'rgba(0, 0, 0, 0.08)', // Slightly stronger for selected elements
+        selectedOpacity: 0.08, // Standard selection opacity
+        disabled: 'rgba(0, 0, 0, 0.26)', // Semi-transparent black for disabled elements
+        disabledBackground: 'rgba(0, 0, 0, 0.12)', // Light grey background for disabled elements
         disabledOpacity: 0.38, // Higher opacity for disabled state
-        focus: '#424242', // Dark grey for focus
+        focus: 'rgba(0, 0, 0, 0.12)', // Subtle black for focus
         focusOpacity: 0.12, // Standard focus opacity
         activatedOpacity: 0.12, // Similar to focus for consistency
     },

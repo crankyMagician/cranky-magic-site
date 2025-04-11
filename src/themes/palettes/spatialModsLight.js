@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const spatialModsLight = {
     // Standard MUI properties
     mode: 'light',
@@ -15,7 +8,7 @@ export const spatialModsLight = {
         contrastText: '#FFFFFF', // White for contrast
     },
     secondary: {
-        main: '#828282', // Medium grey for secondary elements
+        main: '#6A6A6A', // Darkened for better contrast (was #828282)
         light: '#BDBDBD', // Light grey for subtle elements
         dark: '#5F5F5F', // Darker grey for emphasis
         contrastText: '#FFFFFF', // White for contrast on darker grey
@@ -33,7 +26,7 @@ export const spatialModsLight = {
         contrastText: '#000000', // Black for contrast on bright orange
     },
     info: {
-        main: '#00B8FF', // Bright blue for information
+        main: '#0095CC', // Darkened for better contrast (was #00B8FF)
         light: '#33C3FF', // Lighter blue for info backgrounds
         dark: '#0090CC', // Deeper blue for emphasis
         contrastText: '#000000', // Black for contrast on bright blue
@@ -60,7 +53,7 @@ export const spatialModsLight = {
         contrastText: '#000000', // Black for contrast on bright gold
     },
     action: {
-        active: 'rgba(0, 0, 0, 0.54)', // Semi-transparent black for active elements
+        active: 'rgba(0, 0, 0, 0.6)', // Increased opacity for better contrast (was 0.54)
         hover: 'rgba(0, 0, 0, 0.04)', // Very subtle black hover effect
         hoverOpacity: 0.04, // Subtle hover opacity for light mode
         selected: 'rgba(0, 0, 0, 0.08)', // Slightly stronger for selected elements

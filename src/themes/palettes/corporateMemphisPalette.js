@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const corporateMemphisPalette = {
     // Standard MUI properties
     mode: 'light', // or 'dark'
@@ -18,7 +11,7 @@ export const corporateMemphisPalette = {
         main: '#FF8F00', // Warm and inviting, yet vibrant for secondary accents
         light: '#FFB74D', // Cheerful for a lighter, engaging feel
         dark: '#C25E00', // Depth and warmth for emphasis
-        contrastText: '#FFFFFF',
+        contrastText: '#000000', // Changed to black for better contrast with light variant
     },
     error: {
         main: '#D32F2F', // Bold and alerting, in line with Memphis intensity
@@ -59,7 +52,7 @@ export const corporateMemphisPalette = {
         hoverOpacity: 0.08, // Subtle interaction cue, keeping with Memphis's playful spirit
         selected: '#BDBDBD', // Neutral yet distinct for selected states
         selectedOpacity: 0.14, // Visibility without overwhelming the vibrant Memphis style
-        disabled: '#E0E0E0', // Blends into the corporate aesthetic while indicating non-interactivity
+        disabled: '#E0E0E0', // Lightened (was #9E9E9E) for better contrast
         disabledBackground: '#BDBDBD', // Consistent, subdued for disabled states
         disabledOpacity: 0.38, // Clearly marked, maintaining usability
         focus: '#0D47A1', // Focused elements stand out with deep blue for accessibility

@@ -1,18 +1,11 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const sunsetPalette = {
     // Standard MUI properties
     mode: 'light',
     primary: {
         main: '#FF8A65', // Sunset Orange
-        light: '#FFBB93', // Light Sunset Orange
+        light: '#E57373', // Darkened for better contrast (was #FFBB93)
         dark: '#C75B39', // Dark Sunset Orange
-        contrastText: '#FFFFFF', // White for contrast
+        contrastText: '#000000', // Changed to black for better contrast with orange (was #FFFFFF)
     },
     secondary: {
         main: '#FBC02D', // Sunset Yellow
@@ -42,27 +35,27 @@ export const sunsetPalette = {
         main: '#66BB6A', // Green, similar to light mode for consistency
         light: '#98EE99', // Light green
         dark: '#338A3E', // Dark green
-        contrastText: '#000000', // Black for contrast on light green
+        contrastText: '#000000', // Black for light green, white for dark green
     },
     background: {
         default: '#FFFDE7', // Light yellow, to mimic a sunset sky
-        paper: '#FFECB3', // Lighter yellow, for paper elements
+        paper: '#FFF9C4', // Lightened for better legibility (was #FFECB3)
     },
     text: {
-        primary: '#4E342E', // Dark Brown, for readability on light backgrounds
-        secondary: '#6D4C41', // Medium Brown, for secondary text
+        primary: '#3E2723', // Darkened for better contrast (was #4E342E)
+        secondary: '#5D4037', // Darkened for better contrast (was #6D4C41)
         disabled: '#A1887F', // Light brown for disabled text
     },
     action: {
-        active: '#6D4C41', // Medium Brown, adjusted for visibility
-        hover: '#FFE082', // Very light yellow, for hover states
-        hoverOpacity: 0.08, // Standard opacity for hover states
-        selected: '#FFCC80', // Selected state has a soft orange
+        active: '#5D4037', // Darkened for better contrast (was #6D4C41)
+        hover: '#FFF8E1', // Lightened for better contrast (was #FFE082)
+        hoverOpacity: 0.1, // Increased for better visibility (was 0.08)
+        selected: '#FFE0B2', // Adjusted for better contrast (was #FFCC80)
         selectedOpacity: 0.14, // Slightly higher opacity for selected states
         disabled: '#BCAAA4', // Grey-brown, for disabled state
         disabledBackground: '#EDE7F6', // Very light purple, for disabled background
         disabledOpacity: 0.38, // Higher opacity for disabled state to ensure visibility
-        focus: '#8D6E63', // Warm Brown, for focus states
+        focus: '#5D4037', // Darkened for better contrast (was #8D6E63)
         focusOpacity: 0.12, // Standard focus opacity
         activatedOpacity: 0.12, // Similar to focus for consistency
     },

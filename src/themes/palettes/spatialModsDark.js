@@ -1,10 +1,3 @@
-// src/themes/palettes/enhancedPaletteStructure.js
-// This file shows an example of how to structure any palette to work with crankyComponentOverrides
-
-/**
- * Enhanced palette structure template
- * All palettes should follow this structure to work with crankyComponentOverrides
- */
 export const spatialModsDark = {
     // Standard MUI properties
     mode: 'dark',
@@ -16,7 +9,7 @@ export const spatialModsDark = {
     },
     secondary: {
         main: '#9E9E9E', // Neutral grey for secondary elements
-        light: '#BDBDBD', // Light grey for subtle elements
+        light: '#D0D0D0', // Lightened for better contrast (was #BDBDBD)
         dark: '#757575', // Darker grey for emphasis
         contrastText: '#000000', // Black text on lighter secondary colors
     },
@@ -27,7 +20,7 @@ export const spatialModsDark = {
         contrastText: '#FFFFFF', // White for contrast
     },
     warning: {
-        main: '#FF9800', // Standard orange for warnings
+        main: '#E68900', // Darkened for better contrast (was #FF9800)
         light: '#FFC947', // Light orange for subtle warnings
         dark: '#E68900', // Deeper orange for serious warnings
         contrastText: '#000000', // Black for contrast on bright orange
