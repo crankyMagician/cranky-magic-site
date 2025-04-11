@@ -133,7 +133,9 @@ const sentryProvider = {
             } else {
                 Sentry.endSession();
                 // Clear user data when consent is withdrawn
-                Sentry.configureScope(scope => scope.clear());
+                // Use getCurrentScope() instead of configureScope
+                const currentScope = Sentry.getCurrentScope();
+                currentScope.clear();
             }
         } catch (error) {
             console.error('[Analytics:Sentry] Error setting consent:', error);

@@ -59,16 +59,15 @@ src/
 └── AnalyticsProvider.js                # Root provider component
 ```
 
-### Step 2: Configure Environment Variables
-
+Step 2: Configure Environment Variables
 Add the following environment variables:
 
-```
-# PostHog configuration
+```dotenv
+# PostHog configuration (https://posthog.com)
 REACT_APP_POSTHOG_API_KEY=your_posthog_api_key
 REACT_APP_POSTHOG_HOST=https://app.posthog.com
 
-# Sentry configuration
+# Sentry configuration (https://sentry.io)
 REACT_APP_SENTRY_DSN=your_sentry_dsn
 
 # Other analytics config
