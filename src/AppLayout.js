@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Box } from "@mui/material";
 import Sidebar from "./components/navigation/Sidebar";
-import {Dashboard} from "@mui/icons-material";
 import Hoverbar from "./components/navigation/Hoverbar";
 import Footer from "./components/navigation/Footer";
 import MegaMenu from "./components/navigation/MegaMenu";
 import Navbar from "./components/navigation/NavBar";
+import Dashboard from "./components/navigation/Dashboard";
 
 
 const AppLayout = ({ children }) => {
