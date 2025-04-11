@@ -6,9 +6,9 @@ import Example from "./example/Example";
 import AuthRouteWrapper from './utilities/AuthRouteWrapper';
 import AccountSettingsPage from "./components/demoComponents/AccountSettingsPage";
 // Import the ContactUs component
-import ContactUs from "./components/demoComponents/ContactUsComponent"; // Make sure this path is correct
+import ContactUs from "./components/common/ContactUsComponent"; // Make sure this path is correct
 import NewsletterSignup from "./components/demoComponents/NewsletterSignup";
-import AboutUs from "./components/demoComponents/AboutUs";
+import AboutUs from "./components/common/AboutUs";
 import StreamVideo from "./components/demoComponents/StreamVideo";
 import Calendar from "./components/demoComponents/Calendar";
 import LandingPage from "./components/demoComponents/LandingPage";
