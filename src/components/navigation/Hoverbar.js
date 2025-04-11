@@ -13,7 +13,9 @@ import {
     useTheme,
     useMediaQuery,
     ListItemIcon,
-    Divider
+    ListItemText,
+    Divider,
+    Container
 } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
@@ -37,6 +39,13 @@ import useCustomTranslation from "../../hooks/useCustomTranslation";
 
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
+import Sidebar from './Sidebar';
+
+// Define the breakpoint for switching to sidebar
+const SIDEBAR_BREAKPOINT = 'md';
+
+// Maximum width for the navigation container
+const MAX_NAV_WIDTH = 'lg';
 
 // Navigation items aligned with MainContent.js routes
 const navigationItems = [
@@ -62,6 +71,7 @@ const Hoverbar = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isSidebarMode = useMediaQuery(theme.breakpoints.down(SIDEBAR_BREAKPOINT));
 
     // Menu state for hover interactions
     const [anchorEl, setAnchorEl] = useState(null);
@@ -83,6 +93,11 @@ const Hoverbar = () => {
         setIsDrawerOpen(open);
     };
 
+    // If we're in sidebar mode, render the Sidebar component instead
+    if (isSidebarMode) {
+        return <Sidebar />;
+    }
+
     // Filter navigation items based on authentication status
     const filteredNavItems = navigationItems.filter(item =>
         !item.requiresAuth || (item.requiresAuth && isAuthenticated)
@@ -99,7 +114,12 @@ const Hoverbar = () => {
                 'aria-labelledby': 'nav-button',
                 onMouseLeave: handleMenuClose,
             }}
-            sx={{ mt: 1 }}
+            PaperProps={{
+                sx: {
+                    mt: 1,
+                    backgroundColor: theme.palette.background.paper,
+                }
+            }}
         >
             {filteredNavItems.map((item) => (
                 <MenuItem
@@ -111,14 +131,31 @@ const Hoverbar = () => {
                     sx={{
                         minWidth: 200,
                         '&.Mui-selected': {
-                            backgroundColor: 'action.selected',
-                        }
+                            backgroundColor: theme.palette.action.selected,
+                            '&:hover': {
+                                backgroundColor: theme.palette.action.hover,
+                            },
+                        },
+                        py: 1,
+                        px: 2,
                     }}
                 >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{
+                        color: location.pathname === item.path ?
+                            theme.palette.primary.main :
+                            theme.palette.text.secondary
+                    }}>
                         {item.icon}
                     </ListItemIcon>
-                    {translate(item.label)}
+                    <ListItemText
+                        primary={translate(item.label)}
+                        primaryTypographyProps={{
+                            variant: 'body1',
+                            fontFamily: theme.typography.body1.fontFamily,
+                            fontWeight: location.pathname === item.path ? 600 : 400,
+                            color: theme.palette.text.primary,
+                        }}
+                    />
                 </MenuItem>
             ))}
         </Menu>
@@ -126,10 +163,16 @@ const Hoverbar = () => {
 
     // Mobile drawer content
     const renderDrawerContent = () => (
-        <Box sx={{ width: 280, p: 2 }}>
+        <Box sx={{ width: { xs: '80%', sm: 280 }, p: 2 }}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                 <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
-                <Typography variant="h6">
+                <Typography
+                    variant="h6"
+                    sx={{
+                        fontFamily: theme.typography.h6.fontFamily,
+                        color: theme.palette.text.primary,
+                    }}
+                >
                     {translate('Company Name')}
                 </Typography>
             </Box>
@@ -146,14 +189,30 @@ const Hoverbar = () => {
                         borderRadius: 1,
                         mb: 0.5,
                         '&.Mui-selected': {
-                            backgroundColor: 'action.selected',
-                        }
+                            backgroundColor: theme.palette.action.selected,
+                            '&:hover': {
+                                backgroundColor: theme.palette.action.hover,
+                            },
+                        },
                     }}
                 >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{
+                        color: location.pathname === item.path ?
+                            theme.palette.primary.main :
+                            theme.palette.text.secondary,
+                        minWidth: 40,
+                    }}>
                         {item.icon}
                     </ListItemIcon>
-                    {translate(item.label)}
+                    <ListItemText
+                        primary={translate(item.label)}
+                        primaryTypographyProps={{
+                            variant: 'body1',
+                            fontFamily: theme.typography.body1.fontFamily,
+                            fontWeight: location.pathname === item.path ? 600 : 400,
+                            color: theme.palette.text.primary,
+                        }}
+                    />
                 </MenuItem>
             ))}
 
@@ -171,6 +230,10 @@ const Hoverbar = () => {
                             toggleDrawer(false)();
                         }}
                         fullWidth
+                        sx={{
+                            fontFamily: theme.typography.button.fontFamily,
+                            fontWeight: theme.typography.button.fontWeight,
+                        }}
                     >
                         {translate('Logout')}
                     </Button>
@@ -184,6 +247,10 @@ const Hoverbar = () => {
                             to="/login"
                             onClick={toggleDrawer(false)}
                             fullWidth
+                            sx={{
+                                fontFamily: theme.typography.button.fontFamily,
+                                fontWeight: theme.typography.button.fontWeight,
+                            }}
                         >
                             {translate('Login')}
                         </Button>
@@ -195,6 +262,10 @@ const Hoverbar = () => {
                             to="/register"
                             onClick={toggleDrawer(false)}
                             fullWidth
+                            sx={{
+                                fontFamily: theme.typography.button.fontFamily,
+                                fontWeight: theme.typography.button.fontWeight,
+                            }}
                         >
                             {translate('Register')}
                         </Button>
@@ -213,6 +284,10 @@ const Hoverbar = () => {
                     color="inherit"
                     startIcon={<Logout />}
                     onClick={handleLogout}
+                    sx={{
+                        fontFamily: theme.typography.button.fontFamily,
+                        color: theme.palette.text.primary,
+                    }}
                 >
                     {translate('Logout')}
                 </Button>
@@ -224,15 +299,22 @@ const Hoverbar = () => {
                         startIcon={<Login />}
                         component={RouterLink}
                         to="/login"
+                        sx={{
+                            fontFamily: theme.typography.button.fontFamily,
+                            color: theme.palette.text.primary,
+                        }}
                     >
                         {translate('Login')}
                     </Button>
                     <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
                         startIcon={<AppRegistration />}
                         component={RouterLink}
                         to="/register"
+                        sx={{
+                            fontFamily: theme.typography.button.fontFamily,
+                        }}
                     >
                         {translate('Register')}
                     </Button>
@@ -242,57 +324,82 @@ const Hoverbar = () => {
     );
 
     return (
-        <AppBar position="static">
-            <Toolbar>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-                    <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-                        <Branding logoUrl={logoUrl} />
-                        <Typography variant="h6" component="div">
-                            {translate('Company Name')}
-                        </Typography>
-                    </RouterLink>
-                </Box>
+        <AppBar
+            position="static"
+            elevation={1}
+            sx={{
+                zIndex: theme.zIndex.drawer + 1,
+            }}
+        >
+            <Container maxWidth={MAX_NAV_WIDTH}>
+                <Toolbar>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                        <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                            <Branding logoUrl={logoUrl} />
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{
+                                    fontFamily: theme.typography.h6.fontFamily,
+                                    color: theme.palette.text.primary,
+                                }}
+                            >
+                                {translate('Company Name')}
+                            </Typography>
+                        </RouterLink>
+                    </Box>
 
-                {isMobile ? (
-                    <>
-                        <IconButton
-                            color="inherit"
-                            aria-label={translate("open drawer")}
-                            edge="end"
-                            onClick={toggleDrawer(true)}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Drawer
-                            anchor="right"
-                            open={isDrawerOpen}
-                            onClose={toggleDrawer(false)}
-                        >
-                            {renderDrawerContent()}
-                        </Drawer>
-                    </>
-                ) : (
-                    <>
-                        <Button
-                            color="inherit"
-                            id="nav-button"
-                            aria-controls={isMenuOpen ? 'nav-menu' : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={isMenuOpen ? 'true' : undefined}
-                            onMouseEnter={handleMenuOpen}
-                            endIcon={<MenuIcon />}
-                            sx={{ mx: 2 }}
-                        >
-                            {translate('Navigation')}
-                        </Button>
-                        {renderHoverMenuLinks()}
+                    {isMobile ? (
+                        <>
+                            <IconButton
+                                color="inherit"
+                                aria-label={translate("open drawer")}
+                                edge="end"
+                                onClick={toggleDrawer(true)}
+                                sx={{ color: theme.palette.text.primary }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <Drawer
+                                anchor="right"
+                                open={isDrawerOpen}
+                                onClose={toggleDrawer(false)}
+                                PaperProps={{
+                                    sx: {
+                                        backgroundColor: theme.palette.background.paper,
+                                    }
+                                }}
+                            >
+                                {renderDrawerContent()}
+                            </Drawer>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                color="inherit"
+                                id="nav-button"
+                                aria-controls={isMenuOpen ? 'nav-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={isMenuOpen ? 'true' : undefined}
+                                onMouseEnter={handleMenuOpen}
+                                endIcon={<MenuIcon />}
+                                sx={{
+                                    mx: 2,
+                                    fontFamily: theme.typography.button.fontFamily,
+                                    color: theme.palette.text.primary,
+                                }}
+                            >
+                                {translate('Navigation')}
+                            </Button>
+                            {renderHoverMenuLinks()}
 
-                        <Box sx={{ flexGrow: 0 }}>
-                            {renderAuthButtons()}
-                        </Box>
-                    </>
-                )}
-            </Toolbar>
+                            <Box sx={{ flexGrow: 0 }}>
+                                {renderAuthButtons()}
+                            </Box>
+                        </>
+                    )}
+                </Toolbar>
+            </Container>
         </AppBar>
     );
 };

@@ -18,10 +18,21 @@ import {
     Paper,
     Divider,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    Container
 } from '@mui/material';
 import {
     Menu as MenuIcon,
+    ChevronLeft as ChevronLeftIcon,
+    ChevronRight as ChevronRightIcon,
+    GridView,
+    Photo,
+    Style as StyleIcon,
+    ViewList,
+    Science,
+    Construction,
+    Inventory,
+    Star,
     Home,
     CalendarMonth,
     Info,
@@ -30,20 +41,20 @@ import {
     Login,
     AppRegistration,
     VideoLibrary,
-    Style as StyleIcon,
     AccountCircle,
     Logout,
     Dashboard as DashboardIcon,
-    Close as CloseIcon,
-    ChevronLeft,
-    ChevronRight
+    Close as CloseIcon
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
-
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
+import Sidebar from './Sidebar';
+
+// Define the breakpoint for switching to sidebar
+const SIDEBAR_BREAKPOINT = 'md';
 
 // Navigation items aligned with MainContent.js routes
 const navigationItems = [
@@ -65,24 +76,29 @@ const Dashboard = ({ children }) => {
     const [open, setOpen] = useState(false); // Start collapsed
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isSidebarMode = useMediaQuery(theme.breakpoints.down(SIDEBAR_BREAKPOINT));
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Filter navigation items based on authentication status
-    const filteredNavItems = navigationItems.filter(item =>
-        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
-    );
-
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
+    // If we're in sidebar mode, render the Sidebar component instead
+    if (isSidebarMode) {
+        return <Sidebar>{children}</Sidebar>;
+    }
 
     // Drawer width calculations
     const drawerWidth = 240;
     const closedDrawerWidth = 65;
     const actualDrawerWidth = open ? drawerWidth : closedDrawerWidth;
 
-    // Navigation list component
+    const handleDrawerToggle = () => {
+        setOpen(!open);
+    };
+
+    // Filter navigation items based on authentication status
+    const filteredNavItems = navigationItems.filter(item =>
+        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
+    );
+
     const NavigationList = ({ onClick }) => (
         <List>
             {filteredNavItems.map((item) => (
@@ -98,9 +114,9 @@ const Dashboard = ({ children }) => {
                         justifyContent: open ? 'initial' : 'center',
                         px: 2.5,
                         '&.Mui-selected': {
-                            backgroundColor: 'action.selected',
+                            backgroundColor: theme.palette.action.selected,
                             '&:hover': {
-                                backgroundColor: 'action.hover',
+                                backgroundColor: theme.palette.action.hover,
                             },
                         },
                     }}
@@ -110,17 +126,25 @@ const Dashboard = ({ children }) => {
                             minWidth: 0,
                             mr: open ? 3 : 'auto',
                             justifyContent: 'center',
-                            color: location.pathname === item.path ? 'primary.main' : 'inherit'
+                            color: location.pathname === item.path ?
+                                theme.palette.primary.main :
+                                theme.palette.text.secondary,
                         }}
                     >
                         {item.icon}
                     </ListItemIcon>
                     <ListItemText
                         primary={translate(item.label)}
-                        sx={{
-                            opacity: open ? 1 : 0,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden'
+                        primaryTypographyProps={{
+                            variant: 'body2',
+                            sx: {
+                                opacity: open ? 1 : 0,
+                                fontFamily: theme.typography.body2.fontFamily,
+                                fontWeight: location.pathname === item.path ? 600 : 400,
+                                color: theme.palette.text.primary,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                            }
                         }}
                     />
                 </ListItem>
@@ -128,141 +152,108 @@ const Dashboard = ({ children }) => {
         </List>
     );
 
-    // Authentication section
-    const AuthSection = ({ onClick }) => (
-        <Box sx={{ p: 2 }}>
-            {isAuthenticated ? (
-                <ListItem
-                    button
-                    onClick={() => {
-                        handleLogout();
-                        if (onClick) onClick();
-                    }}
-                    sx={{
-                        minHeight: 48,
-                        justifyContent: open ? 'initial' : 'center',
-                        px: 2.5,
-                    }}
-                >
-                    <ListItemIcon
-                        sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : 'auto',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Logout />
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={translate("Logout")}
-                        sx={{
-                            opacity: open ? 1 : 0,
-                            whiteSpace: 'nowrap'
-                        }}
-                    />
-                </ListItem>
-            ) : (
-                <>
-                    <ListItem
-                        button
-                        component={RouterLink}
-                        to="/login"
-                        onClick={onClick}
-                        sx={{
-                            minHeight: 48,
-                            justifyContent: open ? 'initial' : 'center',
-                            px: 2.5,
-                        }}
-                    >
-                        <ListItemIcon
-                            sx={{
-                                minWidth: 0,
-                                mr: open ? 3 : 'auto',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <Login />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={translate("Login")}
-                            sx={{
-                                opacity: open ? 1 : 0,
-                                whiteSpace: 'nowrap'
-                            }}
-                        />
-                    </ListItem>
-                    <ListItem
-                        button
-                        component={RouterLink}
-                        to="/register"
-                        onClick={onClick}
-                        sx={{
-                            minHeight: 48,
-                            justifyContent: open ? 'initial' : 'center',
-                            px: 2.5,
-                        }}
-                    >
-                        <ListItemIcon
-                            sx={{
-                                minWidth: 0,
-                                mr: open ? 3 : 'auto',
-                                justifyContent: 'center',
-                            }}
-                        >
-                            <AppRegistration />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary={translate("Register")}
-                            sx={{
-                                opacity: open ? 1 : 0,
-                                whiteSpace: 'nowrap'
-                            }}
-                        />
-                    </ListItem>
-                </>
-            )}
-        </Box>
-    );
-
-    // Drawer content
-    const drawerContent = (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Toolbar
+    const authLinks = isAuthenticated ? (
+        <ListItem
+            button
+            onClick={handleLogout}
+            sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+            }}
+        >
+            <ListItemIcon
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    px: [1],
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: theme.palette.text.secondary,
                 }}
             >
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: open ? 'space-between' : 'center',
-                    width: '100%'
-                }}>
-                    {open && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
-                            <img src={logoUrl} alt="Logo" style={{ height: 30 }} />
-                            <Typography variant="subtitle1" noWrap>
-                                {translate('Company Name')}
-                            </Typography>
-                        </Box>
-                    )}
-                    <IconButton onClick={handleDrawerToggle}>
-                        {open ? <ChevronLeft /> : <ChevronRight />}
-                    </IconButton>
-                </Box>
-            </Toolbar>
-            <Divider />
-
-            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                <NavigationList onClick={isMobile ? handleDrawerToggle : undefined} />
-            </Box>
-
-            <Divider />
-            <AuthSection onClick={isMobile ? handleDrawerToggle : undefined} />
-        </Box>
+                <Logout />
+            </ListItemIcon>
+            <ListItemText
+                primary={translate("Logout")}
+                primaryTypographyProps={{
+                    variant: 'body2',
+                    sx: {
+                        opacity: open ? 1 : 0,
+                        fontFamily: theme.typography.body2.fontFamily,
+                        color: theme.palette.text.primary,
+                        whiteSpace: 'nowrap',
+                    }
+                }}
+            />
+        </ListItem>
+    ) : (
+        <>
+            <ListItem
+                button
+                component={RouterLink}
+                to="/login"
+                sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                }}
+            >
+                <ListItemIcon
+                    sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: theme.palette.text.secondary,
+                    }}
+                >
+                    <Login />
+                </ListItemIcon>
+                <ListItemText
+                    primary={translate("Login")}
+                    primaryTypographyProps={{
+                        variant: 'body2',
+                        sx: {
+                            opacity: open ? 1 : 0,
+                            fontFamily: theme.typography.body2.fontFamily,
+                            color: theme.palette.text.primary,
+                            whiteSpace: 'nowrap',
+                        }
+                    }}
+                />
+            </ListItem>
+            <ListItem
+                button
+                component={RouterLink}
+                to="/register"
+                sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                }}
+            >
+                <ListItemIcon
+                    sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: theme.palette.text.secondary,
+                    }}
+                >
+                    <AppRegistration />
+                </ListItemIcon>
+                <ListItemText
+                    primary={translate("Register")}
+                    primaryTypographyProps={{
+                        variant: 'body2',
+                        sx: {
+                            opacity: open ? 1 : 0,
+                            fontFamily: theme.typography.body2.fontFamily,
+                            color: theme.palette.text.primary,
+                            whiteSpace: 'nowrap',
+                        }
+                    }}
+                />
+            </ListItem>
+        </>
     );
 
     // Dashboard card component
@@ -278,6 +269,7 @@ const Dashboard = ({ children }) => {
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     textDecoration: 'none',
                     color: 'text.primary',
+                    backgroundColor: theme.palette.background.paper,
                     '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: 6,
@@ -298,10 +290,26 @@ const Dashboard = ({ children }) => {
                     }}>
                         {icon}
                     </Box>
-                    <Typography variant="h6" component="h2" align="center" gutterBottom>
+                    <Typography
+                        variant="h6"
+                        component="h2"
+                        align="center"
+                        gutterBottom
+                        sx={{
+                            fontFamily: theme.typography.h6.fontFamily,
+                            color: theme.palette.text.primary,
+                        }}
+                    >
                         {translate(title)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" align="center">
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        align="center"
+                        sx={{
+                            fontFamily: theme.typography.body2.fontFamily,
+                        }}
+                    >
                         {translate(description)}
                     </Typography>
                 </CardContent>
@@ -314,9 +322,10 @@ const Dashboard = ({ children }) => {
             <AppBar
                 position="fixed"
                 sx={{
-                    width: { sm: `calc(100% - ${actualDrawerWidth}px)` },
-                    ml: { sm: `${actualDrawerWidth}px` },
-                    transition: theme.transitions.create(['width', 'margin'], {
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    width: { md: `calc(100% - ${actualDrawerWidth}px)` },
+                    ml: { md: `${actualDrawerWidth}px` },
+                    transition: theme => theme.transitions.create(['width', 'margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.leavingScreen,
                     }),
@@ -325,18 +334,38 @@ const Dashboard = ({ children }) => {
                 <Toolbar>
                     <IconButton
                         color="inherit"
-                        aria-label={translate("open menu")}
+                        aria-label={translate("toggle drawer")}
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'flex', md: 'none' },
+                            color: theme.palette.text.primary,
+                        }}
                     >
                         <MenuIcon />
                     </IconButton>
-
-                    <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                    <RouterLink
+                        to="/"
+                        style={{
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
+                    >
                         <Branding logoUrl={logoUrl} />
-                        <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                            {translate('Company Name')}
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{
+                                flexGrow: 1,
+                                display: { xs: 'none', sm: 'block' },
+                                fontFamily: theme.typography.h6.fontFamily,
+                                color: theme.palette.text.primary,
+                            }}
+                        >
+                            {translate("Company Name")}
                         </Typography>
                     </RouterLink>
 
@@ -348,7 +377,11 @@ const Dashboard = ({ children }) => {
                                 color="inherit"
                                 startIcon={<Logout />}
                                 onClick={handleLogout}
-                                sx={{ whiteSpace: 'nowrap' }}
+                                sx={{
+                                    whiteSpace: 'nowrap',
+                                    fontFamily: theme.typography.button.fontFamily,
+                                    color: theme.palette.text.primary,
+                                }}
                             >
                                 {translate('Logout')}
                             </Button>
@@ -359,7 +392,11 @@ const Dashboard = ({ children }) => {
                                     component={RouterLink}
                                     to="/login"
                                     startIcon={<Login />}
-                                    sx={{ whiteSpace: 'nowrap' }}
+                                    sx={{
+                                        whiteSpace: 'nowrap',
+                                        fontFamily: theme.typography.button.fontFamily,
+                                        color: theme.palette.text.primary,
+                                    }}
                                 >
                                     {translate('Login')}
                                 </Button>
@@ -369,7 +406,11 @@ const Dashboard = ({ children }) => {
                                     component={RouterLink}
                                     to="/register"
                                     startIcon={<AppRegistration />}
-                                    sx={{ whiteSpace: 'nowrap' }}
+                                    sx={{
+                                        whiteSpace: 'nowrap',
+                                        fontFamily: theme.typography.button.fontFamily,
+                                        color: theme.palette.text.primary,
+                                    }}
                                 >
                                     {translate('Register')}
                                 </Button>
@@ -379,53 +420,79 @@ const Dashboard = ({ children }) => {
                 </Toolbar>
             </AppBar>
 
-            {/* Navigation Drawer - Mobile (temporary) */}
+            {/* Mobile drawer */}
             <Drawer
                 variant="temporary"
                 open={isMobile && open}
                 onClose={handleDrawerToggle}
                 ModalProps={{ keepMounted: true }}
                 sx={{
-                    display: { xs: 'block', sm: 'none' },
+                    display: { xs: 'block', md: 'none' },
                     '& .MuiDrawer-paper': {
                         boxSizing: 'border-box',
                         width: drawerWidth,
+                        backgroundColor: theme.palette.background.paper,
                     },
                 }}
             >
-                {drawerContent}
+                <Toolbar />
+                <Box sx={{ overflow: 'auto' }}>
+                    <NavigationList onClick={handleDrawerToggle} />
+                    <Divider />
+                    {authLinks}
+                </Box>
             </Drawer>
 
-            {/* Navigation Drawer - Desktop (permanent) */}
+            {/* Desktop drawer - collapsible */}
             <Drawer
                 variant="permanent"
+                open={open}
                 sx={{
-                    display: { xs: 'none', sm: 'block' },
+                    display: { xs: 'none', md: 'block' },
                     width: actualDrawerWidth,
                     flexShrink: 0,
                     '& .MuiDrawer-paper': {
                         width: actualDrawerWidth,
                         boxSizing: 'border-box',
                         overflowX: 'hidden',
-                        transition: theme.transitions.create('width', {
+                        transition: theme => theme.transitions.create('width', {
                             easing: theme.transitions.easing.sharp,
                             duration: theme.transitions.duration.enteringScreen,
                         }),
+                        backgroundColor: theme.palette.background.paper,
                     },
                 }}
-                open={open}
             >
-                {drawerContent}
+                <Toolbar
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        px: [1],
+                    }}
+                >
+                    <IconButton
+                        onClick={handleDrawerToggle}
+                        sx={{ color: theme.palette.text.secondary }}
+                    >
+                        {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    </IconButton>
+                </Toolbar>
+                <Divider />
+                <NavigationList />
+                <Divider />
+                {authLinks}
             </Drawer>
 
+            {/* Main content */}
             <Box
                 component="main"
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    width: { sm: `calc(100% - ${actualDrawerWidth}px)` },
-                    ml: { sm: `${actualDrawerWidth}px` },
-                    transition: theme.transitions.create(['width', 'margin'], {
+                    width: { md: `calc(100% - ${actualDrawerWidth}px)` },
+                    ml: { md: `${actualDrawerWidth}px` },
+                    transition: theme => theme.transitions.create(['width', 'margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.enteringScreen,
                     }),
@@ -434,15 +501,39 @@ const Dashboard = ({ children }) => {
             >
                 {/* Conditionally render welcome section if we're not showing any specific content */}
                 {location.pathname === '/' ? (
-                    <>
-                        <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2, bgcolor: 'background.paper' }}>
+                    <Container maxWidth="xl">
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                p: 3,
+                                mb: 3,
+                                borderRadius: 2,
+                                bgcolor: 'background.paper'
+                            }}
+                        >
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <DashboardIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
-                                <Typography variant="h4" component="h1">
+                                <DashboardIcon
+                                    color="primary"
+                                    sx={{ fontSize: 40, mr: 2 }}
+                                />
+                                <Typography
+                                    variant="h4"
+                                    component="h1"
+                                    sx={{
+                                        fontFamily: theme.typography.h4.fontFamily,
+                                        color: theme.palette.text.primary,
+                                    }}
+                                >
                                     {translate('Welcome to Dashboard')}
                                 </Typography>
                             </Box>
-                            <Typography variant="body1">
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    fontFamily: theme.typography.body1.fontFamily,
+                                    color: theme.palette.text.primary,
+                                }}
+                            >
                                 {translate('This is your application dashboard. Navigate through the available options using the sidebar or the cards below.')}
                             </Typography>
                         </Paper>
@@ -459,7 +550,7 @@ const Dashboard = ({ children }) => {
                                 />
                             ))}
                         </Grid>
-                    </>
+                    </Container>
                 ) : (
                     // Render children components from the router
                     children

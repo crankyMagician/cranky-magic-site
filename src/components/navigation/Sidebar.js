@@ -14,21 +14,25 @@ import {
     Divider,
     CssBaseline,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    Button,
+    Container
 } from '@mui/material';
 import {
     Menu as MenuIcon,
     ChevronLeft as ChevronLeftIcon,
     ChevronRight as ChevronRightIcon,
-    GridView,
-    Photo,
+    Home,
+    CalendarMonth,
+    Info,
+    ContactMail,
+    Email,
+    Login,
+    AppRegistration,
+    VideoLibrary,
     Style as StyleIcon,
-    ViewList,
-    Science,
-    Construction,
-    Inventory,
-    Star,
-    Home
+    AccountCircle,
+    Logout,
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
@@ -36,18 +40,16 @@ import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 
+// Navigation items with icons and accessibility enhancement
 const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home /> },
-    { path: '/theme', label: 'Theme', icon: <StyleIcon /> },
-    { path: '/moves-list', label: 'Moves List', icon: <ViewList /> },
-    { path: '/moves-grid', label: 'Moves Grid', icon: <GridView /> },
-    { path: '/munchie-grid', label: 'Munchie Grid', icon: <GridView /> },
-    { path: '/abilities-grid', label: 'Abilities Grid', icon: <Star /> },
-    { path: '/recipe-grid', label: 'Recipe Grid', icon: <Construction /> },
-    { path: '/items-grid', label: 'Items Grid', icon: <Inventory /> },
-    { path: '/effects-grid', label: 'Effects Grid', icon: <Science /> },
-    { path: '/munchie-photo', label: 'Munchie Photos', icon: <Photo /> },
-    { path: '/item-photo', label: 'Item Photos', icon: <Photo /> }
+    { path: '/', label: 'Home', icon: <Home />, requiresAuth: false },
+    { path: '/theme', label: 'Theme', icon: <StyleIcon />, requiresAuth: false },
+    { path: '/about-us', label: 'About Us', icon: <Info />, requiresAuth: false },
+    { path: '/contact-us', label: 'Contact Us', icon: <ContactMail />, requiresAuth: false },
+    { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary />, requiresAuth: false },
+    { path: '/calendar', label: 'Calendar', icon: <CalendarMonth />, requiresAuth: false },
+    { path: '/newsletter-signup', label: 'Newsletter', icon: <Email />, requiresAuth: false },
+    { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
 ];
 
 const Sidebar = ({ children }) => {
@@ -66,23 +68,29 @@ const Sidebar = ({ children }) => {
         setOpen(!open);
     };
 
-    const NavigationList = () => (
+    // Filter navigation items based on authentication status
+    const filteredNavItems = navigationItems.filter(item =>
+        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
+    );
+
+    const NavigationList = ({ onClick }) => (
         <List>
-            {navigationItems.map((item) => (
+            {filteredNavItems.map((item) => (
                 <ListItem
                     button
                     key={item.path}
                     component={RouterLink}
                     to={item.path}
+                    onClick={onClick}
                     selected={location.pathname === item.path}
                     sx={{
                         minHeight: 48,
                         justifyContent: open ? 'initial' : 'center',
                         px: 2.5,
                         '&.Mui-selected': {
-                            backgroundColor: 'action.selected',
+                            backgroundColor: theme.palette.action.selected,
                             '&:hover': {
-                                backgroundColor: 'action.hover',
+                                backgroundColor: theme.palette.action.hover,
                             },
                         },
                     }}
@@ -92,34 +100,64 @@ const Sidebar = ({ children }) => {
                             minWidth: 0,
                             mr: open ? 3 : 'auto',
                             justifyContent: 'center',
+                            color: location.pathname === item.path ?
+                                theme.palette.primary.main :
+                                theme.palette.text.secondary,
                         }}
                     >
                         {item.icon}
                     </ListItemIcon>
                     <ListItemText
                         primary={translate(item.label)}
-                        sx={{ opacity: open ? 1 : 0 }}
+                        primaryTypographyProps={{
+                            variant: 'body2',
+                            sx: {
+                                opacity: open ? 1 : 0,
+                                fontFamily: theme.typography.body2.fontFamily,
+                                fontWeight: location.pathname === item.path ? 600 : 400,
+                                color: theme.palette.text.primary,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                            }
+                        }}
                     />
                 </ListItem>
             ))}
         </List>
     );
 
+    // Authentication links
     const authLinks = isAuthenticated ? (
         <ListItem
             button
             onClick={handleLogout}
-            component={RouterLink}
-            to="/"
             sx={{
                 minHeight: 48,
                 justifyContent: open ? 'initial' : 'center',
                 px: 2.5,
             }}
         >
+            <ListItemIcon
+                sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    color: theme.palette.text.secondary,
+                }}
+            >
+                <Logout />
+            </ListItemIcon>
             <ListItemText
                 primary={translate("Logout")}
-                sx={{ opacity: open ? 1 : 0 }}
+                primaryTypographyProps={{
+                    variant: 'body2',
+                    sx: {
+                        opacity: open ? 1 : 0,
+                        fontFamily: theme.typography.body2.fontFamily,
+                        color: theme.palette.text.primary,
+                        whiteSpace: 'nowrap',
+                    }
+                }}
             />
         </ListItem>
     ) : (
@@ -134,9 +172,27 @@ const Sidebar = ({ children }) => {
                     px: 2.5,
                 }}
             >
+                <ListItemIcon
+                    sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: theme.palette.text.secondary,
+                    }}
+                >
+                    <Login />
+                </ListItemIcon>
                 <ListItemText
                     primary={translate("Login")}
-                    sx={{ opacity: open ? 1 : 0 }}
+                    primaryTypographyProps={{
+                        variant: 'body2',
+                        sx: {
+                            opacity: open ? 1 : 0,
+                            fontFamily: theme.typography.body2.fontFamily,
+                            color: theme.palette.text.primary,
+                            whiteSpace: 'nowrap',
+                        }
+                    }}
                 />
             </ListItem>
             <ListItem
@@ -149,9 +205,27 @@ const Sidebar = ({ children }) => {
                     px: 2.5,
                 }}
             >
+                <ListItemIcon
+                    sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: theme.palette.text.secondary,
+                    }}
+                >
+                    <AppRegistration />
+                </ListItemIcon>
                 <ListItemText
                     primary={translate("Register")}
-                    sx={{ opacity: open ? 1 : 0 }}
+                    primaryTypographyProps={{
+                        variant: 'body2',
+                        sx: {
+                            opacity: open ? 1 : 0,
+                            fontFamily: theme.typography.body2.fontFamily,
+                            color: theme.palette.text.primary,
+                            whiteSpace: 'nowrap',
+                        }
+                    }}
                 />
             </ListItem>
         </>
@@ -181,6 +255,7 @@ const Sidebar = ({ children }) => {
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },
+                            color: theme.palette.text.primary,
                         }}
                     >
                         <MenuIcon />
@@ -200,12 +275,48 @@ const Sidebar = ({ children }) => {
                             component="div"
                             sx={{
                                 flexGrow: 1,
-                                display: { xs: 'none', sm: 'block' }
+                                display: { xs: 'none', sm: 'block' },
+                                fontFamily: theme.typography.h6.fontFamily,
+                                color: theme.palette.text.primary,
                             }}
                         >
                             {translate("Company Name")}
                         </Typography>
                     </RouterLink>
+
+                    {/* Authentication for mobile */}
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
+                        {isAuthenticated ? (
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                startIcon={<Logout />}
+                                onClick={handleLogout}
+                                size="small"
+                                sx={{
+                                    color: theme.palette.text.primary,
+                                    fontFamily: theme.typography.button.fontFamily,
+                                }}
+                            >
+                                {translate('Logout')}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                component={RouterLink}
+                                to="/login"
+                                startIcon={<Login />}
+                                size="small"
+                                sx={{
+                                    fontFamily: theme.typography.button.fontFamily,
+                                }}
+                            >
+                                {translate('Login')}
+                            </Button>
+                        )}
+                    </Box>
                 </Toolbar>
             </AppBar>
 
@@ -215,17 +326,19 @@ const Sidebar = ({ children }) => {
                     variant="temporary"
                     open={open}
                     onClose={handleDrawerToggle}
+                    ModalProps={{ keepMounted: true }}
                     sx={{
                         display: { xs: 'block', md: 'none' },
                         '& .MuiDrawer-paper': {
-                            width: drawerWidth,
                             boxSizing: 'border-box',
+                            width: drawerWidth,
+                            backgroundColor: theme.palette.background.paper,
                         },
                     }}
                 >
                     <Toolbar />
                     <Box sx={{ overflow: 'auto' }}>
-                        <NavigationList />
+                        <NavigationList onClick={handleDrawerToggle} />
                         <Divider />
                         {authLinks}
                     </Box>
@@ -248,6 +361,7 @@ const Sidebar = ({ children }) => {
                             easing: theme.transitions.easing.sharp,
                             duration: theme.transitions.duration.enteringScreen,
                         }),
+                        backgroundColor: theme.palette.background.paper,
                     },
                 }}
             >
@@ -259,7 +373,10 @@ const Sidebar = ({ children }) => {
                         px: [1],
                     }}
                 >
-                    <IconButton onClick={handleDrawerToggle}>
+                    <IconButton
+                        onClick={handleDrawerToggle}
+                        sx={{ color: theme.palette.text.secondary }}
+                    >
                         {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     </IconButton>
                 </Toolbar>
@@ -284,7 +401,9 @@ const Sidebar = ({ children }) => {
                     mt: '64px', // Offset for AppBar
                 }}
             >
-                {children}
+                <Container maxWidth="xl">
+                    {children}
+                </Container>
             </Box>
         </Box>
     );

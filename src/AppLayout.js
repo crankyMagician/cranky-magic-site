@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { Box } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import Sidebar from "./components/navigation/Sidebar";
 import Hoverbar from "./components/navigation/Hoverbar";
 import Footer from "./components/navigation/Footer";
@@ -9,12 +9,20 @@ import MegaMenu from "./components/navigation/MegaMenu";
 import Navbar from "./components/navigation/NavBar";
 import Dashboard from "./components/navigation/Dashboard";
 
-
 const AppLayout = ({ children }) => {
     // Accessing preferences from the Redux store
     const { preferences } = useSelector(state => state.preferences);
+    const theme = useTheme();
 
-    // Determine which layout to render based on the preference
+    // Define the breakpoint for switching to sidebar on small screens
+    const isSidebarBreakpoint = useMediaQuery(theme.breakpoints.down('md'));
+
+    // If we're at a small screen size, always use Sidebar for consistency
+    if (isSidebarBreakpoint) {
+        return <Sidebar>{children}</Sidebar>;
+    }
+
+    // Otherwise, determine which layout to render based on the preference
     switch (preferences?.navbar) {
         case 'vertical-sidebar':
             return <Sidebar>{children}</Sidebar>;

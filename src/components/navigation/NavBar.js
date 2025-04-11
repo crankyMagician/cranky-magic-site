@@ -15,7 +15,8 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Divider
+    Divider,
+    Container
 } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
@@ -39,6 +40,13 @@ import useCustomTranslation from "../../hooks/useCustomTranslation";
 
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
+import Sidebar from './Sidebar';
+
+// Define the breakpoint for switching to sidebar
+const SIDEBAR_BREAKPOINT = 'md';
+
+// Maximum width for the navigation container
+const MAX_NAV_WIDTH = 'lg';
 
 // Navigation items aligned with MainContent.js routes
 const navigationItems = [
@@ -62,9 +70,15 @@ const Navbar = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const isSidebarMode = useMediaQuery(theme.breakpoints.down(SIDEBAR_BREAKPOINT));
 
     // Use the translate function from the hook
     const { translate } = useCustomTranslation();
+
+    // If we're in sidebar mode, render the Sidebar component instead
+    if (isSidebarMode) {
+        return <Sidebar />;
+    }
 
     // Toggle drawer
     const toggleDrawer = (open) => (event) => {
@@ -94,21 +108,32 @@ const Navbar = () => {
                         borderRadius: 1,
                         mx: isMobile ? 0 : 0.5,
                         '&.Mui-selected': {
-                            backgroundColor: 'action.selected',
+                            backgroundColor: theme.palette.action.selected,
                             '&:hover': {
-                                backgroundColor: 'action.hover',
+                                backgroundColor: theme.palette.action.hover,
                             },
                         },
                     }}
                 >
-                    <ListItemIcon sx={{ minWidth: isMobile ? 40 : 0, mr: isMobile ? 1 : 0.5, color: 'inherit' }}>
+                    <ListItemIcon sx={{
+                        minWidth: isMobile ? 40 : 0,
+                        mr: isMobile ? 1 : 0.5,
+                        color: location.pathname === item.path ?
+                            theme.palette.primary.main :
+                            theme.palette.text.secondary
+                    }}>
                         {item.icon}
                     </ListItemIcon>
                     <ListItemText
                         primary={translate(item.label)}
                         primaryTypographyProps={{
                             variant: 'body2',
-                            sx: { display: isMobile ? 'block' : { xs: 'none', sm: 'block' } }
+                            sx: {
+                                display: isMobile ? 'block' : { xs: 'none', sm: 'block' },
+                                fontFamily: theme.typography.body2.fontFamily,
+                                fontWeight: location.pathname === item.path ? 600 : 400,
+                                color: theme.palette.text.primary,
+                            }
                         }}
                     />
                 </ListItem>
@@ -129,6 +154,10 @@ const Navbar = () => {
                         if (onClick) onClick();
                     }}
                     fullWidth={isMobile}
+                    sx={{
+                        fontFamily: theme.typography.button.fontFamily,
+                        color: theme.palette.text.primary,
+                    }}
                 >
                     {translate('Logout')}
                 </Button>
@@ -142,17 +171,24 @@ const Navbar = () => {
                         to="/login"
                         onClick={onClick}
                         fullWidth={isMobile}
+                        sx={{
+                            fontFamily: theme.typography.button.fontFamily,
+                            color: theme.palette.text.primary,
+                        }}
                     >
                         {translate('Login')}
                     </Button>
                     <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
                         startIcon={<AppRegistration />}
                         component={RouterLink}
                         to="/register"
                         onClick={onClick}
                         fullWidth={isMobile}
+                        sx={{
+                            fontFamily: theme.typography.button.fontFamily,
+                        }}
                     >
                         {translate('Register')}
                     </Button>
@@ -162,60 +198,88 @@ const Navbar = () => {
     );
 
     return (
-        <AppBar position="static">
-            <Toolbar>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
-                    <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-                        <Branding logoUrl={logoUrl} />
-                        <Typography variant="h6" component="div">
-                            {translate('Company Name')}
-                        </Typography>
-                    </RouterLink>
-                </Box>
-
-                {isMobile ? (
-                    <>
-                        <IconButton
-                            color="inherit"
-                            aria-label={translate("open drawer")}
-                            edge="end"
-                            onClick={toggleDrawer(true)}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Drawer
-                            anchor="right"
-                            open={isDrawerOpen}
-                            onClose={toggleDrawer(false)}
-                        >
-                            <Box
-                                sx={{ width: 280, p: 2 }}
-                                role="presentation"
+        <AppBar
+            position="static"
+            elevation={1}
+            sx={{
+                zIndex: theme.zIndex.drawer + 1,
+            }}
+        >
+            <Container maxWidth={MAX_NAV_WIDTH}>
+                <Toolbar>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
+                        <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                            <Branding logoUrl={logoUrl} />
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{
+                                    fontFamily: theme.typography.h6.fontFamily,
+                                    color: theme.palette.text.primary,
+                                }}
                             >
-                                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                                    <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
-                                    <Typography variant="h6">
-                                        {translate('Company Name')}
-                                    </Typography>
+                                {translate('Company Name')}
+                            </Typography>
+                        </RouterLink>
+                    </Box>
+
+                    {isMobile ? (
+                        <>
+                            <IconButton
+                                color="inherit"
+                                aria-label={translate("open drawer")}
+                                edge="end"
+                                onClick={toggleDrawer(true)}
+                                sx={{ color: theme.palette.text.primary }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <Drawer
+                                anchor="right"
+                                open={isDrawerOpen}
+                                onClose={toggleDrawer(false)}
+                                PaperProps={{
+                                    sx: {
+                                        width: { xs: '80%', sm: 280 },
+                                        backgroundColor: theme.palette.background.paper,
+                                    }
+                                }}
+                            >
+                                <Box
+                                    sx={{ width: '100%', p: 2 }}
+                                    role="presentation"
+                                >
+                                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                                        <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontFamily: theme.typography.h6.fontFamily,
+                                                color: theme.palette.text.primary,
+                                            }}
+                                        >
+                                            {translate('Company Name')}
+                                        </Typography>
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
+                                    {renderNavItems(toggleDrawer(false))}
+                                    <Divider sx={{ my: 2 }} />
+                                    {renderAuthButtons(toggleDrawer(false))}
                                 </Box>
-                                <Divider sx={{ mb: 2 }} />
-                                {renderNavItems(toggleDrawer(false))}
-                                <Divider sx={{ my: 2 }} />
-                                {renderAuthButtons(toggleDrawer(false))}
+                            </Drawer>
+                        </>
+                    ) : (
+                        <>
+                            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+                                {renderNavItems()}
                             </Box>
-                        </Drawer>
-                    </>
-                ) : (
-                    <>
-                        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                            {renderNavItems()}
-                        </Box>
-                        <Box sx={{ flexGrow: 0 }}>
-                            {renderAuthButtons()}
-                        </Box>
-                    </>
-                )}
-            </Toolbar>
+                            <Box sx={{ flexGrow: 0 }}>
+                                {renderAuthButtons()}
+                            </Box>
+                        </>
+                    )}
+                </Toolbar>
+            </Container>
         </AppBar>
     );
 };
