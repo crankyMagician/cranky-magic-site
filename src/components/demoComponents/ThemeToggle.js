@@ -1,59 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { setTheme } from '../../reducers/themeSlice'; // Ensure setTheme is imported
-import { Select, MenuItem } from '@mui/material';
+// src/components/common/ThemeToggle.js
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setTheme } from '../../reducers/themeSlice';
+import {
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Box
+} from '@mui/material';
 import ThemeService from "../../services/ThemeService";
-
-// Import the useCustomTranslation hook
 import useCustomTranslation from "../../hooks/useCustomTranslation";
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
+import PaletteIcon from '@mui/icons-material/Palette';
+import CodeIcon from '@mui/icons-material/Code';
+import BusinessIcon from '@mui/icons-material/Business';
+import FilterVintageIcon from '@mui/icons-material/FilterVintage';
+import WbTwilightIcon from '@mui/icons-material/WbTwilight';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import GradientIcon from '@mui/icons-material/Gradient';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 const ThemeToggle = () => {
     const dispatch = useDispatch();
-    const [currentTheme, setCurrentTheme] = useState('light'); // Default theme
-
-    // Use the translate function from the hook
     const { translate } = useCustomTranslation();
+    const currentTheme = useSelector(state => state.theme.mode);
 
     useEffect(() => {
         const storedTheme = ThemeService.getTheme();
         if (storedTheme) {
-            setCurrentTheme(storedTheme);
+            dispatch(setTheme(storedTheme));
         }
-    }, []);
+    }, [dispatch]);
 
     const handleChangeTheme = (event) => {
         const newTheme = event.target.value;
         dispatch(setTheme(newTheme));
-        ThemeService.setTheme(newTheme); // Update theme in local storage
-        setCurrentTheme(newTheme);
+        ThemeService.setTheme(newTheme);
     };
 
-    // Updated theme options with High Contrast added
     const themes = [
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'High Contrast', value: 'high_contrast' }, // New High Contrast theme option
-        { label: 'Alternative', value: 'altTheme' },
-        { label: 'Professional', value: 'professional' },
-        { label: 'Corporate Memphis', value: 'memphis' },
-        { label: 'Startup', value: 'startup' },
-        { label: 'Sunset', value: 'sunset' },
-        { label: 'Mint', value: 'mint' },
-        { label: 'Retro Neon', value: 'retro_neon' },
+        { label: 'Light', value: 'light', icon: <LightModeIcon /> },
+        { label: 'Dark', value: 'dark', icon: <DarkModeIcon /> },
+        { label: 'High Contrast', value: 'high_contrast', icon: <SettingsBrightnessIcon /> },
+        { label: 'Munchie', value: 'munchie', icon: <LightbulbIcon /> },
+        { label: 'Munchie Dark', value: 'munchie_dark', icon: <LightbulbIcon /> },
+        { label: 'Alternative', value: 'altTheme', icon: <ColorLensIcon /> },
+        { label: 'Professional', value: 'professional', icon: <BusinessIcon /> },
+        { label: 'Corporate Memphis', value: 'memphis', icon: <PaletteIcon /> },
+        { label: 'Startup', value: 'startup', icon: <CodeIcon /> },
+        { label: 'Sunset', value: 'sunset', icon: <WbTwilightIcon /> },
+        { label: 'Mint', value: 'mint', icon: <FilterVintageIcon /> },
+        { label: 'Retro Neon', value: 'retro_neon', icon: <GradientIcon /> },
     ];
 
     return (
-        <Select
-            value={currentTheme}
-            onChange={handleChangeTheme}
-            variant="outlined"
-        >
-            {themes.map((theme) => (
-                <MenuItem key={theme.value} value={theme.value}>
-                    {translate(theme.label)}
-                </MenuItem>
-            ))}
-        </Select>
+        <Box sx={{ minWidth: 180 }}>
+            <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                <InputLabel id="theme-select-label">{translate('Theme')}</InputLabel>
+                <Select
+                    labelId="theme-select-label"
+                    id="theme-select"
+                    value={currentTheme}
+                    onChange={handleChangeTheme}
+                    label={translate('Theme')}
+                >
+                    {themes.map((theme) => (
+                        <MenuItem key={theme.value} value={theme.value}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                {theme.icon && (
+                                    <Box sx={{ mr: 1 }}>
+                                        {theme.icon}
+                                    </Box>
+                                )}
+                                {translate(theme.label)}
+                            </Box>
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </Box>
     );
 };
 

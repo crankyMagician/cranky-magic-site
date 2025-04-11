@@ -1,13 +1,43 @@
-// src/themes/typographyMappings.js
+// src/themes/fontMappings.js
 
-// Simplify the mappings to use only Munchie options
-import munchieTypography from "./typography/munchieTypography";
+// Import all typography options
+import spatialModsTypography from "./typography/spatialTypograhpy";
+import techStartupTypography from "./typography/techStartupTypography";
+import sunsetTypography from "./typography/sunsetTypography";
+import retroNeonTypography from "./typography/retroNeonTypography";
+import professionalTypography from "./typography/professionalTypography";
+import mintTypography from "./typography/mintTypography";
+import lightTypography from "./typography/lightTypography";
+import highContrastAccessibilityTypography from "./typography/highContrastAccessibilityTypography";
+import darkTypography from "./typography/darkTypography";
+import corporateMemphisTypography from "./typography/corporateMemphisTypography";
+import altTypography from "./typography/altTypography";
 
+// Map theme modes to their respective typography settings
 const typographyModeMappings = {
-    munchie: munchieTypography,
+    // Spatial themes
+    light: spatialModsTypography,
+    dark: spatialModsTypography,
+
+    // Standard themes
+    munchie: lightTypography,
+    munchie_dark: darkTypography,
+
+    // Special themes
+    professional: professionalTypography,
+    startup: techStartupTypography,
+    memphis: corporateMemphisTypography,
+    altTheme: altTypography,
+    sunset: sunsetTypography,
+    mint: mintTypography,
+    retro_neon: retroNeonTypography,
+    high_contrast: highContrastAccessibilityTypography
 };
 
-// Function to always return MunchieTypography
-export const getTypographyByMode = () => munchieTypography;
+// Function to get typography settings by mode
+export const getTypographyByMode = (mode) => {
+    // Return the specific typography if it exists, otherwise default to spatialModsTypography
+    return typographyModeMappings[mode] || spatialModsTypography;
+};
 
-export default typographyModeMappings; // Optional if you want to export mappings for extensibility
+export default typographyModeMappings;
