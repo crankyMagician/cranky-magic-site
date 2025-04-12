@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector } from 'react-redux';
 import {Routes, Route, Navigate, useParams} from 'react-router-dom';
-import RegisterUser from './components/demoComponents/RegisterUser';
 import Example from "./example/Example";
 import AuthRouteWrapper from './utilities/AuthRouteWrapper';
 import AccountSettingsPage from "./components/demoComponents/AccountSettingsPage";
@@ -16,7 +15,6 @@ import BusinessSignupPage from "./pages/BusinessSignupPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
-import DirectPasswordReset from "./components/Auth/DirectPasswordReset";
 import SpatialDemoPanel from "./components/demo/SpatialDemoPanel";
 
 const MainContent = () => {
@@ -28,9 +26,7 @@ const MainContent = () => {
                 <Route path="/" element={<Example />} />
                 <Route path="/spatial-mods" element={<SpatialDemoPanel />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
-                <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
-                <Route path="/direct-reset" element={<DirectPasswordReset/>}/>
                 <Route path="/change-password" element={<ChangePasswordPage/>}/>
                 <Route path="/edit-account" element={<AuthRouteWrapper><AccountSettingsPage/></AuthRouteWrapper>}/>
                 <Route path="/business-signup" element={<BusinessSignupPage />} />

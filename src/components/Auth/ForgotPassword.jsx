@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Button,
@@ -18,35 +18,31 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Container
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-import { useForgotPasswordMutation, useResetPasswordMutation } from '../../api/apiSlice';
-import { setCredentials } from '../../reducers/authReducer';
-import { useTranslation } from 'react-i18next';
-import AuthTokenService from '../../services/AuthTokenService';
+import {
+  useForgotPasswordMutation,
+  useResetPasswordMutation
+} from '../../api/apiSlice';
+import useCustomTranslation from "../../hooks/useCustomTranslation";
 import validatePassword from '../../utilities/PasswordValidator';
-import axios from 'axios';
-import { API_ENDPOINTS } from '../../utilities/apiConstants';
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  maxWidth: 500,
-  margin: '0 auto',
-}));
+import useAnalytics from '../../analytics/hooks/useAnalytics';
+import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 
 const ForgotPassword = () => {
-  const { t } = useTranslation();
+  const theme = useTheme();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const location = useLocation();
+  const { translate } = useCustomTranslation();
+  const analytics = useAnalytics();
+  const { getGlassMorphismStyle, getGlowEffect } = useSpatialTheme();
+
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [authMethod, setAuthMethod] = useState('email'); // 'email' or 'phone'
-  
+
   const [formData, setFormData] = useState({
     email: '',
     phoneNumber: '',
@@ -54,13 +50,24 @@ const ForgotPassword = () => {
     newPassword: '',
     confirmPassword: '',
   });
-  
+
   const [errors, setErrors] = useState({});
   const [formValid, setFormValid] = useState(false);
-  const [forgotPassword, { isLoading: isRequestingCode }] = useForgotPasswordMutation();
-  const [resetPassword, { isLoading: isResettingPassword, mutate: resetPasswordMutate }] = useResetPasswordMutation();
   const [statusMessage, setStatusMessage] = useState({ type: '', message: '' });
   const [resetCodeSent, setResetCodeSent] = useState(false);
+
+  // RTK Query hooks
+  const [forgotPassword, { isLoading: isRequestingCode }] = useForgotPasswordMutation();
+  const [resetPassword, { isLoading: isResettingPassword }] = useResetPasswordMutation();
+
+  // For analytics: track page view
+  useEffect(() => {
+    analytics.trackPageView({
+      pageName: 'ForgotPassword',
+      path: location.pathname,
+      step: activeStep
+    });
+  }, [analytics, location.pathname, activeStep]);
 
   useEffect(() => {
     // Validate step 0 form
@@ -82,7 +89,7 @@ const ForgotPassword = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Sanitize input based on field type
     let sanitizedValue = value;
     if (name === 'email') {
@@ -92,13 +99,19 @@ const ForgotPassword = () => {
     } else if (name === 'resetCode') {
       sanitizedValue = value.trim();
     }
-    
+
     setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
-    
+
     // Clear any errors for this field when the user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+
+    // Track form field interaction for analytics
+    analytics.trackFormFieldInteraction('forgot_password', name, {
+      step: activeStep,
+      authMethod
+    });
   };
 
   // Email sanitization
@@ -108,7 +121,7 @@ const ForgotPassword = () => {
 
   // Phone number sanitization
   const sanitizePhoneNumber = (phone) => {
-    // Remove all non-numeric characters
+    // Remove all non-numeric characters except + at the beginning
     return phone.replace(/[^\d+]/g, '');
   };
 
@@ -118,10 +131,10 @@ const ForgotPassword = () => {
     let newErrors = {...errors};
 
     if (!email) {
-      if (updateErrors) newErrors.email = t('EmailRequired');
+      if (updateErrors) newErrors.email = translate('EmailRequired');
       valid = false;
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-      if (updateErrors) newErrors.email = t('InvalidEmail');
+      if (updateErrors) newErrors.email = translate('LoginErrorInvalidEmail');
       valid = false;
     }
 
@@ -135,10 +148,10 @@ const ForgotPassword = () => {
     let newErrors = {...errors};
 
     if (!phone) {
-      if (updateErrors) newErrors.phoneNumber = t('PhoneNumberRequired');
+      if (updateErrors) newErrors.phoneNumber = translate('PhoneNumberRequired');
       valid = false;
     } else if (phone.length < 10) {
-      if (updateErrors) newErrors.phoneNumber = t('InvalidPhoneNumber');
+      if (updateErrors) newErrors.phoneNumber = translate('InvalidPhoneNumber');
       valid = false;
     }
 
@@ -151,7 +164,7 @@ const ForgotPassword = () => {
     let newErrors = {...errors};
 
     if (!formData.resetCode) {
-      newErrors.resetCode = t('ResetCodeRequired');
+      newErrors.resetCode = translate('ResetCodeRequired');
       valid = false;
     }
 
@@ -163,7 +176,7 @@ const ForgotPassword = () => {
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('PasswordsDoNotMatch');
+      newErrors.confirmPassword = translate('PasswordsDoNotMatch');
       valid = false;
     }
 
@@ -172,14 +185,27 @@ const ForgotPassword = () => {
   };
 
   const handleAuthMethodChange = (e) => {
-    setAuthMethod(e.target.value);
+    const newMethod = e.target.value;
+    setAuthMethod(newMethod);
+
+    // Track auth method change
+    analytics.trackEvent('forgot_password_auth_method_changed', {
+      from: authMethod,
+      to: newMethod
+    });
+
     // Clear related errors
     setErrors({});
   };
 
   const handleRequestCode = async (e) => {
     e.preventDefault();
-    
+
+    // Track reset code request attempt
+    analytics.trackEvent('forgot_password_request_code', {
+      method: authMethod
+    });
+
     // Validate based on auth method
     let isValid = false;
     if (authMethod === 'email') {
@@ -187,29 +213,52 @@ const ForgotPassword = () => {
     } else {
       isValid = validatePhoneNumber(formData.phoneNumber);
     }
-    
-    if (!isValid) return;
+
+    if (!isValid) {
+      // Track validation failure
+      analytics.trackEvent('forgot_password_validation_error', {
+        method: authMethod,
+        step: 'request_code'
+      });
+      return;
+    }
 
     try {
       setStatusMessage({ type: '', message: '' });
-      
+
       // Create the request payload based on auth method
-      const payload = authMethod === 'email' 
-        ? { email: formData.email } 
-        : { phoneNumber: formData.phoneNumber };
-      
+      const payload = authMethod === 'email'
+          ? { email: formData.email }
+          : { phoneNumber: formData.phoneNumber };
+
       await forgotPassword(payload).unwrap();
-      setStatusMessage({ 
-        type: 'success', 
-        message: t('ResetCodeSentEmail', { email: formData.email })
+
+      // Track successful code request
+      analytics.trackEvent('forgot_password_code_sent', {
+        method: authMethod
+      });
+
+      setStatusMessage({
+        type: 'success',
+        message: authMethod === 'email'
+            ? translate('ResetCodeSentEmail', { email: formData.email })
+            : translate('ResetCodeSentPhone', { phone: formData.phoneNumber })
       });
       setResetCodeSent(true);
       setActiveStep(1);
     } catch (error) {
       console.error('Error requesting reset code:', error);
-      setStatusMessage({ 
-        type: 'error', 
-        message: error.data?.message || t('UnknownError')
+
+      // Track failed code request
+      analytics.trackEvent('forgot_password_code_send_failed', {
+        method: authMethod,
+        error: error.data?.message || 'Unknown error',
+        status: error.status
+      });
+
+      setStatusMessage({
+        type: 'error',
+        message: error.data?.message || translate('ResetCodeSentError')
       });
     }
   };
@@ -217,167 +266,72 @@ const ForgotPassword = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
+    // Track password reset attempt
+    analytics.trackEvent('forgot_password_reset_attempt');
+
+    // Validate the form
+    if (!validateResetForm()) {
+      // Track validation failure
+      analytics.trackEvent('forgot_password_validation_error', {
+        step: 'reset_password'
+      });
+      return;
+    }
+
     try {
       setStatusMessage({ type: '', message: '' });
-
-      // Additional validation for better user feedback
-      if (!formData.resetCode || !formData.newPassword || !formData.confirmPassword) {
-        setStatusMessage({
-          type: 'error',
-          message: t('AllFieldsRequired')
-        });
-        return;
-      }
 
       // Create payload based on auth method
       const payload = {
         resetCode: formData.resetCode.trim(),
         newPassword: formData.newPassword.trim(),
-        [authMethod === 'email' ? 'email' : 'phoneNumber']: 
-          authMethod === 'email' ? formData.email.trim() : formData.phoneNumber.trim()
+        [authMethod === 'email' ? 'email' : 'phoneNumber']:
+            authMethod === 'email' ? formData.email.trim() : formData.phoneNumber.trim()
       };
 
-      console.log('Resetting password with payload:', payload);
+      // Submit password reset
+      const response = await resetPassword(payload).unwrap();
 
-      // Try with RTK Query first
-      try {
-        const response = await resetPassword(payload).unwrap();
-        console.log('Reset password response:', response);
+      // Track successful password reset
+      analytics.trackEvent('forgot_password_reset_success', {
+        autoLogin: !!response.token
+      });
 
-        if (response.token) {
-          // Handle successful login with token
-          AuthTokenService.setAuthInfo({
-            isAuthenticated: true,
-            user: response.user,
-            authToken: response.token,
-            roles: response.roles || [],
-            businesses: response.businesses || [],
-            activeBusiness: response.activeBusiness || null
-          });
+      if (response.token) {
+        setStatusMessage({
+          type: 'success',
+          message: translate('PasswordResetSuccessfulWithLogin')
+        });
 
-          dispatch(setCredentials(response));
+        setActiveStep(2);
 
-          setStatusMessage({
-            type: 'success',
-            message: t('PasswordResetSuccessful')
-          });
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        setStatusMessage({
+          type: 'success',
+          message: translate('PasswordResetSuccess')
+        });
 
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 2000);
-        } else {
-          setStatusMessage({
-            type: 'success',
-            message: t('PasswordResetSuccessLogin')
-          });
-          setTimeout(() => {
-            navigate('/login');
-          }, 2000);
-        }
-      } catch (rtkError) {
-        // If RTK Query fails, try direct axios call
-        console.error('RTK Query call failed:', rtkError);
-        console.log('Trying direct API call to:', API_ENDPOINTS.proxyResetPassword);
+        setActiveStep(2);
 
-        try {
-          const directResponse = await axios.post(
-            API_ENDPOINTS.proxyResetPassword,
-            payload,
-            { headers: { 'Content-Type': 'application/json' } }
-          );
-
-          console.log('Direct API call response:', directResponse.data);
-
-          if (directResponse.data.token) {
-            // Handle successful login with token
-            AuthTokenService.setAuthInfo({
-              isAuthenticated: true,
-              user: directResponse.data.user,
-              authToken: directResponse.data.token,
-              roles: directResponse.data.roles || [],
-              businesses: directResponse.data.businesses || [],
-              activeBusiness: directResponse.data.activeBusiness || null
-            });
-
-            dispatch(setCredentials(directResponse.data));
-
-            setStatusMessage({
-              type: 'success',
-              message: t('PasswordResetSuccessful')
-            });
-
-            setTimeout(() => {
-              navigate('/dashboard');
-            }, 2000);
-          } else {
-            setStatusMessage({
-              type: 'success',
-              message: t('PasswordResetSuccessLogin')
-            });
-            setTimeout(() => {
-              navigate('/login');
-            }, 2000);
-          }
-        } catch (directError) {
-          // Try one more time with the direct URL
-          console.error('Proxy API call failed:', directError);
-          console.log('Trying direct API call without proxy:', API_ENDPOINTS.directResetPassword);
-          
-          try {
-            const fallbackResponse = await axios.post(
-              API_ENDPOINTS.directResetPassword,
-              payload,
-              { headers: { 'Content-Type': 'application/json' } }
-            );
-            
-            console.log('Fallback API call response:', fallbackResponse.data);
-            
-            if (fallbackResponse.data.token) {
-              // Handle successful login with token
-              AuthTokenService.setAuthInfo({
-                isAuthenticated: true,
-                user: fallbackResponse.data.user,
-                authToken: fallbackResponse.data.token,
-                roles: fallbackResponse.data.roles || [],
-                businesses: fallbackResponse.data.businesses || [],
-                activeBusiness: fallbackResponse.data.activeBusiness || null
-              });
-  
-              dispatch(setCredentials(fallbackResponse.data));
-  
-              setStatusMessage({
-                type: 'success',
-                message: t('PasswordResetSuccessful')
-              });
-  
-              setTimeout(() => {
-                navigate('/dashboard');
-              }, 2000);
-            } else {
-              setStatusMessage({
-                type: 'success',
-                message: t('PasswordResetSuccessLogin')
-              });
-              setTimeout(() => {
-                navigate('/login');
-              }, 2000);
-            }
-          } catch (fallbackError) {
-            console.error('All reset password attempts failed:', fallbackError);
-            setStatusMessage({
-              type: 'error',
-              message: fallbackError.response?.data?.message || 
-                       fallbackError.message || 
-                       t('PasswordResetFailed')
-            });
-          }
-        }
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       }
     } catch (error) {
       console.error('Error in reset password flow:', error);
+
+      // Track password reset failure
+      analytics.trackEvent('forgot_password_reset_failure', {
+        error: error.data?.message || 'Unknown error',
+        status: error.status
+      });
+
       setStatusMessage({
         type: 'error',
-        message: error.response?.data?.message || error.message || t('PasswordResetFailed')
+        message: error.data?.message || translate('PasswordResetError')
       });
     }
   };
@@ -385,16 +339,16 @@ const ForgotPassword = () => {
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setFormData(prev => ({ ...prev, newPassword: value }));
-    
+
     // Real-time validation using password validator
     const passwordValidation = validatePassword(value);
     if (value && !passwordValidation.success) {
       setErrors(prev => ({ ...prev, newPassword: passwordValidation.message }));
     } else if (formData.confirmPassword && value !== formData.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: t('PasswordsDoNotMatch') }));
+      setErrors(prev => ({ ...prev, confirmPassword: translate('PasswordsDoNotMatch') }));
     } else {
-      setErrors(prev => ({ 
-        ...prev, 
+      setErrors(prev => ({
+        ...prev,
         newPassword: '',
         confirmPassword: value === formData.confirmPassword ? '' : prev.confirmPassword
       }));
@@ -404,243 +358,325 @@ const ForgotPassword = () => {
   const handleConfirmPasswordChange = (e) => {
     const { value } = e.target;
     setFormData(prev => ({ ...prev, confirmPassword: value }));
-    
+
     // Check if passwords match
     if (value !== formData.newPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: t('PasswordsDoNotMatch') }));
+      setErrors(prev => ({ ...prev, confirmPassword: translate('PasswordsDoNotMatch') }));
     } else {
       setErrors(prev => ({ ...prev, confirmPassword: '' }));
     }
   };
 
   const steps = [
-    t('RequestResetCode'),
-    t('EnterCodeAndNewPassword'),
-    t('ResetSuccess')
+    translate('RequestResetCode'),
+    translate('EnterCodeAndNewPassword'),
+    translate('ResetSuccess')
   ];
 
   return (
-    <StyledPaper elevation={3}>
-      <Typography variant="h4" gutterBottom align="center">
-        {resetCodeSent ? t('ResetPassword') : t('ForgotPassword')}
-      </Typography>
-
-      <Stepper activeStep={activeStep} alternativeLabel sx={{ width: '100%', mb: 4 }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      {statusMessage.message && (
-        <Alert 
-          severity={statusMessage.type || 'info'} 
-          sx={{ width: '100%', mb: 2 }}
-          onClose={() => setStatusMessage({ type: '', message: '' })}
-        >
-          {statusMessage.message}
-        </Alert>
-      )}
-
-      {activeStep === 0 && (
-        <Box component="form" onSubmit={handleRequestCode} sx={{ width: '100%' }}>
-          <Typography variant="body1" gutterBottom>
-            {t('ForgotPasswordInstructions')}
-          </Typography>
-          
-          <FormControl fullWidth margin="normal">
-            <InputLabel>{t('AuthenticationMethod')}</InputLabel>
-            <Select
-              value={authMethod}
-              onChange={handleAuthMethodChange}
-              label={t('AuthenticationMethod')}
-            >
-              <MenuItem value="email">{t('Email')}</MenuItem>
-              <MenuItem value="phone">{t('PhoneNumber')}</MenuItem>
-            </Select>
-          </FormControl>
-          
-          {authMethod === 'email' ? (
-            <TextField
-              fullWidth
-              margin="normal"
-              label={t('Email')}
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              error={!!errors.email}
-              helperText={errors.email}
-              disabled={isRequestingCode}
-              inputProps={{
-                autoComplete: "email"
-              }}
-            />
-          ) : (
-            <TextField
-              fullWidth
-              margin="normal"
-              label={t('PhoneNumber')}
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-              error={!!errors.phoneNumber}
-              helperText={errors.phoneNumber}
-              disabled={isRequestingCode}
-              inputProps={{
-                autoComplete: "tel"
-              }}
-            />
-          )}
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={isRequestingCode || !formValid}
-          >
-            {isRequestingCode ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              t('SendResetCode')
-            )}
-          </Button>
-
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Link href="/login" variant="body2">
-              {t('BackToLogin')}
-            </Link>
-          </Box>
-        </Box>
-      )}
-
-      {activeStep === 1 && (
-        <Box component="form" onSubmit={handleResetPassword} sx={{ width: '100%' }}>
-          <Typography variant="body1" gutterBottom>
-            {t('ResetPasswordInstructions')}
-          </Typography>
-          
-          <TextField
-            fullWidth
-            margin="normal"
-            label={t('ResetCode')}
-            name="resetCode"
-            value={formData.resetCode}
-            onChange={handleInputChange}
-            error={!!errors.resetCode}
-            helperText={errors.resetCode}
-            disabled={isResettingPassword}
-          />
-
-          <TextField
-            fullWidth
-            margin="normal"
-            label={t('NewPassword')}
-            name="newPassword"
-            type={showPassword ? 'text' : 'password'}
-            value={formData.newPassword}
-            onChange={handlePasswordChange}
-            error={!!errors.newPassword}
-            helperText={errors.newPassword}
-            disabled={isResettingPassword}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
+      <Container maxWidth="sm">
+        <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              mt: 4,
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: theme.shape.borderRadius * 2,
+              boxShadow: theme.shadows[3],
+              ...getGlassMorphismStyle(0.8)
             }}
-          />
-
-          <TextField
-            fullWidth
-            margin="normal"
-            label={t('ConfirmPassword')}
-            name="confirmPassword"
-            type={showPassword ? 'text' : 'password'}
-            value={formData.confirmPassword}
-            onChange={handleConfirmPasswordChange}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword}
-            disabled={isResettingPassword}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={isResettingPassword || !formValid}
+        >
+          <Typography
+              variant="h4"
+              gutterBottom
+              align="center"
+              sx={{
+                color: theme.palette.primary.main,
+                fontWeight: 'bold',
+                mb: 3
+              }}
           >
-            {isResettingPassword ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              t('ResetPassword')
-            )}
-          </Button>
+            {resetCodeSent ? translate('ResetPassword') : translate('ForgotPassword')}
+          </Typography>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button 
-              variant="text" 
-              onClick={() => setActiveStep(0)}
-              disabled={isResettingPassword}
-            >
-              {t('Back')}
-            </Button>
-            
-            <Button
-              variant="text"
-              onClick={() => navigate('/login')}
-            >
-              {t('BackToLogin')}
-            </Button>
-          </Box>
+          <Stepper
+              activeStep={activeStep}
+              alternativeLabel
+              sx={{
+                width: '100%',
+                mb: 4,
+                '& .MuiStepLabel-root .Mui-completed': {
+                  color: theme.palette.success.main
+                },
+                '& .MuiStepLabel-root .Mui-active': {
+                  color: theme.palette.primary.main,
+                  ...getGlowEffect(theme.palette.primary.main, 'low')
+                }
+              }}
+          >
+            {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+            ))}
+          </Stepper>
 
-          {process.env.NODE_ENV === 'development' && (
-            <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #eee' }}>
-              <Typography variant="body2" color="text.secondary" align="center">
-                Having issues? Try our 
-                <Button
-                  variant="text"
-                  size="small"
-                  onClick={() => navigate('/direct-reset')}
-                  sx={{ ml: 1 }}
-                >
-                  Direct Password Reset
-                </Button>
-              </Typography>
-            </Box>
+          {statusMessage.message && (
+              <Alert
+                  severity={statusMessage.type || 'info'}
+                  sx={{ width: '100%', mb: 2 }}
+                  onClose={() => setStatusMessage({ type: '', message: '' })}
+              >
+                {statusMessage.message}
+              </Alert>
           )}
-        </Box>
-      )}
 
-      {activeStep === 2 && (
-        <Box sx={{ width: '100%', textAlign: 'center' }}>
-          <Typography variant="h6" gutterBottom>
-            {t('PasswordResetSuccessTitle')}
-          </Typography>
-          
-          <Typography variant="body1" paragraph>
-            {t('PasswordResetSuccessMessage')}
-          </Typography>
-          
-          <Button
-            variant="contained"
-            onClick={() => navigate('/dashboard')}
-            sx={{ mt: 2 }}
-          >
-            {t('GoToDashboard')}
-          </Button>
-        </Box>
-      )}
-    </StyledPaper>
+          {activeStep === 0 && (
+              <Box component="form" onSubmit={handleRequestCode} sx={{ width: '100%' }}>
+                <Typography variant="body1" gutterBottom>
+                  {translate('ForgotPasswordInstructions')}
+                </Typography>
+
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>{translate('AuthenticationMethod')}</InputLabel>
+                  <Select
+                      value={authMethod}
+                      onChange={handleAuthMethodChange}
+                      label={translate('AuthenticationMethod')}
+                  >
+                    <MenuItem value="email">{translate('Email')}</MenuItem>
+                    <MenuItem value="phone">{translate('PhoneNumber')}</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {authMethod === 'email' ? (
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label={translate('Email')}
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        error={!!errors.email}
+                        helperText={errors.email}
+                        disabled={isRequestingCode}
+                        inputProps={{
+                          autoComplete: "email"
+                        }}
+                        sx={{ mb: 3 }}
+                    />
+                ) : (
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label={translate('PhoneNumber')}
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleInputChange}
+                        error={!!errors.phoneNumber}
+                        helperText={errors.phoneNumber}
+                        disabled={isRequestingCode}
+                        inputProps={{
+                          autoComplete: "tel"
+                        }}
+                        sx={{ mb: 3 }}
+                    />
+                )}
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      mt: 2,
+                      mb: 3,
+                      height: 48,
+                      borderRadius: 1.5,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                    }}
+                    disabled={isRequestingCode || !formValid}
+                >
+                  {isRequestingCode ? (
+                      <CircularProgress size={24} color="inherit" />
+                  ) : (
+                      translate('SendResetCode')
+                  )}
+                </Button>
+
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                  <Link
+                      href="/login"
+                      variant="body2"
+                      sx={{
+                        display: 'inline-block',
+                        color: theme.palette.primary.main,
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline'
+                        }
+                      }}
+                  >
+                    {translate('BackToLogin')}
+                  </Link>
+                </Box>
+              </Box>
+          )}
+
+          {activeStep === 1 && (
+              <Box component="form" onSubmit={handleResetPassword} sx={{ width: '100%' }}>
+                <Typography variant="body1" gutterBottom>
+                  {translate('ResetPasswordInstructions')}
+                </Typography>
+
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label={translate('ResetCode')}
+                    name="resetCode"
+                    value={formData.resetCode}
+                    onChange={handleInputChange}
+                    error={!!errors.resetCode}
+                    helperText={errors.resetCode}
+                    disabled={isResettingPassword}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label={translate('NewPassword')}
+                    name="newPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.newPassword}
+                    onChange={handlePasswordChange}
+                    error={!!errors.newPassword}
+                    helperText={errors.newPassword}
+                    disabled={isResettingPassword}
+                    InputProps={{
+                      endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                                aria-label={showPassword ? 'hide password' : 'show password'}
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                      ),
+                    }}
+                    sx={{ mb: 2 }}
+                />
+
+                <TextField
+                    fullWidth
+                    margin="normal"
+                    label={translate('ConfirmPassword')}
+                    name="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword}
+                    disabled={isResettingPassword}
+                    sx={{ mb: 3 }}
+                />
+
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      mt: 2,
+                      mb: 3,
+                      height: 48,
+                      borderRadius: 1.5,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '1rem',
+                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                    }}
+                    disabled={isResettingPassword || !formValid}
+                >
+                  {isResettingPassword ? (
+                      <CircularProgress size={24} color="inherit" />
+                  ) : (
+                      translate('ResetPassword')
+                  )}
+                </Button>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                  <Button
+                      variant="outlined"
+                      onClick={() => setActiveStep(0)}
+                      disabled={isResettingPassword}
+                      sx={{
+                        borderRadius: 1.5,
+                        textTransform: 'none'
+                      }}
+                  >
+                    {translate('Back')}
+                  </Button>
+
+                  <Button
+                      variant="text"
+                      onClick={() => navigate('/login')}
+                      sx={{
+                        borderRadius: 1.5,
+                        textTransform: 'none',
+                        color: theme.palette.primary.main
+                      }}
+                  >
+                    {translate('BackToLogin')}
+                  </Button>
+                </Box>
+              </Box>
+          )}
+
+          {activeStep === 2 && (
+              <Box sx={{ width: '100%', textAlign: 'center' }}>
+                <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{
+                      color: theme.palette.success.main,
+                      fontWeight: 'bold',
+                      mb: 2
+                    }}
+                >
+                  {translate('PasswordResetSuccessTitle')}
+                </Typography>
+
+                <Typography variant="body1" paragraph>
+                  {translate('PasswordResetSuccessMessage')}
+                </Typography>
+
+                <Button
+                    variant="contained"
+                    onClick={() => navigate('/login')}
+                    size="large"
+                    sx={{
+                      mt: 2,
+                      borderRadius: 1.5,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      px: 4,
+                      py: 1.2,
+                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                    }}
+                >
+                  {translate('GoToDashboard')}
+                </Button>
+              </Box>
+          )}
+        </Paper>
+      </Container>
   );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;

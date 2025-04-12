@@ -1,3 +1,4 @@
+{/*
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, Typography, Paper, Grid, CircularProgress, Snackbar, Alert } from '@mui/material';
 import useFormTracking from '../../analytics/hooks/useFormTracking';
@@ -339,6 +340,7 @@ const ContactUs = () => {
             )}
 
             {/* Additional contact information */}
+{/*
             <Box sx={{ mt: 4 }}>
                 <Typography variant="h5" gutterBottom>Other ways to reach us</Typography>
 
@@ -368,6 +370,7 @@ const ContactUs = () => {
             </Box>
 
             {/* Snackbar for notifications */}
+/*
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={6000}
@@ -386,4 +389,4 @@ const ContactUs = () => {
     );
 };
 
-export default ContactUs;
+export default ContactUs;*/

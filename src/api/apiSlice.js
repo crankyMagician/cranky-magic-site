@@ -1,30 +1,16 @@
-import {extendedApi} from "./extendedApi";
+/**
+ * Main API slice that re-exports all API hooks
+ */
+import { authApi } from './authApi';
+import { businessApi } from './businessApi';
+import baseApi from './baseApi';
 
-export const apiSlice = extendedApi.enhanceEndpoints({
-    addTagTypes: [
-        'Moves',
-        'Munchies',
-        'CraftingRecipes',
-        'Items',
-        'Abilities',
-        'Effects',
-        'MoveEffects',
-        'MunchieTypes',
-        'StatusConditions',
-        'MunchiePhotos',
-        'ItemPhotos',
-        'LearnableMoves',
-        'MunchieStats',
-        'Business',
-        'BusinessUsers',
-        'BusinessRoles',
-    ],
-    endpoints: () => ({}),
-});
+// Re-export the combined API slice
+export const apiSlice = baseApi;
 
-export const {
-
-    // Auth endpoints
+// Re-export all the hooks from auth and business APIs
+export {
+    // Auth hooks
     useLoginMutation,
     useRegisterMutation,
     useConfirmSignupMutation,
@@ -38,8 +24,10 @@ export const {
     useDecodeTokenMutation,
     useBusinessSignupMutation,
     useUpdateMfaPreferenceMutation,
+} from './authApi';
 
-    // Business endpoints
+export {
+    // Business hooks
     useGetActiveBusinessQuery,
     useGetBusinessByIdQuery,
     useUpdateBusinessMutation,
@@ -51,4 +39,4 @@ export const {
     useGetBusinessRolesQuery,
     useCreateBusinessRoleMutation,
     useDeleteBusinessRoleMutation,
-} = apiSlice;
+} from './businessApi';

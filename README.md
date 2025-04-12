@@ -112,7 +112,7 @@ const { businessId } = await useBusiness().businessSignup({
 
 ### 🔮 RTK Query API Magic 🔮
 
-The application uses the almighty **RTK Query** for API communication - because regular API calls are for MUGGLES! Our system combines the power of Redux Toolkit's Query features with the flexibility of Axios:
+The application uses the almighty **RTK Query** for API communication - because regular API calls are for MUGGLES! Our enchanted API system adapts to different realms (development, staging, production) and provides UNPARALLELED magical powers:
 
 ```javascript
 // Import our magical hooks from the apiSlice
@@ -126,14 +126,43 @@ const MagicalLoginComponent = () => {
   const handleLoginClick = async () => {
     try {
       // Cast the login spell!
-      const result = await login({ username: 'merlin', password: 'expelliarmus123' }).unwrap();
-      console.log('Login successful!', result);
+      const result = await login({
+        email: 'merlin@wizardry.com',
+        password: 'expelliarmus123'
+      }).unwrap();
+      
+      // BEHOLD! You are now logged in!
+      console.log('✨ Login successful! ✨', result);
     } catch (err) {
-      console.error('Login spell backfired!', err);
+      // The spell backfired!
+      console.error('🔥 Login spell backfired! 🔥', err);
     }
   };
   
-  return <button onClick={handleLoginClick}>✨ Login ✨</button>;
+  return (
+    <button 
+      onClick={handleLoginClick}
+      disabled={isLoading}
+    >
+      {isLoading ? '🪄 Casting...' : '✨ Login ✨'}
+    </button>
+  );
+};
+
+// Want to get business data? ALAKAZAM!
+const BusinessDashboard = ({ businessId }) => {
+  // This magical hook AUTOMATICALLY fetches, caches, and refreshes your data!
+  const { data, error, isLoading, refetch } = useGetBusinessByIdQuery(businessId);
+  
+  if (isLoading) return <p>🔮 Summoning business data...</p>;
+  if (error) return <p>💥 Spell backfired! Error: {error.message}</p>;
+  
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <button onClick={refetch}>🔄 Recast Spell</button>
+    </div>
+  );
 };
 ```
 
@@ -141,12 +170,14 @@ const MagicalLoginComponent = () => {
 
 Our API system provides these INCREDIBLE powers:
 
-- 🪄 **Automatic Loading & Error States** - No more manual tracking of API status!
-- 🔄 **Caching & Invalidation** - Data refreshes EXACTLY when it should!
-- 🔮 **Automatic Re-fetching** - Keep your data fresh without lifting a finger!
-- ⚡ **Optimistic Updates** - Update UI before the server confirms for LIGHTNING FAST experience!
-- ✨ **Normalized Cache** - Data stored efficiently, no duplicates!
-- 🛡️ **TypeScript Support** - Type safety that would make Dumbledore proud!
+- 🪄 **Environment-Aware Configuration** - Automatically adapts to development, staging, or production realms!
+- 🔄 **Automatic Caching & Invalidation** - Data updates EXACTLY when it should, not before, not after!
+- 🏃‍♂️ **Automatic Loading & Error States** - No more tracking loading or error states by hand like a PEASANT!
+- ⚡ **Optimistic Updates** - UI updates INSTANTLY, even before the server knows what happened!
+- 🧠 **Request Deduplication** - Multiple components can request the same data without duplicate API calls!
+- 🔄 **Auto-Refetching** - Data refreshes after window focus, network reconnection, or at intervals you define!
+- 🛡️ **Token Management** - Automatic handling of authentication tokens and token expiration!
+- 📊 **Analytics Integration** - Seamless tracking of API calls, errors, and performance!
 
 ### 🔍 Analytics Tracking Magic 🧙‍♂️
 Track user actions with mystical precision!

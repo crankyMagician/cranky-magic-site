@@ -1,47 +1,65 @@
-// baseApi.js
-import { createApi } from '@reduxjs/toolkit/query/react';
-import axiosServices from "../utilities/axios";
+/**
+ * Base API configuration for RTK Query
+ * Sets up base query with authentication handling
+ */
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import config from '../config';
+import TokenDecoder from '../utilities/TokenDecoder';
 
-const axiosBaseQuery = () => async ({ url, method, data, params, headers }) => {
-    try {
-        const result = await axiosServices({
-            url,
-            method,
-            data,
-            params,
-            headers,
-        });
+// Prepare base query with authentication header
+const baseQuery = fetchBaseQuery({
+    baseUrl: config.getAuthApiUrl(), // Default to auth API
+    prepareHeaders: (headers, { getState }) => {
+        // Get token from state
+        const token = getState().auth.token;
 
-        // Log the result to see what it contains
-        console.log("Axios result:", result);
+        // Set auth header if token exists
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        }
 
-        return {
-            data: result.data,
-            meta: {
-                status: result.status,
-                statusText: result.statusText,
-                headers: result.headers,
-            },
-        };
-    } catch (axiosError) {
-        const err = axiosError;
-        console.log("Axios error:", err);
+        // Set content type for JSON
+        headers.set('Content-Type', 'application/json');
+        return headers;
+    },
+    credentials: 'include', // Include cookies if your API uses them
+});
 
-        return {
-            error: {
-                status: err.response?.status,
-                data: err.response?.data || err.message,
-            },
-        };
+// Create enhanced base query with token handling
+const enhancedBaseQuery = async (args, api, extraOptions) => {
+    // Execute the original query
+    let result = await baseQuery(args, api, extraOptions);
+
+    // Handle 401 Unauthorized errors - token expired
+    if (result.error && result.error.status === 401) {
+        // Get current token and check if it's expired
+        const state = api.getState();
+        const token = state.auth.token;
+
+        if (token) {
+            const isExpired = TokenDecoder.isExpired(token);
+
+            if (isExpired) {
+                // Token expired, log out user by dispatching logout action
+                api.dispatch({ type: 'auth/logout' });
+            }
+        }
     }
+
+    return result;
 };
 
-const baseApi = createApi({
-    // Do not keep cached data around. Configure this per endpoint if it makes sense (UI Helper Endpoints).
-    keepUnusedDataFor: 0,
+// Create the base API slice
+export const baseApi = createApi({
     reducerPath: 'api',
-    baseQuery: axiosBaseQuery(),
-    tagTypes: [],
+    baseQuery: enhancedBaseQuery,
+    tagTypes: [
+        'Auth',
+        'User',
+        'Business',
+        'BusinessUsers',
+        'BusinessRoles',
+    ],
     endpoints: () => ({}),
 });
 

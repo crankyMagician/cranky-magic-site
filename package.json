@@ -68,9 +68,13 @@
     "redux": "^5.0.1"
   },
   "scripts": {
-    "fancy-start": "cross-env HTTPS=true react-scripts start",
-    "start": "set NODE_OPTIONS=--trace-deprecation && react-scripts start",
+    "start": "react-scripts start",
+    "start:dev": "cross-env REACT_APP_ENV=development react-scripts start",
+    "start:staging": "cross-env REACT_APP_ENV=staging react-scripts start",
+    "start:prod": "cross-env REACT_APP_ENV=production react-scripts start",
     "build": "react-scripts build",
+    "build:staging": "cross-env REACT_APP_ENV=staging react-scripts build",
+    "build:prod": "cross-env REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -95,6 +99,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "cross-env": "^7.0.3",
+    "env-cmd": "^10.1.0",
     "prettier-plugin-organize-imports": "^4.1.0",
     "ts-prune": "^0.10.3"
   }
