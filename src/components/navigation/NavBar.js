@@ -21,16 +21,8 @@ import {
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
     Menu as MenuIcon,
-    Home,
-    CalendarMonth,
-    Info,
-    ContactMail,
-    Email,
     Login,
     AppRegistration,
-    VideoLibrary,
-    Style as StyleIcon,
-    AccountCircle,
     Logout,
 } from '@mui/icons-material';
 import { useLogout } from '../../hooks/useLogout';
@@ -41,6 +33,7 @@ import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import Sidebar from './Sidebar';
+import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 
 // Define the breakpoint for switching to sidebar
 const SIDEBAR_BREAKPOINT = 'md';
@@ -48,23 +41,17 @@ const SIDEBAR_BREAKPOINT = 'md';
 // Maximum width for the navigation container
 const MAX_NAV_WIDTH = 'lg';
 
-// Navigation items aligned with MainContent.js routes
-const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home />, requiresAuth: false },
-    { path: '/theme', label: 'Theme', icon: <StyleIcon />, requiresAuth: false },
-    { path: '/about-us', label: 'About Us', icon: <Info />, requiresAuth: false },
-    { path: '/contact-us', label: 'Contact Us', icon: <ContactMail />, requiresAuth: false },
-    { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary />, requiresAuth: false },
-    { path: '/calendar', label: 'Calendar', icon: <CalendarMonth />, requiresAuth: false },
-    { path: '/newsletter-signup', label: 'Newsletter', icon: <Email />, requiresAuth: false },
-    { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
-];
-
 const Navbar = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
     const logoUrl = logoImage;
     const location = useLocation();
+    const { userRoles } = useRouteContext();
+
+    // Use the adapter to get navigation items
+    const navigationGroups = adaptRoutesForSidebar(routes, isAuthenticated, userRoles);
+    // Flatten the groups to get all navigation items
+    const navItems = navigationGroups.flatMap(group => group.items);
 
     // Drawer state
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -88,15 +75,10 @@ const Navbar = () => {
         setIsDrawerOpen(open);
     };
 
-    // Filter navigation items based on authentication status
-    const filteredNavItems = navigationItems.filter(item =>
-        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
-    );
-
     // Render navigation list for both drawer and desktop view
     const renderNavItems = (onClick) => (
         <List sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row' }}>
-            {filteredNavItems.map((item) => (
+            {navItems.map((item) => (
                 <ListItem
                     button
                     key={item.path}
@@ -197,6 +179,86 @@ const Navbar = () => {
         </Box>
     );
 
+    // Mobile drawer content
+    const renderDrawerContent = () => (
+        <Box sx={{ width: { xs: '80%', sm: 280 }, p: 2 }} role="presentation">
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
+                <Typography
+                    variant="h6"
+                    sx={{
+                        fontFamily: theme.typography.h6.fontFamily,
+                        color: theme.palette.text.primary,
+                    }}
+                >
+                    {translate('Company Name')}
+                </Typography>
+            </Box>
+            <Divider sx={{ mb: 2 }} />
+
+            {navigationGroups.map((group) => (
+                <Box key={group.label}>
+                    <Typography
+                        variant="subtitle2"
+                        color="textSecondary"
+                        sx={{
+                            mt: 2,
+                            mb: 1,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                        }}
+                    >
+                        {translate(group.label)}
+                    </Typography>
+                    <List>
+                        {group.items.map((item) => (
+                            <ListItem
+                                button
+                                key={item.path}
+                                component={RouterLink}
+                                to={item.path}
+                                onClick={toggleDrawer(false)}
+                                selected={location.pathname === item.path}
+                                sx={{
+                                    borderRadius: 1,
+                                    '&.Mui-selected': {
+                                        backgroundColor: theme.palette.action.selected,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.action.hover,
+                                        },
+                                    },
+                                }}
+                            >
+                                <ListItemIcon sx={{
+                                    color: location.pathname === item.path ?
+                                        theme.palette.primary.main :
+                                        theme.palette.text.secondary,
+                                    minWidth: 40,
+                                }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={translate(item.label)}
+                                    primaryTypographyProps={{
+                                        variant: 'body1',
+                                        fontFamily: theme.typography.body1.fontFamily,
+                                        fontWeight: location.pathname === item.path ? 600 : 400,
+                                        color: theme.palette.text.primary,
+                                    }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            ))}
+
+            <Divider sx={{ my: 2 }} />
+            {renderAuthButtons(toggleDrawer(false))}
+        </Box>
+    );
+
     return (
         <AppBar
             position="static"
@@ -245,27 +307,7 @@ const Navbar = () => {
                                     }
                                 }}
                             >
-                                <Box
-                                    sx={{ width: '100%', p: 2 }}
-                                    role="presentation"
-                                >
-                                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                                        <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
-                                        <Typography
-                                            variant="h6"
-                                            sx={{
-                                                fontFamily: theme.typography.h6.fontFamily,
-                                                color: theme.palette.text.primary,
-                                            }}
-                                        >
-                                            {translate('Company Name')}
-                                        </Typography>
-                                    </Box>
-                                    <Divider sx={{ mb: 2 }} />
-                                    {renderNavItems(toggleDrawer(false))}
-                                    <Divider sx={{ my: 2 }} />
-                                    {renderAuthButtons(toggleDrawer(false))}
-                                </Box>
+                                {renderDrawerContent()}
                             </Drawer>
                         </>
                     ) : (

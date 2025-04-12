@@ -25,23 +25,9 @@ import {
     Menu as MenuIcon,
     ChevronLeft as ChevronLeftIcon,
     ChevronRight as ChevronRightIcon,
-    GridView,
-    Photo,
-    Style as StyleIcon,
-    ViewList,
-    Science,
-    Construction,
-    Inventory,
-    Star,
     Home,
-    CalendarMonth,
-    Info,
-    ContactMail,
-    Email,
     Login,
     AppRegistration,
-    VideoLibrary,
-    AccountCircle,
     Logout,
     Dashboard as DashboardIcon,
     Close as CloseIcon
@@ -52,21 +38,11 @@ import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import Sidebar from './Sidebar';
+import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
+import PageHeader from '../layout/PageHeader';
 
 // Define the breakpoint for switching to sidebar
 const SIDEBAR_BREAKPOINT = 'md';
-
-// Navigation items aligned with MainContent.js routes
-const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home />, requiresAuth: false },
-    { path: '/theme', label: 'Theme', icon: <StyleIcon />, requiresAuth: false },
-    { path: '/about-us', label: 'About Us', icon: <Info />, requiresAuth: false },
-    { path: '/contact-us', label: 'Contact Us', icon: <ContactMail />, requiresAuth: false },
-    { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary />, requiresAuth: false },
-    { path: '/calendar', label: 'Calendar', icon: <CalendarMonth />, requiresAuth: false },
-    { path: '/newsletter-signup', label: 'Newsletter', icon: <Email />, requiresAuth: false },
-    { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
-];
 
 const Dashboard = ({ children }) => {
     const { translate } = useCustomTranslation();
@@ -79,11 +55,15 @@ const Dashboard = ({ children }) => {
     const isSidebarMode = useMediaQuery(theme.breakpoints.down(SIDEBAR_BREAKPOINT));
     const location = useLocation();
     const navigate = useNavigate();
+    const { currentRoute, userRoles } = useRouteContext();
 
     // If we're in sidebar mode, render the Sidebar component instead
     if (isSidebarMode) {
         return <Sidebar>{children}</Sidebar>;
     }
+
+    // Get navigation items using the adapter
+    const navigationGroups = adaptRoutesForSidebar(routes, isAuthenticated, userRoles);
 
     // Drawer width calculations
     const drawerWidth = 240;
@@ -94,62 +74,81 @@ const Dashboard = ({ children }) => {
         setOpen(!open);
     };
 
-    // Filter navigation items based on authentication status
-    const filteredNavItems = navigationItems.filter(item =>
-        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
-    );
-
     const NavigationList = ({ onClick }) => (
-        <List>
-            {filteredNavItems.map((item) => (
-                <ListItem
-                    button
-                    key={item.path}
-                    component={RouterLink}
-                    to={item.path}
-                    onClick={onClick}
-                    selected={location.pathname === item.path}
-                    sx={{
-                        minHeight: 48,
-                        justifyContent: open ? 'initial' : 'center',
-                        px: 2.5,
-                        '&.Mui-selected': {
-                            backgroundColor: theme.palette.action.selected,
-                            '&:hover': {
-                                backgroundColor: theme.palette.action.hover,
-                            },
-                        },
-                    }}
-                >
-                    <ListItemIcon
-                        sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : 'auto',
-                            justifyContent: 'center',
-                            color: location.pathname === item.path ?
-                                theme.palette.primary.main :
-                                theme.palette.text.secondary,
-                        }}
-                    >
-                        {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={translate(item.label)}
-                        primaryTypographyProps={{
-                            variant: 'body2',
-                            sx: {
+        <>
+            {navigationGroups.map((group) => (
+                <div key={group.label}>
+                    {open && (
+                        <Typography
+                            variant="subtitle2"
+                            color="textSecondary"
+                            sx={{
+                                px: 3,
+                                mt: 2,
+                                mb: 1,
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
                                 opacity: open ? 1 : 0,
-                                fontFamily: theme.typography.body2.fontFamily,
-                                fontWeight: location.pathname === item.path ? 600 : 400,
-                                color: theme.palette.text.primary,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                            }
-                        }}
-                    />
-                </ListItem>
+                            }}
+                        >
+                            {translate(group.label)}
+                        </Typography>
+                    )}
+                    <List>
+                        {group.items.map((item) => (
+                            <ListItem
+                                button
+                                key={item.path}
+                                component={RouterLink}
+                                to={item.path}
+                                onClick={onClick}
+                                selected={location.pathname === item.path}
+                                sx={{
+                                    minHeight: 48,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    px: 2.5,
+                                    '&.Mui-selected': {
+                                        backgroundColor: theme.palette.action.selected,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.action.hover,
+                                        },
+                                    },
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        mr: open ? 3 : 'auto',
+                                        justifyContent: 'center',
+                                        color: location.pathname === item.path ?
+                                            theme.palette.primary.main :
+                                            theme.palette.text.secondary,
+                                    }}
+                                >
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={translate(item.label)}
+                                    primaryTypographyProps={{
+                                        variant: 'body2',
+                                        sx: {
+                                            opacity: open ? 1 : 0,
+                                            fontFamily: theme.typography.body2.fontFamily,
+                                            fontWeight: location.pathname === item.path ? 600 : 400,
+                                            color: theme.palette.text.primary,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                        }
+                                    }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </div>
             ))}
-        </List>
+        </>
     );
 
     const authLinks = isAuthenticated ? (
@@ -316,6 +315,27 @@ const Dashboard = ({ children }) => {
             </Card>
         </Grid>
     );
+
+    // Generate dashboard cards from navigation items
+    const renderDashboardCards = () => {
+        // Flatten items from all groups
+        const allItems = navigationGroups.flatMap(group => group.items);
+
+        // Create cards for each navigation item
+        return (
+            <Grid container spacing={3}>
+                {allItems.map(item => (
+                    <DashboardCard
+                        key={item.path}
+                        title={item.label}
+                        icon={React.cloneElement(item.icon, { sx: { fontSize: 30 } })}
+                        description={`Access ${item.label} section`}
+                        to={item.path}
+                    />
+                ))}
+            </Grid>
+        );
+    };
 
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -499,62 +519,57 @@ const Dashboard = ({ children }) => {
                     mt: { xs: '56px', sm: '64px' }, // AppBar height
                 }}
             >
-                {/* Conditionally render welcome section if we're not showing any specific content */}
-                {location.pathname === '/' ? (
-                    <Container maxWidth="xl">
-                        <Paper
-                            elevation={2}
-                            sx={{
-                                p: 3,
-                                mb: 3,
-                                borderRadius: 2,
-                                bgcolor: 'background.paper'
-                            }}
-                        >
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                <DashboardIcon
-                                    color="primary"
-                                    sx={{ fontSize: 40, mr: 2 }}
-                                />
+                <Container maxWidth="xl">
+                    {/* Conditionally render welcome section if we're on the home page */}
+                    {location.pathname === '/' ? (
+                        <>
+                            <Paper
+                                elevation={2}
+                                sx={{
+                                    p: 3,
+                                    mb: 3,
+                                    borderRadius: 2,
+                                    bgcolor: 'background.paper'
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                    <DashboardIcon
+                                        color="primary"
+                                        sx={{ fontSize: 40, mr: 2 }}
+                                    />
+                                    <Typography
+                                        variant="h4"
+                                        component="h1"
+                                        sx={{
+                                            fontFamily: theme.typography.h4.fontFamily,
+                                            color: theme.palette.text.primary,
+                                        }}
+                                    >
+                                        {translate('Welcome to Dashboard')}
+                                    </Typography>
+                                </Box>
                                 <Typography
-                                    variant="h4"
-                                    component="h1"
+                                    variant="body1"
                                     sx={{
-                                        fontFamily: theme.typography.h4.fontFamily,
+                                        fontFamily: theme.typography.body1.fontFamily,
                                         color: theme.palette.text.primary,
                                     }}
                                 >
-                                    {translate('Welcome to Dashboard')}
+                                    {translate('This is your application dashboard. Navigate through the available options using the sidebar or the cards below.')}
                                 </Typography>
-                            </Box>
-                            <Typography
-                                variant="body1"
-                                sx={{
-                                    fontFamily: theme.typography.body1.fontFamily,
-                                    color: theme.palette.text.primary,
-                                }}
-                            >
-                                {translate('This is your application dashboard. Navigate through the available options using the sidebar or the cards below.')}
-                            </Typography>
-                        </Paper>
+                            </Paper>
 
-                        {/* Dashboard cards */}
-                        <Grid container spacing={3}>
-                            {filteredNavItems.map(item => (
-                                <DashboardCard
-                                    key={item.path}
-                                    title={item.label}
-                                    icon={React.cloneElement(item.icon, { sx: { fontSize: 30 } })}
-                                    description={`Access ${item.label} section`}
-                                    to={item.path}
-                                />
-                            ))}
-                        </Grid>
-                    </Container>
-                ) : (
-                    // Render children components from the router
-                    children
-                )}
+                            {/* Dashboard cards */}
+                            {renderDashboardCards()}
+                        </>
+                    ) : (
+                        // For other pages, show page header if needed and render children
+                        <>
+                            {location.pathname !== '/' && <PageHeader />}
+                            {children}
+                        </>
+                    )}
+                </Container>
             </Box>
         </Box>
     );

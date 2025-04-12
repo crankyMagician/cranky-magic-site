@@ -1,5 +1,5 @@
-// src/App.js - Updated with analytics integration
-import React, { useEffect } from 'react';
+// src/App.js
+import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,13 +13,12 @@ import useAppInitialization from './hooks/useAppInitialization';
 import useCustomTranslation from "./hooks/useCustomTranslation";
 import DebugPanel from './components/common/DebugPanel';
 import AnalyticsProvider from './AnalyticsProvider';
-import usePageTracking from './analytics/hooks/usePageTracking';
 import useSessionTracking from './analytics/hooks/useSessionTracking';
+import { RouteProvider } from './routes'; // Import the RouteProvider
 
 // Create an analytics-aware MainContent component
 const AnalyticsMainContent = () => {
-    // Use analytics hooks
-    usePageTracking();
+    // Use session tracking
     useSessionTracking();
 
     return <MainContent />;
@@ -45,12 +44,24 @@ function App() {
         <AnalyticsProvider>
             <ThemeProvider theme={theme}>
                 <Router>
-                    <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false}
-                                    closeOnClick rtl={currentLanguageDirection === 'rtl'} pauseOnFocusLoss draggable pauseOnHover />
-                    <AppLayout>
-                        <AnalyticsMainContent />
-                    </AppLayout>
-                    {isDevelopment && <DebugPanel />}
+                    {/* Wrap the app with RouteProvider for routing context */}
+                    <RouteProvider>
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={currentLanguageDirection === 'rtl'}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+                        <AppLayout>
+                            <AnalyticsMainContent />
+                        </AppLayout>
+                        {isDevelopment && <DebugPanel />}
+                    </RouteProvider>
                 </Router>
             </ThemeProvider>
         </AnalyticsProvider>

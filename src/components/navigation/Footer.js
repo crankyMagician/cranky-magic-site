@@ -12,34 +12,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 
 // Import the useCustomTranslation hook
 import useCustomTranslation from "../../hooks/useCustomTranslation";
-
-// Footer links configuration that matches routes in MainContent.js
-const footerLinks = [
-    {
-        title: 'Company',
-        items: [
-            { label: 'Home', path: '/' },
-            { label: 'About Us', path: '/about-us' },
-            { label: 'Contact Us', path: '/contact-us' },
-        ]
-    },
-    {
-        title: 'Resources',
-        items: [
-            { label: 'Newsletter', path: '/newsletter-signup' },
-            { label: 'Calendar', path: '/calendar' },
-            { label: 'Video Stream', path: '/video-stream' },
-        ]
-    },
-    {
-        title: 'Legal',
-        items: [
-            { label: 'Terms of Service', path: '/terms' },
-            { label: 'Privacy Policy', path: '/privacy' },
-            { label: 'Cookie Policy', path: '/cookies' },
-        ]
-    }
-];
+import { routes, adaptRoutesForFooter, useRouteContext } from '../../routes';
 
 // Social media links
 const socialLinks = [
@@ -53,9 +26,11 @@ const socialLinks = [
 const Footer = () => {
     const theme = useTheme();
     const logoUrl = logoImage;
-
-    // Use the translate function from the hook
     const { translate } = useCustomTranslation();
+    const { isAuthenticated, userRoles } = useRouteContext();
+
+    // Get footer links using the new adapter
+    const footerLinkGroups = adaptRoutesForFooter(routes);
 
     return (
         <Box
@@ -109,7 +84,7 @@ const Footer = () => {
                     </Grid>
 
                     {/* Footer links */}
-                    {footerLinks.map((section, index) => (
+                    {footerLinkGroups.map((group, index) => (
                         <Grid item xs={6} sm={4} md={2} key={index}>
                             <Typography
                                 variant="subtitle1"
@@ -122,10 +97,10 @@ const Footer = () => {
                                     pb: 1
                                 }}
                             >
-                                {translate(section.title)}
+                                {translate(group.title)}
                             </Typography>
                             <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none' }}>
-                                {section.items.map((item, itemIndex) => (
+                                {group.items.map((item, itemIndex) => (
                                     <Box component="li" key={itemIndex} sx={{ mb: 1 }}>
                                         <Link
                                             component={RouterLink}

@@ -25,7 +25,7 @@ const NewsletterSignup = () => {
                     {translate('Sign Up for Our Newsletter')}
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                    <TextField
+                    {/* <TextField
                         variant="outlined"
                         margin="normal"
                         required
@@ -38,7 +38,7 @@ const NewsletterSignup = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={translate("Enter your email")}
-                    />
+                    />*/}
                     <Button
                         type="submit"
                         fullWidth

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import BusinessSignup from '../components/Auth/BusinessSignup';
+import BusinessSignup from '../components/auth/BusinessSignup';
 import useCustomTranslation from "../hooks/useCustomTranslation";
 
 const BusinessSignupPage = () => {
