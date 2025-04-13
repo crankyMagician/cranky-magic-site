@@ -11,21 +11,15 @@ import {
     Container,
     Alert,
     CircularProgress,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    FormHelperText,
     IconButton,
-    InputAdornment
+    InputAdornment,
+    Divider
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     useBusinessSignupMutation,
     useConfirmSignupMutation,
-    useConfirmPhoneMutation,
     useResendConfirmationMutation,
-    useResendPhoneConfirmationMutation,
     useLoginMutation
 } from "../../api/apiSlice";
 import useCustomTranslation from "../../hooks/useCustomTranslation";
@@ -33,6 +27,7 @@ import ConfirmationModal from '../common/ConfirmationModal';
 import validatePassword from '../../utilities/PasswordValidator';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
+import useFormTracking from '../../analytics/hooks/useFormTracking';
 
 // Helper function to generate a slug from business name
 const generateSlug = (businessName) => {
@@ -48,14 +43,12 @@ const BusinessSignup = () => {
     const location = useLocation();
     const { translate } = useCustomTranslation();
     const analytics = useAnalytics();
-    const { getGlassMorphismStyle, getGlowEffect } = useSpatialTheme();
+    const { getAnimationDuration } = useSpatialTheme();
 
-    // API mutations from RTK Query
+    // API mutations from RTK Query - only using what's available in the API
     const [businessSignup, { isLoading: isSigningUp }] = useBusinessSignupMutation();
     const [confirmSignup, { isLoading: isConfirmingEmail }] = useConfirmSignupMutation();
-    const [confirmPhone, { isLoading: isConfirmingPhone }] = useConfirmPhoneMutation();
     const [resendConfirmation, { isLoading: isResendingEmail }] = useResendConfirmationMutation();
-    const [resendPhoneConfirmation, { isLoading: isResendingPhone }] = useResendPhoneConfirmationMutation();
     const [login] = useLoginMutation();
 
     // Form state
@@ -69,8 +62,7 @@ const BusinessSignup = () => {
         city: '',
         state: '',
         zipCode: '',
-        country: '',
-        preferredMfaMethod: 'email' // Default to email
+        country: ''
     });
 
     // Password visibility state
@@ -81,20 +73,30 @@ const BusinessSignup = () => {
     const [errors, setErrors] = useState({});
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [confirmationCode, setConfirmationCode] = useState('');
-    const [signupData, setSignupData] = useState(null);
 
-    // Step state
-    const [confirmStep, setConfirmStep] = useState('email'); // 'email' or 'phone'
-    const [phoneConfirmed, setPhoneConfirmed] = useState(false);
-    const [phoneConfirmationCode, setPhoneConfirmationCode] = useState('');
+    // Add transitions for animation support
+    const transitions = {
+        transition: `all ${getAnimationDuration(300)}`
+    };
 
-    // For analytics: track page view
-    useEffect(() => {
-        analytics.trackPageView({
-            pageName: 'BusinessSignup',
-            path: location.pathname
-        });
-    }, [analytics, location.pathname]);
+    // Form tracking for analytics
+    const formTracking = useFormTracking({
+        formId: 'business-signup-form',
+        formName: 'business_signup',
+        fields: [
+            { name: 'businessName', type: 'text' },
+            { name: 'email', type: 'email' },
+            { name: 'password', type: 'password' },
+            { name: 'confirmPassword', type: 'password' },
+            { name: 'phoneNumber', type: 'phone' },
+            { name: 'address', type: 'text' },
+            { name: 'city', type: 'text' },
+            { name: 'state', type: 'text' },
+            { name: 'zipCode', type: 'text' },
+            { name: 'country', type: 'text' }
+        ],
+        autoStart: true
+    });
 
     // Validation patterns
     const patterns = {
@@ -133,12 +135,6 @@ const BusinessSignup = () => {
             case 'zipCode':
                 if (value && !patterns.zipCode.test(value)) return translate('BusinessSignupErrorInvalidZipCode');
                 break;
-            case 'preferredMfaMethod':
-                if (!value) return translate('PreferredMfaMethodRequired');
-                if (value === 'phone' && !formData.phoneNumber) {
-                    return translate('PhoneNumberRequiredForMfa');
-                }
-                break;
             default:
                 if (value && !patterns.text.test(value)) return translate('BusinessSignupErrorInvalidText');
         }
@@ -155,16 +151,37 @@ const BusinessSignup = () => {
             [name]: error
         }));
 
-        // Track form field interaction for analytics
-        analytics.trackFormFieldInteraction('business_signup', name, {
-            hasError: !!error
-        });
+        // Track form field interaction using formTracking
+        if (formTracking && formTracking.handleFieldChange) {
+            formTracking.handleFieldChange(name, name.includes('password') ? 'password' : 'text', value);
+        }
+    };
+
+    const handleFieldFocus = (name) => {
+        const fieldType = name.includes('password') ? 'password' :
+            name === 'email' ? 'email' :
+                name === 'phoneNumber' ? 'phone' : 'text';
+        if (formTracking && formTracking.handleFieldFocus) {
+            formTracking.handleFieldFocus(name, fieldType);
+        }
+    };
+
+    const handleFieldBlur = (name, value) => {
+        const fieldType = name.includes('password') ? 'password' :
+            name === 'email' ? 'email' :
+                name === 'phoneNumber' ? 'phone' : 'text';
+        if (formTracking && formTracking.handleFieldBlur) {
+            formTracking.handleFieldBlur(name, fieldType, value);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Track form submission attempt
+        if (formTracking && formTracking.handleSubmitAttempt) {
+            formTracking.handleSubmitAttempt(true);
+        }
         analytics.trackEvent('business_signup_submit_attempt');
 
         // Validate all fields
@@ -174,15 +191,13 @@ const BusinessSignup = () => {
             if (error) newErrors[key] = error;
         });
 
-        // Specific validation: if phone MFA is selected, phone must be provided
-        if (formData.preferredMfaMethod === 'phone' && !formData.phoneNumber) {
-            newErrors.phoneNumber = translate('PhoneNumberRequiredForMfa');
-        }
-
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
 
             // Track validation failure
+            if (formTracking && formTracking.handleValidationErrors) {
+                formTracking.handleValidationErrors(newErrors);
+            }
             analytics.trackEvent('business_signup_validation_error', {
                 fieldErrors: Object.keys(newErrors)
             });
@@ -198,8 +213,7 @@ const BusinessSignup = () => {
                 businessName: formData.businessName,
                 businessSlug,
                 businessDescription: `${formData.businessName} - ${formData.city}, ${formData.state}`,
-                preferredMfaMethod: formData.preferredMfaMethod,
-                // Add location data for analytics
+                // Include address info
                 address: formData.address,
                 city: formData.city,
                 state: formData.state,
@@ -208,9 +222,11 @@ const BusinessSignup = () => {
             };
 
             // Track successful form submission
+            if (formTracking && formTracking.handleSubmitSuccess) {
+                formTracking.handleSubmitSuccess();
+            }
             analytics.trackEvent('business_signup_submitted', {
                 businessName: formData.businessName,
-                mfaMethod: formData.preferredMfaMethod,
                 hasPhoneNumber: !!formData.phoneNumber,
                 hasAddress: !!formData.address
             });
@@ -220,11 +236,7 @@ const BusinessSignup = () => {
             if (response.requiresConfirmation) {
                 // Track confirmation requirement
                 analytics.trackEvent('business_signup_confirmation_required');
-
-                setSignupData(signupPayload); // Store signup data for later use
                 setShowConfirmationModal(true);
-                // Default to email confirmation first, then do phone if needed
-                setConfirmStep('email');
             } else if (response.token) {
                 // If we got a token, we're already logged in
                 analytics.trackEvent('business_signup_success', {
@@ -234,6 +246,9 @@ const BusinessSignup = () => {
             }
         } catch (error) {
             // Track signup failure
+            if (formTracking && formTracking.handleSubmitFailure) {
+                formTracking.handleSubmitFailure(error);
+            }
             analytics.trackEvent('business_signup_failure', {
                 reason: error.data?.error || 'Unknown error',
                 status: error.status
@@ -248,47 +263,24 @@ const BusinessSignup = () => {
 
     const handleConfirmationSubmit = async () => {
         try {
-            // First confirm email
-            if (confirmStep === 'email') {
-                // Track email confirmation attempt
-                analytics.trackEvent('business_email_confirmation_attempt');
+            // Track email confirmation attempt
+            analytics.trackEvent('business_email_confirmation_attempt');
 
-                const response = await confirmSignup({
-                    email: formData.email,
-                    confirmationCode,
-                }).unwrap();
+            // Include password in confirmation request as required by API
+            const response = await confirmSignup({
+                email: formData.email,
+                confirmationCode,
+                password: formData.password // Adding password to the request
+            }).unwrap();
 
-                // Track successful email confirmation
-                analytics.trackEvent('business_email_confirmation_success');
+            // Track successful email confirmation
+            analytics.trackEvent('business_email_confirmation_success');
 
-                // If phone is provided and not yet confirmed, move to phone confirmation
-                if (formData.phoneNumber && !phoneConfirmed) {
-                    setConfirmStep('phone');
-                    return;
-                }
-
-                // Otherwise proceed to login
-                completeSignupAndLogin();
-            }
-            // Then confirm phone if needed
-            else if (confirmStep === 'phone') {
-                // Track phone confirmation attempt
-                analytics.trackEvent('business_phone_confirmation_attempt');
-
-                const response = await confirmPhone({
-                    phoneNumber: formData.phoneNumber,
-                    confirmationCode: phoneConfirmationCode,
-                }).unwrap();
-
-                // Track successful phone confirmation
-                analytics.trackEvent('business_phone_confirmation_success');
-
-                setPhoneConfirmed(true);
-                completeSignupAndLogin();
-            }
+            // Proceed to login
+            completeSignupAndLogin();
         } catch (error) {
             // Track confirmation failure
-            analytics.trackEvent(`business_${confirmStep}_confirmation_failure`, {
+            analytics.trackEvent('business_email_confirmation_failure', {
                 reason: error.data?.error || 'Unknown error',
                 status: error.status
             });
@@ -358,181 +350,70 @@ const BusinessSignup = () => {
         }
     };
 
-    const handleResendPhoneCode = async () => {
-        try {
-            // Track phone code resend attempt
-            analytics.trackEvent('business_phone_code_resend');
-
-            await resendPhoneConfirmation({ phoneNumber: formData.phoneNumber }).unwrap();
-
-            // Show success message
-            setErrors(prev => ({
-                ...prev,
-                confirmation: translate('PhoneConfirmationCodeResent')
-            }));
-        } catch (error) {
-            // Track phone resend failure
-            analytics.trackEvent('business_phone_code_resend_failure', {
-                reason: error.data?.error || 'Unknown error'
-            });
-
-            setErrors(prev => ({
-                ...prev,
-                confirmation: error.data?.error || translate('ResendPhoneCodeError')
-            }));
-        }
-    };
-
-    // Render confirmation modal content based on current step
-    const renderConfirmationModalContent = () => {
-        if (confirmStep === 'email') {
-            return (
-                <>
-                    <Typography variant="h6" gutterBottom>
-                        {translate('BusinessSignupConfirmEmailTitle')}
-                    </Typography>
-                    <Typography variant="body1" paragraph>
-                        {translate('BusinessSignupConfirmEmailInstructions', { email: formData.email })}
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        label={translate('ConfirmationCode')}
-                        value={confirmationCode}
-                        onChange={(e) => setConfirmationCode(e.target.value)}
-                        margin="normal"
-                        error={!!errors.confirmation && !errors.confirmation.includes('sent')}
-                        helperText={errors.confirmation}
-                        sx={{ mb: 2 }}
-                    />
-                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-                        <Button
-                            variant="outlined"
-                            onClick={handleResendCode}
-                            disabled={isResendingEmail}
-                            startIcon={isResendingEmail ? <CircularProgress size={16} /> : null}
-                        >
-                            {isResendingEmail ?
-                                translate('ResendingCode') :
-                                translate('ResendCode')
-                            }
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={handleConfirmationSubmit}
-                            disabled={!confirmationCode || isConfirmingEmail}
-                            endIcon={isConfirmingEmail ? <CircularProgress size={16} color="inherit" /> : null}
-                            sx={getGlowEffect(theme.palette.primary.main, 'low')}
-                        >
-                            {isConfirmingEmail ?
-                                <CircularProgress size={24} color="inherit" /> :
-                                translate('ConfirmSignup')
-                            }
-                        </Button>
-                    </Box>
-                </>
-            );
-        } else if (confirmStep === 'phone') {
-            return (
-                <>
-                    <Typography variant="h6" gutterBottom>
-                        {translate('BusinessSignupConfirmPhoneTitle')}
-                    </Typography>
-                    <Typography variant="body1" paragraph>
-                        {translate('BusinessSignupConfirmPhoneInstructions', { phone: formData.phoneNumber })}
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        label={translate('PhoneConfirmationCode')}
-                        value={phoneConfirmationCode}
-                        onChange={(e) => setPhoneConfirmationCode(e.target.value)}
-                        margin="normal"
-                        error={!!errors.confirmation && !errors.confirmation.includes('sent')}
-                        helperText={errors.confirmation}
-                        sx={{ mb: 2 }}
-                    />
-                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-                        <Button
-                            variant="outlined"
-                            onClick={handleResendPhoneCode}
-                            disabled={isResendingPhone}
-                            startIcon={isResendingPhone ? <CircularProgress size={16} /> : null}
-                        >
-                            {isResendingPhone ?
-                                translate('ResendingCode') :
-                                translate('ResendCode')
-                            }
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={handleConfirmationSubmit}
-                            disabled={!phoneConfirmationCode || isConfirmingPhone}
-                            endIcon={isConfirmingPhone ? <CircularProgress size={16} color="inherit" /> : null}
-                            sx={getGlowEffect(theme.palette.primary.main, 'low')}
-                        >
-                            {isConfirmingPhone ?
-                                <CircularProgress size={24} color="inherit" /> :
-                                translate('ConfirmPhone')
-                            }
-                        </Button>
-                    </Box>
-                </>
-            );
-        }
-        return null;
-    };
-
     // Render the business signup form
     return (
         <Container maxWidth="md">
             <Paper
                 elevation={3}
                 sx={{
-                    p: { xs: 2, sm: 4 },
+                    p: { xs: 3, sm: 4 },
                     mt: 4,
+                    mb: 4,
                     backgroundColor: theme.palette.background.paper,
-                    borderRadius: theme.shape.borderRadius * 2,
+                    borderRadius: 2,
                     boxShadow: theme.shadows[3],
-                    ...getGlassMorphismStyle(0.8)
+                    ...transitions
                 }}
             >
-                <Typography
-                    variant="h4"
-                    component="h1"
-                    gutterBottom
-                    sx={{
-                        color: theme.palette.primary.main,
-                        textAlign: 'center',
-                        mb: 4,
-                        fontWeight: theme.typography.fontWeightBold
-                    }}
-                >
-                    {translate('BusinessSignupTitle')}
-                </Typography>
+                <Box sx={{ mb: 4 }}>
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        gutterBottom
+                        sx={{
+                            color: theme.palette.primary.main,
+                            fontWeight: 600,
+                            textAlign: 'center'
+                        }}
+                    >
+                        {translate('BusinessSignupTitle')}
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        color="textSecondary"
+                        sx={{ textAlign: 'center' }}
+                    >
+                        {translate('BusinessSignupSubtitle') || 'Create your business account to get started with our services'}
+                    </Typography>
+                </Box>
 
                 {errors.submit && (
                     <Alert
                         severity="error"
                         sx={{ mb: 3 }}
                         onClose={() => setErrors(prev => ({ ...prev, submit: null }))}
+                        role="alert"
                     >
                         {errors.submit}
                     </Alert>
                 )}
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate aria-label={translate('BusinessSignupTitle')}>
+                    <Typography
+                        variant="body2"
+                        paragraph
+                        sx={{ mb: 3 }}
+                    >
+                        {translate('BusinessSignupInstructions') || 'Please fill out the form below to create your business account. Fields marked with * are required.'}
+                    </Typography>
+
                     <Grid container spacing={3}>
+                        {/* Account Credentials Section */}
                         <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label={translate('BusinessSignupBusinessName')}
-                                name="businessName"
-                                value={formData.businessName}
-                                onChange={handleChange}
-                                error={!!errors.businessName}
-                                helperText={errors.businessName}
-                                variant="outlined"
-                                required
-                            />
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                {translate('AccountCredentials') || 'Account Credentials'}
+                            </Typography>
+                            <Divider sx={{ mb: 3 }} />
                         </Grid>
 
                         <Grid item xs={12} sm={6}>
@@ -543,10 +424,15 @@ const BusinessSignup = () => {
                                 type="email"
                                 value={formData.email}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('email')}
+                                onBlur={() => handleFieldBlur('email', formData.email)}
                                 error={!!errors.email}
                                 helperText={errors.email}
                                 variant="outlined"
                                 required
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupEmail')
+                                }}
                             />
                         </Grid>
 
@@ -557,10 +443,15 @@ const BusinessSignup = () => {
                                 name="phoneNumber"
                                 value={formData.phoneNumber}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('phoneNumber')}
+                                onBlur={() => handleFieldBlur('phoneNumber', formData.phoneNumber)}
                                 error={!!errors.phoneNumber}
                                 helperText={errors.phoneNumber}
                                 variant="outlined"
                                 required
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupPhoneNumber')
+                                }}
                             />
                         </Grid>
 
@@ -572,10 +463,15 @@ const BusinessSignup = () => {
                                 type={showPassword ? 'text' : 'password'}
                                 value={formData.password}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('password')}
+                                onBlur={() => handleFieldBlur('password', formData.password)}
                                 error={!!errors.password}
                                 helperText={errors.password || translate('BusinessSignupPasswordRequirements')}
                                 variant="outlined"
                                 required
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupPassword')
+                                }}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
@@ -600,10 +496,15 @@ const BusinessSignup = () => {
                                 type={showConfirmPassword ? 'text' : 'password'}
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('confirmPassword')}
+                                onBlur={() => handleFieldBlur('confirmPassword', formData.confirmPassword)}
                                 error={!!errors.confirmPassword}
                                 helperText={errors.confirmPassword}
                                 variant="outlined"
                                 required
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupConfirmPassword')
+                                }}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
@@ -620,6 +521,33 @@ const BusinessSignup = () => {
                             />
                         </Grid>
 
+                        {/* Business Information Section */}
+                        <Grid item xs={12}>
+                            <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>
+                                {translate('BusinessDetails') || 'Business Information'}
+                            </Typography>
+                            <Divider sx={{ mb: 3 }} />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label={translate('BusinessSignupBusinessName')}
+                                name="businessName"
+                                value={formData.businessName}
+                                onChange={handleChange}
+                                onFocus={() => handleFieldFocus('businessName')}
+                                onBlur={() => handleFieldBlur('businessName', formData.businessName)}
+                                error={!!errors.businessName}
+                                helperText={errors.businessName}
+                                variant="outlined"
+                                required
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupBusinessName')
+                                }}
+                            />
+                        </Grid>
+
                         <Grid item xs={12}>
                             <TextField
                                 fullWidth
@@ -627,9 +555,14 @@ const BusinessSignup = () => {
                                 name="address"
                                 value={formData.address}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('address')}
+                                onBlur={() => handleFieldBlur('address', formData.address)}
                                 error={!!errors.address}
                                 helperText={errors.address}
                                 variant="outlined"
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupAddress')
+                                }}
                             />
                         </Grid>
 
@@ -640,9 +573,14 @@ const BusinessSignup = () => {
                                 name="city"
                                 value={formData.city}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('city')}
+                                onBlur={() => handleFieldBlur('city', formData.city)}
                                 error={!!errors.city}
                                 helperText={errors.city}
                                 variant="outlined"
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupCity')
+                                }}
                             />
                         </Grid>
 
@@ -653,9 +591,14 @@ const BusinessSignup = () => {
                                 name="state"
                                 value={formData.state}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('state')}
+                                onBlur={() => handleFieldBlur('state', formData.state)}
                                 error={!!errors.state}
                                 helperText={errors.state}
                                 variant="outlined"
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupState')
+                                }}
                             />
                         </Grid>
 
@@ -666,9 +609,14 @@ const BusinessSignup = () => {
                                 name="zipCode"
                                 value={formData.zipCode}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('zipCode')}
+                                onBlur={() => handleFieldBlur('zipCode', formData.zipCode)}
                                 error={!!errors.zipCode}
                                 helperText={errors.zipCode}
                                 variant="outlined"
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupZipCode')
+                                }}
                             />
                         </Grid>
 
@@ -679,39 +627,25 @@ const BusinessSignup = () => {
                                 name="country"
                                 value={formData.country}
                                 onChange={handleChange}
+                                onFocus={() => handleFieldFocus('country')}
+                                onBlur={() => handleFieldBlur('country', formData.country)}
                                 error={!!errors.country}
                                 helperText={errors.country}
                                 variant="outlined"
+                                inputProps={{
+                                    'aria-label': translate('BusinessSignupCountry')
+                                }}
                             />
                         </Grid>
 
+                        {/* Submit Button Section */}
                         <Grid item xs={12}>
-                            <FormControl
-                                fullWidth
-                                error={!!errors.preferredMfaMethod}
-                                variant="outlined"
-                            >
-                                <InputLabel>{translate('PreferredMfaMethod')}</InputLabel>
-                                <Select
-                                    name="preferredMfaMethod"
-                                    value={formData.preferredMfaMethod}
-                                    onChange={handleChange}
-                                    label={translate('PreferredMfaMethod')}
-                                >
-                                    <MenuItem value="email">{translate('Email')}</MenuItem>
-                                    <MenuItem value="phone">{translate('PhoneNumber')}</MenuItem>
-                                </Select>
-                                {errors.preferredMfaMethod && (
-                                    <FormHelperText>{errors.preferredMfaMethod}</FormHelperText>
-                                )}
-                                <FormHelperText>
-                                    {translate('MfaMethodExplanation')}
-                                </FormHelperText>
-                            </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                mt: 3,
+                                mb: 2
+                            }}>
                                 <Button
                                     type="submit"
                                     variant="contained"
@@ -721,12 +655,11 @@ const BusinessSignup = () => {
                                     sx={{
                                         minWidth: 200,
                                         py: 1.5,
-                                        borderRadius: 2,
-                                        textTransform: 'none',
-                                        fontWeight: 'bold',
-                                        fontSize: '1rem',
-                                        ...getGlowEffect(theme.palette.primary.main, 'medium')
+                                        px: 4,
+                                        fontSize: 16,
+                                        borderRadius: 1
                                     }}
+                                    aria-label={translate('BusinessSignupSubmitButton')}
                                 >
                                     {isSigningUp ? (
                                         <CircularProgress size={24} color="inherit" />
@@ -735,20 +668,52 @@ const BusinessSignup = () => {
                                     )}
                                 </Button>
                             </Box>
+                            <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                align="center"
+                                sx={{ mt: 2 }}
+                            >
+                                {translate('BusinessSignupTermsAgreement') ||
+                                    'By creating an account, you agree to our Terms of Service and Privacy Policy.'}
+                            </Typography>
+                            <Box sx={{ textAlign: 'center', mt: 2 }}>
+                                <Button
+                                    variant="text"
+                                    color="primary"
+                                    onClick={() => navigate('/login')}
+                                >
+                                    {translate('AlreadyHaveAccount') || 'Already have an account? Sign in'}
+                                </Button>
+                            </Box>
                         </Grid>
                     </Grid>
                 </form>
             </Paper>
 
+            {/* Confirmation Modal - Only for email confirmation */}
             <ConfirmationModal
                 open={showConfirmationModal}
                 onClose={() => setShowConfirmationModal(false)}
+                onConfirm={handleConfirmationSubmit}
+                onResendCode={handleResendCode}
+                title={translate('BusinessSignupConfirmEmailTitle')}
+                description={translate('BusinessSignupConfirmEmailInstructions', { email: formData.email })}
+                confirmationCode={confirmationCode}
+                setConfirmationCode={(value) => {
+                    setConfirmationCode(value);
+                    if (formTracking && formTracking.handleFieldChange) {
+                        formTracking.handleFieldChange('emailConfirmationCode', 'text', value);
+                    }
+                }}
+                isLoading={isConfirmingEmail}
                 error={errors.confirmation}
-            >
-                {renderConfirmationModalContent()}
-            </ConfirmationModal>
+                isResending={isResendingEmail}
+                confirmButtonText={translate('ConfirmSignup')}
+                confirmationCodeLabel={translate('ConfirmationCode')}
+            />
         </Container>
     );
 };
 
-export default BusinessSignup;
+export default React.memo(BusinessSignup);
