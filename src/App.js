@@ -10,7 +10,7 @@ import AppLayout from './AppLayout';
 import MainContent from './MainContent';
 import useAppInitialization from './hooks/useAppInitialization';
 import useCustomTranslation from "./hooks/useCustomTranslation";
-import DebugPanel from './components/common/DebugPanel';
+import DebugPanel from './debug-panel/DebugPanel';
 import AnalyticsProvider from './AnalyticsProvider';
 import { RouteProvider } from './routes';
 

@@ -11,7 +11,8 @@ import {
     AccountCircle,
     Dashboard as DashboardIcon,
     Settings,
-    Business
+    Business,
+    Campaign as CampaignIcon
 } from '@mui/icons-material';
 
 // Import components explicitly with the proper names
@@ -28,6 +29,7 @@ import LoginPage from '../pages/LoginPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ChangePasswordPage from '../pages/ChangePasswordPage';
 import SpatialDemoPanel from '../components/demo/SpatialDemoPanel';
+import CampaignManagementPage from "../pages/CampaignManagementPage";
 
 // Add console logging to verify each component is a function
 console.log('Component types check:');
@@ -43,6 +45,7 @@ console.log('LoginPage:', typeof LoginPage);
 console.log('ForgotPasswordPage:', typeof ForgotPasswordPage);
 console.log('ChangePasswordPage:', typeof ChangePasswordPage);
 console.log('SpatialDemoPanel:', typeof SpatialDemoPanel);
+console.log('CampaignManagementPage:', typeof CampaignManagementPage);
 
 // Create a fallback component for any invalid components
 const FallbackComponent = () => (
@@ -114,6 +117,25 @@ const routes = [
         }
     },
 
+    // Campaign Management Route
+    {
+        path: '/campaigns',
+        element: typeof CampaignManagementPage === 'function' ? <CampaignManagementPage /> : <FallbackComponent />,
+        exact: true,
+        auth: true, // Requires authentication
+        meta: {
+            title: 'Campaign Management',
+            description: 'Create and manage your marketing campaigns',
+            icon: <CampaignIcon />,
+            nav: {
+                label: 'Campaigns',
+                group: 'main',
+                order: 3,
+                showInNav: true,
+                showInFooter: false,
+            }
+        }
+    },
     // Authentication & Account routes
     {
         path: '/login',
