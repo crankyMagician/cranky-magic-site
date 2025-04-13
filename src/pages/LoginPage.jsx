@@ -19,10 +19,8 @@ const LoginPage = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { isDark, getGlassMorphismStyle } = useSpatialTheme();
 
-    // Track page view
+    // Track redirects only (page view is handled by RouteContext)
     useEffect(() => {
-        analytics.trackPageView(location.pathname, 'Login Page');
-
         // Track if user was redirected here from a protected route
         if (location.state?.from) {
             analytics.trackEvent('auth_redirect', {

@@ -1,33 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Box, Container } from '@mui/material';
 import ForgotPassword from '../components/auth/ForgotPassword';
 import { useLocation } from 'react-router-dom';
-import usePageTracking from '../analytics/hooks/usePageTracking';
 import { useSpatialTheme } from '../hooks/useSpatialTheme';
 import { GuestGuard } from '../routes';
-import useAnalytics from '../analytics/hooks/useAnalytics';
 
+// Define as a proper function component
 const ForgotPasswordPage = () => {
-    // Use page tracking for analytics
-    usePageTracking();
-
-    // Track form view only once with a ref
-    const { trackEvent } = useAnalytics();
-    const hasTrackedForm = useRef(false);
-
-    useEffect(() => {
-        if (!hasTrackedForm.current) {
-            trackEvent('form_view', {
-                form_name: 'forgot_password',
-                step: 0,
-                auth_method: 'email'
-            });
-            hasTrackedForm.current = true;
-        }
-    }, [trackEvent]);
-
     const location = useLocation();
-    const { getGlassMorphismStyle } = useSpatialTheme();
+    const { getGlassMorphismStyle, getAnimationDuration } = useSpatialTheme();
 
     return (
         <GuestGuard>
@@ -38,8 +19,9 @@ const ForgotPasswordPage = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     bgcolor: 'background.default',
-                    p: { xs: 1, sm: 2 }, // Responsive padding
-                    backgroundImage: 'none', // Ensure consistent background
+                    p: { xs: 1, sm: 2 },
+                    backgroundImage: 'none',
+                    transition: `all ${getAnimationDuration(300)}`,
                     ...getGlassMorphismStyle(0.4)
                 }}
             >
@@ -51,4 +33,5 @@ const ForgotPasswordPage = () => {
     );
 };
 
-export default React.memo(ForgotPasswordPage); // Prevent unnecessary re-renders
+// Make sure to export the function component correctly
+export default ForgotPasswordPage;

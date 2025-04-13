@@ -84,10 +84,8 @@ const Login = () => {
         }
     });
 
-    // For analytics: track page view
+    // For analytics: track form view only (page view is handled by RouteContext)
     useEffect(() => {
-        analytics.trackPageView(location.pathname, 'Login Page');
-
         // Track login form view
         analytics.trackEvent('form_view', {
             form_name: 'login',

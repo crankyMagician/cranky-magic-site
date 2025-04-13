@@ -14,7 +14,6 @@ import {
   Step,
   StepLabel,
   Alert,
-  Link,
   FormControl,
   InputLabel,
   Select,
@@ -32,6 +31,7 @@ import validatePassword from '../../utilities/PasswordValidator';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 import { useMatrixText } from '../../hooks/useMatrixText';
+import useFormTracking from '../../analytics/hooks/useFormTracking';
 
 const ForgotPassword = ({ redirectPath = '/' }) => {
   const theme = useTheme();
@@ -44,9 +44,11 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
     getGlassMorphismStyle,
     getGlowEffect,
     getFuturisticCardStyle,
-    isSpatialTheme
+    isSpatialTheme,
+    getAnimationDuration
   } = useSpatialTheme();
 
+  // Form state
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [authMethod, setAuthMethod] = useState('email'); // 'email' or 'phone'
@@ -74,6 +76,20 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
     steps: new Set()
   });
 
+  // Form tracking for analytics
+  const formTracking = useFormTracking({
+    formId: 'forgot-password-form',
+    formName: 'forgot_password',
+    fields: [
+      { name: 'email', type: 'email' },
+      { name: 'phoneNumber', type: 'phone' },
+      { name: 'resetCode', type: 'text' },
+      { name: 'newPassword', type: 'password' },
+      { name: 'confirmPassword', type: 'password' }
+    ],
+    autoStart: true
+  });
+
   // Use matrix text effect for header if spatial theme
   const forgotPasswordTitle = translate(resetCodeSent ? 'ResetPassword' : 'ForgotPassword');
   const { text: titleText } = useMatrixText(forgotPasswordTitle, {
@@ -85,7 +101,7 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
   // Track form using form tracking analytics - only once per step
   useEffect(() => {
     if (!analyticsTracked.current.steps.has(activeStep)) {
-      analytics.trackEvent('form_view', {
+      analytics.trackEvent('form_step_view', {
         form_name: 'forgot_password',
         step: activeStep,
         auth_method: authMethod
@@ -132,13 +148,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
 
-    // Track form field interaction for analytics
-    analytics.trackEvent('form_field_change', {
-      form_name: 'forgot_password',
-      field_name: name,
-      step: activeStep,
-      auth_method: authMethod
-    });
+    // Track form field interaction using formTracking
+    formTracking.handleFieldChange(name, name === 'newPassword' || name === 'confirmPassword' ? 'password' : 'text', sanitizedValue);
   };
 
   // Email sanitization
@@ -229,6 +240,9 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
   const handleRequestCode = async (e) => {
     e.preventDefault();
 
+    // Track form submission attempt
+    formTracking.handleSubmitAttempt(true);
+
     // Track reset code request attempt
     analytics.trackEvent('forgot_password_request_code', {
       method: authMethod
@@ -244,6 +258,7 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
 
     if (!isValid) {
       // Track validation failure
+      formTracking.handleValidationErrors(errors);
       analytics.trackEvent('form_validation_error', {
         form_name: 'forgot_password',
         method: authMethod,
@@ -262,7 +277,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
 
       await forgotPassword(payload).unwrap();
 
-      // Track successful code request
+      // Track successful code request and form submission
+      formTracking.handleSubmitSuccess();
       analytics.trackEvent('forgot_password_code_sent', {
         method: authMethod
       });
@@ -279,6 +295,7 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
       console.error('Error requesting reset code:', error);
 
       // Track failed code request
+      formTracking.handleSubmitFailure(error);
       analytics.trackEvent('forgot_password_code_send_failed', {
         method: authMethod,
         error: error.data?.message || 'Unknown error',
@@ -295,12 +312,16 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
+    // Track form submission attempt
+    formTracking.handleSubmitAttempt(true);
+
     // Track password reset attempt
     analytics.trackEvent('forgot_password_reset_attempt');
 
     // Validate the form
     if (!validateResetForm()) {
       // Track validation failure
+      formTracking.handleValidationErrors(errors);
       analytics.trackEvent('form_validation_error', {
         form_name: 'forgot_password',
         step: 'reset_password'
@@ -322,7 +343,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
       // Submit password reset
       const response = await resetPassword(payload).unwrap();
 
-      // Track successful password reset
+      // Track successful password reset and form submission
+      formTracking.handleSubmitSuccess();
       analytics.trackEvent('forgot_password_reset_success', {
         auto_login: !!response.token
       });
@@ -368,6 +390,7 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
       console.error('Error in reset password flow:', error);
 
       // Track password reset failure
+      formTracking.handleSubmitFailure(error);
       analytics.trackEvent('forgot_password_reset_failure', {
         error: error.data?.message || 'Unknown error',
         status: error.status
@@ -383,6 +406,9 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
   const handlePasswordChange = (e) => {
     const { value } = e.target;
     setFormData(prev => ({ ...prev, newPassword: value }));
+
+    // Track form field interaction using formTracking
+    formTracking.handleFieldChange('newPassword', 'password', value);
 
     // Real-time validation using password validator
     const passwordValidation = validatePassword(value);
@@ -403,12 +429,23 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
     const { value } = e.target;
     setFormData(prev => ({ ...prev, confirmPassword: value }));
 
+    // Track form field interaction using formTracking
+    formTracking.handleFieldChange('confirmPassword', 'password', value);
+
     // Check if passwords match
     if (value !== formData.newPassword) {
       setErrors(prev => ({ ...prev, confirmPassword: translate('PasswordsDoNotMatch') }));
     } else {
       setErrors(prev => ({ ...prev, confirmPassword: '' }));
     }
+  };
+
+  const handleFieldFocus = (fieldName) => {
+    formTracking.handleFieldFocus(fieldName, fieldName.includes('password') ? 'password' : 'text');
+  };
+
+  const handleFieldBlur = (fieldName, value) => {
+    formTracking.handleFieldBlur(fieldName, fieldName.includes('password') ? 'password' : 'text', value);
   };
 
   const handleNavigateToLogin = () => {
@@ -426,6 +463,10 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
     translate('ResetSuccess')
   ];
 
+  const transitions = {
+    transition: `all ${getAnimationDuration(300)}`,
+  };
+
   return (
       <Container maxWidth="sm">
         <Paper
@@ -436,7 +477,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
               backgroundColor: theme.palette.background.paper,
               borderRadius: theme.shape.borderRadius * 2,
               boxShadow: theme.shadows[3],
-              ...(isSpatialTheme ? getFuturisticCardStyle() : {})
+              ...(isSpatialTheme ? getFuturisticCardStyle() : {}),
+              ...transitions
             }}
         >
           <Typography
@@ -447,7 +489,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                 color: theme.palette.primary.main,
                 fontWeight: 'bold',
                 mb: 3,
-                ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
+                ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {}),
+                ...transitions
               }}
               aria-live="polite"
           >
@@ -467,7 +510,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                 '& .MuiStepLabel-root .Mui-active': {
                   color: theme.palette.primary.main,
                   ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
-                }
+                },
+                ...transitions
               }}
           >
             {steps.map((label) => (
@@ -525,6 +569,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
+                        onFocus={() => handleFieldFocus('email')}
+                        onBlur={() => handleFieldBlur('email', formData.email)}
                         error={!!errors.email}
                         helperText={errors.email}
                         disabled={isRequestingCode}
@@ -544,6 +590,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                         type="tel"
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
+                        onFocus={() => handleFieldFocus('phoneNumber')}
+                        onBlur={() => handleFieldBlur('phoneNumber', formData.phoneNumber)}
                         error={!!errors.phoneNumber}
                         helperText={errors.phoneNumber}
                         disabled={isRequestingCode}
@@ -569,7 +617,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                       textTransform: 'none',
                       fontWeight: 'bold',
                       fontSize: '1rem',
-                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {}),
+                      ...transitions
                     }}
                     disabled={isRequestingCode || !formValid}
                     aria-label={translate('SendResetCode')}
@@ -619,6 +668,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                     name="resetCode"
                     value={formData.resetCode}
                     onChange={handleInputChange}
+                    onFocus={() => handleFieldFocus('resetCode')}
+                    onBlur={() => handleFieldBlur('resetCode', formData.resetCode)}
                     error={!!errors.resetCode}
                     helperText={errors.resetCode}
                     disabled={isResettingPassword}
@@ -637,6 +688,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                     type={showPassword ? 'text' : 'password'}
                     value={formData.newPassword}
                     onChange={handlePasswordChange}
+                    onFocus={() => handleFieldFocus('newPassword')}
+                    onBlur={() => handleFieldBlur('newPassword', formData.newPassword)}
                     error={!!errors.newPassword}
                     helperText={errors.newPassword || translate('BusinessSignupPasswordRequirements')}
                     disabled={isResettingPassword}
@@ -668,6 +721,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                     type={showPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={handleConfirmPasswordChange}
+                    onFocus={() => handleFieldFocus('confirmPassword')}
+                    onBlur={() => handleFieldBlur('confirmPassword', formData.confirmPassword)}
                     error={!!errors.confirmPassword}
                     helperText={errors.confirmPassword}
                     disabled={isResettingPassword}
@@ -691,7 +746,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                       textTransform: 'none',
                       fontWeight: 'bold',
                       fontSize: '1rem',
-                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {}),
+                      ...transitions
                     }}
                     disabled={isResettingPassword || !formValid}
                     aria-label={translate('ResetPassword')}
@@ -747,7 +803,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                       color: theme.palette.success.main,
                       fontWeight: 'bold',
                       mb: 2,
-                      ...(isSpatialTheme ? getGlowEffect(theme.palette.success.main, 'low') : {})
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.success.main, 'low') : {}),
+                      ...transitions
                     }}
                 >
                   {translate('PasswordResetSuccessTitle')}
@@ -768,7 +825,8 @@ const ForgotPassword = ({ redirectPath = '/' }) => {
                       fontWeight: 'bold',
                       px: 4,
                       py: 1.2,
-                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {}),
+                      ...transitions
                     }}
                     aria-label={translate('GoToDashboard')}
                 >
