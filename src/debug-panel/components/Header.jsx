@@ -11,6 +11,7 @@ import MatrixText from './MatrixText';
 
 const Header = React.forwardRef(({ expanded, toggleExpand, opacity, toggleOpacity, matrixTick, theme }, ref) => {
     const headerBg = theme.palette.mode === 'dark' ? 'rgba(30,30,30,0.9)' : 'rgba(255,255,255,0.9)';
+
     return (
         <Box
             ref={ref}
@@ -23,23 +24,11 @@ const Header = React.forwardRef(({ expanded, toggleExpand, opacity, toggleOpacit
                 px: 2,
                 py: 1,
                 borderBottom: `1px solid ${theme.palette.primary.main}`,
-                cursor: 'grab',
-                userSelect: 'none',  // Prevent text selection
-                touchAction: 'none', // Prevent default touch actions
-                '&:active': {
-                    cursor: 'grabbing'
-                }
-            }}
-            // These additional props ensure the element captures mouse events properly
-            onMouseDown={(e) => {
-                // Only handle mousedown if it's not on a button or icon
-                if (e.target.tagName !== 'BUTTON' && !e.target.closest('button') &&
-                    e.target.tagName !== 'svg' && !e.target.closest('svg')) {
-                    e.currentTarget.style.cursor = 'grabbing';
-                }
-            }}
-            onMouseUp={(e) => {
-                e.currentTarget.style.cursor = 'grab';
+                userSelect: 'none',    // Prevent text selection
+                touchAction: 'none',   // Prevent default touch actions
+                zIndex: 9999,          // Ensure it's above other elements
+                position: 'relative',  // For proper stacking context
+                cursor: 'grab'         // Default cursor for draggable area
             }}
         >
             <Typography
@@ -49,33 +38,40 @@ const Header = React.forwardRef(({ expanded, toggleExpand, opacity, toggleOpacit
                     fontFamily: 'monospace',
                     letterSpacing: '1px',
                     textShadow: `0 0 5px ${theme.palette.primary.main}`,
+                    pointerEvents: 'none', // Prevent text from interfering with drag
                 }}
             >
                 <MatrixText theme={theme}>{`< DEBUG:ANALYTICS // ${matrixTick % 2 === 0 ? '_' : ''} >`}</MatrixText>
             </Typography>
-            <Box>
+
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <IconButton
                     size="small"
-                    onClick={toggleExpand}
+                    onClick={(e) => {
+                        // Stop propagation to prevent drag start
+                        e.stopPropagation();
+                        toggleExpand();
+                    }}
                     sx={{
                         color: theme.palette.primary.main,
-                        // Ensure icon buttons don't interfere with dragging
-                        '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                        }
+                        padding: '4px',
+                        zIndex: 10, // Ensure above the draggable area
                     }}
                 >
                     {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
                 </IconButton>
+
                 <IconButton
                     size="small"
-                    onClick={toggleOpacity}
+                    onClick={(e) => {
+                        // Stop propagation to prevent drag start
+                        e.stopPropagation();
+                        toggleOpacity();
+                    }}
                     sx={{
                         color: theme.palette.primary.main,
-                        // Ensure icon buttons don't interfere with dragging
-                        '&:hover': {
-                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                        }
+                        padding: '4px',
+                        zIndex: 10, // Ensure above the draggable area
                     }}
                 >
                     {opacity === 0.3 ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}

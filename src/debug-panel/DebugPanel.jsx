@@ -19,7 +19,6 @@ import TestPanel from './components/TestPanel';
 import AnalyticsPanel from './components/AnalyticsPanel';
 import SettingsPanel from './components/SettingsPanel';
 import useMatrixEffect from './hooks/useMatrixEffect';
-import useDraggable from './hooks/useDraggable';
 import useAnalytics from "../analytics/hooks/useAnalytics";
 import {
   useLoginMutation,
@@ -34,6 +33,7 @@ import TokenDecoder from "../utilities/TokenDecoder";
 import { getEventTypeColor } from './utils/eventTypes';
 import ThemeToggle from "../components/demoComponents/ThemeToggle";
 import LanguageSelector from "../components/demoComponents/LanguageSwitcher";
+
 
 const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   const dispatch = useDispatch();
@@ -55,7 +55,10 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   const [analyticsSubTab, setAnalyticsSubTab] = useState('events');
   const [isCapturing, setIsCapturing] = useState(true);
   const [eventCount, setEventCount] = useState(0);
+
+  // Dragging state
   const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Token debug state
   const [tokenInfo, setTokenInfo] = useState({
@@ -100,30 +103,6 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   const panelRef = useRef(null);
   // Header ref for dragging
   const headerRef = useRef(null);
-
-  // Initialize panel with fixed positioning
-  useEffect(() => {
-    if (panelRef.current) {
-      const panel = panelRef.current;
-      panel.style.position = 'fixed';
-      panel.style.left = `${position.left || (window.innerWidth - 370)}px`;
-      panel.style.top = `${position.top || 20}px`;
-      panel.style.right = position.right ? `${position.right}px` : 'auto';
-      panel.style.bottom = position.bottom ? `${position.bottom}px` : 'auto';
-    }
-  }, []);
-
-  // Use the draggable hook with the headerRef
-  useDraggable(headerRef, (newPos) => {
-    setPosition(newPos);
-    // Also update the panel style directly for smoother movement
-    if (panelRef.current) {
-      panelRef.current.style.left = `${newPos.left}px`;
-      panelRef.current.style.top = `${newPos.top}px`;
-      panelRef.current.style.right = 'auto';
-      panelRef.current.style.bottom = 'auto';
-    }
-  }, setIsDragging);
 
   // Check token info on mount and every 5 seconds
   useEffect(() => {
@@ -202,6 +181,90 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     if (eventName.includes('session')) return 'session';
     return 'other';
   };
+
+  // DRAG FUNCTIONALITY
+  // Handle start of dragging on header
+  const handleHeaderMouseDown = (e) => {
+    // Ignore if the click is on a button or SVG (icons)
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button') ||
+        e.target.tagName === 'svg' || e.target.closest('svg')) {
+      return;
+    }
+
+    // Start dragging
+    setIsDragging(true);
+
+    // Calculate the drag offset (where in the header the user clicked)
+    const rect = panelRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+
+    // Log drag start
+    console.log('Drag started', {
+      startX: e.clientX,
+      startY: e.clientY,
+      startLeft: rect.left,
+      startTop: rect.top
+    });
+  };
+
+  // Handle dragging movement
+  const handleMouseMove = (e) => {
+    if (!isDragging || !panelRef.current) return;
+
+    // Calculate new position based on mouse position and initial drag offset
+    const newLeft = e.clientX - dragOffset.x;
+    const newTop = e.clientY - dragOffset.y;
+
+    // Apply new position directly to the element
+    panelRef.current.style.left = `${newLeft}px`;
+    panelRef.current.style.top = `${newTop}px`;
+    panelRef.current.style.right = 'auto';
+    panelRef.current.style.bottom = 'auto';
+
+    // Log movement
+    console.log('Moving', {
+      dx: e.clientX - (panelRef.current.getBoundingClientRect().left + dragOffset.x),
+      dy: e.clientY - (panelRef.current.getBoundingClientRect().top + dragOffset.y)
+    });
+  };
+
+  // Handle end of dragging
+  const handleMouseUp = () => {
+    if (!isDragging) return;
+
+    // End dragging
+    setIsDragging(false);
+
+    // Update position state with final position
+    if (panelRef.current) {
+      const rect = panelRef.current.getBoundingClientRect();
+      setPosition({
+        left: rect.left,
+        top: rect.top,
+        right: 'auto',
+        bottom: 'auto'
+      });
+
+      // Log drag end
+      console.log('Drag finished', { left: rect.left, top: rect.top });
+    }
+  };
+
+  // Add and remove event listeners for dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   // Test login function
   const handleTestLogin = async () => {
@@ -372,21 +435,21 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     analytics.trackEvent('debug_clear_events', { timestamp: new Date().toISOString(), previous_event_count: eventCount });
   };
 
-  // Reset panel position handler - now directly manipulates DOM for immediate effect
+  // Reset panel position handler
   const handleResetPosition = () => {
-    const newPosition = { right: 20, bottom: 20, left: 'auto', top: 'auto' };
-    setPosition(newPosition);
-
-    // Direct DOM manipulation for immediate effect
     if (panelRef.current) {
-      const panel = panelRef.current;
-      panel.style.left = 'auto';
-      panel.style.top = 'auto';
-      panel.style.right = '20px';
-      panel.style.bottom = '20px';
-    }
+      // Apply reset position directly to DOM element
+      panelRef.current.style.left = 'auto';
+      panelRef.current.style.top = 'auto';
+      panelRef.current.style.right = '20px';
+      panelRef.current.style.bottom = '20px';
 
-    analytics.trackEvent('debug_panel_position_reset', {});
+      // Update position state
+      setPosition({ right: 20, bottom: 20, left: 'auto', top: 'auto' });
+
+      // Track reset event
+      analytics.trackEvent('debug_panel_position_reset', {});
+    }
   };
 
   // Dynamic panel colors based on theme and token state
@@ -409,33 +472,91 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
           ref={panelRef}
           elevation={3}
           sx={{
-            position: 'fixed', // Ensure fixed positioning
+            position: 'fixed',
             zIndex: 9998,
             width: 350,
             maxHeight: expanded ? 600 : 40,
             overflow: 'hidden',
             opacity: opacity,
             transition: theme.transitions.create(['opacity', 'max-height']),
-            cursor: isDragging ? 'grabbing' : 'default',
             bgcolor: panelColors.background,
             border: panelColors.border,
             boxShadow: panelColors.boxShadow,
+            cursor: isDragging ? 'grabbing' : 'default',
             '&:hover': {
               opacity: 1,
               boxShadow: `0 0 15px ${theme.palette.primary.main}`
-            }
-            // Position is handled via direct style manipulation for smoother dragging
+            },
+            ...(position.left !== undefined && { left: position.left }),
+            ...(position.top !== undefined && { top: position.top }),
+            ...(position.right !== undefined && { right: position.right }),
+            ...(position.bottom !== undefined && { bottom: position.bottom }),
           }}
       >
-        <Header
-            ref={headerRef}
-            expanded={expanded}
-            toggleExpand={() => setExpanded(!expanded)}
-            opacity={opacity}
-            toggleOpacity={() => setOpacity(opacity === 0.9 ? 0.3 : 0.9)}
-            matrixTick={matrixTick}
-            theme={theme}
-        />
+        {/* Panel Header - Handle dragging on this element */}
+        <Box
+            onMouseDown={handleHeaderMouseDown}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              bgcolor: panelColors.header,
+              color: theme.palette.getContrastText(panelColors.header),
+              px: 2,
+              py: 1,
+              borderBottom: `1px solid ${theme.palette.primary.main}`,
+              userSelect: 'none',
+              touchAction: 'none',
+              cursor: isDragging ? 'grabbing' : 'grab',
+            }}
+        >
+          <Typography
+              variant="subtitle2"
+              fontWeight="bold"
+              sx={{
+                fontFamily: 'monospace',
+                letterSpacing: '1px',
+                textShadow: `0 0 5px ${theme.palette.primary.main}`,
+                pointerEvents: 'none', // Prevent text from interfering with drag
+              }}
+          >
+            {`< DEBUG:ANALYTICS // ${matrixTick % 2 === 0 ? '_' : ''} >`}
+          </Typography>
+
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                  // Stop propagation to prevent drag start
+                  e.stopPropagation();
+                  setExpanded(!expanded);
+                }}
+                sx={{
+                  color: theme.palette.primary.main,
+                  padding: '4px',
+                  zIndex: 10, // Ensure above the draggable area
+                }}
+            >
+              {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+            </IconButton>
+
+            <IconButton
+                size="small"
+                onClick={(e) => {
+                  // Stop propagation to prevent drag start
+                  e.stopPropagation();
+                  setOpacity(opacity === 0.9 ? 0.3 : 0.9);
+                }}
+                sx={{
+                  color: theme.palette.primary.main,
+                  padding: '4px',
+                  zIndex: 10, // Ensure above the draggable area
+                }}
+            >
+              {opacity === 0.3 ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+            </IconButton>
+          </Box>
+        </Box>
         <Collapse in={expanded} timeout="auto">
           <Box sx={{ display: 'flex', borderBottom: `1px solid ${theme.palette.divider}` }}>
             <Button
