@@ -1,44 +1,41 @@
-/**
- * Base API configuration for RTK Query
- * Sets up base query with authentication handling
- */
+// baseApi.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import config from '../config';
 import TokenDecoder from '../utilities/TokenDecoder';
 
-// Prepare base query with authentication header
-const baseQuery = fetchBaseQuery({
-    baseUrl: config.getAuthApiUrl(), // Default to auth API
-    prepareHeaders: (headers, { getState }) => {
-        // Get token from state
-        const token = getState().auth.token;
+// Determine if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development';
 
-        // Set auth header if token exists
+// Create a base query that will work across environments
+const baseQuery = fetchBaseQuery({
+    // In development, always use the proxy server directly
+    baseUrl: isDevelopment ? 'http://localhost:8080' : '/',
+    prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth.token;
         if (token) {
             headers.set('Authorization', `Bearer ${token}`);
         }
-
-        // Set content type for JSON
         headers.set('Content-Type', 'application/json');
         return headers;
     },
-    credentials: 'include', // Include cookies if your API uses them
+    credentials: 'include'
 });
 
 // Create enhanced base query with token handling
 const enhancedBaseQuery = async (args, api, extraOptions) => {
-    // Execute the original query
+    console.log(`[API] Request: ${args.method || 'GET'} ${baseQuery.baseUrl}${args.url}`);
+
+    // Execute the query
     let result = await baseQuery(args, api, extraOptions);
+
+    console.log(`[API] Response status:`, result.error ? `Error: ${result.error.status}` : 'Success');
 
     // Handle 401 Unauthorized errors - token expired
     if (result.error && result.error.status === 401) {
-        // Get current token and check if it's expired
         const state = api.getState();
         const token = state.auth.token;
 
         if (token) {
             const isExpired = TokenDecoder.isExpired(token);
-
             if (isExpired) {
                 // Token expired, log out user by dispatching logout action
                 api.dispatch({ type: 'auth/logout' });
@@ -59,6 +56,10 @@ export const baseApi = createApi({
         'Business',
         'BusinessUsers',
         'BusinessRoles',
+        'Campaign',
+        'Invitation',
+        'Media',
+        'Commo'
     ],
     endpoints: () => ({}),
 });

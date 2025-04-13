@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import PreferenceService from '../services/PreferenceService'; // Import the PreferenceService
-import { logWarning } from '../utilities/Logger';
 
 // Initialize the preferences from localStorage or default to an empty object
 const initialState = {
@@ -17,7 +16,7 @@ const preferenceSlice = createSlice({
             PreferenceService.setPreference(newPreferences); // Persist the new preferences in localStorage
             // Logging the current preferences for visibility
             console.log('Current preferences:', state.preferences);
-            logWarning(`preferenceSlice: Preferences updated`, 'blue');
+            console.log(`preferenceSlice: Preferences updated`, 'blue');
         },
         // You can add more reducers here for specific preference updates
     },

@@ -4,7 +4,6 @@ import axiosServices from '../../utilities/axios';
 import { Button, TextField, Container, CssBaseline, Box } from '@mui/material/';
 import { SuccessToast } from "./SuccessToast";
 import { ErrorToast } from "./ErrorToast";
-import { logInfo, logError, logDebug } from '../../utilities/Logger';
 import Branding from "./Branding";
 import logoImage from '../../assets/logo/default_logo.png';
 
@@ -31,7 +30,7 @@ function ForgotPassword() {
             if (response.data) {
                 SuccessToast("Password reset code sent successfully!");
                 setIsCodeSent(true); // Move to the confirmation phase
-                logInfo('Password reset code sent successfully', 'blue'); // Log successful code sending
+                console.log('Password reset code sent successfully', 'blue'); // Log successful code sending
             }
         } catch (error) {
             ErrorToast("Failed to send password reset code: " + error.response.data.message);
@@ -54,7 +53,7 @@ function ForgotPassword() {
             if (response.data) {
                 SuccessToast("Password reset successfully!");
                 // Here you might redirect the user or update UI to show successful reset
-                logInfo('Password reset successfully', 'blue'); // Log successful password reset
+                console.log('Password reset successfully', 'blue'); // Log successful password reset
                 navigate('/login');
             }
         } catch (error) {

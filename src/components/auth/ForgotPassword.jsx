@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -19,9 +19,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Container
+  Container,
+  useMediaQuery
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, ArrowBack } from '@mui/icons-material';
 import {
   useForgotPasswordMutation,
   useResetPasswordMutation
@@ -30,14 +31,21 @@ import useCustomTranslation from "../../hooks/useCustomTranslation";
 import validatePassword from '../../utilities/PasswordValidator';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
+import { useMatrixText } from '../../hooks/useMatrixText';
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ redirectPath = '/' }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const location = useLocation();
   const { translate } = useCustomTranslation();
   const analytics = useAnalytics();
-  const { getGlassMorphismStyle, getGlowEffect } = useSpatialTheme();
+  const {
+    getGlassMorphismStyle,
+    getGlowEffect,
+    getFuturisticCardStyle,
+    isSpatialTheme
+  } = useSpatialTheme();
 
   const [activeStep, setActiveStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
@@ -60,14 +68,31 @@ const ForgotPassword = () => {
   const [forgotPassword, { isLoading: isRequestingCode }] = useForgotPasswordMutation();
   const [resetPassword, { isLoading: isResettingPassword }] = useResetPasswordMutation();
 
-  // For analytics: track page view
+  // Use ref to track analytics to prevent duplicate events
+  const analyticsTracked = useRef({
+    formView: false,
+    steps: new Set()
+  });
+
+  // Use matrix text effect for header if spatial theme
+  const forgotPasswordTitle = translate(resetCodeSent ? 'ResetPassword' : 'ForgotPassword');
+  const { text: titleText } = useMatrixText(forgotPasswordTitle, {
+    speed: 20,
+    iterations: 1,
+    autoStart: isSpatialTheme
+  });
+
+  // Track form using form tracking analytics - only once per step
   useEffect(() => {
-    analytics.trackPageView({
-      pageName: 'ForgotPassword',
-      path: location.pathname,
-      step: activeStep
-    });
-  }, [analytics, location.pathname, activeStep]);
+    if (!analyticsTracked.current.steps.has(activeStep)) {
+      analytics.trackEvent('form_view', {
+        form_name: 'forgot_password',
+        step: activeStep,
+        auth_method: authMethod
+      });
+      analyticsTracked.current.steps.add(activeStep);
+    }
+  }, [analytics, activeStep, authMethod]);
 
   useEffect(() => {
     // Validate step 0 form
@@ -82,8 +107,8 @@ const ForgotPassword = () => {
     else if (activeStep === 1) {
       const codeValid = !!formData.resetCode;
       const passwordsMatch = formData.newPassword === formData.confirmPassword;
-      const passwordValid = formData.newPassword.length >= 8;
-      setFormValid(codeValid && passwordsMatch && passwordValid);
+      const passwordValidation = validatePassword(formData.newPassword);
+      setFormValid(codeValid && passwordsMatch && passwordValidation.success);
     }
   }, [formData, activeStep, authMethod]);
 
@@ -108,9 +133,11 @@ const ForgotPassword = () => {
     }
 
     // Track form field interaction for analytics
-    analytics.trackFormFieldInteraction('forgot_password', name, {
+    analytics.trackEvent('form_field_change', {
+      form_name: 'forgot_password',
+      field_name: name,
       step: activeStep,
-      authMethod
+      auth_method: authMethod
     });
   };
 
@@ -131,7 +158,7 @@ const ForgotPassword = () => {
     let newErrors = {...errors};
 
     if (!email) {
-      if (updateErrors) newErrors.email = translate('EmailRequired');
+      if (updateErrors) newErrors.email = translate('LoginErrorEmailRequired');
       valid = false;
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
       if (updateErrors) newErrors.email = translate('LoginErrorInvalidEmail');
@@ -189,7 +216,8 @@ const ForgotPassword = () => {
     setAuthMethod(newMethod);
 
     // Track auth method change
-    analytics.trackEvent('forgot_password_auth_method_changed', {
+    analytics.trackEvent('auth_method_changed', {
+      form_name: 'forgot_password',
       from: authMethod,
       to: newMethod
     });
@@ -216,7 +244,8 @@ const ForgotPassword = () => {
 
     if (!isValid) {
       // Track validation failure
-      analytics.trackEvent('forgot_password_validation_error', {
+      analytics.trackEvent('form_validation_error', {
+        form_name: 'forgot_password',
         method: authMethod,
         step: 'request_code'
       });
@@ -272,7 +301,8 @@ const ForgotPassword = () => {
     // Validate the form
     if (!validateResetForm()) {
       // Track validation failure
-      analytics.trackEvent('forgot_password_validation_error', {
+      analytics.trackEvent('form_validation_error', {
+        form_name: 'forgot_password',
         step: 'reset_password'
       });
       return;
@@ -294,7 +324,7 @@ const ForgotPassword = () => {
 
       // Track successful password reset
       analytics.trackEvent('forgot_password_reset_success', {
-        autoLogin: !!response.token
+        auto_login: !!response.token
       });
 
       if (response.token) {
@@ -305,8 +335,15 @@ const ForgotPassword = () => {
 
         setActiveStep(2);
 
+        // Add a breadcrumb for the navigation
+        analytics.trackEvent('navigation_intent', {
+          from: 'forgot_password',
+          to: redirectPath,
+          auto_redirect: true
+        });
+
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate(redirectPath);
         }, 2000);
       } else {
         setStatusMessage({
@@ -315,6 +352,13 @@ const ForgotPassword = () => {
         });
 
         setActiveStep(2);
+
+        // Add a breadcrumb for the navigation
+        analytics.trackEvent('navigation_intent', {
+          from: 'forgot_password',
+          to: '/login',
+          auto_redirect: true
+        });
 
         setTimeout(() => {
           navigate('/login');
@@ -367,6 +411,15 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleNavigateToLogin = () => {
+    analytics.trackEvent('navigation', {
+      from: 'forgot_password',
+      to: '/login',
+      step: activeStep
+    });
+    navigate('/login');
+  };
+
   const steps = [
     translate('RequestResetCode'),
     translate('EnterCodeAndNewPassword'),
@@ -378,12 +431,12 @@ const ForgotPassword = () => {
         <Paper
             elevation={3}
             sx={{
-              p: 4,
+              p: { xs: 2, sm: 4 },
               mt: 4,
               backgroundColor: theme.palette.background.paper,
               borderRadius: theme.shape.borderRadius * 2,
               boxShadow: theme.shadows[3],
-              ...getGlassMorphismStyle(0.8)
+              ...(isSpatialTheme ? getFuturisticCardStyle() : {})
             }}
         >
           <Typography
@@ -393,15 +446,18 @@ const ForgotPassword = () => {
               sx={{
                 color: theme.palette.primary.main,
                 fontWeight: 'bold',
-                mb: 3
+                mb: 3,
+                ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
               }}
+              aria-live="polite"
           >
-            {resetCodeSent ? translate('ResetPassword') : translate('ForgotPassword')}
+            {isSpatialTheme ? titleText : forgotPasswordTitle}
           </Typography>
 
           <Stepper
               activeStep={activeStep}
-              alternativeLabel
+              alternativeLabel={!isMobile}
+              orientation={isMobile ? "vertical" : "horizontal"}
               sx={{
                 width: '100%',
                 mb: 4,
@@ -410,7 +466,7 @@ const ForgotPassword = () => {
                 },
                 '& .MuiStepLabel-root .Mui-active': {
                   color: theme.palette.primary.main,
-                  ...getGlowEffect(theme.palette.primary.main, 'low')
+                  ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
                 }
               }}
           >
@@ -426,23 +482,34 @@ const ForgotPassword = () => {
                   severity={statusMessage.type || 'info'}
                   sx={{ width: '100%', mb: 2 }}
                   onClose={() => setStatusMessage({ type: '', message: '' })}
+                  role="alert"
               >
                 {statusMessage.message}
               </Alert>
           )}
 
           {activeStep === 0 && (
-              <Box component="form" onSubmit={handleRequestCode} sx={{ width: '100%' }}>
+              <Box
+                  component="form"
+                  onSubmit={handleRequestCode}
+                  sx={{ width: '100%' }}
+                  noValidate
+                  aria-label={translate('ForgotPassword')}
+              >
                 <Typography variant="body1" gutterBottom>
                   {translate('ForgotPasswordInstructions')}
                 </Typography>
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel>{translate('AuthenticationMethod')}</InputLabel>
+                  <InputLabel id="auth-method-label">{translate('AuthenticationMethod')}</InputLabel>
                   <Select
+                      labelId="auth-method-label"
                       value={authMethod}
                       onChange={handleAuthMethodChange}
                       label={translate('AuthenticationMethod')}
+                      inputProps={{
+                        'aria-label': translate('AuthenticationMethod')
+                      }}
                   >
                     <MenuItem value="email">{translate('Email')}</MenuItem>
                     <MenuItem value="phone">{translate('PhoneNumber')}</MenuItem>
@@ -455,15 +522,18 @@ const ForgotPassword = () => {
                         margin="normal"
                         label={translate('Email')}
                         name="email"
+                        type="email"
                         value={formData.email}
                         onChange={handleInputChange}
                         error={!!errors.email}
                         helperText={errors.email}
                         disabled={isRequestingCode}
                         inputProps={{
-                          autoComplete: "email"
+                          autoComplete: "email",
+                          'aria-label': translate('Email')
                         }}
                         sx={{ mb: 3 }}
+                        required
                     />
                 ) : (
                     <TextField
@@ -471,15 +541,18 @@ const ForgotPassword = () => {
                         margin="normal"
                         label={translate('PhoneNumber')}
                         name="phoneNumber"
+                        type="tel"
                         value={formData.phoneNumber}
                         onChange={handleInputChange}
                         error={!!errors.phoneNumber}
                         helperText={errors.phoneNumber}
                         disabled={isRequestingCode}
                         inputProps={{
-                          autoComplete: "tel"
+                          autoComplete: "tel",
+                          'aria-label': translate('PhoneNumber')
                         }}
                         sx={{ mb: 3 }}
+                        required
                     />
                 )}
 
@@ -496,9 +569,10 @@ const ForgotPassword = () => {
                       textTransform: 'none',
                       fontWeight: 'bold',
                       fontSize: '1rem',
-                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
                     }}
                     disabled={isRequestingCode || !formValid}
+                    aria-label={translate('SendResetCode')}
                 >
                   {isRequestingCode ? (
                       <CircularProgress size={24} color="inherit" />
@@ -508,26 +582,32 @@ const ForgotPassword = () => {
                 </Button>
 
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
-                  <Link
-                      href="/login"
-                      variant="body2"
+                  <Button
+                      variant="text"
+                      onClick={handleNavigateToLogin}
                       sx={{
-                        display: 'inline-block',
                         color: theme.palette.primary.main,
-                        textDecoration: 'none',
                         '&:hover': {
                           textDecoration: 'underline'
                         }
                       }}
+                      startIcon={<ArrowBack />}
+                      aria-label={translate('BackToLogin')}
                   >
                     {translate('BackToLogin')}
-                  </Link>
+                  </Button>
                 </Box>
               </Box>
           )}
 
           {activeStep === 1 && (
-              <Box component="form" onSubmit={handleResetPassword} sx={{ width: '100%' }}>
+              <Box
+                  component="form"
+                  onSubmit={handleResetPassword}
+                  sx={{ width: '100%' }}
+                  noValidate
+                  aria-label={translate('ResetPassword')}
+              >
                 <Typography variant="body1" gutterBottom>
                   {translate('ResetPasswordInstructions')}
                 </Typography>
@@ -542,7 +622,11 @@ const ForgotPassword = () => {
                     error={!!errors.resetCode}
                     helperText={errors.resetCode}
                     disabled={isResettingPassword}
+                    inputProps={{
+                      'aria-label': translate('ResetCode')
+                    }}
                     sx={{ mb: 2 }}
+                    required
                 />
 
                 <TextField
@@ -554,8 +638,11 @@ const ForgotPassword = () => {
                     value={formData.newPassword}
                     onChange={handlePasswordChange}
                     error={!!errors.newPassword}
-                    helperText={errors.newPassword}
+                    helperText={errors.newPassword || translate('BusinessSignupPasswordRequirements')}
                     disabled={isResettingPassword}
+                    inputProps={{
+                      'aria-label': translate('NewPassword')
+                    }}
                     InputProps={{
                       endAdornment: (
                           <InputAdornment position="end">
@@ -570,6 +657,7 @@ const ForgotPassword = () => {
                       ),
                     }}
                     sx={{ mb: 2 }}
+                    required
                 />
 
                 <TextField
@@ -583,7 +671,11 @@ const ForgotPassword = () => {
                     error={!!errors.confirmPassword}
                     helperText={errors.confirmPassword}
                     disabled={isResettingPassword}
+                    inputProps={{
+                      'aria-label': translate('ConfirmPassword')
+                    }}
                     sx={{ mb: 3 }}
+                    required
                 />
 
                 <Button
@@ -599,9 +691,10 @@ const ForgotPassword = () => {
                       textTransform: 'none',
                       fontWeight: 'bold',
                       fontSize: '1rem',
-                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
                     }}
                     disabled={isResettingPassword || !formValid}
+                    aria-label={translate('ResetPassword')}
                 >
                   {isResettingPassword ? (
                       <CircularProgress size={24} color="inherit" />
@@ -619,18 +712,21 @@ const ForgotPassword = () => {
                         borderRadius: 1.5,
                         textTransform: 'none'
                       }}
+                      startIcon={<ArrowBack />}
+                      aria-label={translate('Back')}
                   >
                     {translate('Back')}
                   </Button>
 
                   <Button
                       variant="text"
-                      onClick={() => navigate('/login')}
+                      onClick={handleNavigateToLogin}
                       sx={{
                         borderRadius: 1.5,
                         textTransform: 'none',
                         color: theme.palette.primary.main
                       }}
+                      aria-label={translate('BackToLogin')}
                   >
                     {translate('BackToLogin')}
                   </Button>
@@ -639,14 +735,19 @@ const ForgotPassword = () => {
           )}
 
           {activeStep === 2 && (
-              <Box sx={{ width: '100%', textAlign: 'center' }}>
+              <Box
+                  sx={{ width: '100%', textAlign: 'center' }}
+                  role="alert"
+                  aria-live="polite"
+              >
                 <Typography
                     variant="h6"
                     gutterBottom
                     sx={{
                       color: theme.palette.success.main,
                       fontWeight: 'bold',
-                      mb: 2
+                      mb: 2,
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.success.main, 'low') : {})
                     }}
                 >
                   {translate('PasswordResetSuccessTitle')}
@@ -667,8 +768,9 @@ const ForgotPassword = () => {
                       fontWeight: 'bold',
                       px: 4,
                       py: 1.2,
-                      ...getGlowEffect(theme.palette.primary.main, 'low')
+                      ...(isSpatialTheme ? getGlowEffect(theme.palette.primary.main, 'low') : {})
                     }}
+                    aria-label={translate('GoToDashboard')}
                 >
                   {translate('GoToDashboard')}
                 </Button>
@@ -679,4 +781,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default React.memo(ForgotPassword);

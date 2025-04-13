@@ -1,17 +1,40 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { Box } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { Box, Container, useTheme, useMediaQuery } from '@mui/material';
 import Login from '../components/auth/Login';
-import { selectIsAuthenticated } from '../reducers/authReducer';
+import { useAuth } from '../hooks/useAuth';
+import useAnalytics from '../analytics/hooks/useAnalytics';
+import { useSpatialTheme } from '../hooks/useSpatialTheme';
+import { GuestGuard } from '../routes';
 
+/**
+ * Login Page component
+ * Contains the login form and handles redirections for authenticated users
+ */
 const LoginPage = () => {
-    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const { isAuthenticated } = useAuth();
+    const location = useLocation();
+    const analytics = useAnalytics();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { isDark, getGlassMorphismStyle } = useSpatialTheme();
 
-    if (isAuthenticated) {
-        return <Navigate to="/dashboard" replace />;
-    }
+    // Track page view
+    useEffect(() => {
+        analytics.trackPageView(location.pathname, 'Login Page');
 
+        // Track if user was redirected here from a protected route
+        if (location.state?.from) {
+            analytics.trackEvent('auth_redirect', {
+                from: location.state.from.pathname,
+                to: location.pathname,
+                reason: 'unauthenticated'
+            });
+        }
+    }, [analytics, location]);
+
+    // The LoginPage component is wrapped with GuestGuard
+    // which handles the redirect for authenticated users
     return (
         <Box
             sx={{
@@ -20,12 +43,34 @@ const LoginPage = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 bgcolor: 'background.default',
-                p: 2,
+                p: { xs: 1, sm: 2 },
+                background: theme => isDark
+                    ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.8) 100%)'
+                    : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,240,245,0.8) 100%)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
             }}
         >
-            <Login />
+            <Container
+                maxWidth="sm"
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    ...(isMobile ? {} : getGlassMorphismStyle(0.2))
+                }}
+            >
+                <Login />
+            </Container>
         </Box>
     );
 };
 
-export default LoginPage; 
+// Wrap the component with GuestGuard to prevent authenticated users from accessing it
+const ProtectedLoginPage = () => (
+    <GuestGuard redirectPath="/dashboard">
+        <LoginPage />
+    </GuestGuard>
+);
+
+export default ProtectedLoginPage;

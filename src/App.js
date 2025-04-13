@@ -1,8 +1,7 @@
-// src/App.js
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './translations/translationManager';
@@ -13,29 +12,46 @@ import useAppInitialization from './hooks/useAppInitialization';
 import useCustomTranslation from "./hooks/useCustomTranslation";
 import DebugPanel from './components/common/DebugPanel';
 import AnalyticsProvider from './AnalyticsProvider';
-import useSessionTracking from './analytics/hooks/useSessionTracking';
-import { RouteProvider } from './routes'; // Import the RouteProvider
+import { RouteProvider } from './routes';
 
-// Create an analytics-aware MainContent component
-const AnalyticsMainContent = () => {
-    // Use session tracking
-    useSessionTracking();
+// Memoize the analytics-aware MainContent component to prevent unnecessary re-renders
+const AnalyticsMainContent = React.memo(() => {
+    useEffect(() => {
+        console.log("AnalyticsMainContent mounted");
+        return () => console.log("AnalyticsMainContent unmounted");
+    }, []);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log("AnalyticsMainContent rendering");
+    }
 
     return <MainContent />;
-};
+});
 
-function App() {
-    const dispatch = useDispatch();
-    const { changeLanguage, currentLanguageDirection } = useCustomTranslation();
+// Main App component
+const App = () => {
+    useEffect(() => {
+        console.log("App component mounted");
+        return () => console.log("App component unmounted");
+    }, []);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log("App component rendering");
+    }
+
+    const { currentLanguageDirection } = useCustomTranslation();
 
     // Authentication, theme, and preferences hooks
     useAppInitialization();
 
-    // Fetch the current theme mode and language direction from Redux state
+    // Fetch the current theme mode from Redux state
     const themeMode = useSelector(state => state.theme.mode);
 
-    // Get the theme object based on the current theme mode and language direction
-    const theme = getTheme(themeMode, currentLanguageDirection);
+    // Create theme once - don't recreate it on every render
+    const theme = useMemo(() =>
+            getTheme(themeMode, currentLanguageDirection),
+        [themeMode, currentLanguageDirection]
+    );
 
     // Only show debug panel in development mode
     const isDevelopment = process.env.NODE_ENV === 'development';
@@ -44,7 +60,6 @@ function App() {
         <AnalyticsProvider>
             <ThemeProvider theme={theme}>
                 <Router>
-                    {/* Wrap the app with RouteProvider for routing context */}
                     <RouteProvider>
                         <ToastContainer
                             position="top-right"
@@ -66,6 +81,6 @@ function App() {
             </ThemeProvider>
         </AnalyticsProvider>
     );
-}
+};
 
-export default App;
+export default React.memo(App);

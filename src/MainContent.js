@@ -1,53 +1,63 @@
-import React from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { routes, AuthGuard } from './routes';
+import routes from './routes/routeConfig';
+import { AuthGuard } from './routes';
 import { useSelector } from 'react-redux';
 
-const MainContent = () => {
+// Use React.memo to prevent unnecessary renders
+const MainContent = React.memo(() => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const routesRef = useRef(routes);
+    const initialRenderRef = useRef(true);
+
+    // Only log on mount and unmount
+    useEffect(() => {
+        console.log('MainContent mounted');
+        return () => {
+            console.log('MainContent unmounted');
+        };
+    }, []);
+
+    // Log only on first render
+    if (initialRenderRef.current) {
+        console.log(`MainContent rendering with ${routes.length} routes`);
+        initialRenderRef.current = false;
+    }
+
+    // Memoize route elements to prevent recreation
+    const routeElements = useMemo(() => {
+        return routesRef.current.map((route) => {
+            const { path, element, exact, auth, roles = [] } = route;
+
+            // Determine what to render
+            let renderedElement;
+            if (auth) {
+                renderedElement = <AuthGuard requiredRoles={roles}>{element}</AuthGuard>;
+            } else if (path === '/login' && isAuthenticated) {
+                renderedElement = <Navigate replace to="/" />;
+            } else {
+                renderedElement = element;
+            }
+
+            return (
+                <Route
+                    key={path}
+                    path={path}
+                    element={renderedElement}
+                    exact={exact || undefined}
+                />
+            );
+        });
+    }, [isAuthenticated]); // Only rebuild routes when authentication state changes
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
-                {/* Generate routes from centralized route configuration */}
-                {routes.map((route) => {
-                    const { path, component: Component, exact, auth, roles = [] } = route;
-
-                    // Determine what to render
-                    const renderComponent = () => {
-                        // For authenticated routes
-                        if (auth) {
-                            return (
-                                <AuthGuard requiredRoles={roles}>
-                                    <Component />
-                                </AuthGuard>
-                            );
-                        }
-
-                        // For login page (redirect if already authenticated)
-                        if (path === '/login' && isAuthenticated) {
-                            return <Navigate replace to="/" />;
-                        }
-
-                        // For regular routes
-                        return <Component />;
-                    };
-
-                    return (
-                        <Route
-                            key={path}
-                            path={path}
-                            element={renderComponent()}
-                            exact={exact}
-                        />
-                    );
-                })}
-
-                {/* Catch-all redirect to home */}
+                {routeElements}
                 <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
         </div>
     );
-};
+});
 
 export default MainContent;

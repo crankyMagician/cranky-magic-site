@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Box, Typography } from '@mui/material';
 import Branding from './Branding';
-import { logDebug } from '../../utilities/Logger';
 import useCustomTranslation from "../../hooks/useCustomTranslation"; // Import custom translation hook
 import logoImage from '../../assets/logo/default_logo.png';
 
@@ -12,7 +11,7 @@ const NewsletterSignup = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        logDebug('Submitting newsletter signup form:', 'blue');
+        console.log('Submitting newsletter signup form:', 'blue');
         console.log(JSON.stringify({ email }));
         // Here, you would typically send the email to your backend or a third-party service handling newsletter subscriptions.
     };

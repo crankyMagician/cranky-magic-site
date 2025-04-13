@@ -1,4 +1,3 @@
-import { logError } from '../../utilities/Logger';
 import { ErrorToast } from '../../components/demoComponents/ErrorToast';
 
 /**
@@ -50,7 +49,7 @@ const setupRtkQueryTracking = (apiSlice, analytics) => {
 
                 // Log error details
                 const errorMessage = `API Error: ${errorDetails.message}, Status: ${errorDetails.status}, Endpoint: ${endpoint}`;
-                logError(errorMessage, 'red');
+                console.error(errorMessage, 'red');
 
                 // Show error toast
                 ErrorToast(`Request failed: ${errorDetails.message} (Status: ${errorDetails.status})`);

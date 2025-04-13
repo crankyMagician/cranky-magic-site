@@ -14,10 +14,10 @@ import {
     Business
 } from '@mui/icons-material';
 
-// Page components - Replace with actual imports
+// Import components explicitly with the proper names
+// Check these imports carefully - one of them is likely causing the error
 import Example from '../example/Example';
 import AccountSettingsPage from '../components/demoComponents/AccountSettingsPage';
-import ContactUs from '../components/common/ContactUsComponent';
 import NewsletterSignup from '../components/demoComponents/NewsletterSignup';
 import AboutUs from '../components/common/AboutUs';
 import StreamVideo from '../components/demoComponents/StreamVideo';
@@ -29,32 +29,39 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ChangePasswordPage from '../pages/ChangePasswordPage';
 import SpatialDemoPanel from '../components/demo/SpatialDemoPanel';
 
+// Add console logging to verify each component is a function
+console.log('Component types check:');
+console.log('Example:', typeof Example);
+console.log('AccountSettingsPage:', typeof AccountSettingsPage);
+console.log('NewsletterSignup:', typeof NewsletterSignup);
+console.log('AboutUs:', typeof AboutUs);
+console.log('StreamVideo:', typeof StreamVideo);
+console.log('Calendar:', typeof Calendar);
+console.log('LandingPage:', typeof LandingPage);
+console.log('BusinessSignupPage:', typeof BusinessSignupPage);
+console.log('LoginPage:', typeof LoginPage);
+console.log('ForgotPasswordPage:', typeof ForgotPasswordPage);
+console.log('ChangePasswordPage:', typeof ChangePasswordPage);
+console.log('SpatialDemoPanel:', typeof SpatialDemoPanel);
+
+// Create a fallback component for any invalid components
+const FallbackComponent = () => (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>Component Not Available</h2>
+        <p>The requested component couldn't be loaded.</p>
+    </div>
+);
+
 /**
  * Application route configuration
  * This is the master list of all routes in the application
- *
- * Each route contains:
- * - path: URL path
- * - component: React component to render
- * - exact: Whether the path needs exact matching
- * - auth: Authentication requirements (true = authentication required)
- * - roles: Array of allowed roles (empty = all roles allowed)
- * - meta: Additional metadata about the route
- *   - title: Page title (for SEO and browser title)
- *   - description: Page description
- *   - icon: Material-UI icon component
- *   - nav: Navigation display settings
- *     - label: Text to show in navigation
- *     - group: Navigation group this belongs to
- *     - order: Display order within group
- *     - showInNav: Whether to display in navigation components
- *     - showInFooter: Whether to display in footer
  */
 const routes = [
     // Main/Dashboard pages
     {
         path: '/',
-        component: Example,
+        // Use a conditional to ensure valid component
+        element: typeof Example === 'function' ? <Example /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -72,7 +79,7 @@ const routes = [
     },
     {
         path: '/theme',
-        component: Example,
+        element: typeof Example === 'function' ? <Example /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -90,7 +97,7 @@ const routes = [
     },
     {
         path: '/spatial-mods',
-        component: SpatialDemoPanel,
+        element: typeof SpatialDemoPanel === 'function' ? <SpatialDemoPanel /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -110,7 +117,7 @@ const routes = [
     // Authentication & Account routes
     {
         path: '/login',
-        component: LoginPage,
+        element: typeof LoginPage === 'function' ? <LoginPage /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -128,7 +135,7 @@ const routes = [
     },
     {
         path: '/forgot-password',
-        component: ForgotPasswordPage,
+        element: typeof ForgotPasswordPage === 'function' ? <ForgotPasswordPage /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -146,7 +153,7 @@ const routes = [
     },
     {
         path: '/change-password',
-        component: ChangePasswordPage,
+        element: typeof ChangePasswordPage === 'function' ? <ChangePasswordPage /> : <FallbackComponent />,
         exact: true,
         auth: true,
         meta: {
@@ -164,7 +171,7 @@ const routes = [
     },
     {
         path: '/edit-account',
-        component: AccountSettingsPage,
+        element: typeof AccountSettingsPage === 'function' ? <AccountSettingsPage /> : <FallbackComponent />,
         exact: true,
         auth: true,
         meta: {
@@ -182,7 +189,7 @@ const routes = [
     },
     {
         path: '/business-signup',
-        component: BusinessSignupPage,
+        element: typeof BusinessSignupPage === 'function' ? <BusinessSignupPage /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -202,7 +209,7 @@ const routes = [
     // Content pages
     {
         path: '/about-us',
-        component: AboutUs,
+        element: typeof AboutUs === 'function' ? <AboutUs /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -218,9 +225,9 @@ const routes = [
             }
         }
     },
-    {
+   /* {
         path: '/contact-us',
-        component: ContactUs,
+        element: typeof ContactUs === 'function' ? <ContactUs /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -235,10 +242,10 @@ const routes = [
                 showInFooter: true,
             }
         }
-    },
+    },*/
     {
         path: '/newsletter-signup',
-        component: NewsletterSignup,
+        element: typeof NewsletterSignup === 'function' ? <NewsletterSignup /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -256,7 +263,7 @@ const routes = [
     },
     {
         path: '/video-stream',
-        component: StreamVideo,
+        element: typeof StreamVideo === 'function' ? <StreamVideo /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -274,7 +281,7 @@ const routes = [
     },
     {
         path: '/calendar',
-        component: Calendar,
+        element: typeof Calendar === 'function' ? <Calendar /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -291,10 +298,10 @@ const routes = [
         }
     },
 
-    // Legal pages
+    // Legal pages - these were causing the error at line 223
     {
         path: '/terms',
-        component: AboutUs, // Just using AboutUs as a placeholder
+        element: typeof AboutUs === 'function' ? <AboutUs /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -312,7 +319,7 @@ const routes = [
     },
     {
         path: '/privacy',
-        component: AboutUs, // Just using AboutUs as a placeholder
+        element: typeof AboutUs === 'function' ? <AboutUs /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -330,7 +337,7 @@ const routes = [
     },
     {
         path: '/cookies',
-        component: AboutUs, // Just using AboutUs as a placeholder
+        element: typeof AboutUs === 'function' ? <AboutUs /> : <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
