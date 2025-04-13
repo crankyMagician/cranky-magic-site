@@ -1,5 +1,5 @@
 // debug-panel/DebugPanel.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Paper, Box, Button, IconButton, Typography, Collapse } from '@mui/material';
 import {
   ExpandLess as ExpandLessIcon,
@@ -30,10 +30,11 @@ import { setCredentials } from "../reducers/authReducer";
 import validatePassword from "../utilities/PasswordValidator";
 import AuthTokenService from "../services/AuthTokenService";
 import TokenDecoder from "../utilities/TokenDecoder";
-import { getEventTypeColor } from './utils/eventTypes';
+import { EVENTS } from "../analytics/constants/events";
 import ThemeToggle from "../components/demoComponents/ThemeToggle";
 import LanguageSelector from "../components/demoComponents/LanguageSwitcher";
-
+import analyticsDebugger from './utils/AnalyticsDebugger';
+import { getEventTypeColor } from './utils/eventTypes';
 
 const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   const dispatch = useDispatch();
@@ -65,7 +66,8 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     hasToken: false,
     tokenExpiry: null,
     tokenData: null,
-    lastCheck: null
+    lastCheck: null,
+    authToken: null
   });
 
   // Test state
@@ -95,8 +97,22 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     performanceMonitoring: true,
     sampleRate: 1.0
   });
-  const [performanceMetrics, setPerformanceMetrics] = useState({});
-  const eventLogRef = useRef([]);
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    FCP: '450ms',
+    LCP: '1.2s',
+    CLS: '0.05',
+    FID: '28ms',
+    TTFB: '210ms',
+    jsCount: 7,
+    jsTime: 320,
+    cssCount: 3,
+    cssTime: 120,
+    imgCount: 8,
+    imgTime: 450,
+    apiCount: 4,
+    apiTime: 180
+  });
+
   const sessionId = useRef(`debug_${Date.now()}_${Math.random().toString(36).substring(2,9)}`).current;
 
   // Paper ref for the main container
@@ -104,20 +120,47 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
   // Header ref for dragging
   const headerRef = useRef(null);
 
+  // Initialize analytics debugger on mount
+  useEffect(() => {
+    // Initialize the analytics debugger
+    if (analytics) {
+      analyticsDebugger.initialize(analytics);
+      analyticsDebugger.setCapturing(isCapturing);
+
+      // Load initial events if any
+      const initialEvents = analyticsDebugger.getEvents();
+      if (initialEvents.length > 0) {
+        setAnalyticsEvents(initialEvents);
+        setEventCount(analyticsDebugger.getEventCount());
+      }
+
+      console.log('[DebugPanel] Analytics debugger initialized');
+    }
+
+    return () => {
+      // Clean up on unmount
+      if (analytics) {
+        analyticsDebugger.cleanup(analytics);
+      }
+    };
+  }, [analytics]);
+
   // Check token info on mount and every 5 seconds
   useEffect(() => {
     const checkToken = () => {
-      const token = AuthTokenService.getAuthInfo().authToken;
+      const { authToken, isAuthenticated } = AuthTokenService.getAuthInfo();
       const debugInfo = {
-        hasToken: !!token,
+        hasToken: isAuthenticated && !!authToken,
         tokenExpiry: null,
         tokenData: null,
+        authToken,
         lastCheck: new Date().toISOString()
       };
-      if (token) {
+
+      if (authToken) {
         try {
-          const decodedToken = TokenDecoder.decode(token);
-          if (decodedToken && !TokenDecoder.isExpired(token)) {
+          const decodedToken = TokenDecoder.decode(authToken);
+          if (decodedToken && !TokenDecoder.isExpired(authToken)) {
             debugInfo.tokenExpiry = new Date(decodedToken.exp * 1000).toISOString();
             debugInfo.tokenData = {
               id: decodedToken.id,
@@ -131,56 +174,59 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
           console.error('Error decoding token in debug panel:', error);
         }
       }
+
       setTokenInfo(debugInfo);
     };
+
     checkToken();
     const interval = setInterval(checkToken, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Track analytics events
+  // Set up analytics event listener
   useEffect(() => {
+    // Handler for analytics events
     const handleAnalyticsEvent = (event) => {
+      // Skip if not capturing
       if (!isCapturing) return;
-      const eventData = {
-        id: Math.random().toString(36).substring(2,9),
-        timestamp: new Date().toISOString(),
-        name: event.detail?.name || 'unknown_event',
-        properties: event.detail?.properties || {},
-        type: getEventType(event.detail?.name)
-      };
-      eventLogRef.current = [eventData, ...eventLogRef.current].slice(0, 100);
+
+      // Update the events list state
+      setAnalyticsEvents(prev => {
+        const eventData = event.detail;
+        // Ensure we have an ID
+        if (!eventData.id) {
+          eventData.id = `evt_${Date.now()}_${Math.random().toString(36).substring(2,9)}`;
+        }
+        // Ensure we have a timestamp
+        if (!eventData.timestamp) {
+          eventData.timestamp = Date.now();
+        }
+        // Return new array with this event at the beginning, limited to 100 items
+        return [eventData, ...prev].slice(0, 100);
+      });
+
+      // Update the event counter
       setEventCount(prev => prev + 1);
-      if (eventCount % 5 === 0) {
-        setAnalyticsEvents([...eventLogRef.current]);
-      }
     };
 
-    const originalTrackEvent = analytics.trackEvent;
-    analytics.trackEvent = (name, properties) => {
-      originalTrackEvent(name, properties);
-      window.dispatchEvent(new CustomEvent('analytics_event', { detail: { name, properties } }));
-    };
+    // Set up event listener for analytics debugging events
+    window.addEventListener('analytics_event_captured', handleAnalyticsEvent);
 
+    // Legacy event listener for backward compatibility
     window.addEventListener('analytics_event', handleAnalyticsEvent);
-    return () => {
-      window.removeEventListener('analytics_event', handleAnalyticsEvent);
-      analytics.trackEvent = originalTrackEvent;
-    };
-  }, [analytics, isCapturing, eventCount]);
 
-  const getEventType = (eventName) => {
-    if (!eventName) return 'unknown';
-    if (eventName.includes('page_') || eventName === 'page_view') return 'page';
-    if (eventName.includes('click') || eventName.includes('button')) return 'interaction';
-    if (eventName.includes('form_')) return 'form';
-    if (eventName.includes('api_')) return 'api';
-    if (eventName.includes('error') || eventName.includes('exception')) return 'error';
-    if (eventName.includes('performance') || eventName.includes('_vital')) return 'performance';
-    if (eventName.includes('scroll')) return 'scroll';
-    if (eventName.includes('session')) return 'session';
-    return 'other';
-  };
+    // Clean up when unmounting
+    return () => {
+      window.removeEventListener('analytics_event_captured', handleAnalyticsEvent);
+      window.removeEventListener('analytics_event', handleAnalyticsEvent);
+    };
+  }, [isCapturing]);
+
+  // Update analytics debugger when capturing state changes
+  useEffect(() => {
+    analyticsDebugger.setCapturing(isCapturing);
+  }, [isCapturing]);
 
   // DRAG FUNCTIONALITY
   // Handle start of dragging on header
@@ -200,14 +246,6 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
-
-    // Log drag start
-    console.log('Drag started', {
-      startX: e.clientX,
-      startY: e.clientY,
-      startLeft: rect.left,
-      startTop: rect.top
-    });
   };
 
   // Handle dragging movement
@@ -223,12 +261,6 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     panelRef.current.style.top = `${newTop}px`;
     panelRef.current.style.right = 'auto';
     panelRef.current.style.bottom = 'auto';
-
-    // Log movement
-    console.log('Moving', {
-      dx: e.clientX - (panelRef.current.getBoundingClientRect().left + dragOffset.x),
-      dy: e.clientY - (panelRef.current.getBoundingClientRect().top + dragOffset.y)
-    });
   };
 
   // Handle end of dragging
@@ -247,9 +279,6 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
         right: 'auto',
         bottom: 'auto'
       });
-
-      // Log drag end
-      console.log('Drag finished', { left: rect.left, top: rect.top });
     }
   };
 
@@ -272,7 +301,7 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       setTestStatus({ success: false, message: 'Logging in...' });
       analytics.trackEvent('auth_login_start', { method: 'email', from: 'debug_panel' });
       const result = await login(testCredentials).unwrap();
-      console.log('Login result:', result);
+
       AuthTokenService.setAuthInfo({
         isAuthenticated: true,
         user: result.user,
@@ -281,6 +310,7 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
         businesses: result.businesses || [],
         activeBusiness: result.activeBusiness || null
       });
+
       dispatch(setCredentials({
         user: result.user,
         token: result.token,
@@ -288,12 +318,28 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
         businesses: result.businesses || [],
         activeBusiness: result.activeBusiness || null
       }));
-      analytics.trackEvent('auth_login_success', { user_id: result.user?.id, method: 'email', from: 'debug_panel' });
-      setTestStatus({ success: true, message: `Login successful! Token received for ${result.user?.email || 'user'}.` });
+
+      analytics.trackEvent('auth_login_success', {
+        user_id: result.user?.id,
+        method: 'email',
+        from: 'debug_panel'
+      });
+
+      setTestStatus({
+        success: true,
+        message: `Login successful! Token received for ${result.user?.email || 'user'}.`
+      });
     } catch (error) {
       console.error('Login error:', error);
-      analytics.trackEvent('auth_login_failure', { error_message: error.data?.message || error.message || 'Unknown error', method: 'email', from: 'debug_panel' });
-      setTestStatus({ success: false, message: `Login failed: ${error.data?.message || error.message || 'Unknown error'}` });
+      analytics.trackEvent('auth_login_failure', {
+        error_message: error.data?.message || error.message || 'Unknown error',
+        method: 'email',
+        from: 'debug_panel'
+      });
+      setTestStatus({
+        success: false,
+        message: `Login failed: ${error.data?.message || error.message || 'Unknown error'}`
+      });
     }
   };
 
@@ -302,16 +348,29 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
     try {
       setTestStatus({ success: false, message: 'Requesting reset code...' });
       analytics.trackEvent('auth_password_reset_request', { method: authMethod, from: 'debug_panel' });
+
       const payload = authMethod === 'email'
           ? { email: testCredentials.email }
           : { phoneNumber: testCredentials.phoneNumber };
+
       await forgotPassword(payload).unwrap();
       setResetCodeSent(true);
-      setTestStatus({ success: true, message: `Reset code sent to ${authMethod === 'email' ? testCredentials.email : testCredentials.phoneNumber}. Please check your ${authMethod === 'email' ? 'email' : 'phone'}.` });
+      setTestStatus({
+        success: true,
+        message: `Reset code sent to ${authMethod === 'email' ? testCredentials.email : testCredentials.phoneNumber}. Please check your ${authMethod === 'email' ? 'email' : 'phone'}.`
+      });
     } catch (error) {
       console.error('Reset code request error:', error);
-      analytics.trackEvent('error_validation', { context: 'password_reset_request', error_message: error.data?.message || error.message || 'Unknown error', method: authMethod, from: 'debug_panel' });
-      setTestStatus({ success: false, message: `Failed to send reset code: ${error.data?.message || error.message || 'Unknown error'}` });
+      analytics.trackEvent('error_validation', {
+        context: 'password_reset_request',
+        error_message: error.data?.message || error.message || 'Unknown error',
+        method: authMethod,
+        from: 'debug_panel'
+      });
+      setTestStatus({
+        success: false,
+        message: `Failed to send reset code: ${error.data?.message || error.message || 'Unknown error'}`
+      });
     }
   };
 
@@ -323,20 +382,27 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
         setTestStatus({ success: false, message: passwordValidation.message });
         return;
       }
+
       setTestStatus({ success: false, message: 'Resetting password...' });
       const payload = {
         resetCode: testCredentials.confirmationCode,
         newPassword: testCredentials.newPassword
       };
+
       if (authMethod === 'email') {
         payload.email = testCredentials.email;
       } else {
         payload.phoneNumber = testCredentials.phoneNumber;
       }
+
       const response = await resetPassword(payload).unwrap();
-      analytics.trackEvent('auth_password_reset_complete', { method: authMethod, from: 'debug_panel', received_token: !!response.token });
+      analytics.trackEvent('auth_password_reset_complete', {
+        method: authMethod,
+        from: 'debug_panel',
+        received_token: !!response.token
+      });
+
       if (response.token) {
-        console.log('Reset password successful with token!', response);
         AuthTokenService.setAuthInfo({
           isAuthenticated: true,
           user: response.user || {},
@@ -345,17 +411,33 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
           businesses: response.businesses || [],
           activeBusiness: response.activeBusiness || null
         });
+
         dispatch(setCredentials(response));
-        setTestStatus({ success: true, message: 'Password reset successful. Auth token received and stored. You can now access protected routes.' });
+        setTestStatus({
+          success: true,
+          message: 'Password reset successful. Auth token received and stored. You can now access protected routes.'
+        });
       } else {
-        setTestStatus({ success: true, message: 'Password reset successful. You can now login with your new password.' });
+        setTestStatus({
+          success: true,
+          message: 'Password reset successful. You can now login with your new password.'
+        });
       }
+
       setResetCodeSent(false);
       setTestCredentials({ ...testCredentials, confirmationCode: '', newPassword: '' });
     } catch (error) {
       console.error('Password reset error:', error);
-      analytics.trackEvent('error_validation', { context: 'password_reset', error_message: error.data?.message || error.message || 'Unknown error', method: authMethod, from: 'debug_panel' });
-      setTestStatus({ success: false, message: `Failed to reset password: ${error.data?.message || error.message || 'Unknown error'}` });
+      analytics.trackEvent('error_validation', {
+        context: 'password_reset',
+        error_message: error.data?.message || error.message || 'Unknown error',
+        method: authMethod,
+        from: 'debug_panel'
+      });
+      setTestStatus({
+        success: false,
+        message: `Failed to reset password: ${error.data?.message || error.message || 'Unknown error'}`
+      });
     }
   };
 
@@ -365,24 +447,36 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       setTestStatus({ success: false, message: `You must be logged in to change your password.` });
       return;
     }
+
     const passwordValidation = validatePassword(testCredentials.newPassword);
     if (!passwordValidation.success) {
       setTestStatus({ success: false, message: passwordValidation.message });
       return;
     }
+
     try {
       setTestStatus({ success: false, message: 'Changing password...' });
       analytics.trackEvent('auth_password_change', { user_id: tokenInfo.tokenData.id, from: 'debug_panel' });
+
       await changePassword({
         userId: tokenInfo.tokenData.id,
         currentPassword: testCredentials.password,
         newPassword: testCredentials.newPassword
       }).unwrap();
+
       setTestStatus({ success: true, message: `Password changed successfully!` });
     } catch (error) {
       console.error('Change password error:', error);
-      analytics.trackEvent('error_validation', { context: 'password_change', error_message: error.data?.message || error.message || 'Unknown error', user_id: tokenInfo.tokenData?.id, from: 'debug_panel' });
-      setTestStatus({ success: false, message: `Password change failed: ${error.data?.message || error.message || 'Unknown error'}` });
+      analytics.trackEvent('error_validation', {
+        context: 'password_change',
+        error_message: error.data?.message || error.message || 'Unknown error',
+        user_id: tokenInfo.tokenData?.id,
+        from: 'debug_panel'
+      });
+      setTestStatus({
+        success: false,
+        message: `Password change failed: ${error.data?.message || error.message || 'Unknown error'}`
+      });
     }
   };
 
@@ -392,21 +486,37 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       console.error('Password reset error: User not logged in');
       return;
     }
+
     const passwordValidation = validatePassword('Astroboy#1!');
     if (!passwordValidation.success) {
       console.error('Password reset error:', passwordValidation.message);
       return;
     }
+
     try {
       await changePassword({
         userId: tokenInfo.tokenData.id,
         currentPassword: testCredentials.password,
         newPassword: 'Astroboy#1!'
       });
+
       console.log('Password reset to Astroboy#1!');
-      analytics.trackEvent('auth_password_change', { user_id: tokenInfo.tokenData.id, from: 'debug_panel', reset_to_default: true });
+      analytics.trackEvent('auth_password_change', {
+        user_id: tokenInfo.tokenData.id,
+        from: 'debug_panel',
+        reset_to_default: true
+      });
+
+      setTestStatus({
+        success: true,
+        message: 'Password reset to default: Astroboy#1!'
+      });
     } catch (error) {
       console.error('Password reset error:', error);
+      setTestStatus({
+        success: false,
+        message: `Password reset failed: ${error.data?.message || error.message || 'Unknown error'}`
+      });
     }
   };
 
@@ -420,20 +530,34 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       theme_mode: themeMode,
       debug_session_id: sessionId
     });
-    setTestStatus({ success: true, message: 'Test event tracked successfully! Check the Analytics tab.' });
+
+    setTestStatus({
+      success: true,
+      message: 'Test event tracked successfully! Check the Analytics tab.'
+    });
   };
 
+  // Handle analytics config changes
   const handleConfigChange = (key, value) => {
     setAnalyticsConfig({ ...analyticsConfig, [key]: value });
-    analytics.trackEvent('debug_config_change', { config_key: key, config_value: value, panel_position: position, current_tab: tab });
+    analytics.trackEvent('debug_config_change', {
+      config_key: key,
+      config_value: value,
+      panel_position: position,
+      current_tab: tab
+    });
   };
 
-  const handleClearEvents = () => {
+  // Clear analytics events
+  const handleClearEvents = useCallback(() => {
     setAnalyticsEvents([]);
-    eventLogRef.current = [];
+    analyticsDebugger.clearEvents();
     setEventCount(0);
-    analytics.trackEvent('debug_clear_events', { timestamp: new Date().toISOString(), previous_event_count: eventCount });
-  };
+
+    analytics.trackEvent('debug_clear_events', {
+      timestamp: new Date().toISOString()
+    });
+  }, [analytics]);
 
   // Reset panel position handler
   const handleResetPosition = () => {
@@ -451,6 +575,15 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
       analytics.trackEvent('debug_panel_position_reset', {});
     }
   };
+
+  // Toggle capturing state
+  const toggleCapturing = useCallback(() => {
+    setIsCapturing(prev => {
+      const newState = !prev;
+      analyticsDebugger.setCapturing(newState);
+      return newState;
+    });
+  }, []);
 
   // Dynamic panel colors based on theme and token state
   const getPanelColor = () => {
@@ -661,7 +794,7 @@ const DebugPanel = ({ initialPosition = { right: 20, bottom: 20 } }) => {
                   analyticsEvents={analyticsEvents}
                   eventCount={eventCount}
                   isCapturing={isCapturing}
-                  setIsCapturing={setIsCapturing}
+                  setIsCapturing={toggleCapturing}
                   handleClearEvents={handleClearEvents}
                   analyticsConfig={analyticsConfig}
                   handleConfigChange={handleConfigChange}
