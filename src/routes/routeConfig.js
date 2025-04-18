@@ -12,7 +12,10 @@ import {
     Dashboard as DashboardIcon,
     Settings,
     Business,
-    Campaign as CampaignIcon
+    Campaign as CampaignIcon,
+    People as PeopleIcon,
+    Security as SecurityIcon,
+    Email as EmailIcon
 } from '@mui/icons-material';
 
 // Import components explicitly with the proper names
@@ -30,6 +33,9 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ChangePasswordPage from '../pages/ChangePasswordPage';
 import SpatialDemoPanel from '../components/demo/SpatialDemoPanel';
 import CampaignManagementPage from "../pages/CampaignManagementPage";
+import InvitationLanding from "../components/business/InvitationLanding";
+import BusinessUsersPage from "../pages/BusinessUsersPage";
+import BusinessRolesPage from "../pages/BusinessRolesPage";
 
 // Add console logging to verify each component is a function
 console.log('Component types check:');
@@ -247,24 +253,24 @@ const routes = [
             }
         }
     },
-   /* {
-        path: '/contact-us',
-        element: typeof ContactUs === 'function' ? <ContactUs /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Contact Us',
-            description: 'Get in touch with our team',
-            icon: <ContactMail />,
-            nav: {
-                label: 'Contact Us',
-                group: 'company',
-                order: 2,
-                showInNav: true,
-                showInFooter: true,
-            }
-        }
-    },*/
+    /* {
+         path: '/contact-us',
+         element: typeof ContactUs === 'function' ? <ContactUs /> : <FallbackComponent />,
+         exact: true,
+         auth: false,
+         meta: {
+             title: 'Contact Us',
+             description: 'Get in touch with our team',
+             icon: <ContactMail />,
+             nav: {
+                 label: 'Contact Us',
+                 group: 'company',
+                 order: 2,
+                 showInNav: true,
+                 showInFooter: true,
+             }
+         }
+     },*/
     {
         path: '/newsletter-signup',
         element: typeof NewsletterSignup === 'function' ? <NewsletterSignup /> : <FallbackComponent />,
@@ -372,6 +378,65 @@ const routes = [
                 order: 3,
                 showInNav: false,
                 showInFooter: true,
+            }
+        }
+    },
+    // Business Users Management
+    {
+        path: '/business-users',
+        element: typeof BusinessUsersPage === 'function' ? <BusinessUsersPage /> : <FallbackComponent />,
+        exact: true,
+        auth: true, // Requires authentication
+        meta: {
+            title: 'Business Users',
+            description: 'Manage business users and invitations',
+            icon: <PeopleIcon />,
+            nav: {
+                label: 'Users',
+                group: 'company',
+                order: 2,
+                showInNav: true,
+                showInFooter: false,
+            }
+        }
+    },
+
+    // Business Roles Management
+    {
+        path: '/business-roles',
+        element: typeof BusinessRolesPage === 'function' ? <BusinessRolesPage /> : <FallbackComponent />,
+        exact: true,
+        auth: true, // Requires authentication
+        meta: {
+            title: 'Business Roles',
+            description: 'Manage business roles and permissions',
+            icon: <SecurityIcon />,
+            nav: {
+                label: 'Roles & Permissions',
+                group: 'company',
+                order: 3,
+                showInNav: true,
+                showInFooter: false,
+            }
+        }
+    },
+
+    // Invitation Landing Page (public)
+    {
+        path: '/invitation',
+        element: typeof InvitationLanding === 'function' ? <InvitationLanding /> : <FallbackComponent />,
+        exact: true,
+        auth: false, // Public route
+        meta: {
+            title: 'Business Invitation',
+            description: 'Accept a business invitation',
+            icon: <EmailIcon />,
+            nav: {
+                label: 'Accept Invitation',
+                group: 'auth',
+                order: 5,
+                showInNav: false,
+                showInFooter: false,
             }
         }
     },
