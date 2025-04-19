@@ -8,9 +8,7 @@ export const commoApi = baseApi.injectEndpoints({
         // Send SMS
         sendSms: builder.mutation({
             query: (smsData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/Commo/sms/send'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/Commo/sms/send`,
+                url:'/https://dev.net-api.spatialmods.com/api/Commo/sms/send',
                 method: 'POST',
                 body: smsData,
             }),
@@ -19,9 +17,7 @@ export const commoApi = baseApi.injectEndpoints({
         // Send Email
         sendEmail: builder.mutation({
             query: (emailData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/Commo/email/send'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/Commo/email/send`,
+                url:'/https://dev.net-api.spatialmods.com/api/Commo/email/send',
                 method: 'POST',
                 body: emailData,
             }),

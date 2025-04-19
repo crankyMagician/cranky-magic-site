@@ -8,9 +8,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Upload media
         uploadMedia: builder.mutation({
             query: (formData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/media/upload'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/upload`,
+                url:'/https://dev.net-api.spatialmods.com/api/media/upload',
                 method: 'POST',
                 body: formData,
             }),
@@ -19,9 +17,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Update business logo
         updateBusinessLogo: builder.mutation({
             query: (logoData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/media/business/logo'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/business/logo`,
+                url:'/https://dev.net-api.spatialmods.com/api/media/business/logo',
                 method: 'PUT',
                 body: logoData,
             }),
@@ -30,9 +26,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Get media by ID
         getMediaById: builder.query({
             query: (mediaId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/media/${mediaId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/${mediaId}`,
+                url: `/https://dev.net-api.spatialmods.com/api/media/${mediaId}`,
                 method: 'GET',
             }),
         }),
@@ -40,9 +34,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Delete media by ID
         deleteMedia: builder.mutation({
             query: (mediaId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/media/${mediaId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/${mediaId}`,
+                url:`/https://dev.net-api.spatialmods.com/api/media/${mediaId}`,
                 method: 'DELETE',
             }),
         }),
@@ -50,9 +42,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Get media for a business
         getBusinessMedia: builder.query({
             query: ({ businessId, mediaTypeId, page, pageSize }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/media/business/${businessId}?mediaTypeId=${mediaTypeId}&page=${page}&pageSize=${pageSize}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/business/${businessId}?mediaTypeId=${mediaTypeId}&page=${page}&pageSize=${pageSize}`,
+                url:`/https://dev.net-api.spatialmods.com/api/media/business/${businessId}?mediaTypeId=${mediaTypeId}&page=${page}&pageSize=${pageSize}`,
                 method: 'GET',
             }),
         }),
@@ -60,9 +50,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Get media types
         getMediaTypes: builder.query({
             query: () => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/media/types'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/types`,
+                url: '/https://dev.net-api.spatialmods.com/api/media/types',
                 method: 'GET',
             }),
         }),
@@ -70,9 +58,7 @@ export const mediaApi = baseApi.injectEndpoints({
         // Download media
         downloadMedia: builder.query({
             query: (mediaId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/media/${mediaId}/download`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/media/${mediaId}/download`,
+                url: `/https://dev.net-api.spatialmods.com/api/media/${mediaId}/download`,
                 method: 'GET',
             }),
         }),

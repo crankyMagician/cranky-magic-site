@@ -8,9 +8,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Send invitation
         sendInvitation: builder.mutation({
             query: (invitationData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/invitations/send'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/send`,
+                url: '/https://dev.net-api.spatialmods.com/api/invitations/send',
                 method: 'POST',
                 body: invitationData,
             }),
@@ -19,9 +17,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Verify invitation token
         verifyInvitation: builder.query({
             query: (token) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/invitations/verify?token=${token}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/verify?token=${token}`,
+                url:`/https://dev.net-api.spatialmods.com/api/invitations/verify?token=${token}`,
                 method: 'GET',
             }),
         }),
@@ -29,9 +25,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Accept invitation
         acceptInvitation: builder.mutation({
             query: (acceptData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/invitations/accept'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/accept`,
+                url: '/https://dev.net-api.spatialmods.com/api/invitations/accept',
                 method: 'POST',
                 body: acceptData,
             }),
@@ -40,9 +34,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Get invitations for a business
         getInvitationsByBusiness: builder.query({
             query: ({ businessId, page, pageSize }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`,
+                url: `/https://dev.net-api.spatialmods.com/api/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`,
                 method: 'GET',
             }),
         }),
@@ -50,9 +42,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Resend invitation
         resendInvitation: builder.mutation({
             query: (invitationId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}/resend`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/${invitationId}/resend`,
+                url:  `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}/resend`,
                 method: 'POST',
             }),
         }),
@@ -60,9 +50,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Delete invitation
         deleteInvitation: builder.mutation({
             query: (invitationId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/invitations/${invitationId}`,
+                url: `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}`,
                 method: 'DELETE',
             }),
         }),

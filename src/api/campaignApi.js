@@ -8,9 +8,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Create campaign
         createCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/campaigns'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns`,
+                url: '/https://dev.net-api.spatialmods.com/api/campaigns',
                 method: 'POST',
                 body: campaignData,
             }),
@@ -19,9 +17,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Update campaign
         updateCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/campaigns'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns`,
+                url:  '/https://dev.net-api.spatialmods.com/api/campaigns',
                 method: 'PUT',
                 body: campaignData,
             }),
@@ -30,9 +26,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Get campaign by ID
         getCampaignById: builder.query({
             query: (campaignId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/${campaignId}`,
+                url:  `/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}`,
                 method: 'GET',
             }),
         }),
@@ -40,9 +34,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Delete campaign
         deleteCampaign: builder.mutation({
             query: (campaignId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/${campaignId}`,
+                url:`/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}`,
                 method: 'DELETE',
             }),
         }),
@@ -50,9 +42,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Get campaigns for a business
         getCampaignsByBusiness: builder.query({
             query: (businessId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/campaigns/business/${businessId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/business/${businessId}`,
+                url:`/https://dev.net-api.spatialmods.com/api/campaigns/business/${businessId}`,
                 method: 'GET',
             }),
         }),
@@ -60,9 +50,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Attach media to campaign
         attachCampaignMedia: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/campaigns/media/attach'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/media/attach`,
+                url:'/https://dev.net-api.spatialmods.com/api/campaigns/media/attach',
                 method: 'POST',
                 body: data,
             }),
@@ -71,9 +59,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Delete campaign media
         deleteCampaignMedia: builder.mutation({
             query: ({ campaignId, mediaAssetId }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}/media/${mediaAssetId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/${campaignId}/media/${mediaAssetId}`,
+                url:`/https://dev.net-api.spatialmods.com/api/campaigns/${campaignId}/media/${mediaAssetId}`,
                 method: 'DELETE',
             }),
         }),
@@ -81,9 +67,7 @@ export const campaignApi = baseApi.injectEndpoints({
         // Update campaign status
         updateCampaignStatus: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/api/campaigns/status'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/campaigns/status`,
+                url:'/https://dev.net-api.spatialmods.com/api/campaigns/status',
                 method: 'PUT',
                 body: data,
             }),

@@ -12,9 +12,9 @@ export const authApi = baseApi.injectEndpoints({
         // Login endpoint
         login: builder.mutation({
             query: (credentials) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/login'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/login`,
+                url: '/https://dev.auth.spatialmods.com/auth/login',
+                   //? '/https://dev.auth.spatialmods.com/auth/login'
+                   // : `${process.env.REACT_APP_AUTH_API_URL}/auth/login`,
                 method: 'POST',
                 body: credentials,
             }),
@@ -46,9 +46,7 @@ export const authApi = baseApi.injectEndpoints({
         // Register endpoint
         register: builder.mutation({
             query: (userData) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/register'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/register`,
+                url: '/https://dev.auth.spatialmods.com/auth/register',
                 method: 'POST',
                 body: userData,
             }),
@@ -58,9 +56,7 @@ export const authApi = baseApi.injectEndpoints({
         // Confirm signup endpoint
         confirmSignup: builder.mutation({
             query: (confirmationData) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/confirm-signup'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/confirm-signup`,
+                url:'/https://dev.auth.spatialmods.com/auth/confirm-signup',
                 method: 'POST',
                 body: confirmationData,
             }),
@@ -69,9 +65,7 @@ export const authApi = baseApi.injectEndpoints({
         // Confirm phone endpoint
         confirmPhone: builder.mutation({
             query: (confirmationData) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/confirm-phone'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/confirm-phone`,
+                url: '/https://dev.auth.spatialmods.com/auth/confirm-phone',
                 method: 'POST',
                 body: confirmationData,
             }),
@@ -80,9 +74,7 @@ export const authApi = baseApi.injectEndpoints({
         // Forgot password endpoint
         forgotPassword: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/forgot-password'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/forgot-password`,
+                url: '/https://dev.auth.spatialmods.com/auth/forgot-password',
                 method: 'POST',
                 body: data,
             }),
@@ -91,9 +83,7 @@ export const authApi = baseApi.injectEndpoints({
         // Reset password endpoint
         resetPassword: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/reset-password'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/reset-password`,
+                url: '/https://dev.auth.spatialmods.com/auth/reset-password',
                 method: 'POST',
                 body: data,
             }),
@@ -123,9 +113,7 @@ export const authApi = baseApi.injectEndpoints({
         // Change password endpoint
         changePassword: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/change-password'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/change-password`,
+                url:'/https://dev.auth.spatialmods.com/auth/change-password',
                 method: 'POST',
                 body: data,
             }),
@@ -134,9 +122,7 @@ export const authApi = baseApi.injectEndpoints({
         // Logout endpoint
         logout: builder.mutation({
             query: () => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/logout'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/logout`,
+                url: '/https://dev.auth.spatialmods.com/auth/logout',
                 method: 'POST',
             }),
             // Handle logout in Redux and clear localStorage
@@ -159,9 +145,7 @@ export const authApi = baseApi.injectEndpoints({
         // Decode token endpoint (remains without /auth/ per spec)
         decodeToken: builder.mutation({
             query: (token) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/decode-token'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/decode-token`,
+                url: '/https://dev.auth.spatialmods.com/decode-token',
                 method: 'POST',
                 body: { token },
             }),
@@ -170,9 +154,7 @@ export const authApi = baseApi.injectEndpoints({
         // Business signup endpoint
         businessSignup: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/business-signup'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/business-signup`,
+                url: '/https://dev.auth.spatialmods.com/auth/business-signup',
                 method: 'POST',
                 body: data,
             }),
@@ -182,9 +164,7 @@ export const authApi = baseApi.injectEndpoints({
         // Resend confirmation endpoint
         resendConfirmation: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/resend-confirmation'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/resend-confirmation`,
+                url: '/https://dev.auth.spatialmods.com/auth/resend-confirmation',
                 method: 'POST',
                 body: data,
             }),
@@ -193,9 +173,7 @@ export const authApi = baseApi.injectEndpoints({
         // Resend phone confirmation endpoint
         resendPhoneConfirmation: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/resend-phone-confirmation'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/resend-phone-confirmation`,
+                url:  '/https://dev.auth.spatialmods.com/auth/resend-phone-confirmation',
                 method: 'POST',
                 body: data,
             }),
@@ -204,9 +182,7 @@ export const authApi = baseApi.injectEndpoints({
         // Update MFA preference endpoint
         updateMfaPreference: builder.mutation({
             query: (data) => ({
-                url: isDevelopment
-                    ? '/https://dev.auth.spatialmods.com/auth/update-mfa-preference'
-                    : `${process.env.REACT_APP_AUTH_API_URL}/auth/update-mfa-preference`,
+                url: '/https://dev.auth.spatialmods.com/auth/update-mfa-preference',
                 method: 'POST',
                 body: data,
             }),

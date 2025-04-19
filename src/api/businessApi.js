@@ -10,9 +10,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Get active business
         getActiveBusiness: builder.query({
             query: () => ({
-                url: isDevelopment
-                    ? '/https://dev.net-api.spatialmods.com/business/active'
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/active`,
+                url:'/https://dev.net-api.spatialmods.com/business/active',
                 method: 'GET',
             }),
             providesTags: ['Business'],
@@ -21,9 +19,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Get business by ID
         getBusinessById: builder.query({
             query: (businessId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}`,
                 method: 'GET',
             }),
             providesTags: (result, error, businessId) => [{ type: 'Business', id: businessId }],
@@ -32,9 +28,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Update business
         updateBusiness: builder.mutation({
             query: ({ businessId, ...data }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}`,
                 method: 'PUT',
                 body: data,
             }),
@@ -44,10 +38,8 @@ export const businessApi = baseApi.injectEndpoints({
         // Set active business
         setActiveBusiness: builder.mutation({
             query: (businessId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/set-active`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/set-active`,
-                method: 'POST',
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/set-active`,
+                    method: 'POST',
             }),
             invalidatesTags: ['Business'],
         }),
@@ -55,9 +47,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Invite user to business
         inviteUserToBusiness: builder.mutation({
             query: ({ businessId, ...data }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/invite`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/invite`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/invite`,
                 method: 'POST',
                 body: data,
             }),
@@ -67,9 +57,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Get business users
         getBusinessUsers: builder.query({
             query: (businessId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/users`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/users`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/users`,
                 method: 'GET',
             }),
             providesTags: (result, error, businessId) => [{ type: 'BusinessUsers', id: businessId }],
@@ -78,10 +66,8 @@ export const businessApi = baseApi.injectEndpoints({
         // Change user role
         changeUserRole: builder.mutation({
             query: ({ businessId, userId, ...data }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/users/${userId}/role`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/users/${userId}/role`,
-                method: 'PUT',
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/users/${userId}/role`,
+                    method: 'PUT',
                 body: data,
             }),
             invalidatesTags: (result, error, { businessId }) => [{ type: 'BusinessUsers', id: businessId }],
@@ -90,9 +76,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Remove user from business
         removeUserFromBusiness: builder.mutation({
             query: ({ businessId, userId }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/users/${userId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/users/${userId}`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/users/${userId}`,
                 method: 'DELETE',
             }),
             invalidatesTags: (result, error, { businessId }) => [{ type: 'BusinessUsers', id: businessId }],
@@ -101,9 +85,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Get business roles
         getBusinessRoles: builder.query({
             query: (businessId) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/roles`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/roles`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/roles`,
                 method: 'GET',
             }),
             providesTags: (result, error, businessId) => [{ type: 'BusinessRoles', id: businessId }],
@@ -112,9 +94,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Create business role
         createBusinessRole: builder.mutation({
             query: ({ businessId, ...data }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/roles`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/roles`,
+                url:`/https://dev.net-api.spatialmods.com/business/${businessId}/roles`,
                 method: 'POST',
                 body: data,
             }),
@@ -124,9 +104,7 @@ export const businessApi = baseApi.injectEndpoints({
         // Delete business role
         deleteBusinessRole: builder.mutation({
             query: ({ businessId, roleId }) => ({
-                url: isDevelopment
-                    ? `/https://dev.net-api.spatialmods.com/business/${businessId}/roles/${roleId}`
-                    : `${process.env.REACT_APP_MAIN_API_URL}/business/${businessId}/roles/${roleId}`,
+                url: `/https://dev.net-api.spatialmods.com/business/${businessId}/roles/${roleId}`,
                 method: 'DELETE',
             }),
             invalidatesTags: (result, error, { businessId }) => [{ type: 'BusinessRoles', id: businessId }],
