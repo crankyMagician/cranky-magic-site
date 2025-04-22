@@ -1,14 +1,12 @@
 // invitationApi.js
-import baseApi from './baseApi';
-
-const isDevelopment = process.env.NODE_ENV === 'development';
+import baseApi, { getApiUrl } from './baseApi';
 
 export const invitationApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Send invitation
         sendInvitation: builder.mutation({
             query: (invitationData) => ({
-                url: '/https://dev.net-api.spatialmods.com/api/invitations/send',
+                url: getApiUrl('/invitations/send', 'main'),
                 method: 'POST',
                 body: invitationData,
             }),
@@ -17,7 +15,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Verify invitation token
         verifyInvitation: builder.query({
             query: (token) => ({
-                url:`/https://dev.net-api.spatialmods.com/api/invitations/verify?token=${token}`,
+                url: getApiUrl(`/invitations/verify?token=${token}`, 'main'),
                 method: 'GET',
             }),
         }),
@@ -25,7 +23,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Accept invitation
         acceptInvitation: builder.mutation({
             query: (acceptData) => ({
-                url: '/https://dev.net-api.spatialmods.com/api/invitations/accept',
+                url: getApiUrl('/invitations/accept', 'main'),
                 method: 'POST',
                 body: acceptData,
             }),
@@ -34,7 +32,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Get invitations for a business
         getInvitationsByBusiness: builder.query({
             query: ({ businessId, page, pageSize }) => ({
-                url: `/https://dev.net-api.spatialmods.com/api/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`,
+                url: getApiUrl(`/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`, 'main'),
                 method: 'GET',
             }),
         }),
@@ -42,7 +40,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Resend invitation
         resendInvitation: builder.mutation({
             query: (invitationId) => ({
-                url:  `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}/resend`,
+                url: getApiUrl(`/invitations/${invitationId}/resend`, 'main'),
                 method: 'POST',
             }),
         }),
@@ -50,7 +48,7 @@ export const invitationApi = baseApi.injectEndpoints({
         // Delete invitation
         deleteInvitation: builder.mutation({
             query: (invitationId) => ({
-                url: `/https://dev.net-api.spatialmods.com/api/invitations/${invitationId}`,
+                url: getApiUrl(`/invitations/${invitationId}`, 'main'),
                 method: 'DELETE',
             }),
         }),

@@ -1,14 +1,12 @@
 // commoApi.js
-import baseApi from './baseApi';
-
-const isDevelopment = process.env.NODE_ENV === 'development';
+import baseApi, { getApiUrl } from './baseApi';
 
 export const commoApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Send SMS
         sendSms: builder.mutation({
             query: (smsData) => ({
-                url:'/https://dev.net-api.spatialmods.com/api/Commo/sms/send',
+                url: getApiUrl('/Commo/sms/send', 'main'),
                 method: 'POST',
                 body: smsData,
             }),
@@ -17,7 +15,7 @@ export const commoApi = baseApi.injectEndpoints({
         // Send Email
         sendEmail: builder.mutation({
             query: (emailData) => ({
-                url:'/https://dev.net-api.spatialmods.com/api/Commo/email/send',
+                url: getApiUrl('/Commo/email/send', 'main'),
                 method: 'POST',
                 body: emailData,
             }),

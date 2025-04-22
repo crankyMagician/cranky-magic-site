@@ -7,8 +7,8 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Create a base query that will work across environments
 const baseQuery = fetchBaseQuery({
-    // In development, always use the proxy server directly
-    baseUrl: isDevelopment ? 'http://localhost:8080' : '/',
+    // In development, use localhost proxy, in production use the actual API URLs
+    baseUrl: '/',
     prepareHeaders: (headers, { getState }) => {
         const token = getState().auth.token;
         if (token) {
@@ -20,9 +20,34 @@ const baseQuery = fetchBaseQuery({
     credentials: 'include'
 });
 
-// Create enhanced base query with token handling
+// Helper function to construct proper URLs based on environment
+const getApiUrl = (endpoint, apiType) => {
+    // Select the appropriate base URL
+    let baseApiUrl;
+
+    if (apiType === 'auth') {
+        baseApiUrl = isDevelopment
+            ? 'http://localhost:8080/auth' // Development proxy
+            : process.env.REACT_APP_AUTH_API_URL; // Production direct URL
+    } else {
+        baseApiUrl = isDevelopment
+            ? 'http://localhost:8080' // Development proxy
+            : process.env.REACT_APP_MAIN_API_URL; // Production direct URL
+    }
+
+    // Return the full URL
+    return `${baseApiUrl}${endpoint}`;
+};
+
+// Create enhanced base query with token handling and URL construction
 const enhancedBaseQuery = async (args, api, extraOptions) => {
-    console.log(`[API] Request: ${args.method || 'GET'} ${baseQuery.baseUrl}${args.url}`);
+    // If we have a complete URL in args, use it as is
+    if (typeof args === 'string') {
+        console.log(`[API] Request: GET ${args}`);
+    } else if (args.url) {
+        // We don't modify the URL here as it will be constructed by the endpoints
+        console.log(`[API] Request: ${args.method || 'GET'} ${args.url}`);
+    }
 
     // Execute the query
     let result = await baseQuery(args, api, extraOptions);
@@ -63,5 +88,8 @@ export const baseApi = createApi({
     ],
     endpoints: () => ({}),
 });
+
+// Export the getApiUrl helper for use in API slices
+export { getApiUrl };
 
 export default baseApi;
