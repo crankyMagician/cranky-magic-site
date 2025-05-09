@@ -1,16 +1,19 @@
 /**
  * Main API slice that re-exports all API hooks
  */
-import {
-    apiReducers,
-    apiMiddleware,
+import baseApi, {
     authApi,
     businessApi,
     mediaApi,
     campaignsApi,
     commoApi,
-    invitationsApi
+    invitationsApi,
+    apiReducers,
+    apiMiddleware
 } from './baseApi';
+
+// Export the base API as apiSlice (this is what your app is looking for)
+export const apiSlice = baseApi;
 
 // Re-export all the hooks from the various APIs
 export {
@@ -38,6 +41,8 @@ export {
     useSetActiveBusinessMutation,
     useInviteUserToBusinessMutation,
     useGetBusinessUsersQuery,
+    useGetBusinessUsersRolesQuery,
+    useGetBusinessUsersPermissionsQuery,
     useChangeUserRoleMutation,
     useRemoveUserFromBusinessMutation,
     useGetBusinessRolesQuery,
@@ -82,6 +87,8 @@ export {
     useGetInvitationsByBusinessQuery,
     useResendInvitationMutation,
     useDeleteInvitationMutation,
+    useUpdateBusinessRoleMutation,
+    useRemoveBusinessRoleMutation,
 } from './invitationApi';
 
 // Export reducers and middleware for store configuration

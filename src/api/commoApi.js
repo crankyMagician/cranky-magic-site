@@ -1,12 +1,12 @@
 // commoApi.js
-import { commoApi } from './baseApi';
+import baseApi, { getApiUrl, commoApi } from './baseApi';
 
 export const commoApiExtended = commoApi.injectEndpoints({
     endpoints: (builder) => ({
         // Send SMS
         sendSms: builder.mutation({
             query: (smsData) => ({
-                url: '/sms/send',
+                url: getApiUrl('Commo/sms/send', 'main'),
                 method: 'POST',
                 body: smsData,
             }),
@@ -15,7 +15,7 @@ export const commoApiExtended = commoApi.injectEndpoints({
         // Send Email
         sendEmail: builder.mutation({
             query: (emailData) => ({
-                url: '/email/send',
+                url: getApiUrl('Commo/email/send', 'main'),
                 method: 'POST',
                 body: emailData,
             }),

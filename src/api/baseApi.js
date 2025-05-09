@@ -9,8 +9,8 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const getApiUrl = (endpoint, apiType) => {
     // Select the appropriate base path
     const basePath = apiType === 'auth'
-        ? '/auth-api'
-        : '/main-api';
+        ? process.env.REACT_APP_AUTH_API_URL || '/auth-api'
+        : process.env.REACT_APP_MAIN_API_URL || '/main-api';
 
     // Remove any leading slashes in endpoint to avoid double slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
@@ -82,6 +82,21 @@ export const baseApi = createApi({
     ],
     endpoints: () => ({}),
 });
+
+// Export the needed APIs for compatibility with existing code
+export const authApi = baseApi;
+export const businessApi = baseApi;
+export const mediaApi = baseApi;
+export const campaignsApi = baseApi;
+export const commoApi = baseApi;
+export const invitationsApi = baseApi;
+
+// Export reducers and middleware for store configuration
+export const apiReducers = {
+    [baseApi.reducerPath]: baseApi.reducer
+};
+
+export const apiMiddleware = [baseApi.middleware];
 
 // Export the getApiUrl helper for use in API slices
 export { getApiUrl };

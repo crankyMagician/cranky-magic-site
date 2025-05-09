@@ -1,51 +1,87 @@
-/**
- * Main API slice that re-exports all API hooks
- */
-import { authApi } from './authApi';
-import { businessApi } from './businessApi';
-import { invitationApi } from './invitationApi';
-import baseApi from './baseApi';
+// invitationApi.js
+import baseApi, { getApiUrl, invitationsApi } from './baseApi';
 
-// Re-export the combined API slice
-export const apiSlice = baseApi;
+export const invitationApiExtended = invitationsApi.injectEndpoints({
+    endpoints: (builder) => ({
+        // Send invitation
+        sendInvitation: builder.mutation({
+            query: (invitationData) => ({
+                url: getApiUrl('invitations/send', 'main'),
+                method: 'POST',
+                body: invitationData,
+            }),
+            invalidatesTags: ['Invitation'],
+        }),
 
-// Re-export all the hooks from auth and business APIs
-export {
-    // Auth hooks
-    useLoginMutation,
-    useRegisterMutation,
-    useConfirmSignupMutation,
-    useConfirmPhoneMutation,
-    useResendConfirmationMutation,
-    useResendPhoneConfirmationMutation,
-    useForgotPasswordMutation,
-    useResetPasswordMutation,
-    useChangePasswordMutation,
-    useLogoutMutation,
-    useDecodeTokenMutation,
-    useBusinessSignupMutation,
-    useUpdateMfaPreferenceMutation,
-} from './authApi';
+        // Verify invitation token
+        verifyInvitation: builder.query({
+            query: (token) => ({
+                url: getApiUrl('invitations/verify', 'main'),
+                method: 'GET',
+                params: { token },
+            }),
+        }),
 
-export {
-    // Business hooks
-    useGetActiveBusinessQuery,
-    useGetBusinessByIdQuery,
-    useUpdateBusinessMutation,
-    useSetActiveBusinessMutation,
-    useInviteUserToBusinessMutation,
-    useGetBusinessUsersQuery,
-    useGetBusinessUsersRolesQuery,
-    useGetBusinessUsersPermissionsQuery,
-    useChangeUserRoleMutation,
-    useRemoveUserFromBusinessMutation,
-    useGetBusinessRolesQuery,
-    useCreateBusinessRoleMutation,
-    useDeleteBusinessRoleMutation,
-} from './businessApi';
+        // Accept invitation
+        acceptInvitation: builder.mutation({
+            query: (acceptData) => ({
+                url: getApiUrl('invitations/accept', 'main'),
+                method: 'POST',
+                body: acceptData,
+            }),
+            invalidatesTags: ['Invitation', 'Business', 'BusinessUsers'],
+        }),
 
-export {
-    // Invitation hooks
+        // Get invitations for a business
+        getInvitationsByBusiness: builder.query({
+            query: ({ businessId, page, pageSize }) => ({
+                url: getApiUrl(`invitations/business/${businessId}`, 'main'),
+                method: 'GET',
+                params: { page, pageSize },
+            }),
+            providesTags: ['Invitation'],
+        }),
+
+        // Resend invitation
+        resendInvitation: builder.mutation({
+            query: (invitationId) => ({
+                url: getApiUrl(`invitations/${invitationId}/resend`, 'main'),
+                method: 'POST',
+            }),
+        }),
+
+        // Delete invitation
+        deleteInvitation: builder.mutation({
+            query: (invitationId) => ({
+                url: getApiUrl(`invitations/${invitationId}`, 'main'),
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Invitation'],
+        }),
+
+        // Update business role
+        updateBusinessRole: builder.mutation({
+            query: ({ businessId, roleId, ...data }) => ({
+                url: getApiUrl(`business/${businessId}/roles/${roleId}`, 'main'),
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['BusinessRoles'],
+        }),
+
+        // Remove business role
+        removeBusinessRole: builder.mutation({
+            query: ({ businessId, roleId }) => ({
+                url: getApiUrl(`business/${businessId}/roles/${roleId}`, 'main'),
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['BusinessRoles'],
+        }),
+    }),
+    overrideExisting: false,
+});
+
+export const {
     useSendInvitationMutation,
     useVerifyInvitationQuery,
     useAcceptInvitationMutation,
@@ -54,4 +90,4 @@ export {
     useDeleteInvitationMutation,
     useUpdateBusinessRoleMutation,
     useRemoveBusinessRoleMutation,
-} from './invitationApi';
+} = invitationApiExtended;

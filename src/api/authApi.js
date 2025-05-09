@@ -1,5 +1,5 @@
 // authApi.js
-import { authApi } from './baseApi';
+import baseApi, { getApiUrl, authApi } from './baseApi';
 import { setCredentials, logout } from '../reducers/authReducer';
 import AuthTokenService from '../services/AuthTokenService';
 
@@ -9,7 +9,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Login endpoint
         login: builder.mutation({
             query: (credentials) => ({
-                url: '/login',
+                url: getApiUrl('login', 'auth'),
                 method: 'POST',
                 body: credentials,
             }),
@@ -41,7 +41,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Register endpoint
         register: builder.mutation({
             query: (userData) => ({
-                url: '/register',
+                url: getApiUrl('register', 'auth'),
                 method: 'POST',
                 body: userData,
             }),
@@ -51,7 +51,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Confirm signup endpoint
         confirmSignup: builder.mutation({
             query: (confirmationData) => ({
-                url: '/confirm-signup',
+                url: getApiUrl('confirm-signup', 'auth'),
                 method: 'POST',
                 body: confirmationData,
             }),
@@ -60,7 +60,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Confirm phone endpoint
         confirmPhone: builder.mutation({
             query: (confirmationData) => ({
-                url: '/confirm-phone',
+                url: getApiUrl('confirm-phone', 'auth'),
                 method: 'POST',
                 body: confirmationData,
             }),
@@ -69,7 +69,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Forgot password endpoint
         forgotPassword: builder.mutation({
             query: (data) => ({
-                url: '/forgot-password',
+                url: getApiUrl('forgot-password', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -78,7 +78,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Reset password endpoint
         resetPassword: builder.mutation({
             query: (data) => ({
-                url: '/reset-password',
+                url: getApiUrl('reset-password', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -108,7 +108,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Change password endpoint
         changePassword: builder.mutation({
             query: (data) => ({
-                url: '/change-password',
+                url: getApiUrl('change-password', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -117,7 +117,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Logout endpoint
         logout: builder.mutation({
             query: () => ({
-                url: '/logout',
+                url: getApiUrl('logout', 'auth'),
                 method: 'POST',
             }),
             // Handle logout in Redux and clear localStorage
@@ -140,7 +140,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Decode token endpoint
         decodeToken: builder.mutation({
             query: (token) => ({
-                url: '/decode-token',
+                url: getApiUrl('decode-token', 'auth'),
                 method: 'POST',
                 body: { token },
             }),
@@ -149,7 +149,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Business signup endpoint
         businessSignup: builder.mutation({
             query: (data) => ({
-                url: '/business-signup',
+                url: getApiUrl('business-signup', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -159,7 +159,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Resend confirmation endpoint
         resendConfirmation: builder.mutation({
             query: (data) => ({
-                url: '/resend-confirmation',
+                url: getApiUrl('resend-confirmation', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -168,7 +168,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Resend phone confirmation endpoint
         resendPhoneConfirmation: builder.mutation({
             query: (data) => ({
-                url: '/resend-phone-confirmation',
+                url: getApiUrl('resend-phone-confirmation', 'auth'),
                 method: 'POST',
                 body: data,
             }),
@@ -177,7 +177,7 @@ export const authApiExtended = authApi.injectEndpoints({
         // Update MFA preference endpoint
         updateMfaPreference: builder.mutation({
             query: (data) => ({
-                url: '/update-mfa-preference',
+                url: getApiUrl('update-mfa-preference', 'auth'),
                 method: 'POST',
                 body: data,
             }),
