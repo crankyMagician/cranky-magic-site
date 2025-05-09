@@ -59,10 +59,7 @@ import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 // Import API hooks from your existing API files
 import {
     useGetBusinessUsersRolesQuery,
-    useGetBusinessUsersPermissionsQuery
-} from '../../api/businessUsersApi';
-
-import {
+    useGetBusinessUsersPermissionsQuery,
     useCreateBusinessRoleMutation,
     useDeleteBusinessRoleMutation
 } from '../../api/businessApi';

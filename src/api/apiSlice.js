@@ -1,14 +1,18 @@
 /**
  * Main API slice that re-exports all API hooks
  */
-import { authApi } from './authApi';
-import { businessApi } from './businessApi';
-import baseApi from './baseApi';
+import {
+    apiReducers,
+    apiMiddleware,
+    authApi,
+    businessApi,
+    mediaApi,
+    campaignsApi,
+    commoApi,
+    invitationsApi
+} from './baseApi';
 
-// Re-export the combined API slice
-export const apiSlice = baseApi;
-
-// Re-export all the hooks from auth and business APIs
+// Re-export all the hooks from the various APIs
 export {
     // Auth hooks
     useLoginMutation,
@@ -40,3 +44,56 @@ export {
     useCreateBusinessRoleMutation,
     useDeleteBusinessRoleMutation,
 } from './businessApi';
+
+export {
+    // Media hooks
+    useUploadMediaMutation,
+    useUpdateBusinessLogoMutation,
+    useGetMediaByIdQuery,
+    useDeleteMediaMutation,
+    useGetBusinessMediaQuery,
+    useGetMediaTypesQuery,
+    useDownloadMediaQuery,
+} from './mediaApi';
+
+export {
+    // Campaign hooks
+    useCreateCampaignMutation,
+    useUpdateCampaignMutation,
+    useGetCampaignByIdQuery,
+    useDeleteCampaignMutation,
+    useGetCampaignsByBusinessQuery,
+    useAttachCampaignMediaMutation,
+    useDeleteCampaignMediaMutation,
+    useUpdateCampaignStatusMutation,
+} from './campaignApi';
+
+export {
+    // Commo hooks
+    useSendSmsMutation,
+    useSendEmailMutation,
+} from './commoApi';
+
+export {
+    // Invitation hooks
+    useSendInvitationMutation,
+    useVerifyInvitationQuery,
+    useAcceptInvitationMutation,
+    useGetInvitationsByBusinessQuery,
+    useResendInvitationMutation,
+    useDeleteInvitationMutation,
+} from './invitationApi';
+
+// Export reducers and middleware for store configuration
+export const apiSliceReducers = apiReducers;
+export const apiSliceMiddleware = apiMiddleware;
+
+// Export the API slices themselves
+export {
+    authApi,
+    businessApi,
+    mediaApi,
+    campaignsApi,
+    commoApi,
+    invitationsApi
+};

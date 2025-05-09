@@ -1,54 +1,61 @@
 // mediaApi.js
-import baseApi, { getApiUrl } from './baseApi';
+import { mediaApi } from './baseApi';
 
-export const mediaApi = baseApi.injectEndpoints({
+export const mediaApiExtended = mediaApi.injectEndpoints({
     endpoints: (builder) => ({
         // Upload media
         uploadMedia: builder.mutation({
             query: (formData) => ({
-                url: getApiUrl('/media/upload', 'main'),
+                url: '/upload',
                 method: 'POST',
                 body: formData,
+                formData: true, // Important for file uploads
             }),
+            invalidatesTags: ['Media'],
         }),
 
         // Update business logo
         updateBusinessLogo: builder.mutation({
             query: (logoData) => ({
-                url: getApiUrl('/media/business/logo', 'main'),
+                url: '/business/logo',
                 method: 'PUT',
                 body: logoData,
             }),
+            invalidatesTags: ['Media', 'Business'],
         }),
 
         // Get media by ID
         getMediaById: builder.query({
             query: (mediaId) => ({
-                url: getApiUrl(`/media/${mediaId}`, 'main'),
+                url: `/${mediaId}`,
                 method: 'GET',
             }),
+            providesTags: (result, error, id) => [{ type: 'Media', id }],
         }),
 
         // Delete media by ID
         deleteMedia: builder.mutation({
             query: (mediaId) => ({
-                url: getApiUrl(`/media/${mediaId}`, 'main'),
+                url: `/${mediaId}`,
                 method: 'DELETE',
             }),
+            invalidatesTags: ['Media'],
         }),
 
         // Get media for a business
         getBusinessMedia: builder.query({
             query: ({ businessId, mediaTypeId, page, pageSize }) => ({
-                url: getApiUrl(`/media/business/${businessId}?mediaTypeId=${mediaTypeId}&page=${page}&pageSize=${pageSize}`, 'main'),
+                url: `/business/${businessId}`,
                 method: 'GET',
+                params: { mediaTypeId, page, pageSize },
             }),
+            providesTags: ['Media'],
         }),
 
         // Get media types
         getMediaTypes: builder.query({
             query: () => ({
-                url: getApiUrl('/media/types', 'main'),
+                url: '/types',
                 method: 'GET',
             }),
         }),
@@ -56,8 +63,9 @@ export const mediaApi = baseApi.injectEndpoints({
         // Download media
         downloadMedia: builder.query({
             query: (mediaId) => ({
-                url: getApiUrl(`/media/${mediaId}/download`, 'main'),
+                url: `/${mediaId}/download`,
                 method: 'GET',
+                responseHandler: (response) => response.blob(),
             }),
         }),
     }),
@@ -72,4 +80,4 @@ export const {
     useGetBusinessMediaQuery,
     useGetMediaTypesQuery,
     useDownloadMediaQuery,
-} = mediaApi;
+} = mediaApiExtended;

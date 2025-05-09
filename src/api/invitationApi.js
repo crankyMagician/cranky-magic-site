@@ -1,66 +1,57 @@
-// invitationApi.js
-import baseApi, { getApiUrl } from './baseApi';
+/**
+ * Main API slice that re-exports all API hooks
+ */
+import { authApi } from './authApi';
+import { businessApi } from './businessApi';
+import { invitationApi } from './invitationApi';
+import baseApi from './baseApi';
 
-export const invitationApi = baseApi.injectEndpoints({
-    endpoints: (builder) => ({
-        // Send invitation
-        sendInvitation: builder.mutation({
-            query: (invitationData) => ({
-                url: getApiUrl('/invitations/send', 'main'),
-                method: 'POST',
-                body: invitationData,
-            }),
-        }),
+// Re-export the combined API slice
+export const apiSlice = baseApi;
 
-        // Verify invitation token
-        verifyInvitation: builder.query({
-            query: (token) => ({
-                url: getApiUrl(`/invitations/verify?token=${token}`, 'main'),
-                method: 'GET',
-            }),
-        }),
+// Re-export all the hooks from auth and business APIs
+export {
+    // Auth hooks
+    useLoginMutation,
+    useRegisterMutation,
+    useConfirmSignupMutation,
+    useConfirmPhoneMutation,
+    useResendConfirmationMutation,
+    useResendPhoneConfirmationMutation,
+    useForgotPasswordMutation,
+    useResetPasswordMutation,
+    useChangePasswordMutation,
+    useLogoutMutation,
+    useDecodeTokenMutation,
+    useBusinessSignupMutation,
+    useUpdateMfaPreferenceMutation,
+} from './authApi';
 
-        // Accept invitation
-        acceptInvitation: builder.mutation({
-            query: (acceptData) => ({
-                url: getApiUrl('/invitations/accept', 'main'),
-                method: 'POST',
-                body: acceptData,
-            }),
-        }),
+export {
+    // Business hooks
+    useGetActiveBusinessQuery,
+    useGetBusinessByIdQuery,
+    useUpdateBusinessMutation,
+    useSetActiveBusinessMutation,
+    useInviteUserToBusinessMutation,
+    useGetBusinessUsersQuery,
+    useGetBusinessUsersRolesQuery,
+    useGetBusinessUsersPermissionsQuery,
+    useChangeUserRoleMutation,
+    useRemoveUserFromBusinessMutation,
+    useGetBusinessRolesQuery,
+    useCreateBusinessRoleMutation,
+    useDeleteBusinessRoleMutation,
+} from './businessApi';
 
-        // Get invitations for a business
-        getInvitationsByBusiness: builder.query({
-            query: ({ businessId, page, pageSize }) => ({
-                url: getApiUrl(`/invitations/business/${businessId}?page=${page}&pageSize=${pageSize}`, 'main'),
-                method: 'GET',
-            }),
-        }),
-
-        // Resend invitation
-        resendInvitation: builder.mutation({
-            query: (invitationId) => ({
-                url: getApiUrl(`/invitations/${invitationId}/resend`, 'main'),
-                method: 'POST',
-            }),
-        }),
-
-        // Delete invitation
-        deleteInvitation: builder.mutation({
-            query: (invitationId) => ({
-                url: getApiUrl(`/invitations/${invitationId}`, 'main'),
-                method: 'DELETE',
-            }),
-        }),
-    }),
-    overrideExisting: false,
-});
-
-export const {
+export {
+    // Invitation hooks
     useSendInvitationMutation,
     useVerifyInvitationQuery,
     useAcceptInvitationMutation,
     useGetInvitationsByBusinessQuery,
     useResendInvitationMutation,
     useDeleteInvitationMutation,
-} = invitationApi;
+    useUpdateBusinessRoleMutation,
+    useRemoveBusinessRoleMutation,
+} from './invitationApi';

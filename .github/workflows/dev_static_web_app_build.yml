@@ -16,6 +16,14 @@ jobs:
     name: Build and Deploy Job
     env:
       CI: false # Prevents React from treating warnings as errors
+      REACT_APP_ENV: development
+      REACT_APP_AUTH_API_URL: /auth-api
+      REACT_APP_MAIN_API_URL: /main-api
+      REACT_APP_ENABLE_ANALYTICS: ${{ secrets.REACT_APP_ENABLE_ANALYTICS }}
+      REACT_APP_POSTHOG_API_KEY: ${{ secrets.REACT_APP_POSTHOG_API_KEY }}
+      REACT_APP_POSTHOG_HOST: ${{ secrets.REACT_APP_POSTHOG_HOST }}
+      REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+      REACT_APP_ANALYTICS_SAMPLE_RATE: ${{ secrets.REACT_APP_ANALYTICS_SAMPLE_RATE }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -43,3 +51,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}
           action: "close"
+          app_location: ''

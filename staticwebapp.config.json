@@ -1,13 +1,25 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*", "/api/*"]
-  },
   "routes": [
+    {
+      "route": "/auth-api/*",
+      "methods": ["GET", "POST", "PUT", "DELETE"],
+      "allowedRoles": ["anonymous", "authenticated"],
+      "rewrite": "https://dev.auth.spatialmods.com/auth/{rest}"
+    },
+    {
+      "route": "/main-api/*",
+      "methods": ["GET", "POST", "PUT", "DELETE"],
+      "allowedRoles": ["authenticated"],
+      "rewrite": "https://dev.net-api.spatialmods.com/{rest}"
+    },
     {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
     }
-  ]
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*", "/api/*"]
+  }
 }

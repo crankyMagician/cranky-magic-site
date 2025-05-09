@@ -5,9 +5,22 @@ import TokenDecoder from '../utilities/TokenDecoder';
 // Determine if we're in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Helper function to construct proper URLs based on environment
+const getApiUrl = (endpoint, apiType) => {
+    // Select the appropriate base path
+    const basePath = apiType === 'auth'
+        ? '/auth-api'
+        : '/main-api';
+
+    // Remove any leading slashes in endpoint to avoid double slashes
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+
+    // Return the full path (Static Web App will handle proxying to the real domain)
+    return `${basePath}/${cleanEndpoint}`;
+};
+
 // Create a base query that will work across environments
 const baseQuery = fetchBaseQuery({
-    // In development, use localhost proxy, in production use the actual API URLs
     baseUrl: '/',
     prepareHeaders: (headers, { getState }) => {
         const token = getState().auth.token;
@@ -19,25 +32,6 @@ const baseQuery = fetchBaseQuery({
     },
     credentials: 'include'
 });
-
-// Helper function to construct proper URLs based on environment
-const getApiUrl = (endpoint, apiType) => {
-    // Select the appropriate base URL
-    let baseApiUrl;
-
-    if (apiType === 'auth') {
-        baseApiUrl = isDevelopment
-            ? 'http://localhost:8080/auth' // Development proxy
-            : process.env.REACT_APP_AUTH_API_URL; // Production direct URL
-    } else {
-        baseApiUrl = isDevelopment
-            ? 'http://localhost:8080' // Development proxy
-            : process.env.REACT_APP_MAIN_API_URL; // Production direct URL
-    }
-
-    // Return the full URL
-    return `${baseApiUrl}${endpoint}`;
-};
 
 // Create enhanced base query with token handling and URL construction
 const enhancedBaseQuery = async (args, api, extraOptions) => {

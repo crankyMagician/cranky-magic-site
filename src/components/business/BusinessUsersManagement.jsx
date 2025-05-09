@@ -59,13 +59,11 @@ import {
     useGetBusinessUsersQuery
 } from '../../api/businessApi';
 
+
 import {
     useGetBusinessUsersRolesQuery,
     useUpdateBusinessRoleMutation,
-    useRemoveBusinessRoleMutation
-} from '../../api/businessUsersApi';
-
-import {
+    useRemoveBusinessRoleMutation,
     useGetInvitationsByBusinessQuery,
     useResendInvitationMutation,
     useDeleteInvitationMutation,

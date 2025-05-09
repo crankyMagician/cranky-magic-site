@@ -1,74 +1,82 @@
 // campaignApi.js
-import baseApi, { getApiUrl } from './baseApi';
+import { campaignsApi } from './baseApi';
 
-export const campaignApi = baseApi.injectEndpoints({
+export const campaignApiExtended = campaignsApi.injectEndpoints({
     endpoints: (builder) => ({
         // Create campaign
         createCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: getApiUrl('/campaigns', 'main'),
+                url: '/',
                 method: 'POST',
                 body: campaignData,
             }),
+            invalidatesTags: ['Campaign'],
         }),
 
         // Update campaign
         updateCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: getApiUrl('/campaigns', 'main'),
+                url: '/',
                 method: 'PUT',
                 body: campaignData,
             }),
+            invalidatesTags: ['Campaign'],
         }),
 
         // Get campaign by ID
         getCampaignById: builder.query({
             query: (campaignId) => ({
-                url: getApiUrl(`/campaigns/${campaignId}`, 'main'),
+                url: `/${campaignId}`,
                 method: 'GET',
             }),
+            providesTags: (result, error, id) => [{ type: 'Campaign', id }],
         }),
 
         // Delete campaign
         deleteCampaign: builder.mutation({
             query: (campaignId) => ({
-                url: getApiUrl(`/campaigns/${campaignId}`, 'main'),
+                url: `/${campaignId}`,
                 method: 'DELETE',
             }),
+            invalidatesTags: ['Campaign'],
         }),
 
         // Get campaigns for a business
         getCampaignsByBusiness: builder.query({
             query: (businessId) => ({
-                url: getApiUrl(`/campaigns/business/${businessId}`, 'main'),
+                url: `/business/${businessId}`,
                 method: 'GET',
             }),
+            providesTags: ['Campaign'],
         }),
 
         // Attach media to campaign
         attachCampaignMedia: builder.mutation({
             query: (data) => ({
-                url: getApiUrl('/campaigns/media/attach', 'main'),
+                url: '/media/attach',
                 method: 'POST',
                 body: data,
             }),
+            invalidatesTags: ['Campaign'],
         }),
 
         // Delete campaign media
         deleteCampaignMedia: builder.mutation({
             query: ({ campaignId, mediaAssetId }) => ({
-                url: getApiUrl(`/campaigns/${campaignId}/media/${mediaAssetId}`, 'main'),
+                url: `/${campaignId}/media/${mediaAssetId}`,
                 method: 'DELETE',
             }),
+            invalidatesTags: ['Campaign'],
         }),
 
         // Update campaign status
         updateCampaignStatus: builder.mutation({
             query: (data) => ({
-                url: getApiUrl('/campaigns/status', 'main'),
+                url: '/status',
                 method: 'PUT',
                 body: data,
             }),
+            invalidatesTags: ['Campaign'],
         }),
     }),
     overrideExisting: false,
@@ -83,4 +91,4 @@ export const {
     useAttachCampaignMediaMutation,
     useDeleteCampaignMediaMutation,
     useUpdateCampaignStatusMutation,
-} = campaignApi;
+} = campaignApiExtended;
