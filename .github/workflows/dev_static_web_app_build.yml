@@ -3,33 +3,33 @@ name: 🚀🔥 Super-Powered Static Web App Deployment 🌐✨
 on:
   push:
     branches:
-      - staging  # 🌿 Branch to deploy
+      - staging
   pull_request:
-    types: [opened, synchronize, reopened, closed]  # 🔄 PR actions to respond to
+    types: [opened, synchronize, reopened, closed]
     branches:
-      - staging  # 🎯 Target branch
+      - staging
 
 jobs:
-  build_and_deploy_job:  # 👷 Main build and deploy job
+  build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: 🏗️ Build and Deploy Magic ✨
     env:
-      CI: false  # 🚫 Prevents React from treating warnings as errors
-      REACT_APP_ENV: development  # 🧪 Environment setting
-      REACT_APP_AUTH_API_URL: /auth-api  # 🔐 Auth API path
-      REACT_APP_MAIN_API_URL: /main-api  # 🌍 Main API path
-      REACT_APP_ENABLE_ANALYTICS: ${{ secrets.REACT_APP_ENABLE_ANALYTICS }}  # 📊 Analytics flag
-      REACT_APP_POSTHOG_API_KEY: ${{ secrets.REACT_APP_POSTHOG_API_KEY }}  # 🔑 PostHog key
-      REACT_APP_POSTHOG_HOST: ${{ secrets.REACT_APP_POSTHOG_HOST }}  # 🏠 PostHog host
-      REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}  # 🐞 Sentry DSN
-      REACT_APP_ANALYTICS_SAMPLE_RATE: ${{ secrets.REACT_APP_ANALYTICS_SAMPLE_RATE }}  # 📈 Sample rate
+      CI: false
+      REACT_APP_ENV: development
+      REACT_APP_AUTH_API_URL: /auth-api
+      REACT_APP_MAIN_API_URL: /main-api
+      REACT_APP_ENABLE_ANALYTICS: ${{ secrets.REACT_APP_ENABLE_ANALYTICS }}
+      REACT_APP_POSTHOG_API_KEY: ${{ secrets.REACT_APP_POSTHOG_API_KEY }}
+      REACT_APP_POSTHOG_HOST: ${{ secrets.REACT_APP_POSTHOG_HOST }}
+      REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+      REACT_APP_ANALYTICS_SAMPLE_RATE: ${{ secrets.REACT_APP_ANALYTICS_SAMPLE_RATE }}
     steps:
       - name: 📥 Checkout Repository 📂
         uses: actions/checkout@v3
         with:
-          submodules: true  # 🔄 Get submodules
-          lfs: false  # 🚫 No LFS
+          submodules: true
+          lfs: false
 
       - name: 🛠️ Setup Debug Logs 📝
         run: |
@@ -42,16 +42,30 @@ jobs:
           echo "📜 Files in root directory:"
           ls -la
 
-      - name: 🏗️ Build And Deploy to Azure ☁️
+      - name: 🚧 Install dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: 🔍 Verify staticwebapp.config.json
+        run: |
+          echo "🔎 Checking staticwebapp.config.json content:"
+          cat staticwebapp.config.json
+          echo "📋 Ensuring configuration is copied to build folder"
+          cp staticwebapp.config.json build/
+          echo "✅ Configuration file copied to build folder"
+          ls -la build/
+
+      - name: 🏗️ Deploy to Azure ☁️
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}  # 🔐 Azure token
-          repo_token: ${{ secrets.GITHUB_TOKEN }}  # 🔑 GitHub token
-          action: "upload"  # 📤 Action to perform
-          app_location: "/"  # 📍 App location
-          api_location: ""  # 🤖 API location
-          output_location: "build"  # 📦 Output folder
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "build"  # Changed to use the build folder directly
+          api_location: ""
+          output_location: ""  # Changed since we're using the build folder directly
 
       - name: 📊 Deployment Results 📈
         if: always()
@@ -60,7 +74,7 @@ jobs:
           echo "⏱️ Deployment finished at $(date)"
           echo "📱 Your app should be available at https://dev.portal.spatialmods.com"
 
-  close_pull_request_job:  # 🚫 Job for closing PRs
+  close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: 🧹 Cleanup PR Environment 🧼
@@ -69,9 +83,9 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}  # 🔐 Azure token
-          action: "close"  # 🚫 Close PR environment
-          app_location: ''  # 📭 Empty location
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}
+          action: "close"
+          app_location: ''
 
       - name: 📝 Cleanup Log 🧹
         run: echo "🧼 Pull request environment cleanup completed at $(date) 🚀"

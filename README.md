@@ -1,299 +1,332 @@
-# 🧙‍♂️ CrankyMagicReact ✨
+# 🧙‍♂️ Magical RTK Query Incantations 🔮
 
-[![Enchantment Level](https://img.shields.io/badge/enchantment-MAXIMUM-purple.svg)](https://github.com/crankyMagician/crankyMagicReact)
-[![Made with React](https://img.shields.io/badge/made%20with-React-61DAFB.svg)](https://reactjs.org/)
-[![Powered by Coffee](https://img.shields.io/badge/powered%20by-Coffee%20☕-brown.svg)](https://coffee.org)
-[![License](https://img.shields.io/badge/license-MAGICAL-orange.svg)](LICENSE)
+> "Why use regular API calls when you can summon data with RTK Query's magical powers?" - The CrankyMagician's Book of Modern Frontend Sorcery
 
-## 🪄 "Any sufficiently advanced technology is indistinguishable from magic."
-— Arthur C. Clarke
+## 📚 Arcane Repository Map 📚
 
-Here is the documentation structure for your README:
-
-## 📚 Documentation 📚
-
-Explore the magical components of our codebase through these specialized documentation guides:
-
-### 📂 src/
-- [📡 API Documentation](./src/api/README.md) - Learn about our RTK Query API setup
-- [🪝 Hooks Documentation](./src/hooks/README.md) - Discover our custom React hooks
-- [🗃️ Reducers Documentation](./src/reducers/README.md) - Explore our Redux state management
-- [🧪 Services Documentation](./src/services/README.md) - Understand our service utilities
-- [🏛️ State Documentation](./src/state/README.md) - Explore our Redux store architecture
-- [🎨 Theme Documentation](./src/themes/README.md) - Discover our theming infrastructure
-- [🌐 Translations Documentation](./src/translations/README.md) - Learn about our i18n system
-- [🔧 Utilities Documentation](./src/utilities/README.md) - Browse our helper functions
-
-### 📂 src/analytics/
-- [📊 Analytics Overview](./src/analytics/README.md) - Learn about our analytics implementation
-    - 📂 **docs/**
-        - [📈 API Integration](./src/analytics/docs/analyitics_apic_integration.md) - See how our analytics tracks API calls
-        - [⚙️ Configuration Options](./src/analytics/docs/analytics_options.md) - Configure your analytics settings
-        - [🏠 Self-Hosted Evaluation](./src/analytics/docs/self_hosted_eval.md) - Learn about self-hosting analytics
-        - [💰 Cost Estimates](./src/analytics/docs/sentry_posthog_estimates.md) - Review analytics platform costs
-
-### 📂 docs/
-- [🎭 Dynamic Theme System Plan](./docs/dynamic_theme_system_plan.md) - Explore our future theming capabilities
-
-### 📂 cors-anywhere-server/
-- [🌐 CORS Proxy Server Documentation](./cors-anywhere-server/README.md) - Learn about our magical CORS proxy
-
-## ✨ Features That Will BLOW YOUR MIND! ✨
-
-### 🌈 Theme Switching Sorcery
-Switch between themes faster than the CrankyMagician can say "ABRACADABRA"!
-```javascript
-// Want dark mode? BOOM! DONE!
-useTheme('dark');
-
-// Feeling fancy? Try our special "retro_neon" theme!
-useTheme('retro_neon');
+```
+api/
+├── apiSlice.js           # The master spell that exports all magical hooks
+├── authApi.js            # Authentication spells & incantations 🔑
+├── baseApi.js            # The foundation of all magical API connections 🧱
+├── businessApi.js        # Business magic incantations 💼
+├── campaignApi.js        # Campaign summoning powers 📣
+├── commoApi.js           # Communication portal spells 📨
+├── invitationApi.js      # Invitation transmission magic 📩
+├── mediaApi.js           # Media artifact conjuring 🖼️
+└── staticwebapp.config.json # The Azure portal configuration scroll 🌌
 ```
 
-We've got TONS of themes:
-- 🌞 `light` - For those who fear the darkness
-- 🌚 `dark` - For coding at 3 AM like a PROPER developer
-- 🍔 `munchie` - Food-inspired theme (don't code hungry!)
-- 🧁 `munchie_dark` - For midnight snack coding sessions
-- 👔 `professional` - For when your boss is watching
-- 🚀 `startup` - Looks like every tech startup's website ever
-- 📊 `memphis` - Corporate Memphis style for the corporate wizards
-- 🎨 `altTheme` - Because you're "not like other developers"
-- 🌅 `sunset` - For the aesthetically pleasing sunset vibes
-- 🍃 `mint` - Fresh and clean like your code SHOULD be
-- 💾 `retro_neon` - Bringing back the 80s because modern UI is too BORING
-- 👓 `high_contrast` - For accessibility or for when you're coding without your glasses
+## ✨ Purpose of this Magical Chamber ✨
 
-### 🗣️ Magical Translation Spells
-Make your app speak ANY language with our i18n enchantments!
+This folder contains ALL the mystical incantations needed to communicate with your backend servers! It's where the REAL MAGIC happens between your frontend spellbook and the server's ancient wisdom.
+
+We use **RTK Query** - the most POWERFUL magical API library ever created by mortal developers! It combines caching, request deduplication, and automatic loading states in one MAGNIFICENT package!
+
+## 🪄 How These Magical Scrolls Work Together 🪄
+
+1. **baseApi.js** - The foundation of our magical API system. Creates an RTK Query API with advanced error handling, token validation, and now with DIMENSION-CROSSING PROXY POWERS!
 
 ```javascript
-// Want to greet users in Korean? POOF! DONE!
-translate('greeting', { language: 'ko' });
-```
-
-Supported languages:
-- 🇺🇸 English (for boring developers)
-- 🇪🇸 Spanish (¡Olé!)
-- 🇰🇷 Korean (안녕하세요!)
-- 🇫🇷 French (Oui oui baguette!)
-- 🇮🇹 Italian (Mamma mia!)
-- 🇩🇪 German (Sehr effizient!)
-- 🇷🇺 Russian (Привет!)
-- 🇯🇵 Japanese (こんにちは!)
-- 🇸🇦 Arabic (مرحبا!)
-- 🇮🇱 Hebrew (שלום!)
-
-### 🔐 Authentication Wizardry
-User authentication so secure, not even the CrankyMagician himself can break in (and he's TRIED)!
-
-```javascript
-// Login spell
-const { isAuthenticated, token } = await useAuth().login({
-  username: 'merlin',
-  password: 'itsMagicTime123'
+// This creates the BASE MAGICAL CIRCLE for all API communications!
+export const baseApi = createApi({
+  reducerPath: 'api',
+  baseQuery: enhancedBaseQuery, // WITH TOKEN VALIDATION MAGIC! ✨
+  tagTypes: [ 'Auth', 'User', 'Business', /* more magical tags */ ],
+  endpoints: () => ({}),
 });
 
-// Logout counterspell
-useAuth().logout();
-```
-
-### 💼 Business Magic for Business Wizards
-Connect your magical business with these INCREDIBLE business features:
-
-```javascript
-// Create a magical business portal!
-const { businessId } = await useBusiness().businessSignup({
-  name: "Wizard's Wand Shop",
-  type: "retail",
-  taxId: "WAND-123456"
-});
-```
-
-### 🔮 RTK Query API Magic 🔮
-
-The application uses the almighty **RTK Query** for API communication - because regular API calls are for MUGGLES! Our enchanted API system adapts to different realms (development, staging, production) and provides UNPARALLELED magical powers:
-
-```javascript
-// Import our magical hooks from the apiSlice
-import { useLoginMutation, useGetActiveBusinessQuery } from '../api/apiSlice';
-
-// Use them in your components with EASE and STYLE!
-const MagicalLoginComponent = () => {
-  // This gives you a magical login function AND loading/error states! 🪄
-  const [login, { isLoading, error }] = useLoginMutation();
+// NEW PORTAL MAGIC! 🌌
+const getApiUrl = (endpoint, apiType) => {
+  // Select the appropriate dimensional gateway
+  const basePath = apiType === 'auth'
+    ? process.env.REACT_APP_AUTH_API_URL || '/auth-api'
+    : process.env.REACT_APP_MAIN_API_URL || '/main-api';
   
-  const handleLoginClick = async () => {
+  // Remove any leading slashes to avoid opening the wrong portal
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+  
+  // Return the complete incantation path
+  return `${basePath}/${cleanEndpoint}`;
+};
+```
+
+2. **authApi.js** - Powerful authentication spells that manage user login, registration, token handling and more!
+
+```javascript
+// AUTHENTICATION MAGIC! 🧙‍♂️
+export const authApiExtended = authApi.injectEndpoints({
+  endpoints: (builder) => ({
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: getApiUrl('login', 'auth'), // NEW DIMENSIONAL GATEWAY MAGIC! 🌌
+        method: 'POST',
+        body: credentials,
+      }),
+      // MAGICAL TOKEN HANDLING! ✨
+      async onQueryStarted(credentials, { dispatch, queryFulfilled }) {
+        // Save tokens in the magical storage vault!
+      },
+    }),
+    // More auth spells...
+  }),
+});
+```
+
+3. **businessApi.js** - Business-related enchantments for managing companies, users, and roles!
+
+```javascript
+// BUSINESS SORCERY! 💼
+export const businessApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getActiveBusiness: builder.query({
+      query: () => ({
+        url: getApiUrl('business/active', 'main'), // CROSS-DIMENSIONAL GATEWAY! 🌌
+        method: 'GET',
+      }),
+      providesTags: ['Business'], // CACHE INVALIDATION MAGIC! ✨
+    }),
+    // More business spells...
+  }),
+});
+```
+
+4. **apiSlice.js** - The GRAND UNIFIED THEORY of our API magic - combines all endpoints and exports hooks!
+
+```javascript
+// THE MASTER SPELL that exports ALL magical hooks!
+export {
+  // Auth hooks
+  useLoginMutation,
+  useRegisterMutation,
+  // MANY MORE MAGICAL HOOKS!
+} from './authApi';
+
+export {
+  // Business hooks
+  useGetActiveBusinessQuery,
+  useUpdateBusinessMutation,
+  // MORE BUSINESS MAGIC!
+} from './businessApi';
+```
+
+5. **NEW! staticwebapp.config.json** - The ancient scroll that configures our Azure dimensional portals!
+
+```json
+{
+  "routes": [
+    {
+      "route": "/auth-api/*",  // 🌌 AUTH DIMENSION GATEWAY
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allowedRoles": ["anonymous", "authenticated"],
+      "rewrite": "https://dev.auth.spatialmods.com/auth/{0}" // TARGET DIMENSION
+    },
+    {
+      "route": "/main-api/*",  // 🌌 MAIN API DIMENSION GATEWAY
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "allowedRoles": ["authenticated"],
+      "rewrite": "https://dev.net-api.spatialmods.com/{0}" // TARGET DIMENSION
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html"  // FALLBACK PORTAL DESTINATION
+  }
+}
+```
+
+## 🌌 NEW! The Azure Static Web App Portal Magic 🌌
+
+We've enhanced our API sorcery with the power of Azure Static Web Apps! This creates magical portals between domains, bypassing the dreaded CORS barriers!
+
+### How the Portal Magic Works:
+
+1. **Dimensional Gateway Configuration**: The `staticwebapp.config.json` scroll defines magical paths that redirect API calls through interdimensional portals!
+
+2. **Portal Paths**: When you call `/auth-api/login`, Azure's magic redirects your spell to `https://dev.auth.spatialmods.com/auth/login` - without any CORS curses!
+
+3. **Environment Variables**: The magical paths are defined by environment variables:
+   ```
+   REACT_APP_AUTH_API_URL=/auth-api
+   REACT_APP_MAIN_API_URL=/main-api
+   ```
+
+4. **Cross-Domain Sorcery**: Our portal magic lets you communicate with multiple backend realms without the dreaded CORS counter-spells!
+
+Example of the portal in action:
+```javascript
+// Component using the magical portal:
+const LoginForm = () => {
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleSubmit = async (values) => {
     try {
-      // Cast the login spell!
-      const result = await login({
-        email: 'merlin@wizardry.com',
-        password: 'expelliarmus123'
-      }).unwrap();
-      
-      // BEHOLD! You are now logged in!
-      console.log('✨ Login successful! ✨', result);
+      // This spell travels through the Azure portal to another dimension!
+      const result = await login(values).unwrap();
+      console.log('🌌 Portal traversed successfully!', result);
     } catch (err) {
-      // The spell backfired!
-      console.error('🔥 Login spell backfired! 🔥', err);
+      console.error('🌋 Portal collapsed!', err);
     }
   };
   
-  return (
-    <button 
-      onClick={handleLoginClick}
-      disabled={isLoading}
-    >
-      {isLoading ? '🪄 Casting...' : '✨ Login ✨'}
-    </button>
-  );
-};
-
-// Want to get business data? ALAKAZAM!
-const BusinessDashboard = ({ businessId }) => {
-  // This magical hook AUTOMATICALLY fetches, caches, and refreshes your data!
-  const { data, error, isLoading, refetch } = useGetBusinessByIdQuery(businessId);
-  
-  if (isLoading) return <p>🔮 Summoning business data...</p>;
-  if (error) return <p>💥 Spell backfired! Error: {error.message}</p>;
-  
-  return (
-    <div>
-      <h1>{data.name}</h1>
-      <button onClick={refetch}>🔄 Recast Spell</button>
-    </div>
-  );
+  return <form onSubmit={handleSubmit}>...</form>;
 };
 ```
 
-### 🧙‍♂️ The RTK Query Advantage 🧙‍♂️
+## 🔮 How to Cast New API Spells 🔮
 
-Our API system provides these INCREDIBLE powers:
-
-- 🪄 **Environment-Aware Configuration** - Automatically adapts to development, staging, or production realms!
-- 🔄 **Automatic Caching & Invalidation** - Data updates EXACTLY when it should, not before, not after!
-- 🏃‍♂️ **Automatic Loading & Error States** - No more tracking loading or error states by hand like a PEASANT!
-- ⚡ **Optimistic Updates** - UI updates INSTANTLY, even before the server knows what happened!
-- 🧠 **Request Deduplication** - Multiple components can request the same data without duplicate API calls!
-- 🔄 **Auto-Refetching** - Data refreshes after window focus, network reconnection, or at intervals you define!
-- 🛡️ **Token Management** - Automatic handling of authentication tokens and token expiration!
-- 📊 **Analytics Integration** - Seamless tracking of API calls, errors, and performance!
-
-### 🔍 Analytics Tracking Magic 🧙‍♂️
-Track user actions with mystical precision!
+### 1. Adding a New Endpoint to Existing API File
 
 ```javascript
-// Import the magical hook
-import useAnalytics from './useAnalytics';
+// In authApi.js or businessApi.js
+export const myApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    // Existing endpoints...
+    
+    // ADD YOUR NEW MAGICAL ENDPOINT! ✨
+    getMagicalData: builder.query({
+      query: (dataId) => ({
+        url: getApiUrl(`data/${dataId}`, 'main'), // USE THE PORTAL MAGIC! 🌌
+        method: 'GET',
+      }),
+      providesTags: (result, error, dataId) => [
+        { type: 'MagicalData', id: dataId }
+      ],
+    }),
+  }),
+});
 
-const YourMagicalComponent = () => {
-    // Summon the analytics powers
-    const analytics = useAnalytics();
-
-    const castButtonSpell = () => {
-        // Track this AMAZING click event!
-        analytics.trackButtonClick('super_magical_button', {
-            spell_power: 'EXTREME',
-            mana_cost: 42
-        });
-    };
-
-    return <button onClick={castButtonSpell}>✨ CLICK FOR MAGIC ✨</button>;
-};
+// Export your new magical hook!
+export const { useGetMagicalDataQuery } = myApi;
 ```
 
-### 🎨 Magical UI Components
-Components so beautiful, they'll bring a tear to your eye!
+### 2. Creating a Whole New API File for New Domains
 
 ```javascript
-// Need a responsive video? ALAKAZAM!
-<ResponsiveVideoEmbed url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+// 1. Create a new API file (e.g., productApi.js)
+import baseApi, { getApiUrl } from './baseApi'; // IMPORT THE PORTAL CREATION SPELL! 🌌
 
-// Want a fancy card with magical hover effects? SHAZAM!
-<Card sx={theme.mixins.futuristicCard}>
-  <CardContent>✨ Magical Content ✨</CardContent>
-</Card>
+export const productApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getAllProducts: builder.query({
+      query: () => ({
+        url: getApiUrl('products', 'main'), // USE THE PORTAL MAGIC! 🌌
+        method: 'GET',
+      }),
+      providesTags: ['Products'],
+    }),
+    // More product endpoints...
+  }),
+});
+
+export const {
+  useGetAllProductsQuery,
+  // More hooks...
+} = productApi;
+
+// 2. Add your exported hooks to apiSlice.js
+// In apiSlice.js, add:
+export {
+  useGetAllProductsQuery,
+  // More hooks...
+} from './productApi';
 ```
 
-## 🧪 Getting Started (SUPER EASY!) 🧪
+## 🧙‍♂️ The CrankyMagician's Advanced API Tips 🧙‍♂️
 
-### 1️⃣ Clone the Enchanted Repository
-```bash
-git clone https://github.com/crankyMagician/crankyMagicReact.git
-cd crankyMagicReact
+1. **USE THE CACHE INVALIDATION TAGS!** This is what separates the apprentices from the REAL API wizards!
+
+```javascript
+// Providing tags - tells RTK Query when to KEEP this data in cache
+providesTags: ['Products', { type: 'Product', id: 'LIST' }]
+
+// Invalidating tags - tells RTK Query when to THROW AWAY cached data
+invalidatesTags: ['Products', { type: 'Product', id: 'LIST' }]
 ```
 
-### 2️⃣ Install the Magic Dependencies
-```bash
-npm install
-# Or if you're a yarn wizard:
-yarn
+2. **TRANSFORM API RESPONSES** when your backend returns data in a weird format. Don't make your components deal with the server's mystical madness!
+
+```javascript
+// The transformResponse spell changes the shape of API responses BEFORE they reach your components!
+transformResponse: (response) => {
+  // ALAKAZAM! The data is now in a format your component understands!
+  return response.data.map(item => ({
+    id: item.product_id,
+    name: item.product_name,
+    price: parseFloat(item.price_string)
+  }));
+}
 ```
 
-### 3️⃣ Configure Environment Variables
-Add the following environment variables:
+3. **USE OPTIMISTIC UPDATES** to make your UI feel LIGHTNING FAST!
 
-```
-# PostHog configuration (https://posthog.com)
-REACT_APP_POSTHOG_API_KEY=your_posthog_api_key
-REACT_APP_POSTHOG_HOST=https://app.posthog.com
-
-# Sentry configuration (https://sentry.io)
-REACT_APP_SENTRY_DSN=your_sentry_dsn
-
-# Other analytics config
-REACT_APP_ENABLE_DEV_ERROR_TRACKING=false
-REACT_APP_ANALYTICS_SAMPLE_RATE=0.1
-```
-
-### 4️⃣ Cast the Development Spell
-```bash
-npm start
-# Or with yarn:
-yarn start
-```
-
-### 5️⃣ Build for Production (WHEN YOU'RE READY TO SHARE YOUR MAGIC)
-```bash
-npm run build
-# Or with yarn:
-yarn build
+```javascript
+// Create a magical optimistic update to make the UI respond INSTANTLY, even before the server does!
+async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+  // ✨ POOF! Optimistically update the UI immediately!
+  const patchResult = dispatch(
+    api.util.updateQueryData('getProduct', id, (draft) => {
+      Object.assign(draft, patch)
+    })
+  )
+  
+  try {
+    // Let's see if the server agrees with our optimistic update...
+    await queryFulfilled
+  } catch {
+    // OOPS! The server disagreed. Undo our optimistic update.
+    patchResult.undo()
+  }
+}
 ```
 
-## 🧠 Project Structure 🧠
+4. **HANDLE ERRORS PROPERLY** because every spell can backfire!
 
-```
-src/
-├── api/                  # API integration (RTK Query)
-├── analytics/            # Analytics tracking system
-├── assets/               # Static assets (images, logos)
-├── components/           # React components
-│   ├── Auth/             # Authentication components
-│   ├── common/           # Shared/common components
-│   ├── navigation/       # Navigation components
-│   └── ... other component directories
-├── hooks/                # Custom React hooks
-├── pages/                # Full page components
-├── reducers/             # Redux reducers/slices
-├── services/             # Services for external interactions
-├── state/                # Redux store configuration
-├── themes/               # Theme configuration
-├── translations/         # i18n translations
-└── utilities/            # Utility functions
+```javascript
+// In your component:
+const { data, error, isLoading } = useGetMagicalDataQuery(id);
+
+if (isLoading) return <MagicalLoadingSpinner />;
+if (error) return <SpellbackfireMessage error={error} />;
+
+// THE SPELL WORKED! Display your magical data:
+return <MagicalDataDisplay data={data} />;
 ```
 
-## 🧙‍♂️ The CrankyMagician's Tips 🧙‍♂️
+5. **USE ENVIRONMENT CONFIGURATION** to adjust your API's behavior in different realms!
 
-1. **DON'T MESS WITH THE CORE SPELLS!** Unless you REALLY know what you're doing.
+```javascript
+// Check which portal configuration to use based on the current realm
+const authApiPath = process.env.REACT_APP_AUTH_API_URL || '/auth-api';
+const mainApiPath = process.env.REACT_APP_MAIN_API_URL || '/main-api';
 
-2. **USE THE HOOKS!** They're there for a reason, and they're MAGICAL!
+console.log(`Auth portal configured at: ${authApiPath}`);
+console.log(`Main API portal configured at: ${mainApiPath}`);
 
-3. **CHECK THE CONSOLE!** The CrankyMagician leaves helpful messages, usually in BRIGHT COLORS!
+// Is this the development realm?
+if (process.env.REACT_APP_ENV === 'development') {
+  console.log('Developer portal activated! Extra debugging magic enabled!');
+}
+```
 
-4. **RTFM!** (Read The Fantastic Manual) Our READMEs are your spellbooks - study them!
+6. **NEW! CHECK YOUR PORTALS ARE WORKING** with browser dev tools or Postman!
+
+```javascript
+// Test your portal connectivity:
+fetch('/auth-api/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: 'wizard@magic.com', password: 'abracadabra' })
+})
+.then(res => {
+  console.log('Portal status:', res.status);
+  return res.json();
+})
+.then(data => console.log('Message from the other dimension:', data))
+.catch(err => console.error('Portal collapsed!', err));
+```
 
 ---
 
-*"Why write boring code when you can write MAGICAL code?"* - The CrankyMagician
+*"Why settle for ordinary API calls when you can wield the arcane power of RTK Query and Azure dimensional portals?"* - The CrankyMagician
 
-*P.S. If you find bugs in this framework, they're not bugs, they're *undocumented features*. The CrankyMagician doesn't make mistakes... only happy little accidents! 🎨*
+*P.S. If you get a 404 or 405 error, check your staticwebapp.config.json scroll! The difference between a working portal and a collapsed one is often just a missing slash or incorrect path pattern! 🔍*

@@ -4,13 +4,13 @@
       "route": "/auth-api/*",
       "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       "allowedRoles": ["anonymous", "authenticated"],
-      "rewrite": "https://dev.auth.spatialmods.com/auth/{path}"
+      "rewrite": "https://dev.auth.spatialmods.com/auth/{0}"
     },
     {
       "route": "/main-api/*",
       "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       "allowedRoles": ["authenticated"],
-      "rewrite": "https://dev.net-api.spatialmods.com/{path}"
+      "rewrite": "https://dev.net-api.spatialmods.com/{0}"
     },
     {
       "route": "/*",
