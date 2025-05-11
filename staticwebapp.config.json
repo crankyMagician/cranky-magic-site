@@ -59,11 +59,6 @@
       "rewrite": "https://dev.net-api.spatialmods.com/{path}"
     },
     {
-      "route": "/*",
-      "serve": "/index.html",
-      "statusCode": 200
-    },
-    {
       "route": "/auth-swagger",
       "methods": [
         "get"
