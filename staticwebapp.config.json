@@ -27,6 +27,21 @@
         "authenticated"
       ],
       "rewrite": "https://dev.net-api.spatialmods.com/{path}"
+    },
+    {
+      "route": "/auth-api/*",
+      "methods": [
+        "get",
+        "post",
+        "put",
+        "delete",
+        "options"
+      ],
+      "rewrite": "https://dev.auth.spatialmods.com/{*}",
+      "allowedRoles": [
+        "anonymous",
+        "authenticated"
+      ]
     }
   ],
   "navigationFallback": {
