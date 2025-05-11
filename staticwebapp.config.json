@@ -1,36 +1,6 @@
 {
   "routes": [
     {
-      "route": "/auth-api",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "OPTIONS"
-      ],
-      "allowedRoles": [
-        "anonymous",
-        "authenticated"
-      ],
-      "rewrite": "https://dev.auth.spatialmods.com/auth"
-    },
-    {
-      "route": "/auth-api/*",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "OPTIONS"
-      ],
-      "allowedRoles": [
-        "anonymous",
-        "authenticated"
-      ],
-      "rewrite": "https://dev.auth.spatialmods.com/auth/{path}"
-    },
-    {
       "route": "/main-api",
       "methods": [
         "GET",
@@ -57,17 +27,6 @@
         "authenticated"
       ],
       "rewrite": "https://dev.net-api.spatialmods.com/{path}"
-    },
-    {
-      "route": "/auth-swagger",
-      "methods": [
-        "get"
-      ],
-      "redirect": "https://dev.auth.spatialmods.com/api-docs/",
-      "statusCode": 301,
-      "allowedRoles": [
-        "anonymous"
-      ]
     }
   ],
   "navigationFallback": {
