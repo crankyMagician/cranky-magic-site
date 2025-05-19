@@ -2,26 +2,26 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import TokenDecoder from '../utilities/TokenDecoder';
 
-// Determine if we're in development mode
-const isDevelopment = process.env.NODE_ENV === 'development';
+// Direct API URLs - no proxying
+const AUTH_API_URL = 'https://dev.auth.spatialmods.com/auth';
+const MAIN_API_URL = 'https://dev.net-api.spatialmods.com';
 
-// Helper function to construct proper URLs based on environment
+// Helper function to construct direct URLs
 const getApiUrl = (endpoint, apiType) => {
-    // Select the appropriate base path
-    const basePath = apiType === 'auth'
-        ? process.env.REACT_APP_AUTH_API_URL || '/auth-api'
-        : process.env.REACT_APP_MAIN_API_URL || '/main-api';
+    // Select the appropriate base URL (direct, no proxy)
+    const baseUrl = apiType === 'auth' ? AUTH_API_URL : MAIN_API_URL;
 
     // Remove any leading slashes in endpoint to avoid double slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
 
-    // Return the full path (Static Web App will handle proxying to the real domain)
-    return `${basePath}/${cleanEndpoint}`;
+    // Return the full direct URL
+    return `${baseUrl}/${cleanEndpoint}`;
 };
 
-// Create a base query that will work across environments
+// Create a base query with direct URLs
 const baseQuery = fetchBaseQuery({
-    baseUrl: '/',
+    // Empty baseUrl since we're using full URLs in each request
+    baseUrl: '',
     prepareHeaders: (headers, { getState }) => {
         const token = getState().auth.token;
         if (token) {
@@ -33,13 +33,12 @@ const baseQuery = fetchBaseQuery({
     credentials: 'include'
 });
 
-// Create enhanced base query with token handling and URL construction
+// Enhanced base query with token handling
 const enhancedBaseQuery = async (args, api, extraOptions) => {
-    // If we have a complete URL in args, use it as is
+    // Log the request
     if (typeof args === 'string') {
         console.log(`[API] Request: GET ${args}`);
     } else if (args.url) {
-        // We don't modify the URL here as it will be constructed by the endpoints
         console.log(`[API] Request: ${args.method || 'GET'} ${args.url}`);
     }
 

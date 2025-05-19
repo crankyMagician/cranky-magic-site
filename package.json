@@ -72,7 +72,6 @@
     "react-toastify": "^10.0.4",
     "redux": "^5.0.1"
   },
-  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "react-scripts start",
     "start:dev": "cross-env REACT_APP_ENV=development react-scripts start",
