@@ -37,7 +37,8 @@
         "delete",
         "options"
       ],
-      "rewrite": "https://dev.auth.spatialmods.com/{*}",
+      "redirect": "https://dev.auth.spatialmods.com/{*}",
+      "statusCode": 307,
       "allowedRoles": [
         "anonymous",
         "authenticated"
