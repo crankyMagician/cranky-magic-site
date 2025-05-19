@@ -38,7 +38,7 @@
         "options"
       ],
       "redirect": "https://dev.auth.spatialmods.com/{*}",
-      "statusCode": 307,
+      "statusCode": 302,
       "allowedRoles": [
         "anonymous",
         "authenticated"
