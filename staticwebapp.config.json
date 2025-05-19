@@ -43,6 +43,17 @@
         "anonymous",
         "authenticated"
       ]
+    },
+    {
+      "route": "/test",
+      "methods": [
+        "get"
+      ],
+      "redirect": "https://dev.net-api.spatialmods.com/swagger/index.html",
+      "statusCode": 301,
+      "allowedRoles": [
+        "anonymous"
+      ]
     }
   ],
   "navigationFallback": {
