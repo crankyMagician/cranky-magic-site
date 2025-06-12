@@ -11,6 +11,8 @@ import {sunsetPalette} from "./palettes/sunsetPalette";
 import {mintPalette} from "./palettes/mintPalette";
 import {retroNeonPalette} from "./palettes/retroNeonPalette";
 import {highContrastPalette} from "./palettes/highContrastPalette";
+import {crankyMagicianLight} from "./palettes/crankyMagicianLight";
+import {crankyMagicianDark} from "./palettes/crankyMagicianDark";
 
 // Map theme modes to their respective palettes
 const themeModeMappings = {
@@ -25,7 +27,9 @@ const themeModeMappings = {
     sunset: sunsetPalette,
     mint: mintPalette,
     retro_neon: retroNeonPalette,
-    high_contrast: highContrastPalette
+    high_contrast: highContrastPalette,
+    cranky_light: crankyMagicianLight,
+    cranky_dark: crankyMagicianDark
 };
 
 // Function to get the palette by mode
@@ -35,3 +39,5 @@ export const getPaletteByMode = (mode) => {
 };
 
 export default themeModeMappings;
+
+

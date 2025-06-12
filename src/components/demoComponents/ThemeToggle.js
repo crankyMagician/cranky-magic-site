@@ -22,6 +22,8 @@ import WbTwilightIcon from '@mui/icons-material/WbTwilight';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import GradientIcon from '@mui/icons-material/Gradient';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 
 const ThemeToggle = () => {
     const dispatch = useDispatch();
@@ -54,6 +56,8 @@ const ThemeToggle = () => {
         { label: 'Sunset', value: 'sunset', icon: <WbTwilightIcon /> },
         { label: 'Mint', value: 'mint', icon: <FilterVintageIcon /> },
         { label: 'Retro Neon', value: 'retro_neon', icon: <GradientIcon /> },
+        { label: 'Cranky Magician Light', value: 'cranky_light', icon: <AutoAwesomeIcon /> },
+        { label: 'Cranky Magician Dark', value: 'cranky_dark', icon: <AutoFixHighIcon /> },
     ];
 
     return (
@@ -71,7 +75,7 @@ const ThemeToggle = () => {
                         <MenuItem key={theme.value} value={theme.value}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 {theme.icon && (
-                                    <Box sx={{ mr: 1 }}>
+                                    <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
                                         {theme.icon}
                                     </Box>
                                 )}

@@ -1,5 +1,4 @@
 // src/themes/fontMappings.js
-
 // Import all typography options
 import spatialModsTypography from "./typography/spatialTypograhpy";
 import techStartupTypography from "./typography/techStartupTypography";
@@ -12,6 +11,7 @@ import highContrastAccessibilityTypography from "./typography/highContrastAccess
 import darkTypography from "./typography/darkTypography";
 import corporateMemphisTypography from "./typography/corporateMemphisTypography";
 import altTypography from "./typography/altTypography";
+import {crankyMagicianTypography} from "./typography/crankyMagicianTypography";
 
 // Map theme modes to their respective typography settings
 const typographyModeMappings = {
@@ -31,7 +31,11 @@ const typographyModeMappings = {
     sunset: sunsetTypography,
     mint: mintTypography,
     retro_neon: retroNeonTypography,
-    high_contrast: highContrastAccessibilityTypography
+    high_contrast: highContrastAccessibilityTypography,
+
+    // Cranky Magician themes
+    cranky_light: crankyMagicianTypography,
+    cranky_dark: crankyMagicianTypography
 };
 
 // Function to get typography settings by mode

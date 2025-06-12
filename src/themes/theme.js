@@ -1,117 +1,29 @@
 // src/themes/theme.js
-import { createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import { getPaletteByMode } from './themeMappings';
-import { getTypographyByMode } from "./fontMappings";
+import { getTypographyByMode } from './fontMappings';
 import crankyComponentOverrides from './muicomponents/crankyComponentOverrides';
 import breakpoints from './breakpoints/breakpoints';
 import ThemeService from '../services/ThemeService';
+import spatialComponentOverrides from "./muicomponents/spatialComponentsOverrides";
 import * as colorUtils from "../utilities/colorUtilities";
 
 
-// Function to determine if a theme is a spatial theme
-const isSpatialTheme = (mode) => {
-    return mode === 'light' || mode === 'dark';
-};
-
-// Function to determine if a theme is a dark mode theme
-const isDarkTheme = (mode) => {
-    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'altTheme';
-};
-
-// Matrix-inspired effects for both dark and light themes
-const getMatrixEffects = (mode) => {
-    const isDark = isDarkTheme(mode);
-
-    return {
-        matrixEffects: {
-            // Common scanline effect CSS
-            scanlines: {
-                '&::after': {
-                    content: '""',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 2000,
-                    background: `repeating-linear-gradient(
-                        0deg,
-                        ${isDark ? 'rgba(214, 90, 49, 0.03)' : 'rgba(214, 90, 49, 0.015)'} 0px,
-                        ${isDark ? 'rgba(214, 90, 49, 0.03)' : 'rgba(214, 90, 49, 0.015)'} 1px,
-                        transparent 1px,
-                        transparent 2px
-                    )`,
-                    pointerEvents: 'none',
-                    opacity: isDark ? 1 : 0.7,
-                },
-            },
-
-            // Digital rain effect (Matrix-style falling characters)
-            digitalRain: {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-                zIndex: 1999,
-                overflow: 'hidden',
-                opacity: isDark ? 0.13 : 0.05,
-            },
-
-            // Futuristic grid lines
-            gridLines: {
-                '&::before': {
-                    content: '""',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 1998,
-                    background: `
-                        linear-gradient(90deg, ${isDark ? 'rgba(214, 90, 49, 0.05)' : 'rgba(214, 90, 49, 0.02)'} 1px, transparent 1px),
-                        linear-gradient(0deg, ${isDark ? 'rgba(214, 90, 49, 0.05)' : 'rgba(214, 90, 49, 0.02)'} 1px, transparent 1px)
-                    `,
-                    backgroundSize: '20px 20px',
-                    pointerEvents: 'none',
-                },
-            },
-
-            // Hover glow animation
-            hoverGlow: {
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    boxShadow: isDark
-                        ? '0 0 15px rgba(214, 90, 49, 0.6)'
-                        : '0 0 15px rgba(214, 90, 49, 0.4)',
-                },
-            },
-
-            // Futuristic text effects
-            futuristicText: {
-                position: 'relative',
-                '&::after': {
-                    content: 'attr(data-text)',
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0.7,
-                    filter: `blur(1px) drop-shadow(0 0 2px ${isDark ? 'rgba(214, 90, 49, 0.8)' : 'rgba(214, 90, 49, 0.6)'}`,
-                },
-            },
-        },
-    };
+// Function to get component overrides based on style preference
+const getComponentOverrides = (overrideStyle) => {
+    switch (overrideStyle) {
+        case 'spatial':
+            return spatialComponentOverrides;
+        case 'cranky':
+        default:
+            return crankyComponentOverrides;
+    }
 };
 
 // Function to create and return a theme based on the mode and optional direction
-export const getTheme = (mode, direction = 'ltr') => {
-    // Check if it's a spatial theme or use provided theme
-    const themeMode = mode || 'light'; // Default to light if no mode is provided
-    const usesSpatialEffects = isSpatialTheme(themeMode);
-    const isDark = isDarkTheme(themeMode);
+export const getTheme = (mode, direction = 'ltr', overrideStyle = 'cranky') => {
+    // Use the provided theme mode or default to light
+    const themeMode = mode || 'light';
 
     // Get palette and typography based on mode
     const palette = getPaletteByMode(themeMode);
@@ -120,8 +32,8 @@ export const getTheme = (mode, direction = 'ltr') => {
     // Get theme preferences from ThemeService
     const themePrefs = ThemeService.getThemePreferences();
 
-    // We'll always use crankyComponentOverrides now
-    const componentOverrides = crankyComponentOverrides;
+    // Get the appropriate component overrides
+    const componentOverrides = getComponentOverrides(overrideStyle);
 
     // Create the base theme without mixins first to avoid circular reference
     let theme = createTheme({
@@ -130,8 +42,6 @@ export const getTheme = (mode, direction = 'ltr') => {
         components: componentOverrides,
         breakpoints,
         direction,
-        // Add Matrix-inspired effects only if using spatial theme
-        ...(usesSpatialEffects && getMatrixEffects(themeMode)),
     });
 
     // Now create a complete theme with custom mixins
@@ -139,6 +49,8 @@ export const getTheme = (mode, direction = 'ltr') => {
         ...theme,
         mixins: {
             ...theme.mixins,
+
+            // Futuristic card mixin
             futuristicCard: {
                 background: theme.palette.mode === 'light'
                     ? 'rgba(255, 255, 255, 0.8)'
@@ -175,196 +87,167 @@ export const getTheme = (mode, direction = 'ltr') => {
                         : `0 8px 16px rgba(0, 0, 0, 0.4), 0 0 10px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
                 },
             },
+
+            // Data display mixin (for statistics, numbers, etc.)
             dataDisplay: {
-                fontFamily: theme.typography.h3.fontFamily,
-                letterSpacing: '0.05em',
+                fontFamily: typography.dataLabel ? typography.dataLabel.fontFamily : typography.fontFamily,
+                fontSize: typography.dataLabel ? typography.dataLabel.fontSize : '0.875rem',
+                fontWeight: typography.dataLabel ? typography.dataLabel.fontWeight : 600,
+                letterSpacing: typography.dataLabel ? typography.dataLabel.letterSpacing : '0.1em',
                 textTransform: 'uppercase',
-                padding: '8px 12px',
-                background: theme.palette.mode === 'light'
-                    ? 'rgba(255, 255, 255, 0.9)'
-                    : 'rgba(30, 30, 30, 0.9)',
-                border: `1px solid ${colorUtils.hexToRgba(theme.palette.primary.main, 0.27)}`,
-                borderRadius: '4px',
-                boxShadow: `0 0 8px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
-                position: 'relative',
-                display: 'inline-block',
-                '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: `linear-gradient(90deg, transparent, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.13)}, transparent)`,
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 2s infinite linear',
-                },
-                '@keyframes shimmer': {
-                    '0%': { backgroundPosition: '-200% 0' },
-                    '100%': { backgroundPosition: '200% 0' },
-                },
-            },
-            matrixTerminal: {
-                fontFamily: 'monospace',
-                backgroundColor: theme.palette.mode === 'light' ? '#f0f0f0' : '#1a1a1a',
                 color: theme.palette.primary.main,
-                padding: '16px',
+                padding: '8px 16px',
                 borderRadius: '4px',
+                background: colorUtils.hexToRgba(theme.palette.primary.main, 0.08),
                 border: `1px solid ${colorUtils.hexToRgba(theme.palette.primary.main, 0.2)}`,
-                boxShadow: `inset 0 0 10px ${colorUtils.hexToRgba(theme.palette.primary.main, 0.13)}`,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                '&::before': {
+                    content: '""',
+                    width: '4px',
+                    height: '16px',
+                    background: theme.palette.primary.main,
+                    borderRadius: '2px',
+                },
+            },
+
+            // Status indicator mixin
+            statusIndicator: {
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                display: 'inline-block',
                 position: 'relative',
-                overflow: 'hidden',
+                '&.active': {
+                    background: theme.palette.success.main,
+                    boxShadow: `0 0 0 2px ${colorUtils.hexToRgba(theme.palette.success.main, 0.3)}`,
+                    '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        border: `2px solid ${theme.palette.success.main}`,
+                        animation: 'pulse-ring 1.5s ease-out infinite',
+                    },
+                },
+                '&.inactive': {
+                    background: theme.palette.grey[400],
+                },
+                '&.warning': {
+                    background: theme.palette.warning.main,
+                    animation: 'blink 1s ease-in-out infinite',
+                },
+                '&.error': {
+                    background: theme.palette.error.main,
+                    animation: 'blink 0.5s ease-in-out infinite',
+                },
+            },
+
+            // Glassmorphism effect
+            glassMorphism: {
+                background: theme.palette.custom?.glassMorphism ||
+                    (theme.palette.mode === 'light'
+                        ? 'rgba(255, 255, 255, 0.7)'
+                        : 'rgba(30, 30, 30, 0.7)'),
+                backdropFilter: 'blur(10px)',
+                border: `1px solid ${colorUtils.hexToRgba(
+                    theme.palette.mode === 'light' ? '#ffffff' : theme.palette.primary.main,
+                    0.2
+                )}`,
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            },
+
+            // Code block styling
+            codeBlock: {
+                background: theme.palette.custom?.codeBackground ||
+                    (theme.palette.mode === 'light'
+                        ? 'rgba(247, 247, 247, 0.95)'
+                        : 'rgba(24, 24, 24, 0.95)'),
+                color: theme.palette.mode === 'light'
+                    ? theme.palette.grey[900]
+                    : theme.palette.grey[100],
+                padding: '16px',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                fontFamily: typography.code ? typography.code.fontFamily : '"Courier New", Courier, monospace',
+                overflow: 'auto',
+                border: `1px solid ${theme.palette.divider}`,
+                position: 'relative',
                 '&::before': {
                     content: '""',
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    background: `repeating-linear-gradient(0deg, transparent, transparent 2px, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.07)} 2px, ${colorUtils.hexToRgba(theme.palette.primary.main, 0.07)} 4px)`,
-                    pointerEvents: 'none',
+                    top: '8px',
+                    right: '8px',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: theme.palette.primary.main,
+                    boxShadow: `0 0 4px ${theme.palette.primary.main}`,
                 },
             },
-        },
-    });
 
-    // Apply responsive font sizes
-    theme = responsiveFontSizes(theme);
-
-    // Apply high contrast mode if enabled
-    if (themePrefs.highContrast) {
-        theme.palette.text.primary = isDark ? '#FFFFFF' : '#000000';
-        theme.palette.text.secondary = isDark ? '#EEEEEE' : '#222222';
-        theme.palette.background.default = isDark ? '#000000' : '#FFFFFF';
-        theme.palette.background.paper = isDark ? '#111111' : '#F5F5F5';
-
-        // Increase contrast for all colors
-        const increaseContrast = (color, amount = 0.2) => {
-            if (!color) return color;
-            return color.startsWith('#') ? color : color;
-        };
-
-        // Apply to primary and secondary
-        theme.palette.primary.main = increaseContrast(theme.palette.primary.main);
-        theme.palette.secondary.main = increaseContrast(theme.palette.secondary.main);
-    }
-
-    // Add custom transitions for animation
-    theme = createTheme({
-        ...theme,
-        transitions: {
-            ...theme.transitions,
-            create: (props, options = {}) => {
-                const { duration = 300, easing = 'cubic-bezier(0.4, 0, 0.2, 1)', delay = 0 } = options;
-
-                // Adjust animation speed based on preferences
-                let durationFactor = 1.0;
-                if (themePrefs.animationLevel === 'low') durationFactor = 1.5;
-                if (themePrefs.animationLevel === 'high') durationFactor = 0.7;
-                if (themePrefs.reducedMotion) durationFactor = 2.0;
-
-                const properties = Array.isArray(props) ? props : [props];
-                return properties
-                    .map(prop => `${prop} ${duration * durationFactor}ms ${easing} ${delay}ms`)
-                    .join(',');
-            },
-            // Custom duration settings
-            duration: {
-                shortest: themePrefs.reducedMotion ? 200 : 100,
-                shorter: themePrefs.reducedMotion ? 250 : 150,
-                short: themePrefs.reducedMotion ? 350 : 250,
-                standard: themePrefs.reducedMotion ? 450 : 300,
-                complex: themePrefs.reducedMotion ? 550 : 375,
-                enteringScreen: themePrefs.reducedMotion ? 300 : 225,
-                leavingScreen: themePrefs.reducedMotion ? 300 : 195,
-            },
-            // Special easing options
-            easing: {
-                ...theme.transitions.easing,
-                // Custom easing functions
-                spatial: 'cubic-bezier(0.23, 1, 0.32, 1)',
-                digitalPulse: 'cubic-bezier(0.85, 0, 0.15, 1)',
-                matrixGlitch: 'steps(5, end)',
-                holographic: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            },
-        },
-    });
-
-    // Add custom spacing
-    theme = createTheme({
-        ...theme,
-        spacing: (factor) => {
-            return `${0.5 * factor}rem`;
-        },
-    });
-
-    // Add custom shapes for futuristic elements
-    theme = createTheme({
-        ...theme,
-        shape: {
-            ...theme.shape,
-            borderRadius: 4,
-            // Special shapes for specific components
-            futuristic: {
-                button: {
-                    borderRadius: '4px',
-                    // Slight angle/chamfer on one corner for sci-fi feel
-                    clipPath: 'polygon(0% 0%, 100% 0%, 100% 85%, 92% 100%, 0% 100%)',
-                },
-                card: {
-                    borderRadius: '8px',
-                    // Slight angle/chamfer on one corner for sci-fi feel
-                    clipPath: 'polygon(0% 0%, 100% 0%, 100% 92%, 90% 100%, 0% 100%)',
-                },
-                chip: {
-                    borderRadius: '4px',
-                    // Slight angle/chamfer on both sides for sci-fi feel
-                    clipPath: 'polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%)',
+            // Responsive utilities
+            hideOnMobile: {
+                [theme.breakpoints.down('sm')]: {
+                    display: 'none',
                 },
             },
-        },
-    });
+            hideOnDesktop: {
+                [theme.breakpoints.up('md')]: {
+                    display: 'none',
+                },
+            },
 
-    // Apply global CSS styles for Matrix effects if using spatial theme with scanlines enabled
-    if (usesSpatialEffects && themePrefs.useScanlines) {
-        // Create global styles for scanlines and other Matrix effects
-        theme = createTheme({
-            ...theme,
-            components: {
-                ...theme.components,
-                MuiCssBaseline: {
-                    styleOverrides: {
-                        'html, body': {
-                            position: 'relative',
+            // Animation presets based on user preferences
+            transition: {
+                fast: themePrefs.animationLevel === 'none' ? 'none' : 'all 0.15s ease-in-out',
+                medium: themePrefs.animationLevel === 'none' ? 'none' : 'all 0.3s ease-in-out',
+                slow: themePrefs.animationLevel === 'none' ? 'none' : 'all 0.5s ease-in-out',
+            },
+        },
+
+        // Global keyframes for animations
+        components: {
+            ...theme.components,
+            MuiCssBaseline: {
+                styleOverrides: {
+                    ...theme.components?.MuiCssBaseline?.styleOverrides,
+                    '@global': {
+                        '@keyframes pulse-ring': {
+                            '0%': {
+                                transform: 'translate(-50%, -50%) scale(0)',
+                                opacity: 1,
+                            },
+                            '100%': {
+                                transform: 'translate(-50%, -50%) scale(1)',
+                                opacity: 0,
+                            },
                         },
-                        'body::after': {
-                            content: '""',
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            zIndex: 9999,
-                            pointerEvents: 'none',
-                            opacity: isDark ? 0.15 : 0.08,
-                            background: `repeating-linear-gradient(
-                                0deg,
-                                rgba(214, 90, 49, 0.05) 0px,
-                                rgba(214, 90, 49, 0.05) 1px,
-                                transparent 1px,
-                                transparent 2px
-                            )`,
-                            animation: 'scanline-motion 8s linear infinite',
+                        '@keyframes blink': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.3 },
                         },
-                        '@keyframes scanline-motion': {
-                            '0%': { backgroundPosition: '0 0' },
-                            '100%': { backgroundPosition: '0 100px' }
-                        },
+
+                        // Disable animations if user prefers reduced motion
+                        ...(themePrefs.reducedMotion && {
+                            '*': {
+                                animationDuration: '0.001ms !important',
+                                animationIterationCount: '1 !important',
+                                transitionDuration: '0.001ms !important',
+                            },
+                        }),
                     },
                 },
             },
-        });
-    }
+        },
+    });
 
     return theme;
 };
+
+export default getTheme;
