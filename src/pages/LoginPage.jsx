@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
-import Login from '../components/Auth/Login';
+import Login from '../components/auth/Login';
 import { selectIsAuthenticated } from '../reducers/authReducer';
 
 const LoginPage = () => {

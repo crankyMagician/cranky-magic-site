@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Grid, Container } from '@mui/material';
-import ReadOnlyItemPhotoDisplay from '../API/ItemPhotos/ReadOnlyItemPhotoDisplay';
-import ReadOnlyMunchiePhotoDisplay from '../API/MunchiePhotos/ReadOnlyMunchiePhotoDisplay';
+import ReadOnlyItemPhotoDisplay from '../api/ItemPhotos/ReadOnlyItemPhotoDisplay';
+import ReadOnlyMunchiePhotoDisplay from '../api/MunchiePhotos/ReadOnlyMunchiePhotoDisplay';
 
 const PhotoDisplayTest = () => {
     return (

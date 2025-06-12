@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import ForgotPassword from '../components/Auth/ForgotPassword';
+import ForgotPassword from '../components/auth/ForgotPassword';
 
 const ForgotPasswordPage = () => {
   return (
