@@ -26,7 +26,6 @@ const MainContent = () => {
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
                 <Route path="/" element={<Example />} />
-                <Route path="/spatial-mods" element={<SpatialDemoPanel />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
