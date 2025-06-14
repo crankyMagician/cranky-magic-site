@@ -50,26 +50,26 @@ import TimelineCard from './TimelineCard';
 
 // Animation keyframes
 const timelineFlow = keyframes`
-  0% { 
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 `;
 
 const pulseAnimation = keyframes`
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
 `;
 
 const TimelineSection = React.memo(({ onSectionView }) => {
@@ -99,198 +99,149 @@ const TimelineSection = React.memo(({ onSectionView }) => {
             company: 'GoWell Benefits',
             location: 'Philadelphia, PA',
             period: 'April 2024 – Current',
-            duration: '8+ months',
+            duration: '9+ months',
             status: 'current',
             icon: <Architecture />,
             color: theme.palette.primary.main,
-            description: translate('Leading enterprise architecture and React modernization initiatives'),
+            description: translate('Leading enterprise-wide Azure cloud infrastructure design and implementation'),
             achievements: [
-                translate('Spearheaded migrating legacy system to React framework (40% scalability improvement)'),
-                translate('Developed cloud-based solutions reducing operational costs by 20%'),
-                translate('Accelerated project timelines by 15% using Agile methodologies'),
-                translate('Improved code quality and reduced post-deployment bugs by 30%')
+                translate('Achieved 99.95% uptime for critical production systems'),
+                translate('Reduced infrastructure costs by 45% through optimized cloud architecture'),
+                translate('Implemented comprehensive security monitoring reducing incidents by 78%'),
+                translate('Designed scalable CI/CD pipelines increasing deployment frequency by 400%')
             ],
-            technologies: ['React', 'JavaScript', 'Cloud Solutions', 'Agile', 'Code Review'],
-            teamSize: 6,
-            impact: 'High'
+            technologies: ['Azure', 'Terraform', 'Kubernetes', 'Docker', 'GitHub Actions', 'Bicep'],
+            teamSize: 15,
+            impact: 'Enterprise'
         },
         {
-            id: 'consulting-owner',
-            category: 'entrepreneurial',
-            type: 'business',
-            title: translate('Owner'),
-            company: 'Three Dogs and a Dude Consulting, LLC',
-            location: 'Philadelphia, PA',
-            period: 'Aug. 2019 – Present',
-            duration: '5+ years',
-            status: 'ongoing',
-            icon: <Business />,
-            color: theme.palette.secondary.main,
-            description: translate('Managing consulting business with multiple high-profile clients'),
-            achievements: [
-                translate('Built successful consulting practice serving enterprise clients'),
-                translate('Delivered projects across multiple industries and technologies'),
-                translate('Maintained long-term client relationships and repeat business'),
-                translate('Specialized in .NET, Unity, and cloud solutions')
-            ],
-            technologies: ['Business Development', 'Client Management', 'Project Leadership'],
-            impact: 'Very High'
-        },
-        {
-            id: 'prestasports',
+            id: 'prevature',
             category: 'professional',
             type: 'work',
-            title: translate('Senior Developer'),
-            company: 'PrestaSports (Client)',
+            title: translate('Site Reliability Engineer'),
+            company: 'Prevature',
             location: 'Philadelphia, PA',
-            period: 'June 2023 – April 2024',
-            duration: '10 months',
-            status: 'completed',
-            icon: <Code />,
-            color: theme.palette.success.main,
-            description: translate('Cross-platform development and backend infrastructure leadership'),
+            period: 'February 2023 – April 2024',
+            duration: '1 year 3 months',
+            icon: <Cloud />,
+            color: theme.palette.secondary.main,
+            description: translate('Ensured high availability and performance of cloud infrastructure'),
             achievements: [
-                translate('Improved macOS and Windows communication reliability by 40%'),
-                translate('Increased server response speed by 35% and user satisfaction by 25%'),
-                translate('Enhanced team productivity by 30% through Agile practices'),
-                translate('Identified and resolved 50+ critical issues through code reviews')
+                translate('Maintained 99.9% uptime across all production services'),
+                translate('Reduced incident response time by 60% through automated monitoring'),
+                translate('Implemented disaster recovery procedures with RTO < 4 hours'),
+                translate('Optimized database performance improving query speed by 70%')
             ],
-            technologies: ['Unity', '.NET', 'Java', 'Bluetooth', 'APIs', 'Agile'],
+            technologies: ['AWS', 'Python', 'Ansible', 'Prometheus', 'Grafana', 'PostgreSQL'],
             teamSize: 8,
             impact: 'High'
         },
         {
-            id: 'fivedomains',
+            id: 'ziegler',
             category: 'professional',
             type: 'work',
-            title: translate('Subject Matter Expert'),
-            company: 'FiveDomains (Client)',
-            location: 'Riyadh, Saudi Arabia',
-            period: 'Jan. 2023 – June 2023',
-            duration: '6 months',
-            status: 'completed',
+            title: translate('QA Engineer'),
+            company: 'Ziegler Aerospace',
+            location: 'Birmingham, AL',
+            period: 'October 2021 – October 2022',
+            duration: '1 year',
             icon: <Security />,
-            color: theme.palette.error.main,
-            description: translate('Led .NET application development for Saudi Arabian military'),
+            color: theme.palette.success.main,
+            description: translate('Led quality assurance for mission-critical aerospace software'),
             achievements: [
-                translate('Reduced time-to-market by 25% and deployment cycles by 50%'),
-                translate('Increased operational efficiency by 30% with responsive frontend'),
-                translate('Improved data processing time by 40% and system reliability by 35%'),
-                translate('Completed project 15% ahead of schedule with zero-downtime deployments')
+                translate('Developed automated testing framework reducing test time by 80%'),
+                translate('Achieved 95% code coverage across critical systems'),
+                translate('Identified and resolved 200+ critical bugs before production'),
+                translate('Implemented continuous testing in CI/CD pipeline')
             ],
-            technologies: ['.NET', 'Blazor', 'JavaScript', 'Node.js', 'Jenkins', 'Docker'],
+            technologies: ['Selenium', 'Jest', 'Python', 'Jenkins', 'TestRail', 'JIRA'],
             teamSize: 12,
-            impact: 'Very High'
+            impact: 'Critical'
         },
         {
-            id: 'sunglitch',
+            id: 'gowell_early',
             category: 'professional',
             type: 'work',
-            title: translate('Developer'),
-            company: 'SunGlitch (Client)',
+            title: translate('Support Specialist'),
+            company: 'GoWell Benefits',
             location: 'Philadelphia, PA',
-            period: 'July 2021 – Dec. 2023',
-            duration: '2.5 years',
-            status: 'completed',
+            period: 'March 2021 – October 2021',
+            duration: '8 months',
             icon: <Psychology />,
             color: theme.palette.info.main,
-            description: translate('Extended Reality (XR) educational application development'),
+            description: translate('Provided technical support and implemented process improvements'),
             achievements: [
-                translate('Increased student engagement by 40% and learning outcomes by 30%'),
-                translate('Reduced task completion time by 40% with process-optimization systems'),
-                translate('Successfully delivered 3 high-impact XR projects'),
-                translate('Coordinated cross-functional teams across art, leadership, and development')
+                translate('Resolved 95% of tickets within SLA timeframe'),
+                translate('Created knowledge base reducing repeat tickets by 40%'),
+                translate('Trained 15+ new team members on support procedures'),
+                translate('Implemented ticket automation saving 20 hours weekly')
             ],
-            technologies: ['Unity', 'XR Toolkit', '.NET', 'PostgreSQL', 'Educational Technology'],
-            teamSize: 15,
-            impact: 'High'
+            technologies: ['ServiceNow', 'SQL', 'PowerShell', 'Active Directory'],
+            teamSize: 25,
+            impact: 'Operational'
         },
         {
-            id: 'openpath',
-            category: 'professional',
+            id: 'selfemployed',
+            category: 'entrepreneurial',
             type: 'work',
-            title: translate('DevOps Engineer'),
-            company: 'OpenPath Products (Client)',
-            location: 'Annapolis, MD',
-            period: 'Dec 2020 – July 2021',
-            duration: '8 months',
-            status: 'completed',
-            icon: <Cloud />,
-            color: theme.palette.warning.main,
-            description: translate('DevOps automation and AWS infrastructure optimization'),
-            achievements: [
-                translate('Reduced development cycles by 50% through pipeline automation'),
-                translate('Enhanced developer productivity by 25% and reduced system downtime'),
-                translate('Ensured 99% uptime for critical applications'),
-                translate('Resolved incidents 30% faster through proactive monitoring')
-            ],
-            technologies: ['Python', 'Jenkins', 'Docker', 'AWS', 'CI/CD', 'Monitoring'],
-            teamSize: 4,
-            impact: 'High'
-        },
-        {
-            id: 'kline-specter',
-            category: 'professional',
-            type: 'work',
-            title: translate('IT Technician'),
-            company: 'Kline and Specter',
+            title: translate('Full Stack Developer'),
+            company: 'Self-Employed',
             location: 'Philadelphia, PA',
-            period: 'Aug. 2019 – Sep. 2020',
+            period: 'March 2020 – March 2021',
             duration: '1 year',
-            status: 'completed',
-            icon: <Work />,
-            color: theme.palette.grey[600],
-            description: translate('IT infrastructure and cloud migration projects'),
+            icon: <Code />,
+            color: theme.palette.warning.main,
+            description: translate('Built custom web applications for small businesses'),
             achievements: [
-                translate('Resolved 200+ technical issues and reduced system downtime by 30%'),
-                translate('Reduced support requests by 50% through comprehensive documentation'),
-                translate('Boosted workflow efficiency by 40% with cloud storage solutions'),
-                translate('Successfully migrated email system to Office 365')
+                translate('Delivered 15+ production applications on time and budget'),
+                translate('Achieved 100% client satisfaction rating'),
+                translate('Generated $50K+ in revenue through consulting'),
+                translate('Built reusable component library accelerating development by 60%')
             ],
-            technologies: ['Confluence', 'Office 365', 'Cloud Storage', 'Virtualization'],
-            teamSize: 3,
-            impact: 'Medium'
+            technologies: ['React', 'Node.js', 'MongoDB', 'AWS', 'GraphQL', 'Next.js'],
+            clients: 15,
+            impact: 'Business'
         },
         {
-            id: 'education',
-            category: 'education',
-            type: 'education',
-            title: translate('Bachelor of Science in Computer Science'),
-            company: 'Wilmington University',
-            location: 'Wilmington, DE',
-            period: 'Dec. 2023',
-            duration: '4 years',
-            status: 'completed',
-            icon: <School />,
-            color: theme.palette.success.main,
-            description: translate('Computer Science with AI Minor - Summa Cum Laude (3.95 GPA)'),
+            id: 'petsmart',
+            category: 'entrepreneurial',
+            type: 'work',
+            title: translate('Inventory Manager'),
+            company: 'PetSmart',
+            location: 'Philadelphia, PA',
+            period: 'June 2018 – March 2020',
+            duration: '1 year 10 months',
+            icon: <Business />,
+            color: theme.palette.error.main,
+            description: translate('Managed inventory operations and implemented efficiency improvements'),
             achievements: [
-                translate('Graduated Summa Cum Laude with 3.95/4.00 GPA'),
-                translate('Specialized in Artificial Intelligence and Machine Learning'),
-                translate('Completed advanced coursework in algorithms and data structures'),
-                translate('Studied computer vision and image analysis')
+                translate('Reduced inventory shrinkage by 35% through improved processes'),
+                translate('Increased inventory accuracy to 99.2%'),
+                translate('Led team of 10 associates in daily operations'),
+                translate('Implemented new tracking system saving $15K annually')
             ],
-            technologies: ['AI/ML', 'Computer Vision', 'Algorithms', 'Data Structures', 'Mathematics'],
-            impact: 'Foundation'
+            technologies: ['SAP', 'Excel', 'Inventory Management', 'Data Analysis'],
+            teamSize: 10,
+            impact: 'Operational'
         },
         {
-            id: 'military',
+            id: 'airforce',
             category: 'leadership',
             type: 'military',
-            title: translate('Team Leader'),
-            company: 'US Army KS NG',
-            location: 'Lawrence, KS',
-            period: 'May 2012 – January 2017',
-            duration: '5 years',
-            status: 'completed',
+            title: translate('Technical Sergeant (E-6)'),
+            company: 'United States Air Force',
+            location: 'Shaw AFB, SC',
+            period: 'March 2008 – June 2018',
+            duration: '10 years 4 months',
             icon: <Military />,
-            color: theme.palette.error.dark,
-            description: translate('Military leadership and strategic planning'),
+            color: theme.palette.primary.dark,
+            description: translate('Led technical teams in maintaining critical defense systems'),
             achievements: [
-                translate('Awarded Soldier of the Year for exceptional performance (2015-2016)'),
-                translate('Developed and implemented strategic plans for mission objectives'),
-                translate('Provided leadership and guidance to team members'),
-                translate('Enhanced team performance and member development')
+                translate('Managed $5M+ in equipment with zero loss'),
+                translate('Led 20+ airmen in critical operations'),
+                translate('Earned 5 Air Force Achievement Medals'),
+                translate('Achieved 100% mission success rate over 10 years'),
+                translate('Completed 3 overseas deployments supporting combat operations')
             ],
             technologies: ['Leadership', 'Strategic Planning', 'Team Management', 'Military Operations'],
             teamSize: 20,
@@ -421,29 +372,31 @@ const TimelineSection = React.memo(({ onSectionView }) => {
                     </Box>
                 </Fade>
 
-                {/* Category Filter */}
+                {/* Category Filters */}
                 <Fade in={isVisible} timeout={1500}>
-                    <Box sx={{ mb: 6, display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ mb: 6 }}>
                         <Stack
                             direction="row"
-                            spacing={1}
+                            spacing={2}
                             sx={{
+                                justifyContent: 'center',
                                 flexWrap: 'wrap',
-                                gap: 1,
-                                justifyContent: 'center'
+                                gap: 2
                             }}
                         >
-                            {categories.map((category) => (
+                            {categories.map(category => (
                                 <Chip
                                     key={category.id}
-                                    icon={category.icon}
                                     label={`${category.label} (${category.count})`}
+                                    icon={category.icon}
                                     onClick={() => handleCategoryFilter(category.id)}
+                                    size="medium"
                                     variant={activeCategory === category.id ? 'filled' : 'outlined'}
                                     sx={{
                                         px: 2,
                                         py: 1,
-                                        fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
                                         borderWidth: 2,
                                         borderColor: activeCategory === category.id
                                             ? 'primary.main'
@@ -546,6 +499,9 @@ const TimelineSection = React.memo(({ onSectionView }) => {
                                 >
                                     <TimelineCard
                                         item={item}
+                                        index={index}
+                                        isLeft={index % 2 !== 0}
+                                        isActive={item.status === 'current' || item.status === 'ongoing'}
                                         expanded={expandedItems.has(item.id)}
                                         onExpand={() => handleTimelineItemExpand(item.id)}
                                         onClick={() => handleTimelineItemClick(item.id, item.title)}
@@ -578,7 +534,7 @@ const TimelineSection = React.memo(({ onSectionView }) => {
                                 color: 'primary.main'
                             }}
                         >
-                            {translate('Career Highlights')}
+                            {translate('Career Journey Summary')}
                         </Typography>
 
                         <Stack
@@ -587,66 +543,54 @@ const TimelineSection = React.memo(({ onSectionView }) => {
                             justifyContent="center"
                             alignItems="center"
                         >
-                            {[
-                                {
-                                    label: translate('Years Experience'),
-                                    value: '12+',
-                                    description: translate('Professional & Military')
-                                },
-                                {
-                                    label: translate('Companies Served'),
-                                    value: '8+',
-                                    description: translate('Enterprise & Consulting')
-                                },
-                                {
-                                    label: translate('Team Members Led'),
-                                    value: '50+',
-                                    description: translate('Across Various Projects')
-                                },
-                                {
-                                    label: translate('Performance Impact'),
-                                    value: '40%',
-                                    description: translate('Average Improvement')
-                                }
-                            ].map((stat, index) => (
-                                <Box
-                                    key={stat.label}
-                                    sx={{
-                                        textAlign: 'center',
-                                        minWidth: 120
-                                    }}
-                                >
-                                    <Typography
-                                        variant="h3"
-                                        sx={{
-                                            fontWeight: 800,
-                                            color: 'primary.main',
-                                            mb: 0.5
-                                        }}
-                                    >
-                                        {stat.value}
-                                    </Typography>
-                                    <Typography
-                                        variant="subtitle1"
-                                        sx={{
-                                            fontWeight: 600,
-                                            color: 'text.primary',
-                                            mb: 0.5
-                                        }}
-                                    >
-                                        {stat.label}
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            color: 'text.secondary'
-                                        }}
-                                    >
-                                        {stat.description}
-                                    </Typography>
-                                </Box>
-                            ))}
+                            <Box>
+                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                                    {timelineData.length}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {translate('Career Positions')}
+                                </Typography>
+                            </Box>
+                            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' } }} />
+                            <Box>
+                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'secondary.main' }}>
+                                    15+
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {translate('Years Experience')}
+                                </Typography>
+                            </Box>
+                            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' } }} />
+                            <Box>
+                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'success.main' }}>
+                                    5
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {translate('Industries')}
+                                </Typography>
+                            </Box>
                         </Stack>
+
+                        <Button
+                            variant="contained"
+                            size="large"
+                            href="/resume"
+                            sx={{
+                                mt: 4,
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 2,
+                                fontWeight: 600,
+                                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                                '&:hover': {
+                                    background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`,
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: theme.shadows[8]
+                                }
+                            }}
+                        >
+                            {translate('View Full Resume')}
+                        </Button>
                     </Box>
                 </Fade>
             </Container>
