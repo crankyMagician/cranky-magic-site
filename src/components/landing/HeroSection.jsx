@@ -1,467 +1,421 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Box, Container, Typography, Button, Grid, useTheme, useMediaQuery, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import EmailIcon from '@mui/icons-material/Email';
+import { useAnimationControl, useAnimationOrchestrator } from '../../hooks/useAnimationControl';
+import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 import {
-    Box,
-    Typography,
-    Button,
-    Container,
-    Grid,
-    Fade,
-    Slide,
-    IconButton,
-    Chip,
-    Stack,
-    Avatar,
-    useTheme,
-    alpha,
-    keyframes
-} from '@mui/material';
+    ANIMATION_DURATION,
+    ANIMATION_DELAY,
+    ANIMATION_EASING,
+    animationVariants,
+    sectionAnimations,
+    createAnimationConfig,
+} from '../../animations/portfolioAnimations';
 import {
-    ArrowDownward,
-    Download,
-    ContactMail,
-    GitHub,
-    LinkedIn,
-    Launch,
-    AutoAwesome,
-    Code,
-    Palette
-} from '@mui/icons-material';
-import useCustomTranslation from '../../hooks/useCustomTranslation';
-import useAnalytics from '../../analytics/hooks/useAnalytics';
+    PORTFOLIO_SECTIONS,
+    SCROLL_CONFIG,
+    EXTERNAL_LINKS,
+    ANALYTICS_EVENTS,
+} from './utils/portfolioConstants';
 import WizardAvatar from './WizardAvatar';
-import ThemeToggle from './ThemeToggle';
 
-// Magical animations inspired by cranky theme
-const magicSparkle = keyframes`
-    0% { opacity: 0; transform: scale(0) rotate(0deg); }
-    50% { opacity: 1; transform: scale(1) rotate(180deg); }
-    100% { opacity: 0; transform: scale(0) rotate(360deg); }
-`;
-
-const levitate = keyframes`
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-`;
-
-const typewriterAnimation = keyframes`
-    from { width: 0; }
-    to { width: 100%; }
-`;
-
-const blinkCursor = keyframes`
-    from, to { border-color: transparent; }
-    50% { border-color: currentColor; }
-`;
-
-const HeroSection = React.memo(({ onSectionView }) => {
+const HeroSection = ({ onScrollToNext = () => {} }) => {
     const theme = useTheme();
-    const { translate } = useCustomTranslation();
-    const analytics = useAnalytics();
+    const navigate = useNavigate();
+    const currentTheme = useSelector(state => state.theme.mode);
+    const isDarkMode = currentTheme === 'dark';
 
-    const [isVisible, setIsVisible] = useState(false);
-    const [showTypewriter, setShowTypewriter] = useState(false);
-    const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+    const containerRef = useRef(null);
+    const controls = useAnimationControl({
+        animationType: 'fadeIn',
+        duration: ANIMATION_DURATION.NORMAL,
+        delay: ANIMATION_DELAY.NONE,
+        triggerOnScroll: false,
+    });
 
-    // Professional skills rotation
-    const skills = [
-        translate('Full-Stack Developer'),
-        translate('React Specialist'),
-        translate('UI/UX Designer'),
-        translate('Problem Solver'),
-        translate('Tech Innovator')
-    ];
+    // Setup animation controls for different elements
+    const titleAnimation = useAnimationControl({
+        animationType: 'fadeInDown',
+        duration: ANIMATION_DURATION.SLOW,
+        delay: ANIMATION_DELAY.SHORT,
+        easing: ANIMATION_EASING.EASE_OUT,
+        triggerOnScroll: false,
+    });
 
-    // Initialize animations
-    useEffect(() => {
-        const timer = setTimeout(() => setIsVisible(true), 300);
-        const typewriterTimer = setTimeout(() => setShowTypewriter(true), 1000);
+    const subtitleAnimation = useAnimationControl({
+        animationType: 'fadeInUp',
+        duration: ANIMATION_DURATION.MEDIUM,
+        delay: ANIMATION_DELAY.MEDIUM,
+        easing: ANIMATION_EASING.EASE_OUT,
+        triggerOnScroll: false,
+    });
 
-        if (onSectionView) {
-            onSectionView();
+    const ctaAnimation = useAnimationControl({
+        animationType: 'scaleIn',
+        duration: ANIMATION_DURATION.MEDIUM,
+        delay: ANIMATION_DELAY.LONG,
+        easing: ANIMATION_EASING.ELASTIC,
+        triggerOnScroll: false,
+    });
+
+    const socialAnimation = useAnimationControl({
+        animationType: 'fadeInLeft',
+        duration: ANIMATION_DURATION.NORMAL,
+        delay: ANIMATION_DELAY.LONG + 100,
+        easing: ANIMATION_EASING.EASE_OUT,
+        triggerOnScroll: false,
+    });
+
+    const avatarAnimation = useAnimationControl({
+        animationType: 'fadeInRight',
+        duration: ANIMATION_DURATION.SLOW,
+        delay: ANIMATION_DELAY.MEDIUM,
+        easing: ANIMATION_EASING.EASE_OUT,
+        triggerOnScroll: false,
+    });
+
+    // Orchestrate the hero section animations
+    const { startSequence } = useAnimationOrchestrator(
+        [titleAnimation, subtitleAnimation, ctaAnimation, socialAnimation, avatarAnimation],
+        {
+            sequential: false,
+            autoStart: true,
+        }
+    );
+
+    // Intersection observer for section visibility
+    const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
+        threshold: 0.5,
+        triggerOnce: false,
+    });
+
+    // Handle CTA button click
+    const handleCTAClick = useCallback(() => {
+        if (window.analytics) {
+            window.analytics.track(ANALYTICS_EVENTS.CTA_CLICK, {
+                location: 'hero_section',
+                action: 'view_projects',
+            });
         }
 
-        return () => {
-            clearTimeout(timer);
-            clearTimeout(typewriterTimer);
-        };
-    }, [onSectionView]);
-
-    // Skill rotation effect
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentSkillIndex((prev) => (prev + 1) % skills.length);
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [skills.length]);
-
-    // Analytics handlers
-    const handleResumeDownload = () => {
-        analytics.trackButtonClick('download_resume', {
-            section: 'hero',
-            context: 'primary_cta',
-            format: 'pdf'
-        });
-    };
-
-    const handleContactClick = () => {
-        analytics.trackButtonClick('contact_hero', {
-            section: 'hero',
-            context: 'secondary_cta'
-        });
-
-        // Smooth scroll to contact section
-        const contactSection = document.getElementById('contact-section');
-        if (contactSection) {
-            contactSection.scrollIntoView({ behavior: 'smooth' });
+        // Smooth scroll to projects section
+        const projectsSection = document.getElementById(PORTFOLIO_SECTIONS.PROJECTS);
+        if (projectsSection) {
+            projectsSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
         }
-    };
+    }, []);
 
-    const handleSocialClick = (platform) => {
-        analytics.trackLinkClick(`${platform}_profile`, '#', {
-            section: 'hero',
-            social_platform: platform,
-            is_external: true
-        });
-    };
-
-    const handleScrollDown = () => {
-        analytics.trackElementClick('scroll_indicator', 'hero_scroll_down', {
-            section: 'hero',
-            interaction_type: 'scroll_prompt'
-        });
-
-        // Smooth scroll to next section
-        const skillsSection = document.getElementById('skills-section');
-        if (skillsSection) {
-            skillsSection.scrollIntoView({ behavior: 'smooth' });
+    // Handle social link clicks
+    const handleSocialClick = useCallback((platform, url) => {
+        if (window.analytics) {
+            window.analytics.track(ANALYTICS_EVENTS.SOCIAL_LINK_CLICK, {
+                platform,
+                location: 'hero_section',
+            });
         }
-    };
+        window.open(url, '_blank', 'noopener noreferrer');
+    }, []);
+
+    // Handle scroll down indicator click
+    const handleScrollDown = useCallback(() => {
+        onScrollToNext();
+    }, [onScrollToNext]);
+
+    // Social links configuration
+    const socialLinks = useMemo(() => [
+        {
+            icon: GitHubIcon,
+            label: 'GitHub',
+            url: EXTERNAL_LINKS.GITHUB,
+            color: isDarkMode ? '#ffffff' : '#24292e',
+        },
+        {
+            icon: LinkedInIcon,
+            label: 'LinkedIn',
+            url: EXTERNAL_LINKS.LINKEDIN,
+            color: '#0077b5',
+        },
+        {
+            icon: EmailIcon,
+            label: 'Email',
+            url: 'mailto:contact@example.com',
+            color: isDarkMode ? '#ffffff' : '#000000',
+        },
+    ], [isDarkMode]);
+
+    // Background gradient based on theme
+    const backgroundGradient = useMemo(() => {
+        if (isDarkMode) {
+            return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900]} 100%)`;
+        }
+        return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100]} 100%)`;
+    }, [isDarkMode, theme]);
 
     return (
-        <Container
-            maxWidth="xl"
+        <Box
+            ref={(el) => {
+                containerRef.current = el;
+                sectionRef(el);
+            }}
+            id={PORTFOLIO_SECTIONS.HERO}
+            component="section"
             sx={{
                 minHeight: '100vh',
                 display: 'flex',
                 alignItems: 'center',
                 position: 'relative',
-                py: { xs: 4, md: 8 }
+                background: backgroundGradient,
+                overflow: 'hidden',
+                pt: { xs: 8, md: 0 },
+                pb: { xs: 8, md: 0 },
             }}
         >
-            {/* Background magical elements */}
+            {/* Background decoration */}
             <Box
                 sx={{
                     position: 'absolute',
-                    top: '20%',
-                    right: '10%',
-                    fontSize: '1.5rem',
-                    color: theme.palette.primary.main,
-                    animation: `${magicSparkle} 4s infinite`,
-                    opacity: 0.6,
-                    display: { xs: 'none', md: 'block' }
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    opacity: 0.05,
+                    background: `radial-gradient(circle at 20% 50%, ${theme.palette.primary.main} 0%, transparent 50%),
+                       radial-gradient(circle at 80% 80%, ${theme.palette.secondary.main} 0%, transparent 50%)`,
+                    pointerEvents: 'none',
                 }}
-            >
-                ✨
-            </Box>
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '60%',
-                    left: '5%',
-                    fontSize: '1.2rem',
-                    color: theme.palette.secondary.main,
-                    animation: `${magicSparkle} 3s infinite 1s`,
-                    opacity: 0.5,
-                    display: { xs: 'none', md: 'block' }
-                }}
-            >
-                ⭐
-            </Box>
+            />
 
-            {/* Theme Toggle in top right */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: { xs: 16, md: 24 },
-                    right: { xs: 16, md: 24 },
-                    zIndex: 10
-                }}
-            >
-                <ThemeToggle />
-            </Box>
-
-            <Grid container spacing={4} alignItems="center">
-                {/* Left Column - Text Content */}
-                <Grid item xs={12} md={8} lg={7}>
-                    <Fade in={isVisible} timeout={1000}>
-                        <Box>
-                            {/* Greeting */}
-                            <Slide direction="down" in={isVisible} timeout={800}>
-                                <Typography
-                                    variant="h6"
-                                    component="p"
-                                    sx={{
-                                        color: 'text.secondary',
-                                        mb: 2,
-                                        fontWeight: 500,
-                                        letterSpacing: 1.2
-                                    }}
-                                >
-                                    {translate('Hello, I am')}
-                                </Typography>
-                            </Slide>
-
-                            {/* Name */}
-                            <Slide direction="up" in={isVisible} timeout={1000}>
-                                <Typography
-                                    variant="h1"
-                                    component="h1"
-                                    sx={{
-                                        fontWeight: 800,
-                                        mb: 2,
-                                        fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
-                                        lineHeight: 1.1,
-                                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                                        backgroundClip: 'text',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                        textShadow: theme.palette.mode === 'dark'
-                                            ? `0 0 30px ${alpha(theme.palette.primary.main, 0.3)}`
-                                            : 'none'
-                                    }}
-                                >
-                                    CrankyMagician
-                                </Typography>
-                            </Slide>
-
-                            {/* Dynamic Skills with Typewriter Effect */}
-                            <Box
+            <Container maxWidth="lg">
+                <Grid container spacing={4} alignItems="center">
+                    {/* Content Column */}
+                    <Grid item xs={12} md={7}>
+                        <Box
+                            sx={{ ...titleAnimation.animationStyles }}
+                        >
+                            <Typography
+                                variant="h1"
+                                component="h1"
+                                gutterBottom
                                 sx={{
-                                    mb: 4,
-                                    minHeight: '4rem',
-                                    display: 'flex',
-                                    alignItems: 'center'
+                                    fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                                    fontWeight: 800,
+                                    background: isDarkMode
+                                        ? `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.secondary.light} 100%)`
+                                        : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                                    backgroundClip: 'text',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    textAlign: { xs: 'center', md: 'left' },
+                                    mb: 2,
                                 }}
                             >
-                                <Typography
-                                    variant="h4"
-                                    component="h2"
-                                    sx={{
-                                        fontWeight: 600,
-                                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-                                        color: 'text.primary',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        borderRight: showTypewriter ? `3px solid ${theme.palette.primary.main}` : 'none',
-                                        animation: showTypewriter ? `${typewriterAnimation} 2s steps(40), ${blinkCursor} 1s infinite` : 'none',
-                                        animationDelay: '0.5s',
-                                        animationFillMode: 'both'
-                                    }}
-                                >
-                                    {skills[currentSkillIndex]}
-                                </Typography>
-                            </Box>
-
-                            {/* Description */}
-                            <Fade in={isVisible} timeout={1500}>
-                                <Typography
-                                    variant="h6"
-                                    component="p"
-                                    sx={{
-                                        color: 'text.secondary',
-                                        mb: 4,
-                                        maxWidth: '600px',
-                                        lineHeight: 1.6,
-                                        fontSize: { xs: '1rem', md: '1.25rem' }
-                                    }}
-                                >
-                                    {translate('Crafting magical digital experiences with React, TypeScript, and a passion for clean code. Transforming ideas into powerful, scalable applications.')}
-                                </Typography>
-                            </Fade>
-
-                            {/* Skills Tags */}
-                            <Fade in={isVisible} timeout={2000}>
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    sx={{ mb: 4, flexWrap: 'wrap', gap: 1 }}
-                                >
-                                    {[
-                                        { label: 'React', icon: <Code /> },
-                                        { label: 'TypeScript', icon: <Code /> },
-                                        { label: 'Node.js', icon: <Code /> },
-                                        { label: 'UI/UX', icon: <Palette /> },
-                                        { label: 'Material-UI', icon: <Palette /> }
-                                    ].map((skill, index) => (
-                                        <Chip
-                                            key={skill.label}
-                                            icon={skill.icon}
-                                            label={translate(skill.label)}
-                                            variant="outlined"
-                                            sx={{
-                                                borderColor: 'primary.main',
-                                                color: 'primary.main',
-                                                fontWeight: 600,
-                                                animation: `${levitate} 3s ease-in-out infinite`,
-                                                animationDelay: `${index * 0.2}s`,
-                                                '&:hover': {
-                                                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                                    transform: 'scale(1.05)'
-                                                }
-                                            }}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Fade>
-
-                            {/* CTA Buttons */}
-                            <Fade in={isVisible} timeout={2500}>
-                                <Stack
-                                    direction={{ xs: 'column', sm: 'row' }}
-                                    spacing={2}
-                                    sx={{ mb: 4 }}
-                                >
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        startIcon={<Download />}
-                                        onClick={handleResumeDownload}
-                                        sx={{
-                                            px: 4,
-                                            py: 1.5,
-                                            fontSize: '1.1rem',
-                                            fontWeight: 600,
-                                            borderRadius: 2,
-                                            boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-                                            '&:hover': {
-                                                transform: 'translateY(-2px)',
-                                                boxShadow: `0 6px 30px ${alpha(theme.palette.primary.main, 0.4)}`
-                                            }
-                                        }}
-                                    >
-                                        {translate('Download Resume')}
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        size="large"
-                                        startIcon={<ContactMail />}
-                                        onClick={handleContactClick}
-                                        sx={{
-                                            px: 4,
-                                            py: 1.5,
-                                            fontSize: '1.1rem',
-                                            fontWeight: 600,
-                                            borderRadius: 2,
-                                            borderWidth: 2,
-                                            '&:hover': {
-                                                borderWidth: 2,
-                                                transform: 'translateY(-2px)'
-                                            }
-                                        }}
-                                    >
-                                        {translate('Get In Touch')}
-                                    </Button>
-                                </Stack>
-                            </Fade>
-
-                            {/* Social Links */}
-                            <Fade in={isVisible} timeout={3000}>
-                                <Stack direction="row" spacing={2}>
-                                    {[
-                                        { platform: 'GitHub', icon: <GitHub />, url: '#' },
-                                        { platform: 'LinkedIn', icon: <LinkedIn />, url: '#' },
-                                        { platform: 'Portfolio', icon: <Launch />, url: '#' }
-                                    ].map((social) => (
-                                        <IconButton
-                                            key={social.platform}
-                                            onClick={() => handleSocialClick(social.platform)}
-                                            sx={{
-                                                color: 'text.secondary',
-                                                transition: 'all 0.3s',
-                                                '&:hover': {
-                                                    color: 'primary.main',
-                                                    transform: 'translateY(-2px) scale(1.1)'
-                                                }
-                                            }}
-                                            aria-label={`${social.platform} profile`}
-                                        >
-                                            {social.icon}
-                                        </IconButton>
-                                    ))}
-                                </Stack>
-                            </Fade>
+                                Full Stack Developer
+                            </Typography>
                         </Box>
-                    </Fade>
-                </Grid>
 
-                {/* Right Column - Wizard Avatar */}
-                <Grid item xs={12} md={4} lg={5}>
-                    <Fade in={isVisible} timeout={1500}>
+                        <Box
+                            sx={{ ...subtitleAnimation.animationStyles }}
+                        >
+                            <Typography
+                                variant="h5"
+                                component="h2"
+                                color="text.secondary"
+                                paragraph
+                                sx={{
+                                    fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' },
+                                    textAlign: { xs: 'center', md: 'left' },
+                                    mb: 4,
+                                    lineHeight: 1.6,
+                                }}
+                            >
+                                Building exceptional digital experiences with modern web technologies.
+                                Specializing in React, Node.js, and cloud architecture.
+                            </Typography>
+                        </Box>
+
+                        {/* CTA Buttons */}
                         <Box
                             sx={{
+                                ...ctaAnimation.animationStyles,
+                                display: 'flex',
+                                gap: 2,
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                justifyContent: { xs: 'center', md: 'flex-start' },
+                                mb: 4,
+                            }}
+                        >
+                            <Button
+                                variant="contained"
+                                size="large"
+                                onClick={handleCTAClick}
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    textTransform: 'none',
+                                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                                    boxShadow: theme.shadows[4],
+                                    '&:hover': {
+                                        boxShadow: theme.shadows[8],
+                                        transform: 'translateY(-2px)',
+                                    },
+                                    transition: theme.transitions.create(['box-shadow', 'transform'], {
+                                        duration: theme.transitions.duration.short,
+                                    }),
+                                }}
+                            >
+                                View My Projects
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                href={EXTERNAL_LINKS.RESUME}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    textTransform: 'none',
+                                    borderWidth: 2,
+                                    '&:hover': {
+                                        borderWidth: 2,
+                                        transform: 'translateY(-2px)',
+                                    },
+                                    transition: theme.transitions.create(['transform'], {
+                                        duration: theme.transitions.duration.short,
+                                    }),
+                                }}
+                            >
+                                Download Resume
+                            </Button>
+                        </Box>
+
+                        {/* Social Links */}
+                        <Box
+                            sx={{
+                                ...socialAnimation.animationStyles,
+                                display: 'flex',
+                                gap: 2,
+                                justifyContent: { xs: 'center', md: 'flex-start' },
+                            }}
+                        >
+                            {socialLinks.map((social, index) => (
+                                <IconButton
+                                    key={social.label}
+                                    aria-label={social.label}
+                                    onClick={() => handleSocialClick(social.label, social.url)}
+                                    sx={{
+                                        color: social.color,
+                                        backgroundColor: isDarkMode
+                                            ? 'rgba(255, 255, 255, 0.08)'
+                                            : 'rgba(0, 0, 0, 0.04)',
+                                        '&:hover': {
+                                            backgroundColor: isDarkMode
+                                                ? 'rgba(255, 255, 255, 0.16)'
+                                                : 'rgba(0, 0, 0, 0.08)',
+                                            transform: 'translateY(-4px)',
+                                        },
+                                        transition: theme.transitions.create(['background-color', 'transform'], {
+                                            duration: theme.transitions.duration.short,
+                                        }),
+                                    }}
+                                >
+                                    <social.icon />
+                                </IconButton>
+                            ))}
+                        </Box>
+                    </Grid>
+
+                    {/* Avatar Column */}
+                    <Grid item xs={12} md={5}>
+                        <Box
+                            sx={{
+                                ...avatarAnimation.animationStyles,
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                minHeight: { xs: '300px', md: '500px' },
-                                position: 'relative'
+                                position: 'relative',
                             }}
                         >
                             <WizardAvatar
-                                size="large"
-                                animated
-                                showStars
+                                size={isMobile ? 280 : isTablet ? 320 : 400}
+                                animated={true}
+                            />
+
+                            {/* Decorative elements */}
+                            <Box
                                 sx={{
-                                    animation: `${levitate} 4s ease-in-out infinite`
+                                    position: 'absolute',
+                                    top: '10%',
+                                    left: '10%',
+                                    width: 80,
+                                    height: 80,
+                                    borderRadius: '50%',
+                                    background: theme.palette.primary.main,
+                                    opacity: 0.1,
+                                    filter: 'blur(40px)',
+                                    animation: 'pulse 3s ease-in-out infinite',
+                                }}
+                            />
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: '20%',
+                                    right: '10%',
+                                    width: 120,
+                                    height: 120,
+                                    borderRadius: '50%',
+                                    background: theme.palette.secondary.main,
+                                    opacity: 0.1,
+                                    filter: 'blur(60px)',
+                                    animation: 'pulse 4s ease-in-out infinite 1s',
                                 }}
                             />
                         </Box>
-                    </Fade>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </Container>
 
             {/* Scroll Down Indicator */}
-            <Fade in={isVisible} timeout={3500}>
-                <Box
+            <Box
+                sx={{
+                    position: 'absolute',
+                    bottom: theme.spacing(4),
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    cursor: 'pointer',
+                    display: { xs: 'none', md: 'block' },
+                    animation: 'float 2s ease-in-out infinite',
+                }}
+                onClick={handleScrollDown}
+            >
+                <IconButton
+                    aria-label="Scroll to next section"
                     sx={{
-                        position: 'absolute',
-                        bottom: 24,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        textAlign: 'center',
-                        cursor: 'pointer'
+                        color: theme.palette.text.secondary,
+                        '&:hover': {
+                            color: theme.palette.text.primary,
+                        },
                     }}
-                    onClick={handleScrollDown}
                 >
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            color: 'text.secondary',
-                            mb: 1,
-                            fontSize: '0.875rem',
-                            fontWeight: 500
-                        }}
-                    >
-                        {translate('Scroll to explore')}
-                    </Typography>
-                    <IconButton
-                        sx={{
-                            color: 'primary.main',
-                            animation: `${levitate} 2s ease-in-out infinite`,
-                            '&:hover': {
-                                backgroundColor: alpha(theme.palette.primary.main, 0.1)
-                            }
-                        }}
-                        aria-label="Scroll down"
-                    >
-                        <ArrowDownward />
-                    </IconButton>
-                </Box>
-            </Fade>
-        </Container>
+                    <KeyboardArrowDownIcon sx={{ fontSize: 32 }} />
+                </IconButton>
+            </Box>
+        </Box>
     );
-});
-
-HeroSection.displayName = 'HeroSection';
+};
 
 export default HeroSection;

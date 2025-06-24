@@ -10,6 +10,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import DirectPasswordReset from "./components/auth/DirectPasswordReset";
 import PortfolioLanding from "./pages/PortfolioLanding";
+import Example from "./example/Example";
 
 const MainContent = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -18,6 +19,7 @@ const MainContent = () => {
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
                 <Route path="/" element={<PortfolioLanding />} />
+                <Route path="/theme" element={<Example />} />
                 <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
                 <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>

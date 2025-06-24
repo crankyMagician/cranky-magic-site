@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -6,537 +6,795 @@ import {
     Card,
     CardContent,
     CardMedia,
+    CardActions,
     Button,
     Chip,
     Stack,
     IconButton,
-    Fade,
+    Tooltip,
     Container,
     useTheme,
+    useMediaQuery,
     alpha,
-    keyframes,
-    Tooltip,
-    CardActions
+    Skeleton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
 import {
     GitHub,
     Launch,
-    PlayArrow,
     Code,
-    CloudQueue,
-    Security,
-    Speed,
-    Psychology,
     Visibility,
     Star,
-    Assignment,
-    MedicalServices,
-    Quiz,
-    CloudDownload,
+    FolderOpen,
+    ArrowForward,
+    Close,
+    CalendarToday,
     Group,
-    TrendingUp,
-    Business
 } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
-import ProjectCard from './ProjectCard';
+import { useAnimationControl, useStaggerAnimation } from '../../hooks/useAnimationControl';
+import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
+import {
+    ANIMATION_DURATION,
+    ANIMATION_DELAY,
+    ANIMATION_EASING,
+    createAnimationConfig,
+} from '../../animations/portfolioAnimations';
+import {
+    PORTFOLIO_SECTIONS,
+    ANALYTICS_EVENTS,
+    CONTENT_LIMITS,
+} from './utils/portfolioConstants';
 
-// Animation keyframes
-const projectFloat = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-`;
-
-const shimmerEffect = keyframes`
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-`;
-
-const ProjectsSection = React.memo(({ onSectionView }) => {
+const ProjectsSection = React.memo(() => {
     const theme = useTheme();
     const { translate } = useCustomTranslation();
     const analytics = useAnalytics();
-    const [isVisible, setIsVisible] = useState(false);
+    const currentTheme = useSelector(state => state.theme.mode);
+    const isDarkMode = theme.palette.mode === 'dark';
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [imageLoadingStates, setImageLoadingStates] = useState({});
 
-    // Track section visibility
-    useEffect(() => {
-        const timer = setTimeout(() => setIsVisible(true), 300);
-        if (onSectionView) {
-            onSectionView();
-        }
-        return () => clearTimeout(timer);
-    }, [onSectionView]);
+    // Section visibility tracking
+    const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
+        threshold: 0.3,
+        triggerOnce: false,
+    });
 
-    // Real projects based on resume data
-    const projects = [
+    // Animation controls
+    const titleAnimation = useAnimationControl({
+        animationType: 'fadeInDown',
+        duration: ANIMATION_DURATION.MEDIUM,
+        delay: ANIMATION_DELAY.SHORT,
+        triggerOnScroll: true,
+        triggerOnce: true,
+    });
+
+    const { registerItem, getItemStyles } = useStaggerAnimation({
+        animationType: 'scaleIn',
+        baseDelay: ANIMATION_DELAY.MEDIUM,
+        staggerDelay: ANIMATION_DELAY.STAGGER_BASE * 2,
+        duration: ANIMATION_DURATION.NORMAL,
+        triggerOnScroll: true,
+    });
+
+    // Projects data
+    const projectsData = useMemo(() => [
         {
-            id: 'grant-management-system',
-            title: translate('Grant Management System'),
-            description: translate('A robust system to manage grant proposals with proprietary Machine Learning algorithms for grant categorization and user-grant matching.'),
-            longDescription: translate('Worked in a team of three to create a comprehensive grant management platform featuring advanced ML algorithms for intelligent grant categorization and automated user-grant matching based on qualifications and interests.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['Machine Learning', 'Python', 'React', 'Node.js', 'PostgreSQL', 'AI Algorithms'],
+            id: 'ecommerce-platform',
+            title: 'E-Commerce Platform',
+            description: 'Full-stack e-commerce solution with real-time inventory, payment processing, and admin dashboard',
+            longDescription: 'A comprehensive e-commerce platform built with React, Node.js, and PostgreSQL. Features include real-time inventory management, Stripe payment integration, advanced search and filtering, user authentication, order tracking, and a powerful admin dashboard for analytics and management.',
+            image: '/assets/images/projects/ecommerce.jpg',
+            technologies: ['React', 'Node.js', 'PostgreSQL', 'Redis', 'Stripe', 'Docker'],
             category: 'fullstack',
-            type: 'Personal Project',
-            duration: 'Aug 2022 - Dec 2022',
-            teamSize: 3,
-            achievements: [
-                translate('Developed proprietary ML algorithm for grant categorization'),
-                translate('Created intelligent user-grant matching system'),
-                translate('Built comprehensive proposal management workflow')
-            ],
-            githubUrl: '#',
-            demoUrl: '#',
             featured: true,
-            status: 'completed'
-        },
-        {
-            id: 'vr-quiz-application',
-            title: translate('VR Quiz Application'),
-            description: translate('Full-stack Virtual Reality Quiz application with seamless web browser integration, achieving 20% improvement in user engagement.'),
-            longDescription: translate('Co-developed an innovative VR quiz platform using Unity, C#, JavaScript, and Node.js with AWS integration. The application features cross-platform compatibility and enhanced user engagement through immersive VR experiences.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['Unity', 'C#', 'JavaScript', 'Node.js', 'AWS', 'VR', 'WebXR'],
-            category: 'vr',
-            type: 'SunGlitch Project',
-            duration: 'Aug 2022 - Dec 2022',
-            teamSize: 2,
-            achievements: [
-                translate('20% improvement in user engagement'),
-                translate('Seamless web browser integration'),
-                translate('Cross-platform VR compatibility')
-            ],
-            githubUrl: '#',
-            demoUrl: '#',
-            featured: true,
-            status: 'completed'
-        },
-        {
-            id: 'patient-interaction-simulation',
-            title: translate('Patient Interaction Simulation'),
-            description: translate('Virtual Reality medical training simulation with 85% accuracy improvement in diagnostic testing and 95% user satisfaction rate.'),
-            longDescription: translate('Led a 4-person team in developing an advanced VR medical training simulation using Unity and XR Toolkit with VOSK integration for voice recognition. The simulation focuses on patient vitals testing with remarkable accuracy improvements.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['Unity', 'XR Toolkit', 'VOSK', 'C#', 'Medical AI', 'Voice Recognition'],
-            category: 'vr',
-            type: 'SunGlitch Project',
-            duration: 'Jul 2021 - Jul 2022',
+            demoUrl: 'https://demo.example.com/ecommerce',
+            githubUrl: 'https://github.com/username/ecommerce',
+            stats: {
+                users: '10K+',
+                orders: '50K+',
+                uptime: '99.9%'
+            },
+            date: '2024',
             teamSize: 4,
-            achievements: [
-                translate('85% improvement in diagnostic accuracy'),
-                translate('95% user satisfaction rate'),
-                translate('Recognition for usability excellence'),
-                translate('Contributed to VR adoption in medical training')
-            ],
-            githubUrl: '#',
-            demoUrl: '#',
-            featured: true,
-            status: 'completed'
         },
         {
-            id: 'azure-migration-project',
-            title: translate('Azure Cloud Migration'),
-            description: translate('Enterprise IT infrastructure migration to Azure, improving system reliability by 25% and reducing operational costs by 30%.'),
-            longDescription: translate('Collaborated with a 3-person team to migrate Kline and Specter law firm\'s complete IT infrastructure to Azure cloud platform. The project involved comprehensive planning, configuration, and optimization of cloud resources.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['Microsoft Azure', 'Cloud Architecture', 'Virtual Machines', 'Networking', 'Security', 'DevOps'],
-            category: 'cloud',
-            type: 'Enterprise Project',
-            duration: 'Sep 2019 - May 2020',
+            id: 'ai-dashboard',
+            title: 'AI Analytics Dashboard',
+            description: 'Real-time data visualization dashboard with ML-powered insights and predictive analytics',
+            longDescription: 'An advanced analytics dashboard that leverages machine learning for predictive insights. Built with React, D3.js, and Python backend. Features include real-time data streaming, customizable widgets, automated reporting, and ML-powered anomaly detection.',
+            image: '/assets/images/projects/ai-dashboard.jpg',
+            technologies: ['React', 'D3.js', 'Python', 'TensorFlow', 'WebSocket', 'MongoDB'],
+            category: 'frontend',
+            featured: true,
+            demoUrl: 'https://demo.example.com/analytics',
+            githubUrl: 'https://github.com/username/ai-dashboard',
+            stats: {
+                dataPoints: '1M+',
+                predictions: '95%',
+                performance: '60fps'
+            },
+            date: '2024',
             teamSize: 3,
-            achievements: [
-                translate('25% improvement in system reliability'),
-                translate('30% reduction in operational costs'),
-                translate('Zero-downtime migration process'),
-                translate('Enhanced security posture')
-            ],
-            githubUrl: null,
-            demoUrl: null,
-            featured: false,
-            status: 'completed'
         },
         {
-            id: 'dotnet-military-application',
-            title: translate('.NET Military Application'),
-            description: translate('Enterprise .NET application for Saudi Arabian military with 25% faster time-to-market and 50% faster deployment cycles.'),
-            longDescription: translate('Led the complete development lifecycle of a mission-critical .NET application for military use, implementing comprehensive DevOps strategies and ensuring the highest security standards.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['.NET', 'Blazor', 'JavaScript', 'Node.js', 'Jenkins', 'Docker', 'DevOps', 'Security'],
-            category: 'enterprise',
-            type: 'FiveDomains Project',
-            duration: 'Jan 2023 - Jun 2023',
-            teamSize: 6,
-            achievements: [
-                translate('25% reduction in time-to-market'),
-                translate('50% faster deployment cycles'),
-                translate('Zero-downtime deployments'),
-                translate('15% ahead of schedule completion')
-            ],
-            githubUrl: null,
-            demoUrl: null,
+            id: 'mobile-app',
+            title: 'Task Management Mobile App',
+            description: 'Cross-platform mobile application for team collaboration and task management',
+            longDescription: 'A React Native application for team collaboration with real-time updates, push notifications, and offline support. Features include task assignment, progress tracking, team chat, file sharing, and calendar integration.',
+            image: '/assets/images/projects/mobile-app.jpg',
+            technologies: ['React Native', 'Firebase', 'Redux', 'Node.js', 'Socket.io'],
+            category: 'mobile',
+            featured: false,
+            demoUrl: 'https://demo.example.com/mobile',
+            githubUrl: 'https://github.com/username/task-app',
+            stats: {
+                downloads: '25K+',
+                rating: '4.8',
+                platforms: '2'
+            },
+            date: '2023',
+            teamSize: 2,
+        },
+        {
+            id: 'blockchain-voting',
+            title: 'Blockchain Voting System',
+            description: 'Secure, transparent voting platform built on Ethereum blockchain',
+            longDescription: 'A decentralized voting application ensuring transparency and security through blockchain technology. Built with Solidity smart contracts, Web3.js, and React. Features include voter verification, real-time results, and immutable vote records.',
+            image: '/assets/images/projects/blockchain.jpg',
+            technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum', 'IPFS', 'Truffle'],
+            category: 'blockchain',
             featured: true,
-            status: 'completed'
+            githubUrl: 'https://github.com/username/blockchain-voting',
+            stats: {
+                votes: '100K+',
+                gasOptimized: '40%',
+                security: 'A+'
+            },
+            date: '2023',
+            teamSize: 5,
         },
         {
-            id: 'xr-educational-applications',
-            title: translate('XR Educational Applications'),
-            description: translate('Extended Reality educational platforms increasing student engagement by 40% and learning outcomes by 30%.'),
-            longDescription: translate('Developed multiple XR educational applications using Unity and XR Toolkit, focusing on immersive learning experiences that significantly improve educational outcomes and student engagement metrics.'),
-            image: '/api/placeholder/400/240',
-            technologies: ['Unity', 'XR Toolkit', 'C#', 'Educational Technology', 'UX Design', 'Analytics'],
-            category: 'vr',
-            type: 'SunGlitch Project',
-            duration: 'Jul 2021 - Dec 2023',
-            teamSize: 8,
-            achievements: [
-                translate('40% increase in student engagement'),
-                translate('30% improvement in learning outcomes'),
-                translate('Multiple successful deployments'),
-                translate('Recognized for educational innovation')
-            ],
-            githubUrl: '#',
-            demoUrl: '#',
+            id: 'video-streaming',
+            title: 'Video Streaming Platform',
+            description: 'Scalable video streaming service with adaptive bitrate and CDN integration',
+            longDescription: 'A Netflix-like streaming platform with adaptive bitrate streaming, CDN integration, and personalized recommendations. Built with React, Node.js, and AWS services. Features include 4K streaming, offline downloads, and AI-powered content recommendations.',
+            image: '/assets/images/projects/streaming.jpg',
+            technologies: ['React', 'Node.js', 'AWS', 'FFmpeg', 'Redis', 'ElasticSearch'],
+            category: 'fullstack',
             featured: false,
-            status: 'completed'
-        }
-    ];
+            demoUrl: 'https://demo.example.com/streaming',
+            stats: {
+                streams: '1M+',
+                quality: '4K',
+                latency: '<50ms'
+            },
+            date: '2023',
+            teamSize: 6,
+        },
+        {
+            id: 'iot-dashboard',
+            title: 'IoT Device Management',
+            description: 'Real-time IoT device monitoring and control dashboard',
+            longDescription: 'A comprehensive IoT platform for device management, monitoring, and control. Features real-time data visualization, device provisioning, firmware updates, and alerting systems. Built with React, Node.js, and MQTT.',
+            image: '/assets/images/projects/iot.jpg',
+            technologies: ['React', 'Node.js', 'MQTT', 'InfluxDB', 'Grafana', 'Docker'],
+            category: 'fullstack',
+            featured: false,
+            githubUrl: 'https://github.com/username/iot-platform',
+            stats: {
+                devices: '50K+',
+                dataPoints: '10M+',
+                uptime: '99.95%'
+            },
+            date: '2022',
+            teamSize: 4,
+        },
+    ], []);
 
-    // Project categories for filtering
-    const categories = [
-        { id: 'all', label: translate('All Projects'), icon: <Assignment />, count: projects.length },
-        { id: 'fullstack', label: translate('Full Stack'), icon: <Code />, count: projects.filter(p => p.category === 'fullstack').length },
-        { id: 'vr', label: translate('VR/XR'), icon: <PlayArrow />, count: projects.filter(p => p.category === 'vr').length },
-        { id: 'cloud', label: translate('Cloud'), icon: <CloudQueue />, count: projects.filter(p => p.category === 'cloud').length },
-        { id: 'enterprise', label: translate('Enterprise'), icon: <Business />, count: projects.filter(p => p.category === 'enterprise').length }
-    ];
+    // Project categories
+    const categories = useMemo(() => [
+        { id: 'all', label: translate('All Projects'), count: projectsData.length },
+        { id: 'fullstack', label: translate('Full Stack'), count: projectsData.filter(p => p.category === 'fullstack').length },
+        { id: 'frontend', label: translate('Frontend'), count: projectsData.filter(p => p.category === 'frontend').length },
+        { id: 'mobile', label: translate('Mobile'), count: projectsData.filter(p => p.category === 'mobile').length },
+        { id: 'blockchain', label: translate('Blockchain'), count: projectsData.filter(p => p.category === 'blockchain').length },
+    ], [projectsData, translate]);
 
-    // Analytics handlers
-    const handleCategoryFilter = (categoryId) => {
+    // Filter projects
+    const filteredProjects = useMemo(() => {
+        const filtered = selectedCategory === 'all'
+            ? projectsData
+            : projectsData.filter(project => project.category === selectedCategory);
+
+        // Sort by featured first, then by date
+        return filtered.sort((a, b) => {
+            if (a.featured !== b.featured) return b.featured ? 1 : -1;
+            return b.date.localeCompare(a.date);
+        });
+    }, [selectedCategory, projectsData]);
+
+    // Limited projects for initial display
+    const displayedProjects = useMemo(() => {
+        return filteredProjects.slice(0, CONTENT_LIMITS.MAX_PROJECTS_DISPLAY);
+    }, [filteredProjects]);
+
+    // Handlers
+    const handleCategoryChange = useCallback((categoryId) => {
         setSelectedCategory(categoryId);
         analytics.trackElementClick('project_category_filter', categoryId, {
             section: 'projects',
             previous_category: selectedCategory,
-            project_count: filteredProjects.length
         });
-    };
+    }, [analytics, selectedCategory]);
 
-    const handleProjectView = (projectId, projectTitle) => {
-        analytics.trackElementClick('project_card', projectId, {
+    const handleProjectClick = useCallback((project) => {
+        setSelectedProject(project);
+        analytics.trackElementClick('project_view_details', project.id, {
             section: 'projects',
-            project_title: projectTitle,
-            category: selectedCategory
+            project_title: project.title,
+            category: project.category,
         });
-    };
+    }, [analytics]);
 
-    const handleProjectLink = (projectId, linkType, url) => {
-        analytics.trackLinkClick(`project_${linkType}`, url, {
+    const handleProjectAction = useCallback((action, project, url) => {
+        analytics.trackElementClick(`project_${action}`, project.id, {
             section: 'projects',
-            project_id: projectId,
-            link_type: linkType,
-            is_external: true
+            project_title: project.title,
+            action_url: url,
         });
-    };
 
-    // Filter projects based on selected category
-    const filteredProjects = selectedCategory === 'all'
-        ? projects
-        : projects.filter(project => project.category === selectedCategory);
+        if (url) {
+            window.open(url, '_blank', 'noopener noreferrer');
+        }
+    }, [analytics]);
 
-    // Separate featured projects
-    const featuredProjects = filteredProjects.filter(project => project.featured);
-    const regularProjects = filteredProjects.filter(project => !project.featured);
+    const handleImageLoad = useCallback((projectId) => {
+        setImageLoadingStates(prev => ({ ...prev, [projectId]: 'loaded' }));
+    }, []);
+
+    const handleImageError = useCallback((projectId) => {
+        setImageLoadingStates(prev => ({ ...prev, [projectId]: 'error' }));
+    }, []);
 
     return (
         <Box
-            id="projects-section"
+            ref={sectionRef}
+            id={PORTFOLIO_SECTIONS.PROJECTS}
             component="section"
             sx={{
-                py: { xs: 6, md: 8 },
-                position: 'relative'
+                py: { xs: 6, md: 10 },
+                position: 'relative',
+                overflow: 'hidden',
             }}
         >
+            {/* Background decoration */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '20%',
+                    right: '-10%',
+                    width: 400,
+                    height: 400,
+                    borderRadius: '50%',
+                    background: theme.palette.primary.main,
+                    opacity: 0.03,
+                    filter: 'blur(100px)',
+                    pointerEvents: 'none',
+                }}
+            />
+
             <Container maxWidth="lg">
                 {/* Section Header */}
-                <Fade in={isVisible} timeout={1000}>
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
-                        <Typography
-                            variant="h2"
-                            component="h2"
-                            sx={{
-                                fontWeight: 800,
-                                mb: 2,
-                                fontSize: { xs: '2.5rem', md: '3.5rem' },
-                                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent'
-                            }}
-                        >
-                            {translate('Featured Projects')}
-                        </Typography>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                color: 'text.secondary',
-                                maxWidth: '700px',
-                                mx: 'auto',
-                                lineHeight: 1.6
-                            }}
-                        >
-                            {translate('A showcase of innovative projects spanning VR/XR applications, enterprise solutions, and cloud migrations. Each project demonstrates technical excellence and measurable business impact.')}
-                        </Typography>
-                    </Box>
-                </Fade>
-
-                {/* Category Filter */}
-                <Fade in={isVisible} timeout={1500}>
-                    <Box sx={{ mb: 6, display: 'flex', justifyContent: 'center' }}>
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                            sx={{
-                                flexWrap: 'wrap',
-                                gap: 1,
-                                justifyContent: 'center'
-                            }}
-                        >
-                            {categories.map((category) => (
-                                <Chip
-                                    key={category.id}
-                                    icon={category.icon}
-                                    label={`${category.label} (${category.count})`}
-                                    onClick={() => handleCategoryFilter(category.id)}
-                                    variant={selectedCategory === category.id ? 'filled' : 'outlined'}
-                                    sx={{
-                                        px: 2,
-                                        py: 1,
-                                        fontWeight: 600,
-                                        borderWidth: 2,
-                                        borderColor: selectedCategory === category.id
-                                            ? 'primary.main'
-                                            : 'divider',
-                                        backgroundColor: selectedCategory === category.id
-                                            ? 'primary.main'
-                                            : 'transparent',
-                                        color: selectedCategory === category.id
-                                            ? 'primary.contrastText'
-                                            : 'text.primary',
-                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        '&:hover': {
-                                            backgroundColor: selectedCategory === category.id
-                                                ? 'primary.dark'
-                                                : alpha(theme.palette.primary.main, 0.1),
-                                            borderColor: 'primary.main',
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`
-                                        }
-                                    }}
-                                />
-                            ))}
-                        </Stack>
-                    </Box>
-                </Fade>
-
-                {/* Featured Projects Section */}
-                {featuredProjects.length > 0 && (
-                    <Box sx={{ mb: 8 }}>
-                        <Fade in={isVisible} timeout={2000}>
-                            <Typography
-                                variant="h4"
-                                component="h3"
-                                sx={{
-                                    fontWeight: 700,
-                                    mb: 4,
-                                    textAlign: 'center',
-                                    color: 'primary.main'
-                                }}
-                            >
-                                {translate('Highlighted Work')}
-                            </Typography>
-                        </Fade>
-
-                        <Grid container spacing={4}>
-                            {featuredProjects.map((project, index) => (
-                                <Grid
-                                    item
-                                    xs={12}
-                                    md={featuredProjects.length === 1 ? 12 : 6}
-                                    key={project.id}
-                                >
-                                    <Fade
-                                        in={isVisible}
-                                        timeout={2000 + (index * 200)}
-                                    >
-                                        <Box>
-                                            <ProjectCard
-                                                project={project}
-                                                featured={true}
-                                                onView={() => handleProjectView(project.id, project.title)}
-                                                onLinkClick={(linkType, url) => handleProjectLink(project.id, linkType, url)}
-                                                animationDelay={index * 200}
-                                            />
-                                        </Box>
-                                    </Fade>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                )}
-
-                {/* Regular Projects Section */}
-                {regularProjects.length > 0 && (
-                    <Box>
-                        <Fade in={isVisible} timeout={2500}>
-                            <Typography
-                                variant="h4"
-                                component="h3"
-                                sx={{
-                                    fontWeight: 700,
-                                    mb: 4,
-                                    textAlign: 'center',
-                                    color: 'text.primary'
-                                }}
-                            >
-                                {translate('Additional Projects')}
-                            </Typography>
-                        </Fade>
-
-                        <Grid container spacing={4}>
-                            {regularProjects.map((project, index) => (
-                                <Grid item xs={12} sm={6} lg={4} key={project.id}>
-                                    <Fade
-                                        in={isVisible}
-                                        timeout={3000 + (index * 150)}
-                                    >
-                                        <Box>
-                                            <ProjectCard
-                                                project={project}
-                                                featured={false}
-                                                onView={() => handleProjectView(project.id, project.title)}
-                                                onLinkClick={(linkType, url) => handleProjectLink(project.id, linkType, url)}
-                                                animationDelay={index * 150}
-                                            />
-                                        </Box>
-                                    </Fade>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                )}
-
-                {/* Project Stats Summary */}
-                <Fade in={isVisible} timeout={3500}>
-                    <Box
+                <Box
+                    ref={titleAnimation.ref}
+                    sx={{
+                        textAlign: 'center',
+                        mb: 6,
+                        ...titleAnimation.animationStyles,
+                    }}
+                >
+                    <Typography
+                        variant="h2"
+                        component="h2"
+                        gutterBottom
                         sx={{
-                            mt: 8,
-                            p: 4,
-                            borderRadius: 3,
-                            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
-                            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                            textAlign: 'center'
+                            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                            fontWeight: 800,
+                            background: isDarkMode
+                                ? `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.secondary.light} 100%)`
+                                : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
                         }}
                     >
-                        <Typography
-                            variant="h5"
-                            component="h3"
-                            sx={{
-                                fontWeight: 700,
-                                mb: 3,
-                                color: 'primary.main'
-                            }}
-                        >
-                            {translate('Project Impact Summary')}
-                        </Typography>
+                        {translate('Featured Projects')}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        color="text.secondary"
+                        sx={{ maxWidth: 600, mx: 'auto' }}
+                    >
+                        {translate('Showcasing innovative solutions and technical excellence')}
+                    </Typography>
+                </Box>
 
-                        <Grid container spacing={4}>
-                            {[
-                                {
-                                    label: translate('Total Projects'),
-                                    value: `${projects.length}+`,
-                                    icon: <Assignment />,
-                                    description: translate('Completed projects')
+                {/* Category Filter */}
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        mb: 4,
+                        overflowX: 'auto',
+                        pb: 1,
+                        justifyContent: { xs: 'flex-start', md: 'center' },
+                        '&::-webkit-scrollbar': {
+                            height: 4,
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: theme.palette.divider,
+                            borderRadius: 2,
+                        },
+                    }}
+                >
+                    {categories.map((category) => (
+                        <Chip
+                            key={category.id}
+                            label={`${category.label} (${category.count})`}
+                            onClick={() => handleCategoryChange(category.id)}
+                            color={selectedCategory === category.id ? 'primary' : 'default'}
+                            variant={selectedCategory === category.id ? 'filled' : 'outlined'}
+                            sx={{
+                                minWidth: 'fit-content',
+                                transition: theme.transitions.create(['all'], {
+                                    duration: theme.transitions.duration.short,
+                                }),
+                                '&:hover': {
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: theme.shadows[2],
                                 },
-                                {
-                                    label: translate('Team Members'),
-                                    value: '20+',
-                                    icon: <Group />,
-                                    description: translate('Collaborated with')
-                                },
-                                {
-                                    label: translate('Performance Gains'),
-                                    value: '40%',
-                                    icon: <TrendingUp />,
-                                    description: translate('Average improvement')
-                                },
-                                {
-                                    label: translate('User Satisfaction'),
-                                    value: '95%',
-                                    icon: <Star />,
-                                    description: translate('Average rating')
-                                }
-                            ].map((stat, index) => (
-                                <Grid item xs={6} md={3} key={stat.label}>
-                                    <Box
+                            }}
+                        />
+                    ))}
+                </Stack>
+
+                {/* Projects Grid */}
+                <Grid container spacing={4}>
+                    {displayedProjects.map((project, index) => (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={project.featured ? 6 : 4}
+                            key={project.id}
+                            ref={(el) => registerItem(project.id, el)}
+                            sx={getItemStyles(project.id, index)}
+                        >
+                            <Card
+                                elevation={project.featured ? 8 : 3}
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    borderRadius: 2,
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    transition: theme.transitions.create(['transform', 'box-shadow'], {
+                                        duration: theme.transitions.duration.short,
+                                    }),
+                                    '&:hover': {
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: theme.shadows[12],
+                                        '& .project-overlay': {
+                                            opacity: 1,
+                                        },
+                                        '& .project-image': {
+                                            transform: 'scale(1.05)',
+                                        },
+                                    },
+                                }}
+                                onClick={() => handleProjectClick(project)}
+                            >
+                                {/* Featured Badge */}
+                                {project.featured && (
+                                    <Chip
+                                        icon={<Star />}
+                                        label="Featured"
+                                        size="small"
+                                        color="primary"
                                         sx={{
-                                            textAlign: 'center',
-                                            p: 3,
-                                            borderRadius: 2,
-                                            background: alpha(theme.palette.background.paper, 0.7),
-                                            transition: 'all 0.3s',
-                                            animation: `${projectFloat} 4s ease-in-out infinite`,
-                                            animationDelay: `${index * 0.5}s`,
-                                            '&:hover': {
-                                                background: alpha(theme.palette.primary.main, 0.1),
-                                                transform: 'translateY(-4px)',
-                                                boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`
-                                            }
+                                            position: 'absolute',
+                                            top: 16,
+                                            right: 16,
+                                            zIndex: 1,
+                                            backgroundColor: alpha(theme.palette.primary.main, 0.9),
+                                        }}
+                                    />
+                                )}
+
+                                {/* Project Image */}
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        paddingTop: '56.25%', // 16:9 aspect ratio
+                                        overflow: 'hidden',
+                                        backgroundColor: theme.palette.action.hover,
+                                    }}
+                                >
+                                    {imageLoadingStates[project.id] !== 'loaded' && (
+                                        <Skeleton
+                                            variant="rectangular"
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                            }}
+                                        />
+                                    )}
+                                    <Box
+                                        component="img"
+                                        className="project-image"
+                                        src={project.image}
+                                        alt={project.title}
+                                        onLoad={() => handleImageLoad(project.id)}
+                                        onError={() => handleImageError(project.id)}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            transition: theme.transitions.create(['transform'], {
+                                                duration: theme.transitions.duration.standard,
+                                            }),
+                                            display: imageLoadingStates[project.id] === 'error' ? 'none' : 'block',
+                                        }}
+                                    />
+
+                                    {/* Hover Overlay */}
+                                    <Box
+                                        className="project-overlay"
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            backgroundColor: alpha(theme.palette.background.default, 0.9),
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            opacity: 0,
+                                            transition: theme.transitions.create(['opacity'], {
+                                                duration: theme.transitions.duration.short,
+                                            }),
                                         }}
                                     >
-                                        <Box
+                                        <Stack direction="row" spacing={2}>
+                                            {project.demoUrl && (
+                                                <Tooltip title="View Demo">
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleProjectAction('demo', project, project.demoUrl);
+                                                        }}
+                                                        sx={{
+                                                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                                            '&:hover': {
+                                                                backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                                                            },
+                                                        }}
+                                                    >
+                                                        <Launch />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            {project.githubUrl && (
+                                                <Tooltip title="View Code">
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleProjectAction('github', project, project.githubUrl);
+                                                        }}
+                                                        sx={{
+                                                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                                            '&:hover': {
+                                                                backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                                                            },
+                                                        }}
+                                                    >
+                                                        <GitHub />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            <Tooltip title="View Details">
+                                                <IconButton
+                                                    color="primary"
+                                                    sx={{
+                                                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                                                        '&:hover': {
+                                                            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                                                        },
+                                                    }}
+                                                >
+                                                    <Visibility />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Stack>
+                                    </Box>
+                                </Box>
+
+                                {/* Project Content */}
+                                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                                    <Typography
+                                        variant="h5"
+                                        component="h3"
+                                        gutterBottom
+                                        sx={{
+                                            fontWeight: 700,
+                                            fontSize: { xs: '1.25rem', md: '1.5rem' },
+                                        }}
+                                    >
+                                        {project.title}
+                                    </Typography>
+
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        paragraph
+                                        sx={{
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 3,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            mb: 2,
+                                        }}
+                                    >
+                                        {project.description}
+                                    </Typography>
+
+                                    {/* Technology Stack */}
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        flexWrap="wrap"
+                                        sx={{ mb: 2, gap: 1 }}
+                                    >
+                                        {project.technologies.slice(0, 4).map((tech) => (
+                                            <Chip
+                                                key={tech}
+                                                label={tech}
+                                                size="small"
+                                                variant="outlined"
+                                                sx={{
+                                                    borderColor: alpha(theme.palette.primary.main, 0.3),
+                                                    fontSize: '0.75rem',
+                                                }}
+                                            />
+                                        ))}
+                                        {project.technologies.length > 4 && (
+                                            <Chip
+                                                label={`+${project.technologies.length - 4}`}
+                                                size="small"
+                                                variant="outlined"
+                                                sx={{
+                                                    borderColor: alpha(theme.palette.primary.main, 0.3),
+                                                    fontSize: '0.75rem',
+                                                }}
+                                            />
+                                        )}
+                                    </Stack>
+
+                                    {/* Project Stats */}
+                                    {project.stats && (
+                                        <Stack
+                                            direction="row"
+                                            spacing={2}
                                             sx={{
-                                                color: 'primary.main',
-                                                fontSize: '2.5rem',
-                                                mb: 1
+                                                mt: 'auto',
+                                                pt: 2,
+                                                borderTop: `1px solid ${theme.palette.divider}`,
                                             }}
                                         >
-                                            {stat.icon}
-                                        </Box>
-                                        <Typography
-                                            variant="h3"
-                                            sx={{
-                                                fontWeight: 800,
-                                                color: 'primary.main',
-                                                mb: 0.5
-                                            }}
-                                        >
-                                            {stat.value}
+                                            {Object.entries(project.stats).map(([key, value]) => (
+                                                <Box key={key}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="primary"
+                                                        sx={{ fontWeight: 700 }}
+                                                    >
+                                                        {value}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="text.secondary"
+                                                        sx={{ textTransform: 'capitalize' }}
+                                                    >
+                                                        {key}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                        </Stack>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+
+                {/* View More Button */}
+                {filteredProjects.length > CONTENT_LIMITS.MAX_PROJECTS_DISPLAY && (
+                    <Box sx={{ textAlign: 'center', mt: 6 }}>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            endIcon={<ArrowForward />}
+                            onClick={() => {
+                                analytics.trackElementClick('view_all_projects', 'button', {
+                                    section: 'projects',
+                                    total_projects: filteredProjects.length,
+                                });
+                            }}
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                borderWidth: 2,
+                                '&:hover': {
+                                    borderWidth: 2,
+                                    transform: 'translateX(4px)',
+                                },
+                            }}
+                        >
+                            View All Projects ({filteredProjects.length})
+                        </Button>
+                    </Box>
+                )}
+            </Container>
+
+            {/* Project Detail Dialog */}
+            <Dialog
+                open={Boolean(selectedProject)}
+                onClose={() => setSelectedProject(null)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        maxHeight: '90vh',
+                    },
+                }}
+            >
+                {selectedProject && (
+                    <>
+                        <DialogTitle sx={{ m: 0, p: 2 }}>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between">
+                                <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
+                                    {selectedProject.title}
+                                </Typography>
+                                <IconButton
+                                    onClick={() => setSelectedProject(null)}
+                                    sx={{ color: 'text.secondary' }}
+                                >
+                                    <Close />
+                                </IconButton>
+                            </Stack>
+                        </DialogTitle>
+
+                        <DialogContent dividers>
+                            {/* Project Image */}
+                            <Box
+                                component="img"
+                                src={selectedProject.image}
+                                alt={selectedProject.title}
+                                sx={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    borderRadius: 1,
+                                    mb: 3,
+                                }}
+                            />
+
+                            {/* Project Details */}
+                            <Typography variant="body1" paragraph>
+                                {selectedProject.longDescription}
+                            </Typography>
+
+                            {/* Technologies */}
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Technologies Used
+                                </Typography>
+                                <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
+                                    {selectedProject.technologies.map((tech) => (
+                                        <Chip
+                                            key={tech}
+                                            label={tech}
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+                                    ))}
+                                </Stack>
+                            </Box>
+
+                            {/* Project Info */}
+                            <Grid container spacing={2}>
+                                <Grid item xs={6} sm={3}>
+                                    <Box sx={{ textAlign: 'center', p: 2 }}>
+                                        <CalendarToday color="action" />
+                                        <Typography variant="body2" color="text.secondary">
+                                            Year
                                         </Typography>
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{
-                                                color: 'text.primary',
-                                                fontWeight: 600,
-                                                mb: 0.5
-                                            }}
-                                        >
-                                            {stat.label}
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            sx={{
-                                                color: 'text.secondary'
-                                            }}
-                                        >
-                                            {stat.description}
+                                        <Typography variant="h6">
+                                            {selectedProject.date}
                                         </Typography>
                                     </Box>
                                 </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                </Fade>
-            </Container>
+                                <Grid item xs={6} sm={3}>
+                                    <Box sx={{ textAlign: 'center', p: 2 }}>
+                                        <Group color="action" />
+                                        <Typography variant="body2" color="text.secondary">
+                                            Team Size
+                                        </Typography>
+                                        <Typography variant="h6">
+                                            {selectedProject.teamSize}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                                {selectedProject.stats && Object.entries(selectedProject.stats).slice(0, 2).map(([key, value]) => (
+                                    <Grid item xs={6} sm={3} key={key}>
+                                        <Box sx={{ textAlign: 'center', p: 2 }}>
+                                            <Code color="action" />
+                                            <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                                                {key}
+                                            </Typography>
+                                            <Typography variant="h6">
+                                                {value}
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </DialogContent>
+
+                        <DialogActions sx={{ p: 2 }}>
+                            {selectedProject.githubUrl && (
+                                <Button
+                                    startIcon={<GitHub />}
+                                    onClick={() => handleProjectAction('github', selectedProject, selectedProject.githubUrl)}
+                                >
+                                    View Code
+                                </Button>
+                            )}
+                            {selectedProject.demoUrl && (
+                                <Button
+                                    variant="contained"
+                                    startIcon={<Launch />}
+                                    onClick={() => handleProjectAction('demo', selectedProject, selectedProject.demoUrl)}
+                                >
+                                    View Demo
+                                </Button>
+                            )}
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
         </Box>
     );
 });

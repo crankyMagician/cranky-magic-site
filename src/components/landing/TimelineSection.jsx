@@ -1,598 +1,836 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
+    Container,
     Card,
     CardContent,
     Chip,
     Stack,
-    Fade,
-    Container,
+    Button,
     useTheme,
+    useMediaQuery,
     alpha,
-    keyframes,
-    Avatar,
+    Divider,
     IconButton,
     Collapse,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
+    Grid,
+    Avatar,
+    AvatarGroup,
     Tooltip,
-    Divider,
-    Button
+    Paper,
 } from '@mui/material';
 import {
     Work,
     School,
+    Code,
+    EmojiEvents,
+    CalendarToday,
     LocationOn,
-    DateRange,
-    TrendingUp,
     ExpandMore,
     ExpandLess,
+    ArrowForward,
+    Circle,
     CheckCircle,
     Groups,
-    Business,
-    Star,
-    Timeline as TimelineIcon,
-    MilitaryTech as Military,
-    VolunteerActivism,
-    Code,
-    Cloud,
-    Security,
-    Psychology,
+    Rocket,
+    Stars,
+    TrendingUp,
+    Computer,
     Architecture,
-    Speed
+    Campaign,
+    GitHub,
+    LinkedIn,
 } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
-import TimelineCard from './TimelineCard';
+import { useAnimationControl, useStaggerAnimation } from '../../hooks/useAnimationControl';
+import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
+import {
+    ANIMATION_DURATION,
+    ANIMATION_DELAY,
+    ANIMATION_EASING,
+    createAnimationConfig,
+} from '../../animations/portfolioAnimations';
+import {
+    PORTFOLIO_SECTIONS,
+    ANALYTICS_EVENTS,
+    CONTENT_LIMITS,
+} from './utils/portfolioConstants';
 
-// Animation keyframes
-const timelineFlow = keyframes`
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-`;
-
-const pulseAnimation = keyframes`
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.7;
-    }
-    50% {
-        transform: scale(1.1);
-        opacity: 1;
-    }
-`;
-
-const TimelineSection = React.memo(({ onSectionView }) => {
+const TimelineSection = React.memo(() => {
     const theme = useTheme();
     const { translate } = useCustomTranslation();
     const analytics = useAnalytics();
-    const [isVisible, setIsVisible] = useState(false);
-    const [expandedItems, setExpandedItems] = useState(new Set(['current']));
-    const [activeCategory, setActiveCategory] = useState('all');
+    const currentTheme = useSelector(state => state.theme.mode);
+    const isDarkMode = theme.palette.mode === 'dark';
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Track section visibility
-    useEffect(() => {
-        const timer = setTimeout(() => setIsVisible(true), 300);
-        if (onSectionView) {
-            onSectionView();
-        }
-        return () => clearTimeout(timer);
-    }, [onSectionView]);
+    const [expandedItem, setExpandedItem] = useState(null);
+    const [showAllItems, setShowAllItems] = useState(false);
 
-    // Professional timeline data based on resume
-    const timelineData = [
-        {
-            id: 'current',
-            category: 'professional',
-            type: 'work',
-            title: translate('Solutions Architect'),
-            company: 'GoWell Benefits',
-            location: 'Philadelphia, PA',
-            period: 'April 2024 – Current',
-            duration: '9+ months',
-            status: 'current',
-            icon: <Architecture />,
-            color: theme.palette.primary.main,
-            description: translate('Leading enterprise-wide Azure cloud infrastructure design and implementation'),
-            achievements: [
-                translate('Achieved 99.95% uptime for critical production systems'),
-                translate('Reduced infrastructure costs by 45% through optimized cloud architecture'),
-                translate('Implemented comprehensive security monitoring reducing incidents by 78%'),
-                translate('Designed scalable CI/CD pipelines increasing deployment frequency by 400%')
-            ],
-            technologies: ['Azure', 'Terraform', 'Kubernetes', 'Docker', 'GitHub Actions', 'Bicep'],
-            teamSize: 15,
-            impact: 'Enterprise'
-        },
-        {
-            id: 'prevature',
-            category: 'professional',
-            type: 'work',
-            title: translate('Site Reliability Engineer'),
-            company: 'Prevature',
-            location: 'Philadelphia, PA',
-            period: 'February 2023 – April 2024',
-            duration: '1 year 3 months',
-            icon: <Cloud />,
-            color: theme.palette.secondary.main,
-            description: translate('Ensured high availability and performance of cloud infrastructure'),
-            achievements: [
-                translate('Maintained 99.9% uptime across all production services'),
-                translate('Reduced incident response time by 60% through automated monitoring'),
-                translate('Implemented disaster recovery procedures with RTO < 4 hours'),
-                translate('Optimized database performance improving query speed by 70%')
-            ],
-            technologies: ['AWS', 'Python', 'Ansible', 'Prometheus', 'Grafana', 'PostgreSQL'],
-            teamSize: 8,
-            impact: 'High'
-        },
-        {
-            id: 'ziegler',
-            category: 'professional',
-            type: 'work',
-            title: translate('QA Engineer'),
-            company: 'Ziegler Aerospace',
-            location: 'Birmingham, AL',
-            period: 'October 2021 – October 2022',
-            duration: '1 year',
-            icon: <Security />,
-            color: theme.palette.success.main,
-            description: translate('Led quality assurance for mission-critical aerospace software'),
-            achievements: [
-                translate('Developed automated testing framework reducing test time by 80%'),
-                translate('Achieved 95% code coverage across critical systems'),
-                translate('Identified and resolved 200+ critical bugs before production'),
-                translate('Implemented continuous testing in CI/CD pipeline')
-            ],
-            technologies: ['Selenium', 'Jest', 'Python', 'Jenkins', 'TestRail', 'JIRA'],
-            teamSize: 12,
-            impact: 'Critical'
-        },
-        {
-            id: 'gowell_early',
-            category: 'professional',
-            type: 'work',
-            title: translate('Support Specialist'),
-            company: 'GoWell Benefits',
-            location: 'Philadelphia, PA',
-            period: 'March 2021 – October 2021',
-            duration: '8 months',
-            icon: <Psychology />,
-            color: theme.palette.info.main,
-            description: translate('Provided technical support and implemented process improvements'),
-            achievements: [
-                translate('Resolved 95% of tickets within SLA timeframe'),
-                translate('Created knowledge base reducing repeat tickets by 40%'),
-                translate('Trained 15+ new team members on support procedures'),
-                translate('Implemented ticket automation saving 20 hours weekly')
-            ],
-            technologies: ['ServiceNow', 'SQL', 'PowerShell', 'Active Directory'],
-            teamSize: 25,
-            impact: 'Operational'
-        },
-        {
-            id: 'selfemployed',
-            category: 'entrepreneurial',
-            type: 'work',
-            title: translate('Full Stack Developer'),
-            company: 'Self-Employed',
-            location: 'Philadelphia, PA',
-            period: 'March 2020 – March 2021',
-            duration: '1 year',
-            icon: <Code />,
-            color: theme.palette.warning.main,
-            description: translate('Built custom web applications for small businesses'),
-            achievements: [
-                translate('Delivered 15+ production applications on time and budget'),
-                translate('Achieved 100% client satisfaction rating'),
-                translate('Generated $50K+ in revenue through consulting'),
-                translate('Built reusable component library accelerating development by 60%')
-            ],
-            technologies: ['React', 'Node.js', 'MongoDB', 'AWS', 'GraphQL', 'Next.js'],
-            clients: 15,
-            impact: 'Business'
-        },
-        {
-            id: 'petsmart',
-            category: 'entrepreneurial',
-            type: 'work',
-            title: translate('Inventory Manager'),
-            company: 'PetSmart',
-            location: 'Philadelphia, PA',
-            period: 'June 2018 – March 2020',
-            duration: '1 year 10 months',
-            icon: <Business />,
-            color: theme.palette.error.main,
-            description: translate('Managed inventory operations and implemented efficiency improvements'),
-            achievements: [
-                translate('Reduced inventory shrinkage by 35% through improved processes'),
-                translate('Increased inventory accuracy to 99.2%'),
-                translate('Led team of 10 associates in daily operations'),
-                translate('Implemented new tracking system saving $15K annually')
-            ],
-            technologies: ['SAP', 'Excel', 'Inventory Management', 'Data Analysis'],
-            teamSize: 10,
-            impact: 'Operational'
-        },
-        {
-            id: 'airforce',
-            category: 'leadership',
-            type: 'military',
-            title: translate('Technical Sergeant (E-6)'),
-            company: 'United States Air Force',
-            location: 'Shaw AFB, SC',
-            period: 'March 2008 – June 2018',
-            duration: '10 years 4 months',
-            icon: <Military />,
-            color: theme.palette.primary.dark,
-            description: translate('Led technical teams in maintaining critical defense systems'),
-            achievements: [
-                translate('Managed $5M+ in equipment with zero loss'),
-                translate('Led 20+ airmen in critical operations'),
-                translate('Earned 5 Air Force Achievement Medals'),
-                translate('Achieved 100% mission success rate over 10 years'),
-                translate('Completed 3 overseas deployments supporting combat operations')
-            ],
-            technologies: ['Leadership', 'Strategic Planning', 'Team Management', 'Military Operations'],
-            teamSize: 20,
-            impact: 'High'
-        },
-        {
-            id: 'volunteer',
-            category: 'volunteer',
-            type: 'volunteer',
-            title: translate('Volunteer Instructor'),
-            company: 'Cyber Dojo',
-            location: 'Philadelphia, PA',
-            period: 'January 2021 – Current',
-            duration: '4+ years',
-            status: 'ongoing',
-            icon: <VolunteerActivism />,
-            color: theme.palette.info.main,
-            description: translate('Teaching web development and programming to children'),
-            achievements: [
-                translate('Developed curriculum for web development and programming education'),
-                translate('Adapted teaching methods for diverse learning needs'),
-                translate('Maintained safe and inclusive learning environment'),
-                translate('Tracked student progress and provided regular updates to parents')
-            ],
-            technologies: ['Education', 'Curriculum Development', 'Web Development Teaching'],
-            impact: 'Community'
-        }
-    ];
-
-    // Timeline categories
-    const categories = [
-        { id: 'all', label: translate('All Timeline'), icon: <TimelineIcon />, count: timelineData.length },
-        { id: 'professional', label: translate('Professional'), icon: <Work />, count: timelineData.filter(item => item.category === 'professional').length },
-        { id: 'entrepreneurial', label: translate('Business'), icon: <Business />, count: timelineData.filter(item => item.category === 'entrepreneurial').length },
-        { id: 'education', label: translate('Education'), icon: <School />, count: timelineData.filter(item => item.category === 'education').length },
-        { id: 'leadership', label: translate('Leadership'), icon: <Military />, count: timelineData.filter(item => item.category === 'leadership').length },
-        { id: 'volunteer', label: translate('Volunteer'), icon: <VolunteerActivism />, count: timelineData.filter(item => item.category === 'volunteer').length }
-    ];
-
-    // Analytics handlers
-    const handleCategoryFilter = (categoryId) => {
-        setActiveCategory(categoryId);
-        analytics.trackElementClick('timeline_category_filter', categoryId, {
-            section: 'timeline',
-            previous_category: activeCategory
-        });
-    };
-
-    const handleTimelineItemExpand = (itemId) => {
-        const newExpanded = new Set(expandedItems);
-        if (newExpanded.has(itemId)) {
-            newExpanded.delete(itemId);
-        } else {
-            newExpanded.add(itemId);
-        }
-        setExpandedItems(newExpanded);
-
-        analytics.trackElementClick('timeline_item_expand', itemId, {
-            section: 'timeline',
-            expanded: !expandedItems.has(itemId)
-        });
-    };
-
-    const handleTimelineItemClick = (itemId, itemTitle) => {
-        analytics.trackElementClick('timeline_item', itemId, {
-            section: 'timeline',
-            item_title: itemTitle,
-            category: activeCategory
-        });
-    };
-
-    // Filter timeline data
-    const filteredTimeline = activeCategory === 'all'
-        ? timelineData
-        : timelineData.filter(item => item.category === activeCategory);
-
-    // Sort by period (most recent first)
-    const sortedTimeline = [...filteredTimeline].sort((a, b) => {
-        // Current/ongoing items first
-        if (a.status === 'current' || a.status === 'ongoing') return -1;
-        if (b.status === 'current' || b.status === 'ongoing') return 1;
-
-        // Then by year (extract year from period)
-        const yearA = parseInt(a.period.split('–')[0].trim().split(' ').pop());
-        const yearB = parseInt(b.period.split('–')[0].trim().split(' ').pop());
-        return yearB - yearA;
+    // Section visibility tracking
+    const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
+        threshold: 0.3,
+        triggerOnce: false,
     });
+
+    // Animation controls
+    const titleAnimation = useAnimationControl({
+        animationType: 'fadeInDown',
+        duration: ANIMATION_DURATION.MEDIUM,
+        delay: ANIMATION_DELAY.SHORT,
+        triggerOnScroll: true,
+        triggerOnce: true,
+    });
+
+    const { registerItem, getItemStyles } = useStaggerAnimation({
+        animationType: 'fadeInLeft',
+        baseDelay: ANIMATION_DELAY.MEDIUM,
+        staggerDelay: ANIMATION_DELAY.STAGGER_BASE * 2,
+        duration: ANIMATION_DURATION.NORMAL,
+        triggerOnScroll: true,
+    });
+
+    // Timeline data
+    const timelineData = useMemo(() => [
+        {
+            id: 'senior-fullstack-2023',
+            date: '2023 - Present',
+            title: 'Senior Full Stack Developer',
+            company: 'Tech Innovation Corp',
+            location: 'San Francisco, CA',
+            type: 'work',
+            icon: <Work />,
+            color: theme.palette.primary.main,
+            description: 'Leading development of cloud-native applications and mentoring junior developers',
+            achievements: [
+                'Architected microservices reducing system latency by 40%',
+                'Led team of 5 developers on flagship product',
+                'Implemented CI/CD pipeline saving 20 hours/week',
+                'Mentored 3 junior developers to mid-level positions'
+            ],
+            technologies: ['React', 'Node.js', 'AWS', 'Kubernetes', 'GraphQL'],
+            impact: {
+                users: '100K+',
+                performance: '+40%',
+                teamSize: 5
+            }
+        },
+        {
+            id: 'fullstack-2021',
+            date: '2021 - 2023',
+            title: 'Full Stack Developer',
+            company: 'Digital Solutions Inc',
+            location: 'New York, NY',
+            type: 'work',
+            icon: <Code />,
+            color: theme.palette.secondary.main,
+            description: 'Developed and maintained enterprise web applications for Fortune 500 clients',
+            achievements: [
+                'Built real-time analytics dashboard used by 50K+ users',
+                'Reduced application load time by 60%',
+                'Integrated third-party APIs for payment processing',
+                'Received "Developer of the Year" award'
+            ],
+            technologies: ['React', 'Python', 'PostgreSQL', 'Redis', 'Docker'],
+            impact: {
+                revenue: '+$2M',
+                efficiency: '+35%',
+                clients: 15
+            }
+        },
+        {
+            id: 'frontend-2019',
+            date: '2019 - 2021',
+            title: 'Frontend Developer',
+            company: 'Creative Agency',
+            location: 'Los Angeles, CA',
+            type: 'work',
+            icon: <Computer />,
+            color: theme.palette.info.main,
+            description: 'Created engaging user interfaces for various client projects',
+            achievements: [
+                'Developed 20+ responsive websites',
+                'Improved SEO scores by average of 40 points',
+                'Established component library used across projects',
+                'Trained team on React best practices'
+            ],
+            technologies: ['React', 'Vue.js', 'Sass', 'Webpack', 'Jest'],
+            impact: {
+                projects: 20,
+                satisfaction: '95%',
+                codeReuse: '70%'
+            }
+        },
+        {
+            id: 'certification-aws',
+            date: '2022',
+            title: 'AWS Solutions Architect',
+            company: 'Amazon Web Services',
+            type: 'certification',
+            icon: <EmojiEvents />,
+            color: theme.palette.warning.main,
+            description: 'Achieved AWS Solutions Architect Associate certification',
+            achievements: [
+                'Mastered cloud architecture principles',
+                'Designed scalable and resilient systems',
+                'Implemented cost-optimization strategies',
+                'Applied knowledge to production systems'
+            ],
+            technologies: ['AWS', 'Cloud Architecture', 'DevOps', 'Security'],
+        },
+        {
+            id: 'degree-cs',
+            date: '2015 - 2019',
+            title: 'Bachelor of Computer Science',
+            company: 'University of California',
+            location: 'Berkeley, CA',
+            type: 'education',
+            icon: <School />,
+            color: theme.palette.success.main,
+            description: 'Graduated with honors, specialized in Software Engineering',
+            achievements: [
+                'Dean\'s List for 4 consecutive semesters',
+                'Led university hackathon winning team',
+                'Published research paper on ML applications',
+                'Teaching assistant for Data Structures course'
+            ],
+            technologies: ['Java', 'Python', 'C++', 'Algorithms', 'ML'],
+            impact: {
+                gpa: '3.8',
+                projects: 15,
+                awards: 3
+            }
+        },
+        {
+            id: 'freelance-2018',
+            date: '2018 - 2019',
+            title: 'Freelance Developer',
+            company: 'Self-Employed',
+            type: 'work',
+            icon: <Rocket />,
+            color: theme.palette.primary.dark,
+            description: 'Provided web development services to small businesses',
+            achievements: [
+                'Completed 10+ client projects on time',
+                'Built e-commerce platform generating $500K revenue',
+                'Maintained 5-star rating on freelance platforms',
+                'Established long-term client relationships'
+            ],
+            technologies: ['WordPress', 'PHP', 'JavaScript', 'MySQL'],
+            impact: {
+                clients: 10,
+                rating: '5.0',
+                revenue: '$100K+'
+            }
+        },
+    ], [theme]);
+
+    // Filter timeline items for display
+    const displayedItems = useMemo(() => {
+        if (showAllItems) {
+            return timelineData;
+        }
+        return timelineData.slice(0, CONTENT_LIMITS.MAX_TIMELINE_ITEMS);
+    }, [timelineData, showAllItems]);
+
+    // Career statistics
+    const careerStats = useMemo(() => [
+        {
+            label: translate('Years Experience'),
+            value: '6+',
+            icon: <TrendingUp />,
+            color: theme.palette.primary.main,
+        },
+        {
+            label: translate('Companies'),
+            value: '4',
+            icon: <Work />,
+            color: theme.palette.secondary.main,
+        },
+        {
+            label: translate('Projects Delivered'),
+            value: '50+',
+            icon: <CheckCircle />,
+            color: theme.palette.success.main,
+        },
+        {
+            label: translate('Team Members Led'),
+            value: '15+',
+            icon: <Groups />,
+            color: theme.palette.info.main,
+        },
+    ], [translate, theme]);
+
+    // Handlers
+    const handleItemExpand = useCallback((itemId) => {
+        setExpandedItem(expandedItem === itemId ? null : itemId);
+
+        if (expandedItem !== itemId) {
+            const item = timelineData.find(i => i.id === itemId);
+            analytics.trackElementClick('timeline_expand', itemId, {
+                section: 'timeline',
+                item_title: item?.title,
+                item_type: item?.type,
+            });
+        }
+    }, [expandedItem, analytics, timelineData]);
+
+    const handleShowMore = useCallback(() => {
+        setShowAllItems(true);
+        analytics.trackElementClick('timeline_show_more', 'button', {
+            section: 'timeline',
+            total_items: timelineData.length,
+        });
+    }, [analytics, timelineData.length]);
+
+    const getItemIcon = useCallback((item) => {
+        switch (item.type) {
+            case 'work':
+                return item.icon || <Work />;
+            case 'education':
+                return <School />;
+            case 'certification':
+                return <EmojiEvents />;
+            default:
+                return <Circle />;
+        }
+    }, []);
+
+    const getItemTypeLabel = useCallback((type) => {
+        switch (type) {
+            case 'work':
+                return translate('Experience');
+            case 'education':
+                return translate('Education');
+            case 'certification':
+                return translate('Certification');
+            default:
+                return '';
+        }
+    }, [translate]);
 
     return (
         <Box
-            id="timeline-section"
+            ref={sectionRef}
+            id={PORTFOLIO_SECTIONS.TIMELINE}
             component="section"
             sx={{
-                py: { xs: 6, md: 8 },
-                position: 'relative'
+                py: { xs: 6, md: 10 },
+                position: 'relative',
+                overflow: 'hidden',
             }}
         >
+            {/* Background decoration */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '-20%',
+                    width: 600,
+                    height: 600,
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 70%)`,
+                    transform: 'translateY(-50%)',
+                    pointerEvents: 'none',
+                }}
+            />
+
             <Container maxWidth="lg">
                 {/* Section Header */}
-                <Fade in={isVisible} timeout={1000}>
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
-                        <Typography
-                            variant="h2"
-                            component="h2"
-                            sx={{
-                                fontWeight: 800,
-                                mb: 2,
-                                fontSize: { xs: '2.5rem', md: '3.5rem' },
-                                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent'
-                            }}
-                        >
-                            {translate('Professional Timeline')}
-                        </Typography>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                color: 'text.secondary',
-                                maxWidth: '800px',
-                                mx: 'auto',
-                                lineHeight: 1.6
-                            }}
-                        >
-                            {translate('A comprehensive journey through my professional development, from military service to enterprise solutions architecture, showcasing growth and measurable impact.')}
-                        </Typography>
-                    </Box>
-                </Fade>
+                <Box
+                    ref={titleAnimation.ref}
+                    sx={{
+                        textAlign: 'center',
+                        mb: 6,
+                        ...titleAnimation.animationStyles,
+                    }}
+                >
+                    <Typography
+                        variant="h2"
+                        component="h2"
+                        gutterBottom
+                        sx={{
+                            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                            fontWeight: 800,
+                            background: isDarkMode
+                                ? `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.secondary.light} 100%)`
+                                : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}
+                    >
+                        {translate('Professional Journey')}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        color="text.secondary"
+                        sx={{ maxWidth: 600, mx: 'auto' }}
+                    >
+                        {translate('A timeline of growth, achievements, and continuous learning')}
+                    </Typography>
+                </Box>
 
-                {/* Category Filters */}
-                <Fade in={isVisible} timeout={1500}>
-                    <Box sx={{ mb: 6 }}>
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                            sx={{
-                                justifyContent: 'center',
-                                flexWrap: 'wrap',
-                                gap: 2
-                            }}
-                        >
-                            {categories.map(category => (
-                                <Chip
-                                    key={category.id}
-                                    label={`${category.label} (${category.count})`}
-                                    icon={category.icon}
-                                    onClick={() => handleCategoryFilter(category.id)}
-                                    size="medium"
-                                    variant={activeCategory === category.id ? 'filled' : 'outlined'}
+                {/* Career Stats */}
+                <Grid container spacing={3} sx={{ mb: 6 }}>
+                    {careerStats.map((stat, index) => (
+                        <Grid item xs={6} sm={3} key={index}>
+                            <Paper
+                                elevation={0}
+                                sx={{
+                                    p: 3,
+                                    textAlign: 'center',
+                                    borderRadius: 2,
+                                    backgroundColor: alpha(stat.color, 0.05),
+                                    border: `1px solid ${alpha(stat.color, 0.2)}`,
+                                    transition: theme.transitions.create(['transform', 'box-shadow'], {
+                                        duration: theme.transitions.duration.short,
+                                    }),
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: theme.shadows[4],
+                                    },
+                                }}
+                            >
+                                <Box
                                     sx={{
-                                        px: 2,
-                                        py: 1,
-                                        fontSize: '0.875rem',
-                                        fontWeight: 500,
-                                        borderWidth: 2,
-                                        borderColor: activeCategory === category.id
-                                            ? 'primary.main'
-                                            : 'divider',
-                                        backgroundColor: activeCategory === category.id
-                                            ? 'primary.main'
-                                            : 'transparent',
-                                        color: activeCategory === category.id
-                                            ? 'primary.contrastText'
-                                            : 'text.primary',
-                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        '&:hover': {
-                                            backgroundColor: activeCategory === category.id
-                                                ? 'primary.dark'
-                                                : alpha(theme.palette.primary.main, 0.1),
-                                            borderColor: 'primary.main',
-                                            transform: 'translateY(-2px)'
-                                        }
+                                        color: stat.color,
+                                        mb: 1,
+                                        '& svg': {
+                                            fontSize: 32,
+                                        },
                                     }}
-                                />
-                            ))}
-                        </Stack>
-                    </Box>
-                </Fade>
+                                >
+                                    {stat.icon}
+                                </Box>
+                                <Typography
+                                    variant="h4"
+                                    sx={{
+                                        fontWeight: 800,
+                                        color: stat.color,
+                                    }}
+                                >
+                                    {stat.value}
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    {stat.label}
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                    ))}
+                </Grid>
 
-                {/* Timeline */}
+                {/* Timeline Container */}
                 <Box sx={{ position: 'relative' }}>
                     {/* Timeline Line */}
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            left: { xs: '24px', md: '50%' },
-                            top: 0,
-                            bottom: 0,
-                            width: '4px',
-                            background: `linear-gradient(180deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                            transform: { md: 'translateX(-50%)' },
-                            '&::before': {
-                                content: '""',
+                    {!isMobile && (
+                        <Box
+                            sx={{
                                 position: 'absolute',
+                                left: '50%',
                                 top: 0,
-                                left: 0,
-                                right: 0,
                                 bottom: 0,
-                                background: `linear-gradient(180deg, transparent 0%, ${alpha(theme.palette.primary.main, 0.3)} 50%, transparent 100%)`,
-                                backgroundSize: '100% 200%',
-                                animation: `${timelineFlow} 3s ease-in-out infinite`
-                            }
-                        }}
-                    />
+                                width: 2,
+                                backgroundColor: theme.palette.divider,
+                                transform: 'translateX(-50%)',
+                                zIndex: 0,
+                            }}
+                        />
+                    )}
 
                     {/* Timeline Items */}
-                    {sortedTimeline.map((item, index) => (
-                        <Fade
-                            key={item.id}
-                            in={isVisible}
-                            timeout={2000 + (index * 200)}
-                        >
+                    <Stack spacing={4}>
+                        {displayedItems.map((item, index) => (
                             <Box
+                                key={item.id}
+                                ref={(el) => registerItem(item.id, el)}
                                 sx={{
-                                    position: 'relative',
-                                    mb: 4,
+                                    ...getItemStyles(item.id, index),
                                     display: 'flex',
-                                    flexDirection: { xs: 'row', md: index % 2 === 0 ? 'row' : 'row-reverse' },
-                                    alignItems: 'center'
+                                    flexDirection: isMobile ? 'column' : index % 2 === 0 ? 'row' : 'row-reverse',
+                                    alignItems: 'center',
+                                    position: 'relative',
                                 }}
                             >
                                 {/* Timeline Dot */}
-                                <Box
-                                    sx={{
-                                        position: { xs: 'absolute', md: 'relative' },
-                                        left: { xs: '12px', md: 'auto' },
-                                        transform: { xs: 'translateX(-50%)', md: 'none' },
-                                        zIndex: 2,
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: '50%',
-                                        backgroundColor: item.color,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'white',
-                                        boxShadow: `0 0 0 4px ${theme.palette.background.default}, 0 0 20px ${alpha(item.color, 0.4)}`,
-                                        animation: item.status === 'current' || item.status === 'ongoing'
-                                            ? `${pulseAnimation} 2s ease-in-out infinite`
-                                            : 'none'
-                                    }}
-                                >
-                                    {item.icon}
-                                </Box>
+                                {!isMobile && (
+                                    <Box
+                                        sx={{
+                                            position: 'absolute',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: '50%',
+                                            backgroundColor: item.color,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            boxShadow: theme.shadows[4],
+                                            zIndex: 1,
+                                        }}
+                                    >
+                                        {getItemIcon(item)}
+                                    </Box>
+                                )}
 
-                                {/* Timeline Card */}
+                                {/* Content Card */}
                                 <Box
                                     sx={{
-                                        flex: 1,
-                                        ml: { xs: 4, md: index % 2 === 0 ? 3 : 0 },
-                                        mr: { xs: 0, md: index % 2 === 0 ? 0 : 3 },
-                                        maxWidth: { md: 'calc(50% - 24px)' }
+                                        width: isMobile ? '100%' : 'calc(50% - 40px)',
+                                        pr: index % 2 === 0 && !isMobile ? 4 : 0,
+                                        pl: index % 2 !== 0 && !isMobile ? 4 : 0,
                                     }}
                                 >
-                                    <TimelineCard
-                                        item={item}
-                                        index={index}
-                                        isLeft={index % 2 !== 0}
-                                        isActive={item.status === 'current' || item.status === 'ongoing'}
-                                        expanded={expandedItems.has(item.id)}
-                                        onExpand={() => handleTimelineItemExpand(item.id)}
-                                        onClick={() => handleTimelineItemClick(item.id, item.title)}
-                                        animationDelay={index * 200}
-                                    />
+                                    <Card
+                                        elevation={3}
+                                        sx={{
+                                            borderRadius: 2,
+                                            overflow: 'hidden',
+                                            transition: theme.transitions.create(['transform', 'box-shadow'], {
+                                                duration: theme.transitions.duration.short,
+                                            }),
+                                            '&:hover': {
+                                                transform: 'translateY(-4px)',
+                                                boxShadow: theme.shadows[8],
+                                            },
+                                            borderTop: `4px solid ${item.color}`,
+                                        }}
+                                    >
+                                        <CardContent sx={{ p: 3 }}>
+                                            {/* Header */}
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'flex-start',
+                                                    mb: 2,
+                                                }}
+                                            >
+                                                <Box sx={{ flexGrow: 1 }}>
+                                                    <Typography
+                                                        variant="h6"
+                                                        sx={{
+                                                            fontWeight: 700,
+                                                            mb: 0.5,
+                                                        }}
+                                                    >
+                                                        {item.title}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="subtitle1"
+                                                        color="primary"
+                                                        sx={{ fontWeight: 600 }}
+                                                    >
+                                                        {item.company}
+                                                    </Typography>
+                                                    {item.location && (
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 0.5,
+                                                                mt: 0.5,
+                                                            }}
+                                                        >
+                                                            <LocationOn sx={{ fontSize: 16 }} />
+                                                            {item.location}
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+                                                {isMobile && (
+                                                    <Box
+                                                        sx={{
+                                                            width: 36,
+                                                            height: 36,
+                                                            borderRadius: '50%',
+                                                            backgroundColor: alpha(item.color, 0.1),
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            color: item.color,
+                                                            flexShrink: 0,
+                                                            ml: 2,
+                                                        }}
+                                                    >
+                                                        {getItemIcon(item)}
+                                                    </Box>
+                                                )}
+                                            </Box>
+
+                                            {/* Date and Type */}
+                                            <Stack
+                                                direction="row"
+                                                spacing={2}
+                                                alignItems="center"
+                                                sx={{ mb: 2 }}
+                                            >
+                                                <Chip
+                                                    icon={<CalendarToday sx={{ fontSize: 16 }} />}
+                                                    label={item.date}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{
+                                                        borderColor: alpha(item.color, 0.3),
+                                                        '& .MuiChip-icon': {
+                                                            color: item.color,
+                                                        },
+                                                    }}
+                                                />
+                                                <Chip
+                                                    label={getItemTypeLabel(item.type)}
+                                                    size="small"
+                                                    sx={{
+                                                        backgroundColor: alpha(item.color, 0.1),
+                                                        color: item.color,
+                                                        fontWeight: 600,
+                                                    }}
+                                                />
+                                            </Stack>
+
+                                            {/* Description */}
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                paragraph
+                                            >
+                                                {item.description}
+                                            </Typography>
+
+                                            {/* Technologies */}
+                                            {item.technologies && (
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    flexWrap="wrap"
+                                                    sx={{ mb: 2, gap: 0.5 }}
+                                                >
+                                                    {item.technologies.map((tech) => (
+                                                        <Chip
+                                                            key={tech}
+                                                            label={tech}
+                                                            size="small"
+                                                            variant="outlined"
+                                                            sx={{
+                                                                borderColor: theme.palette.divider,
+                                                                fontSize: '0.75rem',
+                                                                height: 24,
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </Stack>
+                                            )}
+
+                                            {/* Expand/Collapse Button */}
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    mt: 2,
+                                                }}
+                                            >
+                                                {item.impact && (
+                                                    <Stack direction="row" spacing={2}>
+                                                        {Object.entries(item.impact).slice(0, 2).map(([key, value]) => (
+                                                            <Box key={key}>
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    color="primary"
+                                                                    sx={{ fontWeight: 700 }}
+                                                                >
+                                                                    {value}
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    color="text.secondary"
+                                                                    sx={{ textTransform: 'capitalize' }}
+                                                                >
+                                                                    {key}
+                                                                </Typography>
+                                                            </Box>
+                                                        ))}
+                                                    </Stack>
+                                                )}
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleItemExpand(item.id)}
+                                                    sx={{
+                                                        transform: expandedItem === item.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                        transition: theme.transitions.create(['transform'], {
+                                                            duration: theme.transitions.duration.short,
+                                                        }),
+                                                    }}
+                                                >
+                                                    <ExpandMore />
+                                                </IconButton>
+                                            </Box>
+
+                                            {/* Expanded Content */}
+                                            <Collapse in={expandedItem === item.id}>
+                                                <Divider sx={{ my: 2 }} />
+                                                <Typography
+                                                    variant="subtitle2"
+                                                    sx={{ mb: 2, fontWeight: 600 }}
+                                                >
+                                                    Key Achievements:
+                                                </Typography>
+                                                <Stack spacing={1}>
+                                                    {item.achievements.map((achievement, idx) => (
+                                                        <Box
+                                                            key={idx}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'flex-start',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <CheckCircle
+                                                                sx={{
+                                                                    fontSize: 18,
+                                                                    color: item.color,
+                                                                    mt: 0.3,
+                                                                    flexShrink: 0,
+                                                                }}
+                                                            />
+                                                            <Typography
+                                                                variant="body2"
+                                                                color="text.secondary"
+                                                            >
+                                                                {achievement}
+                                                            </Typography>
+                                                        </Box>
+                                                    ))}
+                                                </Stack>
+                                                {item.impact && Object.keys(item.impact).length > 2 && (
+                                                    <>
+                                                        <Divider sx={{ my: 2 }} />
+                                                        <Grid container spacing={2}>
+                                                            {Object.entries(item.impact).map(([key, value]) => (
+                                                                <Grid item xs={4} key={key}>
+                                                                    <Box sx={{ textAlign: 'center' }}>
+                                                                        <Typography
+                                                                            variant="h6"
+                                                                            color="primary"
+                                                                            sx={{ fontWeight: 700 }}
+                                                                        >
+                                                                            {value}
+                                                                        </Typography>
+                                                                        <Typography
+                                                                            variant="caption"
+                                                                            color="text.secondary"
+                                                                            sx={{ textTransform: 'capitalize' }}
+                                                                        >
+                                                                            {key}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                </Grid>
+                                                            ))}
+                                                        </Grid>
+                                                    </>
+                                                )}
+                                            </Collapse>
+                                        </CardContent>
+                                    </Card>
                                 </Box>
                             </Box>
-                        </Fade>
-                    ))}
+                        ))}
+                    </Stack>
+
+                    {/* Show More Button */}
+                    {!showAllItems && timelineData.length > CONTENT_LIMITS.MAX_TIMELINE_ITEMS && (
+                        <Box sx={{ textAlign: 'center', mt: 6 }}>
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                endIcon={<ArrowForward />}
+                                onClick={handleShowMore}
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    borderWidth: 2,
+                                    '&:hover': {
+                                        borderWidth: 2,
+                                        transform: 'translateX(4px)',
+                                    },
+                                }}
+                            >
+                                View Full Timeline ({timelineData.length - CONTENT_LIMITS.MAX_TIMELINE_ITEMS} more)
+                            </Button>
+                        </Box>
+                    )}
                 </Box>
 
-                {/* Timeline Summary */}
-                <Fade in={isVisible} timeout={3500}>
-                    <Box
-                        sx={{
-                            mt: 8,
-                            p: 4,
-                            borderRadius: 3,
-                            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
-                            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                            textAlign: 'center'
-                        }}
+                {/* Call to Action */}
+                <Box
+                    sx={{
+                        mt: 8,
+                        p: 4,
+                        borderRadius: 3,
+                        textAlign: 'center',
+                        backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                    }}
+                >
+                    <Typography
+                        variant="h5"
+                        gutterBottom
+                        sx={{ fontWeight: 700 }}
                     >
-                        <Typography
-                            variant="h5"
-                            component="h3"
-                            sx={{
-                                fontWeight: 700,
-                                mb: 3,
-                                color: 'primary.main'
-                            }}
-                        >
-                            {translate('Career Journey Summary')}
-                        </Typography>
-
-                        <Stack
-                            direction={{ xs: 'column', md: 'row' }}
-                            spacing={4}
-                            justifyContent="center"
-                            alignItems="center"
-                        >
-                            <Box>
-                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                                    {timelineData.length}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {translate('Career Positions')}
-                                </Typography>
-                            </Box>
-                            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' } }} />
-                            <Box>
-                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'secondary.main' }}>
-                                    15+
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {translate('Years Experience')}
-                                </Typography>
-                            </Box>
-                            <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' } }} />
-                            <Box>
-                                <Typography variant="h3" sx={{ fontWeight: 700, color: 'success.main' }}>
-                                    5
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {translate('Industries')}
-                                </Typography>
-                            </Box>
-                        </Stack>
-
+                        {translate("Let's Build Something Together")}
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        paragraph
+                    >
+                        {translate("I'm always interested in new opportunities and exciting projects")}
+                    </Typography>
+                    <Stack
+                        direction="row"
+                        spacing={2}
+                        justifyContent="center"
+                        sx={{ mt: 3 }}
+                    >
                         <Button
                             variant="contained"
-                            size="large"
-                            href="/resume"
+                            startIcon={<LinkedIn />}
+                            href="https://linkedin.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             sx={{
-                                mt: 4,
-                                px: 4,
-                                py: 1.5,
-                                borderRadius: 2,
-                                fontWeight: 600,
-                                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                                '&:hover': {
-                                    background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`,
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: theme.shadows[8]
-                                }
+                                px: 3,
+                                textTransform: 'none',
                             }}
                         >
-                            {translate('View Full Resume')}
+                            Connect on LinkedIn
                         </Button>
-                    </Box>
-                </Fade>
+                        <Button
+                            variant="outlined"
+                            startIcon={<GitHub />}
+                            href="https://github.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                                px: 3,
+                                textTransform: 'none',
+                            }}
+                        >
+                            View GitHub
+                        </Button>
+                    </Stack>
+                </Box>
             </Container>
         </Box>
     );

@@ -45,7 +45,7 @@ const sparkle = keyframes`
     50% { opacity: 1; transform: scale(1) rotate(180deg); }
 `;
 
-const ThemeToggle = React.memo(({
+const LightDarkToggle = React.memo(({
                                     position = 'fixed',
                                     top = 20,
                                     right = 20,
@@ -60,7 +60,7 @@ const ThemeToggle = React.memo(({
     const [sparkles, setSparkles] = useState([]);
 
     // Get current theme mode
-    const isDarkMode = theme.palette.mode === 'dark';
+    const isDarkMode = theme.palette.mode === 'cranky_dark';
 
     // Generate sparkles on theme change
     useEffect(() => {
@@ -83,7 +83,7 @@ const ThemeToggle = React.memo(({
     }, [isAnimating, showMagic]);
 
     const handleThemeToggle = () => {
-        const newMode = isDarkMode ? 'light' : 'dark';
+        const newMode = isDarkMode ? ' cranky_light' : ' cranky_dark';
 
         // Start animation
         setIsAnimating(true);
@@ -120,12 +120,12 @@ const ThemeToggle = React.memo(({
                     onClick={handleThemeToggle}
                     size="large"
                     sx={{
-                        backgroundColor: theme.palette.mode === 'dark'
+                        backgroundColor: theme.palette.mode === 'cranky_dark'
                             ? 'rgba(255, 255, 255, 0.1)'
                             : 'rgba(0, 0, 0, 0.04)',
                         backdropFilter: 'blur(10px)',
                         border: `2px solid ${theme.palette.divider}`,
-                        color: theme.palette.mode === 'dark'
+                        color: theme.palette.mode === 'cranky_dark'
                             ? theme.palette.warning.main
                             : theme.palette.primary.main,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -133,11 +133,11 @@ const ThemeToggle = React.memo(({
                         position: 'relative',
                         overflow: 'visible',
                         '&:hover': {
-                            backgroundColor: theme.palette.mode === 'dark'
+                            backgroundColor: theme.palette.mode === 'cranky_dark'
                                 ? 'rgba(255, 255, 255, 0.2)'
                                 : 'rgba(0, 0, 0, 0.08)',
                             transform: 'scale(1.1)',
-                            borderColor: theme.palette.mode === 'dark'
+                            borderColor: theme.palette.mode === 'cranky_dark'
                                 ? theme.palette.warning.main
                                 : theme.palette.primary.main,
                             '& .theme-icon': {
@@ -206,7 +206,7 @@ const ThemeToggle = React.memo(({
                         width: 80,
                         height: 80,
                         borderRadius: '50%',
-                        background: theme.palette.mode === 'dark'
+                        background: theme.palette.mode === 'cranky_dark'
                             ? `radial-gradient(circle, ${theme.palette.warning.main}44 0%, transparent 70%)`
                             : `radial-gradient(circle, ${theme.palette.primary.main}44 0%, transparent 70%)`,
                         transform: 'translate(-50%, -50%)',
@@ -219,6 +219,6 @@ const ThemeToggle = React.memo(({
     );
 });
 
-ThemeToggle.displayName = 'ThemeToggle';
+LightDarkToggle.displayName = 'ThemeToggle';
 
-export default ThemeToggle;
+export default LightDarkToggle;
