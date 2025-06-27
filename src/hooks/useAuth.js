@@ -2,7 +2,7 @@
  * Custom hook for authentication functionality
  * Provides authentication state and methods
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     useLoginMutation,
@@ -38,21 +38,52 @@ export const useAuth = () => {
     const businesses = useSelector(selectUserBusinesses);
     const activeBusiness = useSelector(selectActiveBusiness);
 
+    // Use a ref to track if we've already initialized
+    const hasInitializedRef = useRef(false);
+
     // Initialize authentication state from storage on component mount
     useEffect(() => {
-        const { isAuthenticated: storedAuth, user, authToken, roles, businesses, activeBusiness } = AuthTokenService.getAuthInfo();
-
-        if (storedAuth && authToken) {
-            dispatch(setAuthentication({
-                isAuthenticated: storedAuth,
-                user,
-                token: authToken,
-                roles,
-                businesses,
-                activeBusiness
-            }));
+        // Skip if already initialized
+        if (hasInitializedRef.current) {
+            return;
         }
-    }, [dispatch]);
+
+        const {
+            isAuthenticated: storedAuth,
+            user: storedUser,
+            authToken,
+            roles: storedRoles,
+            businesses: storedBusinesses,
+            activeBusiness: storedActiveBusiness
+        } = AuthTokenService.getAuthInfo();
+
+        // Only dispatch if we have valid stored authentication data
+        if (storedAuth && authToken) {
+            // Check if the current Redux state differs from stored state
+            // This prevents unnecessary dispatches
+            const needsUpdate =
+                isAuthenticated !== storedAuth ||
+                token !== authToken ||
+                JSON.stringify(user) !== JSON.stringify(storedUser) ||
+                JSON.stringify(roles) !== JSON.stringify(storedRoles) ||
+                JSON.stringify(businesses) !== JSON.stringify(storedBusinesses) ||
+                JSON.stringify(activeBusiness) !== JSON.stringify(storedActiveBusiness);
+
+            if (needsUpdate) {
+                dispatch(setAuthentication({
+                    isAuthenticated: storedAuth,
+                    user: storedUser,
+                    token: authToken,
+                    roles: storedRoles,
+                    businesses: storedBusinesses,
+                    activeBusiness: storedActiveBusiness
+                }));
+            }
+
+            // Mark as initialized
+            hasInitializedRef.current = true;
+        }
+    }, [dispatch, isAuthenticated, token, user, roles, businesses, activeBusiness]);
 
     // Login handler - using RTK Query mutation
     const handleLogin = async (credentials) => {
@@ -68,96 +99,146 @@ export const useAuth = () => {
             if (result.token) {
                 // Track successful login
                 analytics.trackEvent('login_success', {
-                    method: 'email'
+                    method: 'email',
+                    user_id: result.user?.id
                 });
 
-                return !!result.token;
+                // Mark as initialized since we just logged in
+                hasInitializedRef.current = true;
+
+                return { success: true, data: result };
             }
-            return false;
+
+            return { success: false, error: 'No token received' };
         } catch (error) {
-            // Track login failure
-            analytics.trackEvent('login_failure', {
-                reason: error.data?.message || 'Unknown error',
-                status: error.status
+            // Track failed login
+            analytics.trackEvent('login_failed', {
+                method: 'email',
+                error: error.data?.message || error.message
             });
 
-            console.error('Login failed:', error);
-            return false;
+            return {
+                success: false,
+                error: error.data?.message || 'Login failed'
+            };
         }
     };
 
     // Logout handler - using RTK Query mutation
     const handleLogout = async () => {
         try {
-            // Track logout attempt
-            analytics.trackEvent('logout_attempt');
-
-            // RTK Query will handle the API call and clearing Redux state
-            await logout().unwrap();
-
-            // Track successful logout
-            analytics.trackEvent('logout_success');
-
-            return true;
-        } catch (error) {
-            // Track logout failure
-            analytics.trackEvent('logout_failure', {
-                reason: error.data?.message || 'Unknown error'
+            // Track logout
+            analytics.trackEvent('logout', {
+                user_id: user?.id
             });
 
+            // Call logout mutation
+            await logout().unwrap();
+
+            // Reset initialization flag
+            hasInitializedRef.current = false;
+
+            return { success: true };
+        } catch (error) {
             console.error('Logout error:', error);
-            // Even if API call fails, ensure local logout
+
+            // Even if API fails, clear local data
             AuthTokenService.clearAuthInfo();
-            return false;
+            dispatch(logout());
+
+            // Reset initialization flag
+            hasInitializedRef.current = false;
+
+            return {
+                success: false,
+                error: error.data?.message || 'Logout failed'
+            };
         }
     };
 
-    // Validate token with backend
-    const validateToken = async () => {
-        if (!token) return false;
+    // Switch active business
+    const switchActiveBusiness = (businessId) => {
+        const business = businesses.find(b => b.id === businessId);
+        if (business) {
+            // Update local storage
+            const authInfo = AuthTokenService.getAuthInfo();
+            AuthTokenService.setAuthInfo({
+                ...authInfo,
+                activeBusiness: business
+            });
 
-        try {
-            const response = await decodeToken({ token }).unwrap();
-            return !!response.decoded;
-        } catch (error) {
-            // Token invalid, ensure logout
-            await handleLogout();
-            return false;
+            // Update Redux state
+            dispatch(setAuthentication({
+                isAuthenticated,
+                user,
+                token,
+                roles,
+                businesses,
+                activeBusiness: business
+            }));
+
+            // Track business switch
+            analytics.trackEvent('switch_active_business', {
+                from_business_id: activeBusiness?.id,
+                to_business_id: businessId,
+                user_id: user?.id
+            });
+
+            return { success: true, business };
         }
+
+        return { success: false, error: 'Business not found' };
     };
 
     // Check if user has a specific role
     const hasRole = (roleName) => {
-        return roles.includes(roleName);
+        return roles.some(role => role.name === roleName || role === roleName);
     };
 
-    // Check if user has a specific business role
-    const hasBusinessRole = (businessId, roleName) => {
-        const business = businesses.find(b => b.id === businessId);
-        return business && business.role === roleName;
+    // Check if user has any of the specified roles
+    const hasAnyRole = (roleNames) => {
+        return roleNames.some(roleName => hasRole(roleName));
+    };
+
+    // Check if user has all of the specified roles
+    const hasAllRoles = (roleNames) => {
+        return roleNames.every(roleName => hasRole(roleName));
+    };
+
+    // Validate token
+    const validateToken = async () => {
+        if (!token) return false;
+
+        try {
+            const result = await decodeToken({ token }).unwrap();
+            return result.decoded ? true : false;
+        } catch (error) {
+            console.error('Token validation error:', error);
+            return false;
+        }
     };
 
     return {
-        // Auth state
+        // Authentication state
         isAuthenticated,
-        token,
         user,
+        token,
         roles,
         businesses,
         activeBusiness,
 
-        // Auth loading states
+        // Loading states
         isLoginLoading,
         isLogoutLoading,
 
-        // Auth methods
+        // Methods
         login: handleLogin,
         logout: handleLogout,
-        validateToken,
-
-        // Role checking
+        switchActiveBusiness,
         hasRole,
-        hasBusinessRole,
+        hasAnyRole,
+        hasAllRoles,
+        validateToken,
     };
 };
 

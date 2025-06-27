@@ -6,7 +6,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Create campaign
         createCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: getApiUrl('campaigns', 'main'),
+                url: getApiUrl('api/campaigns', 'main'),
                 method: 'POST',
                 body: campaignData,
             }),
@@ -16,7 +16,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Update campaign
         updateCampaign: builder.mutation({
             query: (campaignData) => ({
-                url: getApiUrl('campaigns', 'main'),
+                url: getApiUrl('api/campaigns', 'main'),
                 method: 'PUT',
                 body: campaignData,
             }),
@@ -26,7 +26,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Get campaign by ID
         getCampaignById: builder.query({
             query: (campaignId) => ({
-                url: getApiUrl(`campaigns/${campaignId}`, 'main'),
+                url: getApiUrl(`api/campaigns/${campaignId}`, 'main'),
                 method: 'GET',
             }),
             providesTags: (result, error, id) => [{ type: 'Campaign', id }],
@@ -35,7 +35,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Delete campaign
         deleteCampaign: builder.mutation({
             query: (campaignId) => ({
-                url: getApiUrl(`campaigns/${campaignId}`, 'main'),
+                url: getApiUrl(`api/campaigns/${campaignId}`, 'main'),
                 method: 'DELETE',
             }),
             invalidatesTags: ['Campaign'],
@@ -44,7 +44,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Get campaigns for a business
         getCampaignsByBusiness: builder.query({
             query: (businessId) => ({
-                url: getApiUrl(`campaigns/business/${businessId}`, 'main'),
+                url: getApiUrl(`api/campaigns/business/${businessId}`, 'main'),
                 method: 'GET',
             }),
             providesTags: ['Campaign'],
@@ -53,7 +53,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Attach media to campaign
         attachCampaignMedia: builder.mutation({
             query: (data) => ({
-                url: getApiUrl('campaigns/media/attach', 'main'),
+                url: getApiUrl('api/campaigns/media/attach', 'main'),
                 method: 'POST',
                 body: data,
             }),
@@ -63,7 +63,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Delete campaign media
         deleteCampaignMedia: builder.mutation({
             query: ({ campaignId, mediaAssetId }) => ({
-                url: getApiUrl(`campaigns/${campaignId}/media/${mediaAssetId}`, 'main'),
+                url: getApiUrl(`api/campaigns/${campaignId}/media/${mediaAssetId}`, 'main'),
                 method: 'DELETE',
             }),
             invalidatesTags: ['Campaign'],
@@ -72,7 +72,7 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
         // Update campaign status
         updateCampaignStatus: builder.mutation({
             query: (data) => ({
-                url: getApiUrl('campaigns/status', 'main'),
+                url: getApiUrl('api/campaigns/status', 'main'),
                 method: 'PUT',
                 body: data,
             }),
