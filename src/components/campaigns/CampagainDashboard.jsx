@@ -337,7 +337,9 @@ const CampaignDashboard = ({ businessId }) => {
 };
 
 CampaignDashboard.propTypes = {
-    businessId: PropTypes.string.isRequired
-};
+    businessId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]).isRequired};
 
 export default React.memo(CampaignDashboard);

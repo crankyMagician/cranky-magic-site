@@ -203,7 +203,7 @@ const Sidebar = ({ children }) => {
             <ListItem
                 button
                 component={RouterLink}
-                to="/register"
+                to="/business-signup"
                 sx={{
                     minHeight: 48,
                     justifyContent: open ? 'initial' : 'center',

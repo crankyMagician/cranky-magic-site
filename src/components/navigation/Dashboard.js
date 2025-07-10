@@ -222,7 +222,7 @@ const Dashboard = ({ children }) => {
             <ListItem
                 button
                 component={RouterLink}
-                to="/register"
+                to="/business-signup"
                 sx={{
                     minHeight: 48,
                     justifyContent: open ? 'initial' : 'center',
@@ -424,7 +424,7 @@ const Dashboard = ({ children }) => {
                                     color="inherit"
                                     variant="outlined"
                                     component={RouterLink}
-                                    to="/register"
+                                    to="/business-signup"
                                     startIcon={<AppRegistration />}
                                     sx={{
                                         whiteSpace: 'nowrap',

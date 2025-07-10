@@ -6,7 +6,7 @@ export const commoApiExtended = commoApi.injectEndpoints({
         // Send SMS
         sendSms: builder.mutation({
             query: (smsData) => ({
-                url: getApiUrl('Commo/sms/send', 'main'),
+                url: getApiUrl('api/Commo/sms/send', 'main'),
                 method: 'POST',
                 body: smsData,
             }),
@@ -15,7 +15,7 @@ export const commoApiExtended = commoApi.injectEndpoints({
         // Send Email
         sendEmail: builder.mutation({
             query: (emailData) => ({
-                url: getApiUrl('Commo/email/send', 'main'),
+                url: getApiUrl('api/Commo/email/send', 'main'),
                 method: 'POST',
                 body: emailData,
             }),

@@ -259,7 +259,7 @@ const Hoverbar = () => {
                             color="primary"
                             startIcon={<AppRegistration />}
                             component={RouterLink}
-                            to="/register"
+                            to="/business-signup"
                             onClick={toggleDrawer(false)}
                             fullWidth
                             sx={{
@@ -311,7 +311,7 @@ const Hoverbar = () => {
                         color="primary"
                         startIcon={<AppRegistration />}
                         component={RouterLink}
-                        to="/register"
+                        to="/business-signup"
                         sx={{
                             fontFamily: theme.typography.button.fontFamily,
                         }}

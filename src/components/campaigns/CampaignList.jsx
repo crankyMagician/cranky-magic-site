@@ -609,7 +609,10 @@ CampaignList.propTypes = {
     campaigns: PropTypes.array.isRequired,
     onEditCampaign: PropTypes.func.isRequired,
     onRefresh: PropTypes.func.isRequired,
-    businessId: PropTypes.string.isRequired
+    businessId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]).isRequired
 };
 
 export default React.memo(CampaignList);

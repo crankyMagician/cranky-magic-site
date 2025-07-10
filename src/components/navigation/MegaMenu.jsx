@@ -196,7 +196,7 @@ const MegaMenu = () => {
                                 color="primary"
                                 startIcon={<AppRegistration />}
                                 component={RouterLink}
-                                to="/register"
+                                to="/business-signup"
                                 onClick={handleDrawerToggle}
                                 sx={{
                                     fontFamily: theme.typography.button.fontFamily,
@@ -364,7 +364,7 @@ const MegaMenu = () => {
                                             variant="contained"
                                             color="primary"
                                             component={RouterLink}
-                                            to="/register"
+                                            to="/business-signup"
                                             startIcon={<AppRegistration />}
                                             sx={{
                                                 fontFamily: theme.typography.button.fontFamily,

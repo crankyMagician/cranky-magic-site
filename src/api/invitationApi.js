@@ -6,7 +6,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Send invitation
         sendInvitation: builder.mutation({
             query: (invitationData) => ({
-                url: getApiUrl('invitations/send', 'main'),
+                url: getApiUrl('api/invitations/send', 'main'),
                 method: 'POST',
                 body: invitationData,
             }),
@@ -16,7 +16,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Verify invitation token
         verifyInvitation: builder.query({
             query: (token) => ({
-                url: getApiUrl('invitations/verify', 'main'),
+                url: getApiUrl('api/invitations/verify', 'main'),
                 method: 'GET',
                 params: { token },
             }),
@@ -25,7 +25,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Accept invitation
         acceptInvitation: builder.mutation({
             query: (acceptData) => ({
-                url: getApiUrl('invitations/accept', 'main'),
+                url: getApiUrl('api/invitations/accept', 'main'),
                 method: 'POST',
                 body: acceptData,
             }),
@@ -35,7 +35,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Get invitations for a business
         getInvitationsByBusiness: builder.query({
             query: ({ businessId, page, pageSize }) => ({
-                url: getApiUrl(`invitations/business/${businessId}`, 'main'),
+                url: getApiUrl(`api/invitations/business/${businessId}`, 'main'),
                 method: 'GET',
                 params: { page, pageSize },
             }),
@@ -45,7 +45,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Resend invitation
         resendInvitation: builder.mutation({
             query: (invitationId) => ({
-                url: getApiUrl(`invitations/${invitationId}/resend`, 'main'),
+                url: getApiUrl(`api/invitations/${invitationId}/resend`, 'main'),
                 method: 'POST',
             }),
         }),
@@ -53,7 +53,7 @@ export const invitationApiExtended = invitationsApi.injectEndpoints({
         // Delete invitation
         deleteInvitation: builder.mutation({
             query: (invitationId) => ({
-                url: getApiUrl(`invitations/${invitationId}`, 'main'),
+                url: getApiUrl(`api/invitations/${invitationId}`, 'main'),
                 method: 'DELETE',
             }),
             invalidatesTags: ['Invitation'],

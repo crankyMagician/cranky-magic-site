@@ -97,10 +97,9 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                     startDate: parsedStartDate,
                     endDate: parsedEndDate,
                     targetAudience: campaign.targetAudience || '',
-                    isScheduled: !!(parsedStartDate && parsedEndDate)
+                    isScheduled: !!campaign.startDate
                 });
             } else {
-                // Reset form for new campaign
                 reset({
                     name: '',
                     description: '',
@@ -115,38 +114,32 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
         }
     }, [open, campaign, reset]);
 
-    // Handle scheduled toggle
-    const handleScheduledToggle = (event) => {
-        const isChecked = event.target.checked;
-        setValue('isScheduled', isChecked);
-
-        if (!isChecked) {
-            setValue('startDate', null);
-            setValue('endDate', null);
+    // Track form open
+    useEffect(() => {
+        if (open) {
+            analytics.trackEvent('campaign_form_open', {
+                is_edit: isEditMode,
+                business_id: businessId,
+                campaign_id: campaign?.id
+            });
         }
-
-        analytics.trackEvent('campaign_schedule_toggle', {
-            is_scheduled: isChecked,
-            campaign_id: campaign?.id,
-            business_id: businessId
-        });
-    };
+    }, [open, isEditMode, businessId, campaign?.id, analytics]);
 
     // Handle form submission
     const onSubmit = async (data) => {
         try {
-            // Track form submission
-            analytics.trackEvent('campaign_form_submit', {
+            // Track submission attempt
+            analytics.trackEvent('campaign_save_attempt', {
                 is_edit: isEditMode,
                 business_id: businessId,
                 campaign_id: campaign?.id
             });
 
-            // Prepare payload
+            // Prepare payload - ensure businessId is converted to the expected type
             const payload = {
                 ...data,
-                businessId,
-                // Only include dates if scheduling is enabled
+                businessId: String(businessId), // Convert to string if API expects string
+                // Only include dates if scheduled
                 startDate: data.isScheduled ? data.startDate : null,
                 endDate: data.isScheduled ? data.endDate : null,
                 // Convert budget to number
@@ -218,47 +211,35 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                 <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                     {isEditMode ? translate('EditCampaign') : translate('CreateCampaign')}
                 </Typography>
-                <IconButton
-                    edge="end"
-                    color="inherit"
-                    onClick={handleCancel}
-                    aria-label={translate('Close')}
-                >
+                <IconButton onClick={handleCancel} size="small" sx={{ color: 'text.secondary' }}>
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
 
             <Divider />
 
-            {/* API error message */}
-            {apiError && (
-                <Box sx={{ px: 3, pt: 2 }}>
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                        {apiError.data?.message || translate('ErrorSavingCampaign')}
-                    </Alert>
-                </Box>
-            )}
-
             <form onSubmit={handleSubmit(onSubmit)}>
-                <DialogContent>
+                <DialogContent sx={{ pt: 2 }}>
+                    {/* Show API error if any */}
+                    {apiError && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {apiError.data?.message || translate('ErrorSavingCampaign')}
+                        </Alert>
+                    )}
+
                     <Grid container spacing={3}>
                         {/* Campaign Name */}
                         <Grid item xs={12}>
                             <Controller
                                 name="name"
                                 control={control}
-                                rules={{
-                                    required: translate('NameRequired'),
-                                    maxLength: {
-                                        value: 100,
-                                        message: translate('NameTooLong')
-                                    }
-                                }}
+                                rules={{ required: translate('CampaignNameRequired') }}
                                 render={({ field }) => (
                                     <TextField
                                         {...field}
                                         label={translate('CampaignName')}
                                         fullWidth
+                                        required
                                         error={!!errors.name}
                                         helperText={errors.name?.message}
                                         variant="outlined"
@@ -301,19 +282,20 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                                 rules={{ required: translate('StatusRequired') }}
                                 render={({ field }) => (
                                     <FormControl fullWidth error={!!errors.status}>
-                                        <InputLabel id="status-label">{translate('Status')}</InputLabel>
+                                        <InputLabel>{translate('Status')}</InputLabel>
                                         <Select
                                             {...field}
-                                            labelId="status-label"
                                             label={translate('Status')}
-                                            variant="outlined"
                                             sx={{ borderRadius: 1 }}
                                         >
                                             <MenuItem value="draft">{translate('Draft')}</MenuItem>
                                             <MenuItem value="active">{translate('Active')}</MenuItem>
+                                            <MenuItem value="paused">{translate('Paused')}</MenuItem>
                                             <MenuItem value="completed">{translate('Completed')}</MenuItem>
                                         </Select>
-                                        {errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
+                                        {errors.status && (
+                                            <FormHelperText>{errors.status.message}</FormHelperText>
+                                        )}
                                     </FormControl>
                                 )}
                             />
@@ -325,8 +307,8 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                                 control={control}
                                 rules={{
                                     pattern: {
-                                        value: /^(\d+(\.\d{1,2})?)?$/,
-                                        message: translate('InvalidBudgetFormat')
+                                        value: /^[0-9]*\.?[0-9]*$/,
+                                        message: translate('InvalidBudget')
                                     }
                                 }}
                                 render={({ field }) => (
@@ -337,15 +319,113 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                                         error={!!errors.budget}
                                         helperText={errors.budget?.message}
                                         variant="outlined"
-                                        placeholder="0.00"
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                                             sx: { borderRadius: 1 }
                                         }}
+                                        placeholder="0.00"
                                     />
                                 )}
                             />
                         </Grid>
+
+                        {/* Schedule toggle */}
+                        <Grid item xs={12}>
+                            <Controller
+                                name="isScheduled"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                {...field}
+                                                checked={field.value}
+                                                color="primary"
+                                            />
+                                        }
+                                        label={
+                                            <Box display="flex" alignItems="center">
+                                                {translate('ScheduleCampaign')}
+                                                <Tooltip title={translate('ScheduleInfo')}>
+                                                    <IconButton size="small" sx={{ ml: 0.5 }}>
+                                                        <InfoIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        }
+                                    />
+                                )}
+                            />
+                        </Grid>
+
+                        {/* Date pickers - shown only when scheduled */}
+                        {isScheduled && (
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <Grid item xs={12} sm={6}>
+                                    <Controller
+                                        name="startDate"
+                                        control={control}
+                                        rules={{
+                                            required: isScheduled ? translate('StartDateRequired') : false
+                                        }}
+                                        render={({ field }) => (
+                                            <DatePicker
+                                                {...field}
+                                                label={translate('StartDate')}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        fullWidth
+                                                        error={!!errors.startDate}
+                                                        helperText={errors.startDate?.message}
+                                                        variant="outlined"
+                                                        InputProps={{
+                                                            ...params.InputProps,
+                                                            sx: { borderRadius: 1 }
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <Controller
+                                        name="endDate"
+                                        control={control}
+                                        rules={{
+                                            validate: (value) => {
+                                                if (isScheduled && value && watch('startDate')) {
+                                                    return value > watch('startDate') || translate('EndDateMustBeAfterStart');
+                                                }
+                                                return true;
+                                            }
+                                        }}
+                                        render={({ field }) => (
+                                            <DatePicker
+                                                {...field}
+                                                label={translate('EndDate')}
+                                                minDate={watch('startDate')}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        fullWidth
+                                                        error={!!errors.endDate}
+                                                        helperText={errors.endDate?.message}
+                                                        variant="outlined"
+                                                        InputProps={{
+                                                            ...params.InputProps,
+                                                            sx: { borderRadius: 1 }
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+                            </LocalizationProvider>
+                        )}
 
                         {/* Target Audience */}
                         <Grid item xs={12}>
@@ -357,8 +437,11 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                                         {...field}
                                         label={translate('TargetAudience')}
                                         fullWidth
+                                        multiline
+                                        rows={2}
                                         variant="outlined"
                                         placeholder={translate('TargetAudiencePlaceholder')}
+                                        helperText={translate('TargetAudienceHelp')}
                                         InputProps={{
                                             sx: { borderRadius: 1 }
                                         }}
@@ -366,153 +449,16 @@ const CampaignFormModal = ({ open, onClose, onSave, campaign, businessId }) => {
                                 )}
                             />
                         </Grid>
-
-                        {/* Schedule Toggle */}
-                        <Grid item xs={12}>
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    p: 2,
-                                    borderRadius: 1,
-                                    border: '1px solid',
-                                    borderColor: 'divider',
-                                    bgcolor: 'background.paper'
-                                }}
-                            >
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={isScheduled}
-                                            onChange={handleScheduledToggle}
-                                            color="primary"
-                                        />
-                                    }
-                                    label={
-                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                            <Typography variant="body1" sx={{ mr: 1 }}>{translate('ScheduleCampaign')}</Typography>
-                                            <Tooltip title={translate('ScheduleCampaignTooltip')}>
-                                                <InfoIcon fontSize="small" color="action" />
-                                            </Tooltip>
-                                        </Box>
-                                    }
-                                    sx={{ mb: 1 }}
-                                />
-
-                                {isScheduled && (
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <Grid container spacing={2} sx={{ mt: 1 }}>
-                                            <Grid item xs={12} sm={6}>
-                                                <Controller
-                                                    name="startDate"
-                                                    control={control}
-                                                    rules={{
-                                                        required: isScheduled ? translate('StartDateRequired') : false
-                                                    }}
-                                                    render={({ field }) => (
-                                                        <DatePicker
-                                                            label={translate('StartDate')}
-                                                            value={field.value}
-                                                            onChange={(date) => field.onChange(date)}
-                                                            slotProps={{
-                                                                textField: {
-                                                                    fullWidth: true,
-                                                                    variant: 'outlined',
-                                                                    error: !!errors.startDate,
-                                                                    helperText: errors.startDate?.message,
-                                                                    InputProps: {
-                                                                        sx: { borderRadius: 1 }
-                                                                    }
-                                                                }
-                                                            }}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} sm={6}>
-                                                <Controller
-                                                    name="endDate"
-                                                    control={control}
-                                                    rules={{
-                                                        required: isScheduled ? translate('EndDateRequired') : false,
-                                                        validate: value => {
-                                                            const startDate = watch('startDate');
-                                                            if (startDate && value && new Date(value) <= new Date(startDate)) {
-                                                                return translate('EndDateAfterStartDate');
-                                                            }
-                                                            return true;
-                                                        }
-                                                    }}
-                                                    render={({ field }) => (
-                                                        <DatePicker
-                                                            label={translate('EndDate')}
-                                                            value={field.value}
-                                                            onChange={(date) => field.onChange(date)}
-                                                            slotProps={{
-                                                                textField: {
-                                                                    fullWidth: true,
-                                                                    variant: 'outlined',
-                                                                    error: !!errors.endDate,
-                                                                    helperText: errors.endDate?.message,
-                                                                    InputProps: {
-                                                                        sx: { borderRadius: 1 }
-                                                                    }
-                                                                }
-                                                            }}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </LocalizationProvider>
-                                )}
-                            </Paper>
-                        </Grid>
-
-                        {/* Media Attachments Section - Placeholder for future implementation */}
-                        <Grid item xs={12}>
-                            <Paper
-                                elevation={0}
-                                sx={{
-                                    p: 2,
-                                    borderRadius: 1,
-                                    border: '1px dashed',
-                                    borderColor: 'divider',
-                                    bgcolor: theme => isDark ? 'rgba(30, 30, 30, 0.5)' : 'rgba(240, 240, 245, 0.5)'
-                                }}
-                            >
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                                        {translate('MediaAttachments')}
-                                    </Typography>
-                                    <Button
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                        size="small"
-                                        disabled
-                                        sx={{
-                                            borderRadius: 1,
-                                            ...getGlowEffect(theme => theme.palette.primary.main, 'low'),
-                                        }}
-                                    >
-                                        {translate('AddMedia')}
-                                    </Button>
-                                </Box>
-                                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                                    {translate('MediaAttachmentsComingSoon')}
-                                </Typography>
-                            </Paper>
-                        </Grid>
                     </Grid>
                 </DialogContent>
 
                 <Divider />
 
-                <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+                <DialogActions sx={{ px: 3, py: 2 }}>
                     <Button
                         onClick={handleCancel}
                         color="inherit"
-                        disabled={isCreating || isUpdating}
-                        sx={{ borderRadius: 1 }}
+                        sx={{ mr: 1 }}
                     >
                         {translate('Cancel')}
                     </Button>
@@ -545,7 +491,10 @@ CampaignFormModal.propTypes = {
     onClose: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     campaign: PropTypes.object,
-    businessId: PropTypes.string.isRequired
+    businessId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]).isRequired
 };
 
 export default React.memo(CampaignFormModal);

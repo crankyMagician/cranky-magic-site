@@ -8,7 +8,11 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
             query: (campaignData) => ({
                 url: getApiUrl('api/campaigns', 'main'),
                 method: 'POST',
-                body: campaignData,
+                body: {
+                    ...campaignData,
+                    // Ensure businessId is always sent as a number
+                    businessId: parseInt(campaignData.businessId, 10)
+                },
             }),
             invalidatesTags: ['Campaign'],
         }),
@@ -18,7 +22,11 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
             query: (campaignData) => ({
                 url: getApiUrl('api/campaigns', 'main'),
                 method: 'PUT',
-                body: campaignData,
+                body: {
+                    ...campaignData,
+                    // Ensure businessId is always sent as a number
+                    businessId: parseInt(campaignData.businessId, 10)
+                },
             }),
             invalidatesTags: ['Campaign'],
         }),
@@ -55,33 +63,38 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
             query: (data) => ({
                 url: getApiUrl('api/campaigns/media/attach', 'main'),
                 method: 'POST',
-                body: data,
+                body: {
+                    ...data,
+                    // Ensure businessId is a number if present
+                    ...(data.businessId && { businessId: parseInt(data.businessId, 10) })
+                },
             }),
             invalidatesTags: ['Campaign'],
         }),
 
         // Delete campaign media
         deleteCampaignMedia: builder.mutation({
-            query: ({ campaignId, mediaAssetId }) => ({
-                url: getApiUrl(`api/campaigns/${campaignId}/media/${mediaAssetId}`, 'main'),
+            query: (data) => ({
+                url: getApiUrl('api/campaigns/media/delete', 'main'),
                 method: 'DELETE',
+                body: data,
             }),
             invalidatesTags: ['Campaign'],
         }),
 
         // Update campaign status
         updateCampaignStatus: builder.mutation({
-            query: (data) => ({
-                url: getApiUrl('api/campaigns/status', 'main'),
+            query: ({ campaignId, status }) => ({
+                url: getApiUrl(`api/campaigns/${campaignId}/status`, 'main'),
                 method: 'PUT',
-                body: data,
+                body: { status },
             }),
             invalidatesTags: ['Campaign'],
         }),
     }),
-    overrideExisting: false,
 });
 
+// Export the hooks
 export const {
     useCreateCampaignMutation,
     useUpdateCampaignMutation,

@@ -165,7 +165,7 @@ const Navbar = () => {
                         color="primary"
                         startIcon={<AppRegistration />}
                         component={RouterLink}
-                        to="/register"
+                        to="/business-signup"
                         onClick={onClick}
                         fullWidth={isMobile}
                         sx={{

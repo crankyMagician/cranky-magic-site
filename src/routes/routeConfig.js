@@ -21,12 +21,10 @@ import {
 // Import components explicitly with the proper names
 // Check these imports carefully - one of them is likely causing the error
 import Example from '../example/Example';
-import AccountSettingsPage from '../components/demoComponents/AccountSettingsPage';
-import NewsletterSignup from '../components/demoComponents/NewsletterSignup';
+
 import AboutUs from '../components/common/AboutUs';
 import StreamVideo from '../components/demoComponents/StreamVideo';
 import Calendar from '../components/demoComponents/Calendar';
-import LandingPage from '../components/demoComponents/LandingPage';
 import BusinessSignupPage from '../pages/BusinessSignupPage';
 import LoginPage from '../pages/LoginPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
@@ -40,12 +38,11 @@ import BusinessRolesPage from "../pages/BusinessRolesPage";
 // Add console logging to verify each component is a function
 console.log('Component types check:');
 console.log('Example:', typeof Example);
-console.log('AccountSettingsPage:', typeof AccountSettingsPage);
-console.log('NewsletterSignup:', typeof NewsletterSignup);
+
 console.log('AboutUs:', typeof AboutUs);
 console.log('StreamVideo:', typeof StreamVideo);
 console.log('Calendar:', typeof Calendar);
-console.log('LandingPage:', typeof LandingPage);
+
 console.log('BusinessSignupPage:', typeof BusinessSignupPage);
 console.log('LoginPage:', typeof LoginPage);
 console.log('ForgotPasswordPage:', typeof ForgotPasswordPage);
@@ -197,7 +194,7 @@ const routes = [
             }
         }
     },
-    {
+   /* {
         path: '/edit-account',
         element: typeof AccountSettingsPage === 'function' ? <AccountSettingsPage /> : <FallbackComponent />,
         exact: true,
@@ -214,7 +211,7 @@ const routes = [
                 showInFooter: false,
             }
         }
-    },
+    },*/
     {
         path: '/business-signup',
         element: typeof BusinessSignupPage === 'function' ? <BusinessSignupPage /> : <FallbackComponent />,
@@ -233,7 +230,7 @@ const routes = [
             }
         }
     },
-
+/*
     // Content pages
     {
         path: '/about-us',
@@ -253,6 +250,8 @@ const routes = [
             }
         }
     },
+
+ */
     /* {
          path: '/contact-us',
          element: typeof ContactUs === 'function' ? <ContactUs /> : <FallbackComponent />,
@@ -271,24 +270,7 @@ const routes = [
              }
          }
      },*/
-    {
-        path: '/newsletter-signup',
-        element: typeof NewsletterSignup === 'function' ? <NewsletterSignup /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Newsletter Signup',
-            description: 'Subscribe to our newsletter',
-            icon: <Email />,
-            nav: {
-                label: 'Newsletter',
-                group: 'community',
-                order: 1,
-                showInNav: true,
-                showInFooter: true,
-            }
-        }
-    },
+/*
     {
         path: '/video-stream',
         element: typeof StreamVideo === 'function' ? <StreamVideo /> : <FallbackComponent />,
@@ -324,8 +306,8 @@ const routes = [
                 showInFooter: true,
             }
         }
-    },
-
+    },*/
+/*
     // Legal pages - these were causing the error at line 223
     {
         path: '/terms',
@@ -344,7 +326,7 @@ const routes = [
                 showInFooter: true,
             }
         }
-    },
+    },*/
     {
         path: '/privacy',
         element: typeof AboutUs === 'function' ? <AboutUs /> : <FallbackComponent />,

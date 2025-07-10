@@ -88,23 +88,24 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             <Grid item xs={12} sm={6} md={isMobile ? 12 : 2.4}>
                 <Card
                     sx={{
+                        ...getGlassMorphismStyle(),
                         height: '100%',
-                        ...getGlassMorphismStyle(0.8),
-                        ...getGlowEffect(theme.palette.primary.main, 'low')
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            ...getGlowEffect(theme.palette.primary.main, 'low')
+                        }
                     }}
                 >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <CampaignIcon color="primary" sx={{ mr: 1, fontSize: 28 }} />
-                            <Typography variant="h6" color="primary">
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <CampaignIcon color="primary" sx={{ mr: 1 }} />
+                            <Typography variant="h6" component="div">
                                 {translate('TotalCampaigns')}
                             </Typography>
                         </Box>
-                        <Typography variant="h3" component="div" fontWeight="bold">
+                        <Typography variant="h3" component="div" color="primary" sx={{ fontWeight: 'bold' }}>
                             {metrics.total}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                            {translate('TotalActiveCampaigns', { count: metrics.active })}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -114,32 +115,41 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             <Grid item xs={12} sm={6} md={isMobile ? 12 : 2.4}>
                 <Card
                     sx={{
+                        ...getGlassMorphismStyle(),
                         height: '100%',
-                        ...getGlassMorphismStyle(0.8),
-                        ...getGlowEffect(theme.palette.success.main, 'low')
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            ...getGlowEffect(theme.palette.success.main, 'low')
+                        }
                     }}
                 >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <ActiveIcon color="success" sx={{ mr: 1, fontSize: 28 }} />
-                            <Typography variant="h6" color="success.main">
-                                {translate('ActiveCampaigns')}
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <ActiveIcon color="success" sx={{ mr: 1 }} />
+                            <Typography variant="h6" component="div">
+                                {translate('Active')}
                             </Typography>
                         </Box>
-                        <Typography variant="h3" component="div" fontWeight="bold">
+                        <Typography variant="h3" component="div" color="success.main" sx={{ fontWeight: 'bold' }}>
                             {metrics.active}
                         </Typography>
-                        <Box sx={{ mt: 1, mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                {percentages.active}% {translate('OfTotal')}
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={percentages.active}
-                                color="success"
-                                sx={{ height: 6, borderRadius: 3 }}
-                            />
-                        </Box>
+                        <LinearProgress
+                            variant="determinate"
+                            value={percentages.active}
+                            sx={{
+                                mt: 2,
+                                height: 6,
+                                borderRadius: 3,
+                                bgcolor: 'success.light',
+                                '& .MuiLinearProgress-bar': {
+                                    bgcolor: 'success.main'
+                                }
+                            }}
+                        />
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                            {percentages.active}% {translate('OfTotal')}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -148,32 +158,41 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             <Grid item xs={12} sm={6} md={isMobile ? 12 : 2.4}>
                 <Card
                     sx={{
+                        ...getGlassMorphismStyle(),
                         height: '100%',
-                        ...getGlassMorphismStyle(0.8),
-                        ...getGlowEffect(theme.palette.warning.main, 'low')
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            ...getGlowEffect(theme.palette.warning.main, 'low')
+                        }
                     }}
                 >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <DraftIcon color="warning" sx={{ mr: 1, fontSize: 28 }} />
-                            <Typography variant="h6" color="warning.main">
-                                {translate('DraftCampaigns')}
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <DraftIcon color="warning" sx={{ mr: 1 }} />
+                            <Typography variant="h6" component="div">
+                                {translate('Draft')}
                             </Typography>
                         </Box>
-                        <Typography variant="h3" component="div" fontWeight="bold">
+                        <Typography variant="h3" component="div" color="warning.main" sx={{ fontWeight: 'bold' }}>
                             {metrics.draft}
                         </Typography>
-                        <Box sx={{ mt: 1, mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                {percentages.draft}% {translate('OfTotal')}
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={percentages.draft}
-                                color="warning"
-                                sx={{ height: 6, borderRadius: 3 }}
-                            />
-                        </Box>
+                        <LinearProgress
+                            variant="determinate"
+                            value={percentages.draft}
+                            sx={{
+                                mt: 2,
+                                height: 6,
+                                borderRadius: 3,
+                                bgcolor: 'warning.light',
+                                '& .MuiLinearProgress-bar': {
+                                    bgcolor: 'warning.main'
+                                }
+                            }}
+                        />
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                            {percentages.draft}% {translate('OfTotal')}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -182,32 +201,41 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             <Grid item xs={12} sm={6} md={isMobile ? 12 : 2.4}>
                 <Card
                     sx={{
+                        ...getGlassMorphismStyle(),
                         height: '100%',
-                        ...getGlassMorphismStyle(0.8),
-                        ...getGlowEffect(theme.palette.info.main, 'low')
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            ...getGlowEffect(theme.palette.info.main, 'low')
+                        }
                     }}
                 >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <CompletedIcon color="info" sx={{ mr: 1, fontSize: 28 }} />
-                            <Typography variant="h6" color="info.main">
-                                {translate('CompletedCampaigns')}
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <CompletedIcon color="info" sx={{ mr: 1 }} />
+                            <Typography variant="h6" component="div">
+                                {translate('Completed')}
                             </Typography>
                         </Box>
-                        <Typography variant="h3" component="div" fontWeight="bold">
+                        <Typography variant="h3" component="div" color="info.main" sx={{ fontWeight: 'bold' }}>
                             {metrics.completed}
                         </Typography>
-                        <Box sx={{ mt: 1, mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                                {percentages.completed}% {translate('OfTotal')}
-                            </Typography>
-                            <LinearProgress
-                                variant="determinate"
-                                value={percentages.completed}
-                                color="info"
-                                sx={{ height: 6, borderRadius: 3 }}
-                            />
-                        </Box>
+                        <LinearProgress
+                            variant="determinate"
+                            value={percentages.completed}
+                            sx={{
+                                mt: 2,
+                                height: 6,
+                                borderRadius: 3,
+                                bgcolor: 'info.light',
+                                '& .MuiLinearProgress-bar': {
+                                    bgcolor: 'info.main'
+                                }
+                            }}
+                        />
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                            {percentages.completed}% {translate('OfTotal')}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -216,24 +244,28 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             <Grid item xs={12} sm={6} md={isMobile ? 12 : 2.4}>
                 <Card
                     sx={{
+                        ...getGlassMorphismStyle(),
                         height: '100%',
-                        ...getGlassMorphismStyle(0.8),
-                        ...getGlowEffect(theme.palette.secondary.main, 'low')
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            ...getGlowEffect(theme.palette.secondary.main, 'low')
+                        }
                     }}
                 >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <BudgetIcon color="secondary" sx={{ mr: 1, fontSize: 28 }} />
-                            <Typography variant="h6" color="secondary.main">
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <BudgetIcon color="secondary" sx={{ mr: 1 }} />
+                            <Typography variant="h6" component="div">
                                 {translate('TotalBudget')}
                             </Typography>
                         </Box>
-                        <Typography variant="h3" component="div" fontWeight="bold">
+                        <Typography variant="h3" component="div" color="secondary.main" sx={{ fontWeight: 'bold' }}>
                             ${metrics.totalBudget.toLocaleString()}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                            {translate('AvgCampaignBudget', {
-                                avg: metrics.total > 0
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                            {translate('AverageBudget', {
+                                amount: metrics.total > 0
                                     ? '$' + (metrics.totalBudget / metrics.total).toFixed(2)
                                     : '$0'
                             })}
@@ -246,7 +278,10 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
 };
 
 CampaignMetrics.propTypes = {
-    businessId: PropTypes.string.isRequired,
+    businessId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+    ]).isRequired,
     campaignsData: PropTypes.shape({
         campaigns: PropTypes.array
     })

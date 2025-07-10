@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Typography, Button, Box, Grid, Paper, Divider } from '@mui/material';
 import ThemeToggle from "../components/demoComponents/ThemeToggle";
-import NewsletterSignup from "../components/demoComponents/NewsletterSignup";
 import LanguageSwitcher from "../components/demoComponents/LanguageSwitcher";
 import PreferenceSelector from "../components/demoComponents/PreferenceSelector";
 import useCustomTranslation from "../hooks/useCustomTranslation";
@@ -259,11 +258,6 @@ const Example = () => {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12}>
-                    <Paper elevation={3} sx={{ p: 3 }}>
-                        <NewsletterSignup />
-                    </Paper>
-                </Grid>
             </Grid>
         </Box>
     );
