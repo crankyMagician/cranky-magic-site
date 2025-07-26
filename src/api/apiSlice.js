@@ -71,6 +71,10 @@ export {
     useAttachCampaignMediaMutation,
     useDeleteCampaignMediaMutation,
     useUpdateCampaignStatusMutation,
+    // New Vuforia-enhanced campaign hooks
+    useGetCampaignVuforiaStatsQuery,
+    useBulkUpdateVuforiaMediaMutation,
+    campaignMediaUtils,
 } from './campaignApi';
 
 export {
@@ -90,6 +94,14 @@ export {
     useUpdateBusinessRoleMutation,
     useRemoveBusinessRoleMutation,
 } from './invitationApi';
+
+// Export Vuforia API hooks - NEW!
+export {
+    useUploadImageToVuforiaMutation,
+    useBatchUploadToVuforiaMutation,
+    useGetVuforiaUploadStatusQuery,
+    vuforiaUploadUtils,
+} from './vuforiaApi';
 
 // Export reducers and middleware for store configuration
 export const apiSliceReducers = apiReducers;
