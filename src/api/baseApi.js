@@ -5,11 +5,24 @@ import TokenDecoder from '../utilities/TokenDecoder';
 // Direct API URLs - no proxying
 const AUTH_API_URL = 'https://dev.auth.spatialmods.com/auth';
 const MAIN_API_URL = 'https://dev.net-api.spatialmods.com';
+const VUFORIA_API_URL = 'https://dev-vuforia-djhkaegzc0djf7hu.westus2-01.azurewebsites.net/vuforia';
 
 // Helper function to construct direct URLs
 const getApiUrl = (endpoint, apiType) => {
     // Select the appropriate base URL (direct, no proxy)
-    const baseUrl = apiType === 'auth' ? AUTH_API_URL : MAIN_API_URL;
+    let baseUrl;
+    switch (apiType) {
+        case 'auth':
+            baseUrl = AUTH_API_URL;
+            break;
+        case 'vuforia':
+            baseUrl = VUFORIA_API_URL;
+            break;
+        case 'main':
+        default:
+            baseUrl = MAIN_API_URL;
+            break;
+    }
 
     // Remove any leading slashes in endpoint to avoid double slashes
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
@@ -22,12 +35,17 @@ const getApiUrl = (endpoint, apiType) => {
 const baseQuery = fetchBaseQuery({
     // Empty baseUrl since we're using full URLs in each request
     baseUrl: '',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, { getState, endpoint }) => {
         const token = getState().auth.token;
         if (token) {
             headers.set('Authorization', `Bearer ${token}`);
         }
-        headers.set('Content-Type', 'application/json');
+
+        // Only set Content-Type for non-FormData requests
+        if (!headers.has('Content-Type')) {
+            headers.set('Content-Type', 'application/json');
+        }
+
         return headers;
     },
     credentials: 'include'
@@ -77,7 +95,9 @@ export const baseApi = createApi({
         'Campaign',
         'Invitation',
         'Media',
-        'Commo'
+        'Commo',
+        'VuforiaTarget',
+        'VuforiaHealth'
     ],
     endpoints: () => ({}),
 });
@@ -89,6 +109,7 @@ export const mediaApi = baseApi;
 export const campaignsApi = baseApi;
 export const commoApi = baseApi;
 export const invitationsApi = baseApi;
+export const vuforiaApi = baseApi;
 
 // Export reducers and middleware for store configuration
 export const apiReducers = {
@@ -98,6 +119,6 @@ export const apiReducers = {
 export const apiMiddleware = [baseApi.middleware];
 
 // Export the getApiUrl helper for use in API slices
-export { getApiUrl };
+export { getApiUrl, VUFORIA_API_URL };
 
 export default baseApi;

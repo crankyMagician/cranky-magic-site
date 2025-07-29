@@ -8,6 +8,7 @@ import baseApi, {
     campaignsApi,
     commoApi,
     invitationsApi,
+    vuforiaApi,
     apiReducers,
     apiMiddleware
 } from './baseApi';
@@ -95,12 +96,25 @@ export {
     useRemoveBusinessRoleMutation,
 } from './invitationApi';
 
-// Export Vuforia API hooks - NEW!
+// Export Vuforia API hooks - UPDATED!
 export {
-    useUploadImageToVuforiaMutation,
-    useBatchUploadToVuforiaMutation,
-    useGetVuforiaUploadStatusQuery,
-    vuforiaUploadUtils,
+    // Vuforia target management hooks
+    useCreateTargetMutation,
+    useCreateTargetWithVideoMutation,
+    useListTargetsQuery,
+    useGetTargetQuery,
+    useGetTargetWithMetadataQuery,
+    useUpdateTargetMutation,
+    useDeleteTargetMutation,
+    useActivateTargetMutation,
+    useDeactivateTargetMutation,
+    useCreateTargetsBatchMutation,
+    useDeleteTargetsBatchMutation,
+    useCheckVuforiaHealthQuery,
+    useTestAuthenticationMutation,
+    useCheckSimilarImageMutation,
+    // Vuforia utility functions
+    vuforiaUtils,
 } from './vuforiaApi';
 
 // Export reducers and middleware for store configuration
@@ -114,5 +128,6 @@ export {
     mediaApi,
     campaignsApi,
     commoApi,
-    invitationsApi
+    invitationsApi,
+    vuforiaApi
 };

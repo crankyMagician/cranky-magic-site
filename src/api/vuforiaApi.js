@@ -2,285 +2,363 @@
 import baseApi, { getApiUrl } from './baseApi';
 
 /**
- * Vuforia API slice for image upload and AR functionality
- * Focuses on upload endpoints with comprehensive error handling
+ * Vuforia API slice for AR target management
+ * Complete rewrite to match new Vuforia API specification
  */
 export const vuforiaApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // Upload single image to Vuforia
-        uploadImageToVuforia: builder.mutation({
-            query: ({ file, userId = 'default_user', videoMetadata = null }) => {
-                // Create FormData for file upload
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('user_id', userId);
-                
-                // Add video metadata if provided
-                if (videoMetadata) {
-                    formData.append('video_metadata', JSON.stringify(videoMetadata));
-                }
-
+        // Create a new target in Vuforia
+        createTarget: builder.mutation({
+            query: (targetData) => ({
+                url: getApiUrl('targets', 'vuforia'),
+                method: 'POST',
+                body: targetData,
+            }),
+            transformResponse: (response) => {
+                // Handle Vuforia response format
                 return {
-                    url: getApiUrl('api/providers/vuforia/upload', 'main'),
-                    method: 'POST',
-                    body: formData,
-                    formData: true, // Disable automatic JSON serialization
+                    success: response.result_code === 'Success',
+                    targetId: response.target_id,
+                    transactionId: response.transaction_id,
+                    ...response
                 };
             },
-            transformResponse: (response) => {
-                // Handle ServiceResponse format from backend
-                if (response && typeof response === 'object') {
-                    // If it's already a ServiceResponse object
-                    if (response.success !== undefined) {
-                        return response;
-                    }
-                    // If it's nested in data property
-                    if (response.data) {
-                        return response.data;
-                    }
-                }
-                return response;
-            },
             transformErrorResponse: (response) => {
-                // Enhanced error handling for Vuforia uploads
                 const defaultError = {
                     status: response.status || 500,
-                    message: 'Upload failed. Please try again.',
+                    message: 'Failed to create target',
                     details: null
                 };
 
                 try {
                     if (response.data) {
                         const errorData = response.data;
-                        
-                        // Handle specific Vuforia error cases
-                        if (response.status === 400) {
-                            if (errorData.detail?.includes('image')) {
-                                return {
-                                    ...defaultError,
-                                    message: 'Invalid image file. Please ensure the file is a valid image format.',
-                                    details: errorData.detail
-                                };
-                            }
-                            if (errorData.detail?.includes('video_metadata')) {
-                                return {
-                                    ...defaultError,
-                                    message: 'Invalid video metadata format. Please check your video configuration.',
-                                    details: errorData.detail
-                                };
-                            }
-                        }
-                        
-                        if (response.status === 413) {
+
+                        if (response.status === 422) {
                             return {
                                 ...defaultError,
-                                message: 'File size too large. Please compress your image and try again.',
-                                details: 'Maximum file size exceeded'
-                            };
-                        }
-                        
-                        if (response.status === 415) {
-                            return {
-                                ...defaultError,
-                                message: 'Unsupported file type. Please upload a valid image file (JPG, PNG, etc.).',
-                                details: errorData.detail
-                            };
-                        }
-                        
-                        if (response.status >= 500) {
-                            return {
-                                ...defaultError,
-                                message: 'Server error during upload. Please try again later.',
-                                details: errorData.detail || 'Internal server error'
+                                message: 'Validation error. Please check your input data.',
+                                details: errorData.detail || errorData
                             };
                         }
 
-                        // Generic error with server message
                         return {
                             ...defaultError,
                             message: errorData.detail || errorData.message || defaultError.message,
-                            details: errorData.detail
+                            details: errorData
                         };
                     }
                 } catch (parseError) {
-                    console.error('Error parsing Vuforia upload error response:', parseError);
+                    console.error('Error parsing Vuforia error response:', parseError);
                 }
 
                 return defaultError;
             },
-            invalidatesTags: ['Media', 'VuforiaImage'],
+            invalidatesTags: ['VuforiaTarget'],
         }),
 
-        // Upload multiple images to Vuforia (batch upload)
-        batchUploadToVuforia: builder.mutation({
-            query: ({ files, userId = 'default_user', videoMetadata = null }) => {
-                // Create FormData for batch file upload
-                const formData = new FormData();
-                
-                // Append all files
-                files.forEach((file) => {
-                    formData.append('files', file);
-                });
-                
-                formData.append('user_id', userId);
-                
-                // Add video metadata if provided (applies to all images in batch)
-                if (videoMetadata) {
-                    formData.append('video_metadata', JSON.stringify(videoMetadata));
-                }
-
+        // Create target with structured video metadata
+        createTargetWithVideo: builder.mutation({
+            query: (targetData) => ({
+                url: getApiUrl('targets/with-video', 'vuforia'),
+                method: 'POST',
+                body: targetData,
+            }),
+            transformResponse: (response) => {
                 return {
-                    url: getApiUrl('api/providers/vuforia/upload/batch', 'main'),
-                    method: 'POST',
-                    body: formData,
-                    formData: true, // Disable automatic JSON serialization
+                    success: response.result_code === 'Success',
+                    targetId: response.target_id,
+                    transactionId: response.transaction_id,
+                    ...response
                 };
             },
-            transformResponse: (response) => {
-                // Handle ServiceResponse format from backend
-                if (response && typeof response === 'object') {
-                    // If it's already a ServiceResponse object
-                    if (response.success !== undefined) {
-                        return response;
-                    }
-                    // If it's nested in data property
-                    if (response.data) {
-                        return response.data;
-                    }
-                }
-                return response;
-            },
             transformErrorResponse: (response) => {
-                // Enhanced error handling for batch uploads
                 const defaultError = {
                     status: response.status || 500,
-                    message: 'Batch upload failed. Please try again.',
-                    details: null,
-                    failedFiles: []
+                    message: 'Failed to create target with video',
+                    details: null
                 };
 
                 try {
                     if (response.data) {
                         const errorData = response.data;
-                        
-                        // Handle batch-specific errors
-                        if (response.status === 400) {
-                            if (errorData.detail?.includes('files')) {
-                                return {
-                                    ...defaultError,
-                                    message: 'Invalid files detected. Please ensure all files are valid images.',
-                                    details: errorData.detail
-                                };
-                            }
-                            if (errorData.detail?.includes('batch size')) {
-                                return {
-                                    ...defaultError,
-                                    message: 'Too many files in batch. Please upload fewer files at once.',
-                                    details: errorData.detail
-                                };
-                            }
-                        }
-                        
-                        if (response.status === 413) {
-                            return {
-                                ...defaultError,
-                                message: 'Total batch size too large. Please reduce file sizes or upload fewer files.',
-                                details: 'Batch size limit exceeded'
-                            };
-                        }
-                        
-                        if (response.status >= 500) {
-                            return {
-                                ...defaultError,
-                                message: 'Server error during batch upload. Please try again later.',
-                                details: errorData.detail || 'Internal server error'
-                            };
-                        }
-
-                        // Handle partial success scenarios
-                        if (errorData.results && Array.isArray(errorData.results)) {
-                            const failedFiles = errorData.results
-                                .filter(result => !result.success)
-                                .map(result => ({
-                                    filename: result.filename || 'Unknown',
-                                    error: result.message || 'Upload failed'
-                                }));
-
-                            if (failedFiles.length > 0) {
-                                return {
-                                    ...defaultError,
-                                    message: `Batch upload completed with ${failedFiles.length} failures.`,
-                                    details: `${errorData.successful_uploads || 0} files uploaded successfully`,
-                                    failedFiles
-                                };
-                            }
-                        }
-
-                        // Generic error with server message
                         return {
                             ...defaultError,
                             message: errorData.detail || errorData.message || defaultError.message,
-                            details: errorData.detail
+                            details: errorData
                         };
                     }
                 } catch (parseError) {
-                    console.error('Error parsing Vuforia batch upload error response:', parseError);
+                    console.error('Error parsing Vuforia error response:', parseError);
                 }
 
                 return defaultError;
             },
-            invalidatesTags: ['Media', 'VuforiaImage'],
+            invalidatesTags: ['VuforiaTarget'],
         }),
 
-        // Get upload status and progress (useful for tracking large uploads)
-        getVuforiaUploadStatus: builder.query({
-            query: (imageId) => ({
-                url: getApiUrl(`api/providers/vuforia/upload/status/${imageId}`, 'main'),
+        // List all targets in the database
+        listTargets: builder.query({
+            query: (params = {}) => ({
+                url: getApiUrl('targets', 'vuforia'),
+                method: 'GET',
+                params: {
+                    include_inactive: params.includeInactive || false
+                }
+            }),
+            transformResponse: (response) => {
+                // Ensure we return an array of targets
+                return {
+                    success: true,
+                    targets: Array.isArray(response) ? response : response.targets || [],
+                    count: Array.isArray(response) ? response.length : response.count || 0
+                };
+            },
+            providesTags: (result) =>
+                result?.targets
+                    ? [
+                        ...result.targets.map(({ target_id }) => ({ type: 'VuforiaTarget', id: target_id })),
+                        { type: 'VuforiaTarget', id: 'LIST' }
+                    ]
+                    : [{ type: 'VuforiaTarget', id: 'LIST' }],
+        }),
+
+        // Get details of a specific target
+        getTarget: builder.query({
+            query: (targetId) => ({
+                url: getApiUrl(`targets/${targetId}`, 'vuforia'),
                 method: 'GET',
             }),
             transformResponse: (response) => {
-                if (response && typeof response === 'object') {
-                    if (response.success !== undefined) {
-                        return response;
-                    }
-                    if (response.data) {
-                        return response.data;
-                    }
-                }
-                return response;
+                return {
+                    success: true,
+                    target: response
+                };
+            },
+            providesTags: (result, error, targetId) => [{ type: 'VuforiaTarget', id: targetId }],
+        }),
+
+        // Get target with decoded metadata
+        getTargetWithMetadata: builder.query({
+            query: (targetId) => ({
+                url: getApiUrl(`targets/${targetId}/with-metadata`, 'vuforia'),
+                method: 'GET',
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: true,
+                    target: response,
+                    metadata: response.application_metadata_decoded || {},
+                    videoMetadata: response.video_metadata || {}
+                };
+            },
+            providesTags: (result, error, targetId) => [{ type: 'VuforiaTarget', id: targetId }],
+        }),
+
+        // Update an existing target
+        updateTarget: builder.mutation({
+            query: ({ targetId, updateData }) => ({
+                url: getApiUrl(`targets/${targetId}`, 'vuforia'),
+                method: 'PUT',
+                body: updateData,
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: response.result_code === 'Success',
+                    transactionId: response.transaction_id,
+                    ...response
+                };
+            },
+            invalidatesTags: (result, error, { targetId }) => [
+                { type: 'VuforiaTarget', id: targetId },
+                { type: 'VuforiaTarget', id: 'LIST' }
+            ],
+        }),
+
+        // Delete a target
+        deleteTarget: builder.mutation({
+            query: (targetId) => ({
+                url: getApiUrl(`targets/${targetId}`, 'vuforia'),
+                method: 'DELETE',
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: response.result_code === 'Success',
+                    transactionId: response.transaction_id,
+                    ...response
+                };
+            },
+            invalidatesTags: (result, error, targetId) => [
+                { type: 'VuforiaTarget', id: targetId },
+                { type: 'VuforiaTarget', id: 'LIST' }
+            ],
+        }),
+
+        // Activate a target
+        activateTarget: builder.mutation({
+            query: (targetId) => ({
+                url: getApiUrl(`targets/${targetId}/activate`, 'vuforia'),
+                method: 'POST',
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: response.result_code === 'Success',
+                    ...response
+                };
+            },
+            invalidatesTags: (result, error, targetId) => [
+                { type: 'VuforiaTarget', id: targetId }
+            ],
+        }),
+
+        // Deactivate a target
+        deactivateTarget: builder.mutation({
+            query: (targetId) => ({
+                url: getApiUrl(`targets/${targetId}/deactivate`, 'vuforia'),
+                method: 'POST',
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: response.result_code === 'Success',
+                    ...response
+                };
+            },
+            invalidatesTags: (result, error, targetId) => [
+                { type: 'VuforiaTarget', id: targetId }
+            ],
+        }),
+
+        // Create multiple targets in batch
+        createTargetsBatch: builder.mutation({
+            query: (targets) => ({
+                url: getApiUrl('batch/targets', 'vuforia'),
+                method: 'POST',
+                body: targets, // Array of target objects
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: true,
+                    results: response.results || response,
+                    successCount: response.success_count || 0,
+                    failureCount: response.failure_count || 0
+                };
             },
             transformErrorResponse: (response) => {
                 const defaultError = {
                     status: response.status || 500,
-                    message: 'Failed to get upload status.',
+                    message: 'Batch target creation failed',
                     details: null
                 };
 
                 try {
                     if (response.data) {
                         const errorData = response.data;
-                        
-                        if (response.status === 404) {
-                            return {
-                                ...defaultError,
-                                message: 'Upload not found. The image may not have been uploaded or has been removed.',
-                                details: errorData.detail
-                            };
+
+                        // Handle partial success scenarios
+                        if (errorData.results && Array.isArray(errorData.results)) {
+                            const failedTargets = errorData.results
+                                .filter(result => !result.success)
+                                .map(result => ({
+                                    name: result.name || 'Unknown',
+                                    error: result.message || 'Creation failed'
+                                }));
+
+                            if (failedTargets.length > 0) {
+                                return {
+                                    ...defaultError,
+                                    message: `Batch creation completed with ${failedTargets.length} failures.`,
+                                    details: {
+                                        failedTargets,
+                                        successCount: errorData.success_count || 0,
+                                        failureCount: errorData.failure_count || failedTargets.length
+                                    }
+                                };
+                            }
                         }
-                        
+
                         return {
                             ...defaultError,
                             message: errorData.detail || errorData.message || defaultError.message,
-                            details: errorData.detail
+                            details: errorData
                         };
                     }
                 } catch (parseError) {
-                    console.error('Error parsing Vuforia status error response:', parseError);
+                    console.error('Error parsing Vuforia batch error response:', parseError);
                 }
 
                 return defaultError;
             },
-            providesTags: (result, error, imageId) => [{ type: 'VuforiaImage', id: imageId }],
+            invalidatesTags: ['VuforiaTarget'],
+        }),
+
+        // Delete multiple targets in batch
+        deleteTargetsBatch: builder.mutation({
+            query: (targetIds) => ({
+                url: getApiUrl('batch/targets', 'vuforia'),
+                method: 'DELETE',
+                body: targetIds, // Array of target IDs
+            }),
+            transformResponse: (response) => {
+                return {
+                    success: true,
+                    results: response.results || response,
+                    successCount: response.success_count || 0,
+                    failureCount: response.failure_count || 0
+                };
+            },
+            invalidatesTags: ['VuforiaTarget'],
+        }),
+
+        // Check Vuforia service health
+        checkVuforiaHealth: builder.query({
+            query: () => ({
+                url: getApiUrl('vuforia-health', 'vuforia'),
+                method: 'GET',
+            }),
+            transformResponse: (response) => {
+                return {
+                    healthy: response.status === 'healthy' || response.status === 'up',
+                    ...response
+                };
+            },
+            providesTags: ['VuforiaHealth'],
+        }),
+
+        // Test Vuforia authentication
+        testAuthentication: builder.mutation({
+            query: () => ({
+                url: getApiUrl('test-auth', 'vuforia'),
+                method: 'POST',
+            }),
+            transformResponse: (response) => {
+                return {
+                    authenticated: true,
+                    ...response
+                };
+            },
+        }),
+
+        // Check for similar images (deduplication)
+        checkSimilarImage: builder.mutation({
+            query: (file) => {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                return {
+                    url: getApiUrl('check-similar', 'vuforia'),
+                    method: 'POST',
+                    body: formData,
+                    formData: true,
+                };
+            },
+            transformResponse: (response) => {
+                return {
+                    hasSimilar: response.has_similar || false,
+                    similarity: response.similarity || 0,
+                    similarTargetId: response.similar_target_id || null,
+                    ...response
+                };
+            },
         }),
     }),
     overrideExisting: false,
@@ -288,103 +366,125 @@ export const vuforiaApi = baseApi.injectEndpoints({
 
 // Export hooks for use in components
 export const {
-    useUploadImageToVuforiaMutation,
-    useBatchUploadToVuforiaMutation,
-    useGetVuforiaUploadStatusQuery,
+    useCreateTargetMutation,
+    useCreateTargetWithVideoMutation,
+    useListTargetsQuery,
+    useGetTargetQuery,
+    useGetTargetWithMetadataQuery,
+    useUpdateTargetMutation,
+    useDeleteTargetMutation,
+    useActivateTargetMutation,
+    useDeactivateTargetMutation,
+    useCreateTargetsBatchMutation,
+    useDeleteTargetsBatchMutation,
+    useCheckVuforiaHealthQuery,
+    useTestAuthenticationMutation,
+    useCheckSimilarImageMutation,
 } = vuforiaApi;
 
-// Export utility functions for error handling
-export const vuforiaUploadUtils = {
+// Export utility functions for Vuforia operations
+export const vuforiaUtils = {
     /**
-     * Validates video metadata structure
+     * Convert File object to base64 string for Vuforia API
+     * @param {File} file - The file to convert
+     * @returns {Promise<string>} - Base64 encoded string
+     */
+    fileToBase64: (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                // Remove data URL prefix (e.g., "data:image/png;base64,")
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    },
+
+    /**
+     * Prepare target data for Vuforia API
+     * @param {Object} data - Target data including file and metadata
+     * @returns {Promise<Object>} - Formatted target data
+     */
+    prepareTargetData: async (data) => {
+        const { file, name, width = 1.0, videoMetadata = null, active = true } = data;
+
+        // Convert file to base64
+        const imageBase64 = await vuforiaUtils.fileToBase64(file);
+
+        const targetData = {
+            name: name || file.name.split('.')[0],
+            width: width,
+            image: imageBase64,
+            active_flag: active,
+        };
+
+        // Add video metadata if provided
+        if (videoMetadata && videoMetadata.videoUrl) {
+            targetData.video_metadata = videoMetadata;
+        }
+
+        return targetData;
+    },
+
+    /**
+     * Validate video metadata structure
      * @param {Object} metadata - Video metadata object
      * @returns {Object} - { isValid: boolean, errors: string[] }
      */
     validateVideoMetadata: (metadata) => {
         const errors = [];
-        
+
         if (!metadata || typeof metadata !== 'object') {
             errors.push('Video metadata must be an object');
             return { isValid: false, errors };
         }
-        
+
         // Required fields validation
-        if (metadata.videoUrl && typeof metadata.videoUrl !== 'string') {
-            errors.push('videoUrl must be a string');
+        if (!metadata.videoUrl || typeof metadata.videoUrl !== 'string') {
+            errors.push('videoUrl is required and must be a string');
         }
-        
+
         // Optional fields validation
         if (metadata.autoPlay !== undefined && typeof metadata.autoPlay !== 'boolean') {
             errors.push('autoPlay must be a boolean');
         }
-        
+
         if (metadata.loop !== undefined && typeof metadata.loop !== 'boolean') {
             errors.push('loop must be a boolean');
         }
-        
+
         if (metadata.muted !== undefined && typeof metadata.muted !== 'boolean') {
             errors.push('muted must be a boolean');
         }
-        
-        if (metadata.videoPosition && !['overlay', 'background', 'inline'].includes(metadata.videoPosition)) {
-            errors.push('videoPosition must be one of: overlay, background, inline');
+
+        if (metadata.videoScale !== undefined && typeof metadata.videoScale !== 'number') {
+            errors.push('videoScale must be a number');
         }
-        
-        if (metadata.videoScale !== undefined && (typeof metadata.videoScale !== 'number' || metadata.videoScale <= 0)) {
-            errors.push('videoScale must be a positive number');
+
+        if (metadata.videoPosition && !Array.isArray(metadata.videoPosition)) {
+            errors.push('videoPosition must be an array');
         }
-        
+
         return { isValid: errors.length === 0, errors };
     },
-    
+
     /**
-     * Validates file for Vuforia upload
-     * @param {File} file - File to validate
-     * @returns {Object} - { isValid: boolean, errors: string[] }
+     * Format batch target data for upload
+     * @param {Array} files - Array of files with metadata
+     * @returns {Promise<Array>} - Array of formatted target data
      */
-    validateUploadFile: (file) => {
-        const errors = [];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-        
-        if (!file) {
-            errors.push('File is required');
-            return { isValid: false, errors };
+    prepareBatchTargets: async (files) => {
+        const targets = [];
+
+        for (const item of files) {
+            const targetData = await vuforiaUtils.prepareTargetData(item);
+            targets.push(targetData);
         }
-        
-        if (!allowedTypes.includes(file.type)) {
-            errors.push('File must be a valid image format (JPEG, PNG, GIF, WebP)');
-        }
-        
-        if (file.size > maxSize) {
-            errors.push('File size must be less than 10MB');
-        }
-        
-        if (file.size === 0) {
-            errors.push('File cannot be empty');
-        }
-        
-        return { isValid: errors.length === 0, errors };
+
+        return targets;
     },
-    
-    /**
-     * Formats upload response for UI display
-     * @param {Object} response - Upload response from API
-     * @returns {Object} - Formatted response
-     */
-    formatUploadResponse: (response) => {
-        if (!response) return null;
-        
-        return {
-            success: response.success || false,
-            imageId: response.image_id || response.imageId || null,
-            message: response.message || 'Upload completed',
-            isDuplicate: response.is_duplicate || response.isDuplicate || false,
-            duplicateId: response.duplicate_id || response.duplicateId || null,
-            similarity: response.similarity || null,
-            blobUrl: response.blob_url || response.blobUrl || null,
-            vuforiaUploaded: response.vuforia_uploaded || response.vuforiaUploaded || false,
-            processingTime: response.processing_time || response.processingTime || null,
-        };
-    }
 };
+
+export default vuforiaApi;
