@@ -23,7 +23,9 @@ import {
     Grid,
     Paper,
     Avatar,
-    Divider
+    Divider,
+    CircularProgress,
+    Alert
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -33,22 +35,35 @@ import {
     FileCopy as CloneIcon,
     PlayArrow as StartIcon,
     Stop as StopIcon,
-    BarChart as StatsIcon
+    BarChart as StatsIcon,
+    Campaign as CampaignIcon
 } from '@mui/icons-material';
-import { DateTime } from 'luxon'; // Updated: using luxon instead of date-fns
+import { DateTime } from 'luxon';
+import { useSnackbar } from 'notistack';
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
-import { useDeleteCampaignMutation, useUpdateCampaignStatusMutation } from '../../api/campaignApi';
+import {
+    useGetCampaignsByBusinessQuery,
+    useDeleteCampaignMutation,
+    useUpdateCampaignStatusMutation
+} from '../../api/campaignApi';
 import ConfirmDialog from '../common/ConfirmDialog';
 import CampaignStatusChip from './CampaignStatusChip';
 
 /**
  * CampaignList component
  * Displays campaigns in a table or grid format depending on screen size
+ * Updated to handle ServiceResponse format and pagination
  */
-const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
+const CampaignList = ({
+                          businessId,
+                          onEditCampaign,
+                          statusFilter = 'all',
+                          searchTerm = ''
+                      }) => {
     const { translate } = useCustomTranslation();
+    const { enqueueSnackbar } = useSnackbar();
     const analytics = useAnalytics();
     const theme = useTheme();
     const { isDark, getGlassMorphismStyle, getGlowEffect } = useSpatialTheme();
@@ -62,9 +77,34 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
 
+    // RTK Query - Updated to handle pagination
+    const {
+        data: campaignsResponse,
+        isLoading,
+        isFetching,
+        refetch
+    } = useGetCampaignsByBusinessQuery({
+        businessId,
+        page: page + 1, // API uses 1-based indexing
+        pageSize: rowsPerPage,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: searchTerm || undefined
+    }, {
+        skip: !businessId
+    });
+
     // RTK Query mutations
     const [deleteCampaign, { isLoading: isDeleting }] = useDeleteCampaignMutation();
     const [updateCampaignStatus, { isLoading: isUpdatingStatus }] = useUpdateCampaignStatusMutation();
+
+    // Extract campaigns and pagination data from ServiceResponse
+    const campaigns = useMemo(() => {
+        return campaignsResponse?.items || [];
+    }, [campaignsResponse]);
+
+    const totalCount = useMemo(() => {
+        return campaignsResponse?.totalCount || 0;
+    }, [campaignsResponse]);
 
     // Handle pagination
     const handleChangePage = (event, newPage) => {
@@ -72,263 +112,242 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
 
         analytics.trackEvent('campaign_list_page_change', {
             page: newPage,
+            page_size: rowsPerPage,
             business_id: businessId
         });
     };
 
     const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
         setPage(0);
 
-        analytics.trackEvent('campaign_list_rows_per_page_change', {
-            rows_per_page: parseInt(event.target.value, 10),
+        analytics.trackEvent('campaign_list_rows_change', {
+            rows_per_page: newRowsPerPage,
             business_id: businessId
         });
     };
 
-    // Action menu handlers
+    // Format date
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_SHORT);
+    };
+
+    // Handle action menu
     const handleOpenActionMenu = (event, campaign) => {
+        event.stopPropagation();
         setActionMenuAnchor(event.currentTarget);
         setSelectedCampaign(campaign);
-
-        analytics.trackEvent('campaign_action_menu_open', {
-            campaign_id: campaign.id,
-            business_id: businessId
-        });
     };
 
     const handleCloseActionMenu = () => {
         setActionMenuAnchor(null);
     };
 
-    // Edit campaign handler
+    // Handle actions
     const handleEdit = useCallback(() => {
-        handleCloseActionMenu();
-        if (selectedCampaign) {
+        if (selectedCampaign && onEditCampaign) {
             onEditCampaign(selectedCampaign);
+            handleCloseActionMenu();
+
+            analytics.trackEvent('campaign_edit_initiated', {
+                campaign_id: selectedCampaign.id,
+                business_id: businessId
+            });
         }
-    }, [onEditCampaign, selectedCampaign]);
+    }, [selectedCampaign, onEditCampaign, businessId, analytics]);
 
-    // Delete campaign handlers
-    const handleDeleteClick = useCallback(() => {
-        handleCloseActionMenu();
-        setConfirmAction('delete');
+    const handleView = useCallback(() => {
+        if (selectedCampaign) {
+            // Navigate to campaign details page
+            // window.location.href = `/campaigns/${selectedCampaign.id}`;
+            handleCloseActionMenu();
+
+            analytics.trackEvent('campaign_view_initiated', {
+                campaign_id: selectedCampaign.id,
+                business_id: businessId
+            });
+        }
+    }, [selectedCampaign, businessId, analytics]);
+
+    const handleStatusChange = useCallback((newStatus) => {
+        setConfirmAction({ type: 'status_change', newStatus });
         setConfirmDialogOpen(true);
+        handleCloseActionMenu();
+    }, []);
 
-        analytics.trackEvent('campaign_delete_confirm_open', {
+    const handleDeleteClick = useCallback(() => {
+        setConfirmAction({ type: 'delete' });
+        setConfirmDialogOpen(true);
+        handleCloseActionMenu();
+    }, []);
+
+    const handleClone = useCallback(() => {
+        // Implement clone functionality
+        handleCloseActionMenu();
+
+        analytics.trackEvent('campaign_clone_initiated', {
             campaign_id: selectedCampaign?.id,
             business_id: businessId
         });
-    }, [analytics, businessId, selectedCampaign]);
+    }, [selectedCampaign, businessId, analytics]);
 
-    const handleDeleteConfirm = useCallback(async () => {
-        if (selectedCampaign) {
-            try {
-                await deleteCampaign(selectedCampaign.id).unwrap();
-                setConfirmDialogOpen(false);
-                onRefresh();
+    // Handle confirm dialog
+    const handleConfirmDialogClose = () => {
+        setConfirmDialogOpen(false);
+        setConfirmAction(null);
+    };
+
+    const handleConfirmAction = async () => {
+        if (!selectedCampaign || !confirmAction) return;
+
+        try {
+            if (confirmAction.type === 'delete') {
+                await deleteCampaign({
+                    businessId,
+                    campaignId: selectedCampaign.id
+                }).unwrap();
+
+                enqueueSnackbar(translate('CampaignDeletedSuccessfully'), { variant: 'success' });
 
                 analytics.trackEvent('campaign_deleted', {
                     campaign_id: selectedCampaign.id,
-                    campaign_name: selectedCampaign.name,
                     business_id: businessId
                 });
-            } catch (error) {
-                console.error('Failed to delete campaign:', error);
 
-                analytics.trackEvent('campaign_delete_error', {
-                    campaign_id: selectedCampaign.id,
-                    error: error.message,
-                    business_id: businessId
-                });
-            }
-        }
-    }, [deleteCampaign, selectedCampaign, onRefresh, analytics, businessId]);
-
-    // Status update handlers
-    const handleStatusChange = useCallback((newStatus) => {
-        handleCloseActionMenu();
-        setConfirmAction(newStatus);
-        setConfirmDialogOpen(true);
-
-        analytics.trackEvent('campaign_status_change_confirm_open', {
-            campaign_id: selectedCampaign?.id,
-            current_status: selectedCampaign?.status,
-            new_status: newStatus,
-            business_id: businessId
-        });
-    }, [analytics, businessId, selectedCampaign]);
-
-    const handleStatusConfirm = useCallback(async () => {
-        if (selectedCampaign && confirmAction && confirmAction !== 'delete') {
-            try {
+                refetch();
+            } else if (confirmAction.type === 'status_change') {
                 await updateCampaignStatus({
+                    businessId,
                     campaignId: selectedCampaign.id,
-                    status: confirmAction
+                    status: confirmAction.newStatus
                 }).unwrap();
 
-                setConfirmDialogOpen(false);
-                onRefresh();
+                enqueueSnackbar(translate('CampaignStatusUpdatedSuccessfully'), { variant: 'success' });
 
                 analytics.trackEvent('campaign_status_updated', {
                     campaign_id: selectedCampaign.id,
-                    campaign_name: selectedCampaign.name,
-                    previous_status: selectedCampaign.status,
-                    new_status: confirmAction,
+                    old_status: selectedCampaign.status,
+                    new_status: confirmAction.newStatus,
                     business_id: businessId
                 });
-            } catch (error) {
-                console.error('Failed to update campaign status:', error);
 
-                analytics.trackEvent('campaign_status_update_error', {
-                    campaign_id: selectedCampaign.id,
-                    error: error.message,
-                    business_id: businessId
-                });
+                refetch();
             }
+
+            handleConfirmDialogClose();
+        } catch (error) {
+            console.error('Error performing action:', error);
+
+            // Updated error handling for ServiceResponse
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorPerformingAction');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
+
+            analytics.trackEvent('error', {
+                action: confirmAction.type,
+                error: errorMessage,
+                campaign_id: selectedCampaign.id,
+                business_id: businessId
+            });
         }
-    }, [updateCampaignStatus, selectedCampaign, confirmAction, onRefresh, analytics, businessId]);
-
-    // Clone campaign handler
-    const handleClone = useCallback(() => {
-        handleCloseActionMenu();
-        // Clone functionality would be implemented here
-        // For now, we'll just track the event
-
-        analytics.trackEvent('campaign_clone_clicked', {
-            campaign_id: selectedCampaign?.id,
-            business_id: businessId
-        });
-    }, [analytics, businessId, selectedCampaign]);
-
-    // View campaign stats handler
-    const handleViewStats = useCallback(() => {
-        handleCloseActionMenu();
-        // Stats view functionality would be implemented here
-        // For now, we'll just track the event
-
-        analytics.trackEvent('campaign_stats_clicked', {
-            campaign_id: selectedCampaign?.id,
-            business_id: businessId
-        });
-    }, [analytics, businessId, selectedCampaign]);
-
-    // Dialog close handler
-    const handleConfirmDialogClose = () => {
-        setConfirmDialogOpen(false);
     };
 
-    // Get confirmation dialog content based on action
+    // Get confirmation dialog content
     const getConfirmDialogContent = useMemo(() => {
-        if (!confirmAction || !selectedCampaign) return {};
-
-        switch (confirmAction) {
-            case 'delete':
-                return {
-                    title: translate('DeleteCampaignTitle'),
-                    content: translate('DeleteCampaignConfirmation', { name: selectedCampaign.name }),
-                    confirmText: translate('Delete'),
-                    cancelText: translate('Cancel'),
-                    confirmColor: 'error'
-                };
-            case 'active':
-                return {
-                    title: translate('ActivateCampaignTitle'),
-                    content: translate('ActivateCampaignConfirmation', { name: selectedCampaign.name }),
-                    confirmText: translate('Activate'),
-                    cancelText: translate('Cancel'),
-                    confirmColor: 'success'
-                };
-            case 'draft':
-                return {
-                    title: translate('DraftCampaignTitle'),
-                    content: translate('DraftCampaignConfirmation', { name: selectedCampaign.name }),
-                    confirmText: translate('MoveToDraft'),
-                    cancelText: translate('Cancel'),
-                    confirmColor: 'primary'
-                };
-            case 'completed':
-                return {
-                    title: translate('CompleteCampaignTitle'),
-                    content: translate('CompleteCampaignConfirmation', { name: selectedCampaign.name }),
-                    confirmText: translate('MarkAsComplete'),
-                    cancelText: translate('Cancel'),
-                    confirmColor: 'info'
-                };
-            default:
-                return {
-                    title: translate('ConfirmAction'),
-                    content: translate('AreYouSure'),
-                    confirmText: translate('Confirm'),
-                    cancelText: translate('Cancel')
-                };
+        if (!confirmAction || !selectedCampaign) {
+            return {
+                title: '',
+                content: '',
+                confirmText: translate('Confirm'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'primary'
+            };
         }
+
+        if (confirmAction.type === 'delete') {
+            return {
+                title: translate('ConfirmDelete'),
+                content: translate('AreYouSureDeleteCampaign', { name: selectedCampaign.name }),
+                confirmText: translate('Delete'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'error'
+            };
+        }
+
+        if (confirmAction.type === 'status_change') {
+            return {
+                title: translate('ConfirmStatusChange'),
+                content: translate('AreYouSureChangeCampaignStatus', {
+                    name: selectedCampaign.name,
+                    status: translate(confirmAction.newStatus)
+                }),
+                confirmText: translate('ChangeStatus'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'primary'
+            };
+        }
+
+        return {
+            title: '',
+            content: '',
+            confirmText: translate('Confirm'),
+            cancelText: translate('Cancel'),
+            confirmColor: 'primary'
+        };
     }, [confirmAction, selectedCampaign, translate]);
 
-    // Handle confirm dialog action
-    const handleConfirmAction = useCallback(() => {
-        if (confirmAction === 'delete') {
-            handleDeleteConfirm();
-        } else {
-            handleStatusConfirm();
-        }
-    }, [confirmAction, handleDeleteConfirm, handleStatusConfirm]);
+    // Loading state
+    if (isLoading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-    // Calculate pagination
-    const paginatedCampaigns = useMemo(() => {
-        return campaigns.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    }, [campaigns, page, rowsPerPage]);
+    // Empty state
+    if (!campaigns.length) {
+        return (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+                <CampaignIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                    {translate('NoCampaignsFound')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {searchTerm || statusFilter !== 'all'
+                        ? translate('TryAdjustingFilters')
+                        : translate('CreateYourFirstCampaign')
+                    }
+                </Typography>
+            </Box>
+        );
+    }
 
-    // Format date helper updated to use luxon
-    const formatDate = (dateString) => {
-        try {
-            // Attempt to parse the date string as ISO
-            const dt = DateTime.fromISO(dateString);
-            if (!dt.isValid) {
-                return 'Invalid date';
-            }
-            return dt.toFormat('MMM d, yyyy');
-        } catch (error) {
-            return 'Invalid date';
-        }
-    };
-
-    // Render grid view for mobile
+    // Render mobile view
     if (isMobile) {
         return (
             <Box>
                 <Grid container spacing={2}>
-                    {paginatedCampaigns.map((campaign) => (
+                    {campaigns.map((campaign) => (
                         <Grid item xs={12} key={campaign.id}>
                             <Card
                                 sx={{
                                     p: 2,
-                                    ...getGlassMorphismStyle(0.8),
-                                    transition: 'transform 0.2s ease-in-out',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
                                     '&:hover': {
                                         transform: 'translateY(-2px)',
-                                        boxShadow: 3
+                                        boxShadow: theme.shadows[4]
                                     }
                                 }}
+                                onClick={() => handleView()}
                             >
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                    <Typography variant="h6" component="h3" noWrap sx={{ maxWidth: '70%' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 1 }}>
+                                    <Typography variant="h6" component="h3">
                                         {campaign.name}
                                     </Typography>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => handleOpenActionMenu(e, campaign)}
-                                        aria-label={translate('CampaignActions')}
-                                    >
-                                        <MoreVertIcon />
-                                    </IconButton>
-                                </Box>
-
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                    <CampaignStatusChip status={campaign.status} />
-                                    <Typography variant="body2" color="text.secondary">
-                                        {formatDate(campaign.createdAt)}
-                                    </Typography>
+                                    <CampaignStatusChip status={campaign.status} size="small" />
                                 </Box>
 
                                 <Typography
@@ -346,21 +365,22 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                                     {campaign.description || translate('NoCampaignDescription')}
                                 </Typography>
 
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {translate('Budget')}: ${campaign.budget || 0}
-                                    </Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Box>
+                                        <Typography variant="caption" color="text.secondary" display="block">
+                                            {translate('Budget')}: ${campaign.budget || 0}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {translate('Created')}: {formatDate(campaign.createdAt)}
+                                        </Typography>
+                                    </Box>
 
                                     <IconButton
                                         size="small"
-                                        color="primary"
-                                        onClick={() => {
-                                            setSelectedCampaign(campaign);
-                                            handleEdit();
-                                        }}
-                                        aria-label={translate('EditCampaign')}
+                                        onClick={(e) => handleOpenActionMenu(e, campaign)}
+                                        aria-label={translate('CampaignActions')}
                                     >
-                                        <EditIcon />
+                                        <MoreVertIcon />
                                     </IconButton>
                                 </Box>
                             </Card>
@@ -371,7 +391,7 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                 {/* Pagination */}
                 <TablePagination
                     component="div"
-                    count={campaigns.length}
+                    count={totalCount}
                     page={page}
                     onPageChange={handleChangePage}
                     rowsPerPage={rowsPerPage}
@@ -386,6 +406,11 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                     open={Boolean(actionMenuAnchor)}
                     onClose={handleCloseActionMenu}
                 >
+                    <MenuItem onClick={handleView}>
+                        <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
+                        <ListItemText>{translate('View')}</ListItemText>
+                    </MenuItem>
+
                     <MenuItem onClick={handleEdit}>
                         <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
                         <ListItemText>{translate('Edit')}</ListItemText>
@@ -415,11 +440,6 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                     <MenuItem onClick={handleClone}>
                         <ListItemIcon><CloneIcon fontSize="small" /></ListItemIcon>
                         <ListItemText>{translate('Clone')}</ListItemText>
-                    </MenuItem>
-
-                    <MenuItem onClick={handleViewStats}>
-                        <ListItemIcon><StatsIcon fontSize="small" /></ListItemIcon>
-                        <ListItemText>{translate('ViewStats')}</ListItemText>
                     </MenuItem>
 
                     <Divider />
@@ -463,12 +483,22 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedCampaigns.map((campaign) => (
-                            <TableRow key={campaign.id} hover>
+                        {campaigns.map((campaign) => (
+                            <TableRow
+                                key={campaign.id}
+                                hover
+                                sx={{ cursor: 'pointer' }}
+                                onClick={() => handleView()}
+                            >
                                 <TableCell>
                                     <Typography variant="body1" fontWeight={500}>
                                         {campaign.name}
                                     </Typography>
+                                    {campaign.description && (
+                                        <Typography variant="caption" color="text.secondary">
+                                            {campaign.description}
+                                        </Typography>
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                     <CampaignStatusChip status={campaign.status} />
@@ -486,12 +516,26 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                                     {campaign.endDate ? formatDate(campaign.endDate) : '-'}
                                 </TableCell>
                                 <TableCell align="right">
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Tooltip title={translate('Edit')}>
+                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                        <Tooltip title={translate('ViewCampaign')}>
                                             <IconButton
                                                 size="small"
-                                                color="primary"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedCampaign(campaign);
+                                                    handleView();
+                                                }}
+                                                aria-label={translate('ViewCampaign')}
+                                            >
+                                                <VisibilityIcon />
+                                            </IconButton>
+                                        </Tooltip>
+
+                                        <Tooltip title={translate('EditCampaign')}>
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     setSelectedCampaign(campaign);
                                                     handleEdit();
                                                 }}
@@ -504,10 +548,13 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                                         <Tooltip title={translate('ViewStats')}>
                                             <IconButton
                                                 size="small"
-                                                color="info"
-                                                onClick={() => {
-                                                    setSelectedCampaign(campaign);
-                                                    handleViewStats();
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    // Navigate to campaign stats
+                                                    analytics.trackEvent('campaign_stats_view', {
+                                                        campaign_id: campaign.id,
+                                                        business_id: businessId
+                                                    });
                                                 }}
                                                 aria-label={translate('ViewCampaignStats')}
                                             >
@@ -535,7 +582,7 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
             {/* Pagination */}
             <TablePagination
                 component="div"
-                count={campaigns.length}
+                count={totalCount}
                 page={page}
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
@@ -544,12 +591,24 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
                 labelRowsPerPage={translate('RowsPerPage')}
             />
 
+            {/* Refresh indicator */}
+            {isFetching && (
+                <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                    <CircularProgress size={20} />
+                </Box>
+            )}
+
             {/* Action Menu */}
             <Menu
                 anchorEl={actionMenuAnchor}
                 open={Boolean(actionMenuAnchor)}
                 onClose={handleCloseActionMenu}
             >
+                <MenuItem onClick={handleView}>
+                    <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>{translate('View')}</ListItemText>
+                </MenuItem>
+
                 <MenuItem onClick={handleEdit}>
                     <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
                     <ListItemText>{translate('Edit')}</ListItemText>
@@ -606,13 +665,13 @@ const CampaignList = ({ campaigns, onEditCampaign, onRefresh, businessId }) => {
 };
 
 CampaignList.propTypes = {
-    campaigns: PropTypes.array.isRequired,
-    onEditCampaign: PropTypes.func.isRequired,
-    onRefresh: PropTypes.func.isRequired,
     businessId: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number
-    ]).isRequired
+    ]).isRequired,
+    onEditCampaign: PropTypes.func.isRequired,
+    statusFilter: PropTypes.string,
+    searchTerm: PropTypes.string
 };
 
 export default React.memo(CampaignList);

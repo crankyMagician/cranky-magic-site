@@ -24,6 +24,7 @@ import {
     ArrowForward as NextIcon,
     Check as CheckIcon
 } from '@mui/icons-material';
+import { useSnackbar } from 'notistack';
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
@@ -37,9 +38,11 @@ import CampaignReviewStep from './wizard-steps/CampaignReviewStep';
 
 /**
  * CampaignWizard - A multi-step wizard for creating or editing campaigns
+ * Updated to handle ServiceResponse format and improved error handling
  */
 const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
     const { translate } = useCustomTranslation();
+    const { enqueueSnackbar } = useSnackbar();
     const analytics = useAnalytics();
     const theme = useTheme();
     const { getGlassMorphismStyle, getGlowEffect, getAnimationDuration } = useSpatialTheme();
@@ -72,7 +75,10 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
     // Form validation state
     const [errors, setErrors] = useState({});
 
-    // Get error from the API
+    // Loading state for the overall operation
+    const isLoading = isCreating || isUpdating;
+
+    // Get error from the API - Updated to handle ServiceResponse error format
     const apiError = createError || updateError;
 
     // Reset form when campaign changes or modal opens
@@ -88,7 +94,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     description: campaign.description || '',
                     externalId: campaign.externalId || '',
                     status: campaign.status || 'draft',
-                    budget: campaign.budget || '',
+                    budget: campaign.budget?.toString() || '',
                     targetAudience: campaign.targetAudience || '',
                     isScheduled: !!(parsedStartDate && parsedEndDate),
                     startDate: parsedStartDate,
@@ -158,9 +164,24 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                 isValid = false;
             }
 
+            // Description validation (optional but has max length)
+            if (formData.description && formData.description.length > 500) {
+                newErrors.description = translate('DescriptionTooLong');
+                isValid = false;
+            }
+
+            // External ID validation (optional but has pattern)
+            if (formData.externalId && !/^[A-Za-z0-9-_]*$/.test(formData.externalId)) {
+                newErrors.externalId = translate('InvalidExternalIdFormat');
+                isValid = false;
+            }
+
             // Budget validation (if provided)
             if (formData.budget && !/^(\d+(\.\d{1,2})?)?$/.test(formData.budget)) {
                 newErrors.budget = translate('InvalidBudgetFormat');
+                isValid = false;
+            } else if (formData.budget && parseFloat(formData.budget) > 999999999) {
+                newErrors.budget = translate('BudgetTooHigh');
                 isValid = false;
             }
         } else if (step === 1) {
@@ -176,6 +197,15 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     isValid = false;
                 } else if (formData.startDate && formData.endDate && new Date(formData.endDate) <= new Date(formData.startDate)) {
                     newErrors.endDate = translate('EndDateAfterStartDate');
+                    isValid = false;
+                }
+
+                // Check if dates are not in the past
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (formData.startDate && new Date(formData.startDate) < today) {
+                    newErrors.startDate = translate('StartDateCannotBePast');
                     isValid = false;
                 }
             }
@@ -213,7 +243,8 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
         analytics.trackEvent('campaign_wizard_back', {
             from_step: activeStep,
             to_step: prevStep,
-            business_id: businessId
+            business_id: businessId,
+            is_edit: isEditMode
         });
     };
 
@@ -236,54 +267,87 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
             analytics.trackEvent('campaign_form_submit', {
                 is_edit: isEditMode,
                 business_id: businessId,
-                campaign_id: campaign?.id
+                campaign_id: campaign?.id,
+                has_media: formData.media.length > 0,
+                is_scheduled: formData.isScheduled
             });
 
             // Prepare payload
             const payload = {
-                ...formData,
                 businessId,
+                name: formData.name.trim(),
+                description: formData.description?.trim() || '',
+                externalId: formData.externalId?.trim() || '',
+                status: formData.status,
                 // Only include dates if scheduling is enabled
-                startDate: formData.isScheduled ? formData.startDate : null,
-                endDate: formData.isScheduled ? formData.endDate : null,
+                startDate: formData.isScheduled ? formData.startDate?.toISOString() : null,
+                endDate: formData.isScheduled ? formData.endDate?.toISOString() : null,
                 // Convert budget to number
-                budget: formData.budget ? parseFloat(formData.budget) : 0
+                budget: formData.budget ? parseFloat(formData.budget) : 0,
+                targetAudience: formData.targetAudience?.trim() || '',
+                // Include media attachments
+                media: formData.media.map(m => ({
+                    mediaAssetId: m.id,
+                    mediaType: m.type,
+                    metadata: m.metadata || '',
+                    sortOrder: m.sortOrder || 0
+                }))
             };
+
+            let result;
 
             // Create or update campaign
             if (isEditMode) {
-                await updateCampaign({
-                    id: campaign.id,
+                result = await updateCampaign({
+                    campaignId: campaign.id,
                     ...payload
                 }).unwrap();
+
+                enqueueSnackbar(translate('CampaignUpdatedSuccessfully'), { variant: 'success' });
             } else {
-                await createCampaign(payload).unwrap();
+                result = await createCampaign(payload).unwrap();
+
+                enqueueSnackbar(translate('CampaignCreatedSuccessfully'), { variant: 'success' });
             }
 
             // Track success
             analytics.trackEvent('campaign_save_success', {
                 is_edit: isEditMode,
                 business_id: businessId,
-                campaign_id: campaign?.id
+                campaign_id: result?.id || campaign?.id,
+                has_media: formData.media.length > 0,
+                is_scheduled: formData.isScheduled
             });
 
-            // Call the onSave callback
-            onSave();
+            // Call the onSave callback with the result
+            onSave(result);
+
+            // Close the dialog
+            onClose();
         } catch (error) {
             console.error('Failed to save campaign:', error);
+
+            // Show error message - Updated to handle ServiceResponse error format
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorSavingCampaign');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('campaign_save_error', {
                 is_edit: isEditMode,
                 business_id: businessId,
                 campaign_id: campaign?.id,
-                error: error.message
+                error: errorMessage
             });
         }
     };
 
     // Handle cancel
     const handleCancel = () => {
+        if (isLoading) {
+            enqueueSnackbar(translate('PleaseWaitOperationInProgress'), { variant: 'warning' });
+            return;
+        }
+
         // Track form cancellation with info about which step they were on
         analytics.trackEvent('campaign_wizard_cancel', {
             step: activeStep,
@@ -305,6 +369,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
             onClose={handleCancel}
             fullWidth
             maxWidth="md"
+            fullScreen={isMobile}
             PaperProps={{
                 sx: {
                     ...getGlassMorphismStyle(0.95),
@@ -320,6 +385,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     edge="end"
                     color="inherit"
                     onClick={handleCancel}
+                    disabled={isLoading}
                     aria-label={translate('Close')}
                 >
                     <CloseIcon />
@@ -337,18 +403,18 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     sx={{ mb: isMobile ? 2 : 0 }}
                 >
                     {steps.map((step, index) => (
-                        <Step key={step.label}>
+                        <Step key={step.label} completed={index < activeStep}>
                             <StepLabel>{step.label}</StepLabel>
                         </Step>
                     ))}
                 </Stepper>
             </Box>
 
-            {/* API error message */}
+            {/* API error message - Updated to handle ServiceResponse error format */}
             {apiError && (
                 <Box sx={{ px: 3, pt: 0, pb: 2 }}>
-                    <Alert severity="error">
-                        {apiError.data?.message || translate('ErrorSavingCampaign')}
+                    <Alert severity="error" onClose={() => {}}>
+                        {apiError?.message || apiError?.data?.message || translate('ErrorSavingCampaign')}
                     </Alert>
                 </Box>
             )}
@@ -373,6 +439,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                             onClick={handleBack}
                             startIcon={<BackIcon />}
                             sx={{ mr: 1 }}
+                            disabled={isLoading}
                         >
                             {translate('Back')}
                         </Button>
@@ -381,7 +448,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     <Button
                         onClick={handleCancel}
                         color="inherit"
-                        disabled={isCreating || isUpdating}
+                        disabled={isLoading}
                     >
                         {translate('Cancel')}
                     </Button>
@@ -409,8 +476,8 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                             onClick={handleSubmit}
                             variant="contained"
                             color="primary"
-                            disabled={isCreating || isUpdating}
-                            startIcon={isCreating || isUpdating ? <CircularProgress size={20} color="inherit" /> : <CheckIcon />}
+                            disabled={isLoading}
+                            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <CheckIcon />}
                             sx={{
                                 minWidth: 120,
                                 ...getGlowEffect(theme => theme.palette.primary.main, 'low'),
@@ -420,7 +487,10 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                                 },
                             }}
                         >
-                            {isEditMode ? translate('Update') : translate('Create')}
+                            {isEditMode
+                                ? (isLoading ? translate('Updating') : translate('Update'))
+                                : (isLoading ? translate('Creating') : translate('Create'))
+                            }
                         </Button>
                     )}
                 </Box>

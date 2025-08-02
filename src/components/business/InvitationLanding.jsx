@@ -69,7 +69,7 @@ const InvitationLanding = () => {
         translate('Complete')
     ];
 
-    // Query to verify the invitation token
+    // Query to verify the invitation token - Updated to handle ServiceResponse
     const {
         data: invitationData,
         isLoading: isVerifying,
@@ -155,13 +155,14 @@ const InvitationLanding = () => {
         } catch (error) {
             console.error('Error accepting invitation:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorAcceptingInvitation'), { variant: 'error' });
+            // Show error message - Updated error handling for ServiceResponse
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorAcceptingInvitation');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'accept_invitation',
-                error: error.data?.message || 'Unknown error'
+                error: errorMessage
             });
         }
     };
@@ -207,6 +208,9 @@ const InvitationLanding = () => {
 
     // Handle no token or invalid token
     if (!token || (isVerifyError && activeStep === 0)) {
+        // Extract error message from ServiceResponse error structure
+        const errorMessage = verifyError?.message || verifyError?.data?.message || translate('InvitationTokenInvalidOrExpired');
+
         return (
             <Container maxWidth="md">
                 <Paper
@@ -226,7 +230,7 @@ const InvitationLanding = () => {
                     </Box>
 
                     <Alert severity="error" sx={{ mb: 3 }}>
-                        {verifyError?.data?.message || translate('InvitationTokenInvalidOrExpired')}
+                        {errorMessage}
                     </Alert>
 
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
@@ -319,9 +323,9 @@ const InvitationLanding = () => {
                                     <Box sx={{ pl: 2, py: 1 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                             <BusinessIcon sx={{ mr: 1, color: 'primary.main' }} />
-                                            <Typography><strong>{translate('Business')}:</strong> {invitationData.businessName}</Typography>
+                                            <Typography><strong>{translate('BusinessName')}:</strong> {invitationData.businessName}</Typography>
                                         </Box>
-                                        <Typography><strong>{translate('ExpiresAt')}:</strong> {new Date(invitationData.expiresAt).toLocaleDateString()}</Typography>
+                                        <Typography><strong>{translate('BusinessId')}:</strong> {invitationData.businessId}</Typography>
                                     </Box>
                                 </Grid>
                             </Grid>
@@ -334,13 +338,16 @@ const InvitationLanding = () => {
                                 {translate('SetYourPassword')}
                             </Typography>
 
-                            <Box sx={{ mb: 3 }}>
+                            <Box sx={{ mt: 2 }}>
                                 <Controller
                                     name="password"
                                     control={control}
                                     rules={{
                                         required: translate('PasswordRequired'),
-                                        validate: value => validatePassword(value).success || validatePassword(value).message
+                                        validate: value => {
+                                            const validation = validatePassword(value);
+                                            return validation.success || validation.message;
+                                        }
                                     }}
                                     render={({ field }) => (
                                         <TextField

@@ -58,10 +58,11 @@ import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 
 // Import API hooks from your existing API files
 import {
-    useGetBusinessUsersRolesQuery,
-    useGetBusinessUsersPermissionsQuery,
+    useGetBusinessRolesQuery,
+    useGetAllPermissionsQuery,
     useCreateBusinessRoleMutation,
-    useDeleteBusinessRoleMutation
+    useDeleteBusinessRoleMutation,
+    useUpdateBusinessRoleMutation
 } from '../../api/businessApi';
 
 // Main component
@@ -77,8 +78,10 @@ const BusinessRolesManagement = () => {
 
     // State for dialog and role management
     const [createRoleDialogOpen, setCreateRoleDialogOpen] = useState(false);
+    const [editRoleDialogOpen, setEditRoleDialogOpen] = useState(false);
     const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState(null);
+    const [roleToEdit, setRoleToEdit] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [expandedPermissionCategory, setExpandedPermissionCategory] = useState(null);
@@ -87,196 +90,245 @@ const BusinessRolesManagement = () => {
     // Get the active business ID
     const businessId = activeBusiness?.id;
 
-    // RTK Query hooks from businessUsersApi
+    // RTK Query hooks - Updated to handle ServiceResponse
     const {
-        data: businessRolesData = {},
+        data: businessRolesResponse,
         isLoading: isLoadingRoles,
         refetch: refetchRoles
-    } = useGetBusinessUsersRolesQuery(businessId, {
+    } = useGetBusinessRolesQuery({
+        businessId,
+        page: page + 1, // API uses 1-based indexing
+        pageSize: rowsPerPage
+    }, {
         skip: !businessId
     });
 
-    // Get permissions data from businessUsersApi
     const {
-        data: permissionsData = {},
+        data: allPermissionsData,
         isLoading: isLoadingPermissions
-    } = useGetBusinessUsersPermissionsQuery(undefined, {
+    } = useGetAllPermissionsQuery(undefined, {
         skip: !businessId
     });
 
-    // Mutations from businessApi
-    const [createBusinessRole, { isLoading: isCreating }] = useCreateBusinessRoleMutation();
-    const [deleteBusinessRole, { isLoading: isDeleting }] = useDeleteBusinessRoleMutation();
-
-    // Memoize the business roles for better performance
+    // Extract roles and pagination info from ServiceResponse
     const businessRoles = useMemo(() => {
-        return businessRolesData?.roles || [];
-    }, [businessRolesData]);
+        if (businessRolesResponse?.items) {
+            return businessRolesResponse.items;
+        }
+        // Handle non-paginated response format
+        if (Array.isArray(businessRolesResponse)) {
+            return businessRolesResponse;
+        }
+        // Handle direct roles array
+        if (businessRolesResponse?.roles) {
+            return businessRolesResponse.roles;
+        }
+        return [];
+    }, [businessRolesResponse]);
 
-    // Memoize the permissions and organize by category
-    const permissionsByCategory = useMemo(() => {
-        const permissions = permissionsData?.permissions || [];
+    const totalRoles = useMemo(() => {
+        if (businessRolesResponse?.totalCount !== undefined) {
+            return businessRolesResponse.totalCount;
+        }
+        if (Array.isArray(businessRolesResponse)) {
+            return businessRolesResponse.length;
+        }
+        if (businessRolesResponse?.roles) {
+            return businessRolesResponse.roles.length;
+        }
+        return 0;
+    }, [businessRolesResponse]);
 
-        // Group permissions by category
-        return permissions.reduce((acc, permission) => {
-            // Extract category from permission name (e.g., "Campaign.View" -> "Campaign")
-            const category = permission.name.split('.')[0];
+    // Extract permissions from ServiceResponse
+    const allPermissions = useMemo(() => {
+        // Handle array response
+        if (Array.isArray(allPermissionsData)) {
+            return allPermissionsData;
+        }
+        // Handle object with permissions property
+        if (allPermissionsData?.permissions) {
+            return allPermissionsData.permissions;
+        }
+        return [];
+    }, [allPermissionsData]);
 
-            if (!acc[category]) {
-                acc[category] = [];
-            }
+    // Mutations
+    const [createRole, { isLoading: isCreating }] = useCreateBusinessRoleMutation();
+    const [updateRole, { isLoading: isUpdating }] = useUpdateBusinessRoleMutation();
+    const [deleteRole, { isLoading: isDeleting }] = useDeleteBusinessRoleMutation();
 
-            acc[category].push(permission);
-            return acc;
-        }, {});
-    }, [permissionsData]);
-
-    // Form hook for create role form
+    // Form hook for create/edit role form
     const {
-        control: roleControl,
-        handleSubmit: handleRoleSubmit,
-        reset: resetRoleForm,
-        formState: { errors: roleErrors },
-        setValue: setRoleValue
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors }
     } = useForm({
         defaultValues: {
             name: '',
             description: '',
+            permissions: []
         }
     });
 
-    // Toggle permission category expansion
-    const togglePermissionCategory = (category) => {
-        if (expandedPermissionCategory === category) {
-            setExpandedPermissionCategory(null);
-        } else {
-            setExpandedPermissionCategory(category);
-        }
-    };
+    const watchedPermissions = watch('permissions');
 
-    // Handle permission selection
-    const handlePermissionToggle = (permissionId) => {
-        setSelectedPermissions(prev => {
-            if (prev.includes(permissionId)) {
-                return prev.filter(id => id !== permissionId);
-            } else {
-                return [...prev, permissionId];
+    // Group permissions by category
+    const groupedPermissions = useMemo(() => {
+        const grouped = {};
+        allPermissions.forEach(permission => {
+            const category = permission.category || 'General';
+            if (!grouped[category]) {
+                grouped[category] = [];
             }
+            grouped[category].push(permission);
         });
+        return grouped;
+    }, [allPermissions]);
+
+    // Handle permission toggle
+    const handlePermissionToggle = (permissionId) => {
+        const currentPermissions = watchedPermissions || [];
+        const newPermissions = currentPermissions.includes(permissionId)
+            ? currentPermissions.filter(id => id !== permissionId)
+            : [...currentPermissions, permissionId];
+
+        setValue('permissions', newPermissions);
+        setSelectedPermissions(newPermissions);
     };
 
-    // Handle category selection (select/deselect all permissions in a category)
+    // Handle category expand/collapse
     const handleCategoryToggle = (category) => {
-        const categoryPermissions = permissionsByCategory[category] || [];
-        const categoryPermissionIds = categoryPermissions.map(p => p.id);
-
-        // Check if all permissions in this category are already selected
-        const allSelected = categoryPermissionIds.every(id => selectedPermissions.includes(id));
-
-        if (allSelected) {
-            // Remove all from this category
-            setSelectedPermissions(prev => prev.filter(id => !categoryPermissionIds.includes(id)));
-        } else {
-            // Add all from this category
-            setSelectedPermissions(prev => {
-                const newPermissions = [...prev];
-                categoryPermissionIds.forEach(id => {
-                    if (!newPermissions.includes(id)) {
-                        newPermissions.push(id);
-                    }
-                });
-                return newPermissions;
-            });
-        }
-    };
-
-    // Open create role dialog
-    const handleOpenCreateRoleDialog = () => {
-        setCreateRoleDialogOpen(true);
-        setSelectedPermissions([]);
-        resetRoleForm();
-
-        // Track dialog open for analytics
-        analytics.trackEvent('dialog_open', {
-            dialog: 'create_business_role',
-            businessId
-        });
-    };
-
-    // Close create role dialog
-    const handleCloseCreateRoleDialog = () => {
-        setCreateRoleDialogOpen(false);
-        resetRoleForm();
-        setSelectedPermissions([]);
+        setExpandedPermissionCategory(
+            expandedPermissionCategory === category ? null : category
+        );
     };
 
     // Handle create role submission
     const onCreateRole = async (data) => {
         try {
-            // Track form submission
-            analytics.trackEvent('form_submit', {
-                form: 'create_business_role',
-                businessId
-            });
-
-            if (selectedPermissions.length === 0) {
-                enqueueSnackbar(translate('PleaseSelectAtLeastOnePermission'), { variant: 'warning' });
-                return;
-            }
-
-            const payload = {
-                ...data,
+            const roleData = {
                 businessId,
-                permissionIds: selectedPermissions
+                name: data.name,
+                description: data.description,
+                permissionIds: data.permissions
             };
 
-            await createBusinessRole(payload).unwrap();
+            await createRole(roleData).unwrap();
 
             // Close dialog and reset form
-            handleCloseCreateRoleDialog();
+            setCreateRoleDialogOpen(false);
+            reset();
+            setSelectedPermissions([]);
+
+            // Refetch roles
             refetchRoles();
 
             // Show success message
             enqueueSnackbar(translate('RoleCreatedSuccessfully'), { variant: 'success' });
 
-            // Track successful creation
+            // Track role creation
             analytics.trackEvent('business_role_created', {
                 businessId,
-                permissionCount: selectedPermissions.length
+                roleName: data.name,
+                permissionCount: data.permissions.length
             });
         } catch (error) {
             console.error('Error creating role:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorCreatingRole'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorCreatingRole');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'create_business_role',
-                error: error.data?.message || 'Unknown error',
+                error: errorMessage,
                 businessId
             });
         }
     };
 
-    // Handle confirm delete role
-    const handleConfirmDeleteRole = (role) => {
-        setRoleToDelete(role);
-        setConfirmDeleteDialogOpen(true);
+    // Handle edit role dialog open
+    const handleOpenEditDialog = (role) => {
+        setRoleToEdit(role);
 
-        // Track confirmation dialog
+        // Set form values
+        setValue('name', role.name || '');
+        setValue('description', role.description || '');
+
+        // Extract permission IDs from role
+        const permissionIds = role.permissions?.map(p => p.id) || [];
+        setValue('permissions', permissionIds);
+        setSelectedPermissions(permissionIds);
+
+        setEditRoleDialogOpen(true);
+
+        // Track dialog open
         analytics.trackEvent('dialog_open', {
-            dialog: 'confirm_delete_role',
+            dialog: 'edit_business_role',
+            roleId: role.id,
             businessId
         });
     };
 
+    // Handle edit role submission
+    const onEditRole = async (data) => {
+        if (!roleToEdit) return;
+
+        try {
+            const roleData = {
+                businessId,
+                roleId: roleToEdit.id,
+                name: data.name,
+                description: data.description,
+                permissionIds: data.permissions
+            };
+
+            await updateRole(roleData).unwrap();
+
+            // Close dialog and reset
+            setEditRoleDialogOpen(false);
+            setRoleToEdit(null);
+            reset();
+            setSelectedPermissions([]);
+
+            // Refetch roles
+            refetchRoles();
+
+            // Show success message
+            enqueueSnackbar(translate('RoleUpdatedSuccessfully'), { variant: 'success' });
+
+            // Track role update
+            analytics.trackEvent('business_role_updated', {
+                businessId,
+                roleId: roleToEdit.id,
+                roleName: data.name
+            });
+        } catch (error) {
+            console.error('Error updating role:', error);
+
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorUpdatingRole');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
+
+            // Track error
+            analytics.trackEvent('error', {
+                action: 'update_business_role',
+                error: errorMessage,
+                businessId
+            });
+        }
+    };
+
     // Handle delete role confirmation
-    const handleDeleteRole = async () => {
+    const handleDeleteRoleConfirm = async () => {
         if (!roleToDelete) return;
 
         try {
-            await deleteBusinessRole({
+            await deleteRole({
                 businessId,
                 roleId: roleToDelete.id
             }).unwrap();
@@ -291,32 +343,34 @@ const BusinessRolesManagement = () => {
             // Show success message
             enqueueSnackbar(translate('RoleDeletedSuccessfully'), { variant: 'success' });
 
-            // Track role deleted
+            // Track role deletion
             analytics.trackEvent('business_role_deleted', {
                 businessId,
-                roleId: roleToDelete.id
+                roleId: roleToDelete.id,
+                roleName: roleToDelete.name
             });
         } catch (error) {
             console.error('Error deleting role:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorDeletingRole'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorDeletingRole');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'delete_business_role',
-                error: error.data?.message || 'Unknown error',
+                error: errorMessage,
                 businessId
             });
         }
     };
 
-    // Handle page change for roles table
+    // Handle page change
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
 
-    // Handle rows per page change for roles table
+    // Handle rows per page change
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
@@ -338,6 +392,21 @@ const BusinessRolesManagement = () => {
         return isAuthenticated && activeBusiness;
     }, [isAuthenticated, activeBusiness]);
 
+    // Count permissions for a role
+    const getPermissionCount = (role) => {
+        return role.permissions?.length || 0;
+    };
+
+    // Format date
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        return new Date(dateString).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
     // Render No Business Alert if no active business
     if (!businessId) {
         return (
@@ -352,7 +421,7 @@ const BusinessRolesManagement = () => {
                         onClick={() => navigate('/businesses')}
                         startIcon={<BusinessIcon />}
                     >
-                        {translate('GoToBusinesses')}
+                        {translate('SelectBusiness')}
                     </Button>
                 </Box>
             </Box>
@@ -360,24 +429,22 @@ const BusinessRolesManagement = () => {
     }
 
     return (
-        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+        <Box sx={{ position: 'relative' }}>
             <Paper
-                elevation={3}
+                elevation={0}
                 sx={{
-                    ...getGlassMorphismStyle(0.8),
-                    p: { xs: 2, sm: 3 },
-                    mb: 3,
-                    borderRadius: 2,
-                    ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
+                    p: 3,
+                    ...getGlassMorphismStyle(),
+                    ...(isDark && getGlowEffect())
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
-                    <Typography variant="h4" component="h1">
+                {/* Header */}
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Typography variant="h4" component="h1" gutterBottom>
                         {translate('BusinessRolesManagement')}
                     </Typography>
-
-                    <Box sx={{ display: 'flex', gap: 1, mt: { xs: 2, sm: 0 } }}>
-                        <Tooltip title={translate('Refresh')}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title={translate('RefreshData')}>
                             <IconButton
                                 onClick={handleRefresh}
                                 color="primary"
@@ -386,16 +453,12 @@ const BusinessRolesManagement = () => {
                                 <RefreshIcon />
                             </IconButton>
                         </Tooltip>
-
                         <Button
                             variant="contained"
                             color="primary"
                             startIcon={<AddIcon />}
-                            onClick={handleOpenCreateRoleDialog}
+                            onClick={() => setCreateRoleDialogOpen(true)}
                             disabled={!canManageRoles || isLoadingPermissions}
-                            sx={{
-                                ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                            }}
                         >
                             {translate('CreateRole')}
                         </Button>
@@ -403,145 +466,143 @@ const BusinessRolesManagement = () => {
                 </Box>
 
                 {/* Roles Table */}
-                <Box>
-                    {isLoadingRoles ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                            <CircularProgress />
-                        </Box>
-                    ) : businessRoles.length === 0 ? (
-                        <Alert severity="info">
-                            {translate('NoRolesFound')}
-                        </Alert>
-                    ) : (
-                        <>
-                            <TableContainer>
-                                <Table aria-label="business roles table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>{translate('Name')}</TableCell>
-                                            <TableCell>{translate('Description')}</TableCell>
-                                            <TableCell>{translate('Permissions')}</TableCell>
-                                            <TableCell align="right">{translate('Actions')}</TableCell>
+                {isLoadingRoles ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                        <CircularProgress />
+                    </Box>
+                ) : businessRoles.length === 0 ? (
+                    <Alert severity="info">
+                        {translate('NoRolesFound')}
+                    </Alert>
+                ) : (
+                    <>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>{translate('RoleName')}</TableCell>
+                                        <TableCell>{translate('Description')}</TableCell>
+                                        <TableCell>{translate('Permissions')}</TableCell>
+                                        <TableCell>{translate('UsersCount')}</TableCell>
+                                        <TableCell>{translate('CreatedOn')}</TableCell>
+                                        <TableCell align="right">{translate('Actions')}</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {businessRoles.map((role) => (
+                                        <TableRow key={role.id}>
+                                            <TableCell>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <SecurityIcon fontSize="small" color="action" />
+                                                    <Typography variant="body2" fontWeight="medium">
+                                                        {role.name}
+                                                    </Typography>
+                                                </Box>
+                                            </TableCell>
+                                            <TableCell>
+                                                {role.description || (
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {translate('NoDescription')}
+                                                    </Typography>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={`${getPermissionCount(role)} ${translate('Permissions')}`}
+                                                    size="small"
+                                                    color="primary"
+                                                    variant="outlined"
+                                                    icon={<CheckIcon />}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={role.usersCount || 0}
+                                                    size="small"
+                                                    color={role.usersCount > 0 ? 'success' : 'default'}
+                                                />
+                                            </TableCell>
+                                            <TableCell>{formatDate(role.createdAt)}</TableCell>
+                                            <TableCell align="right">
+                                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                                    <Tooltip title={translate('EditRole')}>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleOpenEditDialog(role)}
+                                                            disabled={!canManageRoles}
+                                                        >
+                                                            <EditIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title={translate('DeleteRole')}>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="error"
+                                                            onClick={() => {
+                                                                setRoleToDelete(role);
+                                                                setConfirmDeleteDialogOpen(true);
+                                                            }}
+                                                            disabled={!canManageRoles || role.isSystemRole}
+                                                        >
+                                                            <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            </TableCell>
                                         </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {businessRoles
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((role) => (
-                                                <TableRow key={role.id}>
-                                                    <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <SecurityIcon sx={{ mr: 1, color: 'primary.main' }} />
-                                                            {role.name}
-                                                        </Box>
-                                                    </TableCell>
-                                                    <TableCell>{role.description}</TableCell>
-                                                    <TableCell>
-                                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                            {role.permissions && role.permissions.length > 0 ? (
-                                                                role.permissions.length > 3 ? (
-                                                                    <>
-                                                                        {role.permissions.slice(0, 3).map(permission => (
-                                                                            <Chip
-                                                                                key={permission.id}
-                                                                                label={permission.name}
-                                                                                size="small"
-                                                                                color="primary"
-                                                                                variant="outlined"
-                                                                                sx={{ mr: 0.5, mb: 0.5 }}
-                                                                            />
-                                                                        ))}
-                                                                        <Chip
-                                                                            label={`+${role.permissions.length - 3}`}
-                                                                            size="small"
-                                                                            color="default"
-                                                                            sx={{ mr: 0.5, mb: 0.5 }}
-                                                                        />
-                                                                    </>
-                                                                ) : (
-                                                                    role.permissions.map(permission => (
-                                                                        <Chip
-                                                                            key={permission.id}
-                                                                            label={permission.name}
-                                                                            size="small"
-                                                                            color="primary"
-                                                                            variant="outlined"
-                                                                            sx={{ mr: 0.5, mb: 0.5 }}
-                                                                        />
-                                                                    ))
-                                                                )
-                                                            ) : (
-                                                                <Typography variant="body2" color="text.secondary">
-                                                                    {translate('NoPermissions')}
-                                                                </Typography>
-                                                            )}
-                                                        </Box>
-                                                    </TableCell>
-                                                    <TableCell align="right">
-                                                        <Tooltip title={translate('DeleteRole')}>
-                                                            <IconButton
-                                                                onClick={() => handleConfirmDeleteRole(role)}
-                                                                color="error"
-                                                                size="small"
-                                                                disabled={!canManageRoles}
-                                                            >
-                                                                <DeleteIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                            <TablePagination
-                                component="div"
-                                count={businessRoles.length}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                rowsPerPage={rowsPerPage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                rowsPerPageOptions={[5, 10, 25]}
-                            />
-                        </>
-                    )}
-                </Box>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <TablePagination
+                            component="div"
+                            count={totalRoles}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            rowsPerPageOptions={[5, 10, 25]}
+                        />
+                    </>
+                )}
             </Paper>
 
             {/* Create Role Dialog */}
             <Dialog
                 open={createRoleDialogOpen}
-                onClose={handleCloseCreateRoleDialog}
+                onClose={() => {
+                    setCreateRoleDialogOpen(false);
+                    reset();
+                    setSelectedPermissions([]);
+                }}
                 maxWidth="md"
                 fullWidth
-                PaperProps={{
-                    sx: {
-                        ...getGlassMorphismStyle(0.9),
-                        borderRadius: 2,
-                        ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                    }
-                }}
+                fullScreen={isMobile}
             >
-                <DialogTitle>{translate('CreateBusinessRole')}</DialogTitle>
-                <form onSubmit={handleRoleSubmit(onCreateRole)}>
+                <form onSubmit={handleSubmit(onCreateRole)}>
+                    <DialogTitle>
+                        {translate('CreateNewRole')}
+                    </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
                             <Grid item xs={12}>
                                 <Controller
                                     name="name"
-                                    control={roleControl}
-                                    rules={{ required: translate('RoleNameRequired') }}
+                                    control={control}
+                                    rules={{
+                                        required: translate('RoleNameRequired'),
+                                        minLength: {
+                                            value: 3,
+                                            message: translate('RoleNameMinLength')
+                                        }
+                                    }}
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label={translate('RoleName')}
                                             fullWidth
-                                            margin="normal"
-                                            error={!!roleErrors.name}
-                                            helperText={roleErrors.name?.message}
-                                            InputProps={{
-                                                startAdornment: <SecurityIcon color="action" sx={{ mr: 1 }} />
-                                            }}
+                                            label={translate('RoleName')}
+                                            error={!!errors.name}
+                                            helperText={errors.name?.message}
                                         />
                                     )}
                                 />
@@ -549,113 +610,97 @@ const BusinessRolesManagement = () => {
                             <Grid item xs={12}>
                                 <Controller
                                     name="description"
-                                    control={roleControl}
+                                    control={control}
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label={translate('RoleDescription')}
                                             fullWidth
-                                            margin="normal"
+                                            label={translate('RoleDescription')}
                                             multiline
-                                            rows={2}
-                                            InputProps={{
-                                                startAdornment: <DescriptionIcon color="action" sx={{ mr: 1 }} />
-                                            }}
+                                            rows={3}
+                                            placeholder={translate('OptionalRoleDescription')}
                                         />
                                     )}
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography variant="subtitle1" gutterBottom>
+                                <Typography variant="h6" gutterBottom>
                                     {translate('SelectPermissions')}
                                 </Typography>
-
+                                <Divider sx={{ mb: 2 }} />
                                 {isLoadingPermissions ? (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                                        <CircularProgress />
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                        <CircularProgress size={24} />
                                     </Box>
-                                ) : Object.keys(permissionsByCategory).length === 0 ? (
-                                    <Alert severity="warning">
-                                        {translate('NoPermissionsAvailable')}
-                                    </Alert>
                                 ) : (
-                                    <Box sx={{ maxHeight: '400px', overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                                        <List component="nav" aria-label="permission categories">
-                                            {Object.keys(permissionsByCategory).map((category) => {
-                                                const permissions = permissionsByCategory[category];
-                                                const categoryPermissionIds = permissions.map(p => p.id);
-                                                const allSelected = categoryPermissionIds.every(id => selectedPermissions.includes(id));
-                                                const someSelected = categoryPermissionIds.some(id => selectedPermissions.includes(id)) && !allSelected;
-
-                                                return (
-                                                    <React.Fragment key={category}>
-                                                        <ListItem
-                                                            button
-                                                            onClick={() => togglePermissionCategory(category)}
-                                                            sx={{
-                                                                bgcolor: expandedPermissionCategory === category ? 'action.selected' : 'transparent'
-                                                            }}
-                                                        >
-                                                            <ListItemIcon>
-                                                                <Checkbox
-                                                                    edge="start"
-                                                                    checked={allSelected}
-                                                                    indeterminate={someSelected}
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleCategoryToggle(category);
-                                                                    }}
-                                                                    color="primary"
-                                                                />
-                                                            </ListItemIcon>
-                                                            <ListItemText primary={category} />
-                                                            {expandedPermissionCategory === category ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                                        </ListItem>
-
-                                                        <Collapse in={expandedPermissionCategory === category} timeout="auto" unmountOnExit>
-                                                            <List component="div" disablePadding>
-                                                                {permissions.map((permission) => (
-                                                                    <ListItem
-                                                                        key={permission.id}
-                                                                        sx={{ pl: 4 }}
-                                                                    >
-                                                                        <ListItemIcon>
-                                                                            <Checkbox
-                                                                                edge="start"
-                                                                                checked={selectedPermissions.includes(permission.id)}
-                                                                                onChange={() => handlePermissionToggle(permission.id)}
-                                                                                color="primary"
-                                                                            />
-                                                                        </ListItemIcon>
-                                                                        <ListItemText
-                                                                            primary={permission.name}
-                                                                            secondary={permission.description}
+                                    <List>
+                                        {Object.entries(groupedPermissions).map(([category, permissions]) => (
+                                            <Box key={category} sx={{ mb: 1 }}>
+                                                <ListItem
+                                                    button
+                                                    onClick={() => handleCategoryToggle(category)}
+                                                    sx={{
+                                                        bgcolor: 'background.paper',
+                                                        borderRadius: 1,
+                                                        mb: 0.5
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <DescriptionIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={category}
+                                                        secondary={`${permissions.length} ${translate('permissions')}`}
+                                                    />
+                                                    {expandedPermissionCategory === category ? (
+                                                        <ExpandLessIcon />
+                                                    ) : (
+                                                        <ExpandMoreIcon />
+                                                    )}
+                                                </ListItem>
+                                                <Collapse in={expandedPermissionCategory === category}>
+                                                    <Box sx={{ pl: 4, pr: 2 }}>
+                                                        <FormGroup>
+                                                            {permissions.map((permission) => (
+                                                                <FormControlLabel
+                                                                    key={permission.id}
+                                                                    control={
+                                                                        <Checkbox
+                                                                            checked={watchedPermissions.includes(permission.id)}
+                                                                            onChange={() => handlePermissionToggle(permission.id)}
                                                                         />
-                                                                    </ListItem>
-                                                                ))}
-                                                            </List>
-                                                        </Collapse>
-                                                        <Divider />
-                                                    </React.Fragment>
-                                                );
-                                            })}
-                                        </List>
-                                    </Box>
+                                                                    }
+                                                                    label={
+                                                                        <Box>
+                                                                            <Typography variant="body2">
+                                                                                {permission.name}
+                                                                            </Typography>
+                                                                            {permission.description && (
+                                                                                <Typography variant="caption" color="text.secondary">
+                                                                                    {permission.description}
+                                                                                </Typography>
+                                                                            )}
+                                                                        </Box>
+                                                                    }
+                                                                />
+                                                            ))}
+                                                        </FormGroup>
+                                                    </Box>
+                                                </Collapse>
+                                            </Box>
+                                        ))}
+                                    </List>
                                 )}
-
-                                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {translate('SelectedPermissions')}: {selectedPermissions.length}
-                                    </Typography>
-                                </Box>
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <DialogActions>
                         <Button
-                            onClick={handleCloseCreateRoleDialog}
-                            color="inherit"
-                            disabled={isCreating}
+                            onClick={() => {
+                                setCreateRoleDialogOpen(false);
+                                reset();
+                                setSelectedPermissions([]);
+                            }}
                         >
                             {translate('Cancel')}
                         </Button>
@@ -664,56 +709,200 @@ const BusinessRolesManagement = () => {
                             variant="contained"
                             color="primary"
                             disabled={isCreating}
-                            startIcon={isCreating ? <CircularProgress size={20} /> : <AddIcon />}
-                            sx={{
-                                ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                            }}
+                            startIcon={isCreating ? <CircularProgress size={16} /> : <AddIcon />}
                         >
-                            {isCreating ? translate('Creating') : translate('CreateRole')}
+                            {translate('CreateRole')}
                         </Button>
                     </DialogActions>
                 </form>
             </Dialog>
 
-            {/* Confirm Delete Dialog */}
+            {/* Edit Role Dialog */}
+            <Dialog
+                open={editRoleDialogOpen}
+                onClose={() => {
+                    setEditRoleDialogOpen(false);
+                    setRoleToEdit(null);
+                    reset();
+                    setSelectedPermissions([]);
+                }}
+                maxWidth="md"
+                fullWidth
+                fullScreen={isMobile}
+            >
+                <form onSubmit={handleSubmit(onEditRole)}>
+                    <DialogTitle>
+                        {translate('EditRole')}
+                    </DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="name"
+                                    control={control}
+                                    rules={{
+                                        required: translate('RoleNameRequired'),
+                                        minLength: {
+                                            value: 3,
+                                            message: translate('RoleNameMinLength')
+                                        }
+                                    }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            label={translate('RoleName')}
+                                            error={!!errors.name}
+                                            helperText={errors.name?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="description"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            label={translate('RoleDescription')}
+                                            multiline
+                                            rows={3}
+                                            placeholder={translate('OptionalRoleDescription')}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography variant="h6" gutterBottom>
+                                    {translate('SelectPermissions')}
+                                </Typography>
+                                <Divider sx={{ mb: 2 }} />
+                                {isLoadingPermissions ? (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                                        <CircularProgress size={24} />
+                                    </Box>
+                                ) : (
+                                    <List>
+                                        {Object.entries(groupedPermissions).map(([category, permissions]) => (
+                                            <Box key={category} sx={{ mb: 1 }}>
+                                                <ListItem
+                                                    button
+                                                    onClick={() => handleCategoryToggle(category)}
+                                                    sx={{
+                                                        bgcolor: 'background.paper',
+                                                        borderRadius: 1,
+                                                        mb: 0.5
+                                                    }}
+                                                >
+                                                    <ListItemIcon>
+                                                        <DescriptionIcon />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={category}
+                                                        secondary={`${permissions.length} ${translate('permissions')}`}
+                                                    />
+                                                    {expandedPermissionCategory === category ? (
+                                                        <ExpandLessIcon />
+                                                    ) : (
+                                                        <ExpandMoreIcon />
+                                                    )}
+                                                </ListItem>
+                                                <Collapse in={expandedPermissionCategory === category}>
+                                                    <Box sx={{ pl: 4, pr: 2 }}>
+                                                        <FormGroup>
+                                                            {permissions.map((permission) => (
+                                                                <FormControlLabel
+                                                                    key={permission.id}
+                                                                    control={
+                                                                        <Checkbox
+                                                                            checked={watchedPermissions.includes(permission.id)}
+                                                                            onChange={() => handlePermissionToggle(permission.id)}
+                                                                        />
+                                                                    }
+                                                                    label={
+                                                                        <Box>
+                                                                            <Typography variant="body2">
+                                                                                {permission.name}
+                                                                            </Typography>
+                                                                            {permission.description && (
+                                                                                <Typography variant="caption" color="text.secondary">
+                                                                                    {permission.description}
+                                                                                </Typography>
+                                                                            )}
+                                                                        </Box>
+                                                                    }
+                                                                />
+                                                            ))}
+                                                        </FormGroup>
+                                                    </Box>
+                                                </Collapse>
+                                            </Box>
+                                        ))}
+                                    </List>
+                                )}
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            onClick={() => {
+                                setEditRoleDialogOpen(false);
+                                setRoleToEdit(null);
+                                reset();
+                                setSelectedPermissions([]);
+                            }}
+                        >
+                            {translate('Cancel')}
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            disabled={isUpdating}
+                            startIcon={isUpdating ? <CircularProgress size={16} /> : <EditIcon />}
+                        >
+                            {translate('UpdateRole')}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+
+            {/* Confirm Delete Role Dialog */}
             <Dialog
                 open={confirmDeleteDialogOpen}
                 onClose={() => setConfirmDeleteDialogOpen(false)}
-                maxWidth="xs"
-                PaperProps={{
-                    sx: {
-                        ...getGlassMorphismStyle(0.9),
-                        borderRadius: 2,
-                        ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                    }
-                }}
+                maxWidth="sm"
+                fullWidth
             >
-                <DialogTitle>{translate('ConfirmDeleteRole')}</DialogTitle>
+                <DialogTitle>
+                    {translate('ConfirmDeleteRole')}
+                </DialogTitle>
                 <DialogContent>
-                    {roleToDelete && (
-                        <Typography>
-                            {translate('DeleteRoleConfirmation', {
-                                name: roleToDelete.name
-                            })}
-                        </Typography>
+                    <Typography>
+                        {translate('AreYouSureDeleteRole', {
+                            name: roleToDelete?.name || ''
+                        })}
+                    </Typography>
+                    {roleToDelete?.usersCount > 0 && (
+                        <Alert severity="warning" sx={{ mt: 2 }}>
+                            {translate('RoleHasUsersWarning', { count: roleToDelete.usersCount })}
+                        </Alert>
                     )}
                 </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button
-                        onClick={() => setConfirmDeleteDialogOpen(false)}
-                        color="inherit"
-                        disabled={isDeleting}
-                    >
+                <DialogActions>
+                    <Button onClick={() => setConfirmDeleteDialogOpen(false)}>
                         {translate('Cancel')}
                     </Button>
                     <Button
-                        onClick={handleDeleteRole}
                         variant="contained"
                         color="error"
+                        onClick={handleDeleteRoleConfirm}
                         disabled={isDeleting}
-                        startIcon={isDeleting ? <CircularProgress size={20} /> : <DeleteIcon />}
+                        startIcon={isDeleting ? <CircularProgress size={16} /> : <DeleteIcon />}
                     >
-                        {isDeleting ? translate('Deleting') : translate('Delete')}
+                        {translate('DeleteRole')}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -60,9 +60,7 @@ import {
     useGetBusinessUsersRolesQuery,
 } from '../../api/businessApi';
 
-
 import {
-
     useUpdateBusinessRoleMutation,
     useRemoveBusinessRoleMutation,
     useGetInvitationsByBusinessQuery,
@@ -97,12 +95,16 @@ const BusinessUsersManagement = () => {
     // Get the active business ID
     const businessId = activeBusiness?.id;
 
-    // RTK Query hooks from businessApi
+    // RTK Query hooks from businessApi - Updated to handle pagination
     const {
-        data: businessUsers = [],
+        data: businessUsersResponse,
         isLoading: isLoadingUsers,
         refetch: refetchUsers
-    } = useGetBusinessUsersQuery(businessId, {
+    } = useGetBusinessUsersQuery({
+        businessId,
+        page: page + 1, // API uses 1-based indexing
+        pageSize: rowsPerPage
+    }, {
         skip: !businessId
     });
 
@@ -116,7 +118,7 @@ const BusinessUsersManagement = () => {
 
     // RTK Query hooks from invitationApi
     const {
-        data: invitationsData,
+        data: invitationsResponse,
         isLoading: isLoadingInvitations,
         refetch: refetchInvitations
     } = useGetInvitationsByBusinessQuery({
@@ -127,6 +129,24 @@ const BusinessUsersManagement = () => {
         skip: !businessId
     });
 
+    // Extract users and pagination info from response
+    const businessUsers = useMemo(() => {
+        return businessUsersResponse?.items || [];
+    }, [businessUsersResponse]);
+
+    const totalUsers = useMemo(() => {
+        return businessUsersResponse?.totalCount || 0;
+    }, [businessUsersResponse]);
+
+    // Extract invitations and pagination info from response
+    const invitations = useMemo(() => {
+        return invitationsResponse?.items || [];
+    }, [invitationsResponse]);
+
+    const totalInvitations = useMemo(() => {
+        return invitationsResponse?.totalCount || 0;
+    }, [invitationsResponse]);
+
     // Mutations from businessUsersApi and invitationApi
     const [inviteUser, { isLoading: isInviting }] = useSendInvitationMutation();
     const [removeUser, { isLoading: isRemoving }] = useRemoveBusinessRoleMutation();
@@ -136,13 +156,8 @@ const BusinessUsersManagement = () => {
 
     // Memoize the business roles for better performance
     const businessRoles = useMemo(() => {
-        return businessRolesData?.roles || [];
+        return businessRolesData || [];
     }, [businessRolesData]);
-
-    // Memoize invitations
-    const invitations = useMemo(() => {
-        return invitationsData?.invitations || [];
-    }, [invitationsData]);
 
     // Form hook for invite user form
     const {
@@ -182,85 +197,53 @@ const BusinessUsersManagement = () => {
         // Track tab change for analytics
         analytics.trackEvent('tab_change', {
             component: 'BusinessUsersManagement',
-            tab: newValue === 0 ? 'users' : 'invitations'
-        });
-    };
-
-    // Open invite dialog
-    const handleOpenInviteDialog = () => {
-        setInviteDialogOpen(true);
-
-        // Track dialog open for analytics
-        analytics.trackEvent('dialog_open', {
-            dialog: 'invite_user',
+            tab: newValue === 0 ? 'users' : 'invitations',
             businessId
         });
-    };
-
-    // Close invite dialog
-    const handleCloseInviteDialog = () => {
-        setInviteDialogOpen(false);
-        resetInviteForm();
     };
 
     // Handle invite user submission
     const onInviteUser = async (data) => {
         try {
-            // Track form submission
-            analytics.trackEvent('form_submit', {
-                form: 'invite_user',
-                businessId
-            });
-
-            const payload = {
-                ...data,
-                businessId
-            };
-
-            await inviteUser(payload).unwrap();
+            await inviteUser({
+                businessId,
+                ...data
+            }).unwrap();
 
             // Close dialog and reset form
-            handleCloseInviteDialog();
-            refetchUsers();
+            setInviteDialogOpen(false);
+            resetInviteForm();
+
+            // Refetch invitations
             refetchInvitations();
 
             // Show success message
-            enqueueSnackbar(translate('UserInvitedSuccessfully'), { variant: 'success' });
+            enqueueSnackbar(translate('InvitationSentSuccessfully'), { variant: 'success' });
 
-            // Track successful invitation
-            analytics.trackEvent('user_invited', {
+            // Track invitation sent
+            analytics.trackEvent('invitation_sent', {
                 businessId,
+                email: data.email,
                 roleId: data.businessRoleId
             });
         } catch (error) {
-            console.error('Error inviting user:', error);
+            console.error('Error sending invitation:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorInvitingUser'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorSendingInvitation');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
-                action: 'invite_user',
-                error: error.data?.message || 'Unknown error',
+                action: 'send_invitation',
+                error: errorMessage,
                 businessId
             });
         }
     };
 
-    // Handle delete user
-    const handleConfirmDeleteUser = (user) => {
-        setUserToDelete(user);
-        setConfirmDeleteDialogOpen(true);
-
-        // Track confirmation dialog
-        analytics.trackEvent('dialog_open', {
-            dialog: 'confirm_delete_user',
-            businessId
-        });
-    };
-
-    // Handle delete user confirmation
-    const handleDeleteUser = async () => {
+    // Handle remove user confirmation
+    const handleRemoveUserConfirm = async () => {
         if (!userToDelete) return;
 
         try {
@@ -287,13 +270,14 @@ const BusinessUsersManagement = () => {
         } catch (error) {
             console.error('Error removing user:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorRemovingUser'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorRemovingUser');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'remove_user',
-                error: error.data?.message || 'Unknown error',
+                error: errorMessage,
                 businessId
             });
         }
@@ -348,27 +332,28 @@ const BusinessUsersManagement = () => {
                 newRoleId: data.newBusinessRoleId
             });
         } catch (error) {
-            console.error('Error changing role:', error);
+            console.error('Error updating role:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorChangingRole'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorUpdatingRole');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
-                action: 'change_user_role',
-                error: error.data?.message || 'Unknown error',
+                action: 'update_user_role',
+                error: errorMessage,
                 businessId
             });
         }
     };
 
     // Handle resend invitation
-    const handleResendInvitation = async (invitationId) => {
+    const handleResendInvitation = async (invitation) => {
         try {
-            await resendInvitation(invitationId).unwrap();
-
-            // Refetch invitations
-            refetchInvitations();
+            await resendInvitation({
+                businessId,
+                invitationId: invitation.id
+            }).unwrap();
 
             // Show success message
             enqueueSnackbar(translate('InvitationResentSuccessfully'), { variant: 'success' });
@@ -376,27 +361,32 @@ const BusinessUsersManagement = () => {
             // Track invitation resent
             analytics.trackEvent('invitation_resent', {
                 businessId,
-                invitationId
+                invitationId: invitation.id,
+                email: invitation.email
             });
         } catch (error) {
             console.error('Error resending invitation:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorResendingInvitation'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorResendingInvitation');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'resend_invitation',
-                error: error.data?.message || 'Unknown error',
+                error: errorMessage,
                 businessId
             });
         }
     };
 
     // Handle delete invitation
-    const handleDeleteInvitation = async (invitationId) => {
+    const handleDeleteInvitation = async (invitation) => {
         try {
-            await deleteInvitation(invitationId).unwrap();
+            await deleteInvitation({
+                businessId,
+                invitationId: invitation.id
+            }).unwrap();
 
             // Refetch invitations
             refetchInvitations();
@@ -407,18 +397,20 @@ const BusinessUsersManagement = () => {
             // Track invitation deleted
             analytics.trackEvent('invitation_deleted', {
                 businessId,
-                invitationId
+                invitationId: invitation.id,
+                email: invitation.email
             });
         } catch (error) {
             console.error('Error deleting invitation:', error);
 
-            // Show error message
-            enqueueSnackbar(error.data?.message || translate('ErrorDeletingInvitation'), { variant: 'error' });
+            // Show error message - Updated error handling
+            const errorMessage = error?.message || error?.data?.message || translate('ErrorDeletingInvitation');
+            enqueueSnackbar(errorMessage, { variant: 'error' });
 
             // Track error
             analytics.trackEvent('error', {
                 action: 'delete_invitation',
-                error: error.data?.message || 'Unknown error',
+                error: errorMessage,
                 businessId
             });
         }
@@ -487,7 +479,7 @@ const BusinessUsersManagement = () => {
                         onClick={() => navigate('/businesses')}
                         startIcon={<BusinessIcon />}
                     >
-                        {translate('GoToBusinesses')}
+                        {translate('SelectBusiness')}
                     </Button>
                 </Box>
             </Box>
@@ -495,24 +487,22 @@ const BusinessUsersManagement = () => {
     }
 
     return (
-        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+        <Box sx={{ position: 'relative' }}>
             <Paper
-                elevation={3}
+                elevation={0}
                 sx={{
-                    ...getGlassMorphismStyle(0.8),
-                    p: { xs: 2, sm: 3 },
-                    mb: 3,
-                    borderRadius: 2,
-                    ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
+                    p: 3,
+                    ...getGlassMorphismStyle(),
+                    ...(isDark && getGlowEffect())
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
-                    <Typography variant="h4" component="h1">
+                {/* Header */}
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Typography variant="h4" component="h1" gutterBottom>
                         {translate('BusinessUsersManagement')}
                     </Typography>
-
-                    <Box sx={{ display: 'flex', gap: 1, mt: { xs: 2, sm: 0 } }}>
-                        <Tooltip title={translate('Refresh')}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title={translate('RefreshData')}>
                             <IconButton
                                 onClick={handleRefresh}
                                 color="primary"
@@ -521,39 +511,43 @@ const BusinessUsersManagement = () => {
                                 <RefreshIcon />
                             </IconButton>
                         </Tooltip>
-
                         <Button
                             variant="contained"
                             color="primary"
                             startIcon={<AddIcon />}
-                            onClick={handleOpenInviteDialog}
+                            onClick={() => setInviteDialogOpen(true)}
                             disabled={!canManageUsers}
-                            sx={{
-                                ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                            }}
                         >
                             {translate('InviteUser')}
                         </Button>
                     </Box>
                 </Box>
 
+                {/* Tabs */}
                 <Tabs
                     value={activeTab}
                     onChange={handleTabChange}
                     indicatorColor="primary"
                     textColor="primary"
-                    variant={isMobile ? "fullWidth" : "standard"}
-                    sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+                    sx={{ mb: 3 }}
                 >
-                    <Tab label={translate('Users')} id="users-tab" />
-                    <Tab label={translate('Invitations')} id="invitations-tab" />
+                    <Tab
+                        label={`${translate('Users')} (${totalUsers})`}
+                        icon={<PersonIcon />}
+                        iconPosition="start"
+                    />
+                    <Tab
+                        label={`${translate('Invitations')} (${totalInvitations})`}
+                        icon={<EmailIcon />}
+                        iconPosition="start"
+                    />
                 </Tabs>
 
-                {/* Users Tab */}
+                {/* Users Tab Content */}
                 {activeTab === 0 && (
-                    <Box role="tabpanel" id="users-tabpanel">
+                    <Box>
                         {isLoadingUsers ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                                 <CircularProgress />
                             </Box>
                         ) : businessUsers.length === 0 ? (
@@ -563,177 +557,83 @@ const BusinessUsersManagement = () => {
                         ) : (
                             <>
                                 <TableContainer>
-                                    <Table aria-label="business users table">
+                                    <Table>
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>{translate('Name')}</TableCell>
                                                 <TableCell>{translate('Email')}</TableCell>
                                                 <TableCell>{translate('PhoneNumber')}</TableCell>
-                                                <TableCell>{translate('Role')}</TableCell>
+                                                <TableCell>{translate('Roles')}</TableCell>
                                                 <TableCell>{translate('Status')}</TableCell>
+                                                <TableCell>{translate('JoinedOn')}</TableCell>
                                                 <TableCell align="right">{translate('Actions')}</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {businessUsers
-                                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                                .map((user) => (
-                                                    <TableRow key={user.id}>
-                                                        <TableCell>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                                <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
-                                                                {`${user.firstName || ''} ${user.lastName || ''}`}
-                                                            </Box>
-                                                        </TableCell>
-                                                        <TableCell>{user.email}</TableCell>
-                                                        <TableCell>{user.phoneNumber || '-'}</TableCell>
-                                                        <TableCell>
-                                                            {user.businessRoles && user.businessRoles.length > 0 ? (
-                                                                <Chip
-                                                                    label={user.businessRoles[0].name}
-                                                                    size="small"
-                                                                    color="primary"
-                                                                    variant="outlined"
-                                                                />
-                                                            ) : '-'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={user.isActive ? translate('Active') : translate('Inactive')}
-                                                                size="small"
-                                                                color={user.isActive ? "success" : "default"}
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                                <Tooltip title={translate('ChangeRole')}>
-                                                                    <IconButton
-                                                                        onClick={() => handleOpenEditRoleDialog(user)}
-                                                                        color="primary"
-                                                                        size="small"
-                                                                        disabled={!canManageUsers}
-                                                                    >
-                                                                        <EditIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                                <Tooltip title={translate('RemoveUser')}>
-                                                                    <IconButton
-                                                                        onClick={() => handleConfirmDeleteUser(user)}
-                                                                        color="error"
-                                                                        size="small"
-                                                                        disabled={!canManageUsers}
-                                                                    >
-                                                                        <DeleteIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                                <TablePagination
-                                    component="div"
-                                    count={businessUsers.length}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    rowsPerPage={rowsPerPage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                    rowsPerPageOptions={[5, 10, 25]}
-                                />
-                            </>
-                        )}
-                    </Box>
-                )}
-
-                {/* Invitations Tab */}
-                {activeTab === 1 && (
-                    <Box role="tabpanel" id="invitations-tabpanel">
-                        {isLoadingInvitations ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-                                <CircularProgress />
-                            </Box>
-                        ) : invitations.length === 0 ? (
-                            <Alert severity="info">
-                                {translate('NoInvitationsFound')}
-                            </Alert>
-                        ) : (
-                            <>
-                                <TableContainer>
-                                    <Table aria-label="invitations table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>{translate('Name')}</TableCell>
-                                                <TableCell>{translate('Email')}</TableCell>
-                                                <TableCell>{translate('Role')}</TableCell>
-                                                <TableCell>{translate('ExpiresAt')}</TableCell>
-                                                <TableCell>{translate('Status')}</TableCell>
-                                                <TableCell align="right">{translate('Actions')}</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {invitations.map((invitation) => (
-                                                <TableRow key={invitation.id}>
+                                            {businessUsers.map((user) => (
+                                                <TableRow key={user.id}>
                                                     <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
-                                                            {`${invitation.firstName || ''} ${invitation.lastName || ''}`}
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <PersonIcon fontSize="small" color="action" />
+                                                            {user.firstName} {user.lastName}
                                                         </Box>
                                                     </TableCell>
-                                                    <TableCell>{invitation.email}</TableCell>
+                                                    <TableCell>{user.email}</TableCell>
                                                     <TableCell>
-                                                        <Chip
-                                                            label={invitation.businessRoleName}
-                                                            size="small"
-                                                            color="primary"
-                                                            variant="outlined"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
-                                                    <TableCell>
-                                                        {invitation.accepted === true ? (
-                                                            <Chip
-                                                                icon={<CheckCircleIcon />}
-                                                                label={translate('Accepted')}
-                                                                size="small"
-                                                                color="success"
-                                                            />
-                                                        ) : invitation.accepted === false ? (
-                                                            <Chip
-                                                                icon={<ErrorIcon />}
-                                                                label={translate('Declined')}
-                                                                size="small"
-                                                                color="error"
-                                                            />
-                                                        ) : (
-                                                            <Chip
-                                                                label={translate('Pending')}
-                                                                size="small"
-                                                                color="warning"
-                                                            />
+                                                        {user.phoneNumber || (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {translate('NotProvided')}
+                                                            </Typography>
                                                         )}
                                                     </TableCell>
-                                                    <TableCell align="right">
-                                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                            {invitation.accepted === null && (
-                                                                <Tooltip title={translate('ResendInvitation')}>
-                                                                    <IconButton
-                                                                        onClick={() => handleResendInvitation(invitation.id)}
-                                                                        color="primary"
+                                                    <TableCell>
+                                                        {user.businessRoles && user.businessRoles.length > 0 ? (
+                                                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                                                {user.businessRoles.map((role) => (
+                                                                    <Chip
+                                                                        key={role.id}
+                                                                        label={role.name}
                                                                         size="small"
-                                                                        disabled={isResending || !canManageUsers}
-                                                                    >
-                                                                        <SendIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )}
-                                                            <Tooltip title={translate('DeleteInvitation')}>
+                                                                        color="primary"
+                                                                        variant="outlined"
+                                                                    />
+                                                                ))}
+                                                            </Box>
+                                                        ) : (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {translate('NoRoles')}
+                                                            </Typography>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={user.isActive ? translate('Active') : translate('Inactive')}
+                                                            color={user.isActive ? 'success' : 'default'}
+                                                            size="small"
+                                                            icon={user.isActive ? <CheckCircleIcon /> : <ErrorIcon />}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>{formatDate(user.createdAt)}</TableCell>
+                                                    <TableCell align="right">
+                                                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                                            <Tooltip title={translate('EditRole')}>
                                                                 <IconButton
-                                                                    onClick={() => handleDeleteInvitation(invitation.id)}
-                                                                    color="error"
                                                                     size="small"
-                                                                    disabled={isDeleting || !canManageUsers}
+                                                                    onClick={() => handleOpenEditRoleDialog(user)}
+                                                                    disabled={!canManageUsers}
+                                                                >
+                                                                    <EditIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title={translate('RemoveUser')}>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="error"
+                                                                    onClick={() => {
+                                                                        setUserToDelete(user);
+                                                                        setConfirmDeleteDialogOpen(true);
+                                                                    }}
+                                                                    disabled={!canManageUsers || user.id === user?.id}
                                                                 >
                                                                     <DeleteIcon fontSize="small" />
                                                                 </IconButton>
@@ -747,7 +647,111 @@ const BusinessUsersManagement = () => {
                                 </TableContainer>
                                 <TablePagination
                                     component="div"
-                                    count={invitationsData?.totalCount || 0}
+                                    count={totalUsers}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    rowsPerPage={rowsPerPage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                />
+                            </>
+                        )}
+                    </Box>
+                )}
+
+                {/* Invitations Tab Content */}
+                {activeTab === 1 && (
+                    <Box>
+                        {isLoadingInvitations ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                                <CircularProgress />
+                            </Box>
+                        ) : invitations.length === 0 ? (
+                            <Alert severity="info">
+                                {translate('NoInvitationsFound')}
+                            </Alert>
+                        ) : (
+                            <>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>{translate('Email')}</TableCell>
+                                                <TableCell>{translate('Name')}</TableCell>
+                                                <TableCell>{translate('Role')}</TableCell>
+                                                <TableCell>{translate('Status')}</TableCell>
+                                                <TableCell>{translate('SentOn')}</TableCell>
+                                                <TableCell>{translate('ExpiresOn')}</TableCell>
+                                                <TableCell align="right">{translate('Actions')}</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {invitations.map((invitation) => (
+                                                <TableRow key={invitation.id}>
+                                                    <TableCell>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <EmailIcon fontSize="small" color="action" />
+                                                            {invitation.email}
+                                                        </Box>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {invitation.firstName || invitation.lastName ? (
+                                                            `${invitation.firstName || ''} ${invitation.lastName || ''}`.trim()
+                                                        ) : (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {translate('NotProvided')}
+                                                            </Typography>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {invitation.businessRoleName || (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {translate('NoRole')}
+                                                            </Typography>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={invitation.accepted ? translate('Accepted') : translate('Pending')}
+                                                            color={invitation.accepted ? 'success' : 'warning'}
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>{formatDate(invitation.createdAt)}</TableCell>
+                                                    <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
+                                                    <TableCell align="right">
+                                                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                                            {!invitation.accepted && (
+                                                                <Tooltip title={translate('ResendInvitation')}>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={() => handleResendInvitation(invitation)}
+                                                                        disabled={!canManageUsers || isResending}
+                                                                    >
+                                                                        <SendIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            )}
+                                                            <Tooltip title={translate('DeleteInvitation')}>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="error"
+                                                                    onClick={() => handleDeleteInvitation(invitation)}
+                                                                    disabled={!canManageUsers || isDeleting}
+                                                                >
+                                                                    <DeleteIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <TablePagination
+                                    component="div"
+                                    count={totalInvitations}
                                     page={invitationsPage}
                                     onPageChange={handleInvitationsChangePage}
                                     rowsPerPage={invitationsRowsPerPage}
@@ -763,58 +767,17 @@ const BusinessUsersManagement = () => {
             {/* Invite User Dialog */}
             <Dialog
                 open={inviteDialogOpen}
-                onClose={handleCloseInviteDialog}
+                onClose={() => setInviteDialogOpen(false)}
                 maxWidth="sm"
                 fullWidth
-                PaperProps={{
-                    sx: {
-                        ...getGlassMorphismStyle(0.9),
-                        borderRadius: 2,
-                        ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                    }
-                }}
+                fullScreen={isMobile}
             >
-                <DialogTitle>{translate('InviteUserToYourBusiness')}</DialogTitle>
                 <form onSubmit={handleInviteSubmit(onInviteUser)}>
+                    <DialogTitle>
+                        {translate('InviteNewUser')}
+                    </DialogTitle>
                     <DialogContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <Controller
-                                    name="firstName"
-                                    control={inviteControl}
-                                    rules={{ required: translate('FirstNameRequired') }}
-                                    render={({ field }) => (
-                                        <TextField
-                                            {...field}
-                                            label={translate('FirstName')}
-                                            fullWidth
-                                            margin="normal"
-                                            error={!!inviteErrors.firstName}
-                                            helperText={inviteErrors.firstName?.message}
-                                            InputProps={{
-                                                startAdornment: <PersonIcon color="action" sx={{ mr: 1 }} />
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Controller
-                                    name="lastName"
-                                    control={inviteControl}
-                                    rules={{ required: translate('LastNameRequired') }}
-                                    render={({ field }) => (
-                                        <TextField
-                                            {...field}
-                                            label={translate('LastName')}
-                                            fullWidth
-                                            margin="normal"
-                                            error={!!inviteErrors.lastName}
-                                            helperText={inviteErrors.lastName?.message}
-                                        />
-                                    )}
-                                />
-                            </Grid>
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
                             <Grid item xs={12}>
                                 <Controller
                                     name="email"
@@ -823,20 +786,56 @@ const BusinessUsersManagement = () => {
                                         required: translate('EmailRequired'),
                                         pattern: {
                                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                            message: translate('InvalidEmail')
+                                            message: translate('InvalidEmailFormat')
                                         }
                                     }}
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label={translate('Email')}
                                             fullWidth
-                                            margin="normal"
+                                            label={translate('Email')}
+                                            type="email"
                                             error={!!inviteErrors.email}
                                             helperText={inviteErrors.email?.message}
                                             InputProps={{
-                                                startAdornment: <EmailIcon color="action" sx={{ mr: 1 }} />
+                                                startAdornment: <EmailIcon sx={{ mr: 1, color: 'action.active' }} />
                                             }}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
+                                    name="firstName"
+                                    control={inviteControl}
+                                    rules={{
+                                        required: translate('FirstNameRequired')
+                                    }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            label={translate('FirstName')}
+                                            error={!!inviteErrors.firstName}
+                                            helperText={inviteErrors.firstName?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
+                                    name="lastName"
+                                    control={inviteControl}
+                                    rules={{
+                                        required: translate('LastNameRequired')
+                                    }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            label={translate('LastName')}
+                                            error={!!inviteErrors.lastName}
+                                            helperText={inviteErrors.lastName?.message}
                                         />
                                     )}
                                 />
@@ -848,12 +847,10 @@ const BusinessUsersManagement = () => {
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label={translate('PhoneNumber')}
                                             fullWidth
-                                            margin="normal"
-                                            placeholder="+1234567890"
+                                            label={translate('PhoneNumber')}
                                             InputProps={{
-                                                startAdornment: <PhoneIcon color="action" sx={{ mr: 1 }} />
+                                                startAdornment: <PhoneIcon sx={{ mr: 1, color: 'action.active' }} />
                                             }}
                                         />
                                     )}
@@ -863,24 +860,24 @@ const BusinessUsersManagement = () => {
                                 <Controller
                                     name="businessRoleId"
                                     control={inviteControl}
-                                    rules={{ required: translate('RoleRequired') }}
+                                    rules={{
+                                        required: translate('RoleRequired')
+                                    }}
                                     render={({ field }) => (
-                                        <FormControl fullWidth margin="normal" error={!!inviteErrors.businessRoleId}>
-                                            <InputLabel>{translate('Role')}</InputLabel>
-                                            <Select
-                                                {...field}
-                                                label={translate('Role')}
-                                            >
-                                                {businessRoles.map(role => (
+                                        <FormControl fullWidth error={!!inviteErrors.businessRoleId}>
+                                            <InputLabel>{translate('SelectRole')}</InputLabel>
+                                            <Select {...field} label={translate('SelectRole')}>
+                                                <MenuItem value="">
+                                                    <em>{translate('None')}</em>
+                                                </MenuItem>
+                                                {businessRoles.map((role) => (
                                                     <MenuItem key={role.id} value={role.id}>
                                                         {role.name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
                                             {inviteErrors.businessRoleId && (
-                                                <Typography color="error" variant="caption">
-                                                    {inviteErrors.businessRoleId.message}
-                                                </Typography>
+                                                <FormHelperText>{inviteErrors.businessRoleId.message}</FormHelperText>
                                             )}
                                         </FormControl>
                                     )}
@@ -893,24 +890,19 @@ const BusinessUsersManagement = () => {
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label={translate('CustomMessage')}
                                             fullWidth
-                                            margin="normal"
+                                            label={translate('CustomMessage')}
                                             multiline
                                             rows={3}
-                                            placeholder={translate('CustomMessagePlaceholder')}
+                                            placeholder={translate('OptionalCustomMessagePlaceholder')}
                                         />
                                     )}
                                 />
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 3 }}>
-                        <Button
-                            onClick={handleCloseInviteDialog}
-                            color="inherit"
-                            disabled={isInviting}
-                        >
+                    <DialogActions>
+                        <Button onClick={() => setInviteDialogOpen(false)}>
                             {translate('Cancel')}
                         </Button>
                         <Button
@@ -918,12 +910,9 @@ const BusinessUsersManagement = () => {
                             variant="contained"
                             color="primary"
                             disabled={isInviting}
-                            startIcon={isInviting ? <CircularProgress size={20} /> : <SendIcon />}
-                            sx={{
-                                ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                            }}
+                            startIcon={isInviting ? <CircularProgress size={16} /> : <SendIcon />}
                         >
-                            {isInviting ? translate('Sending') : translate('SendInvitation')}
+                            {translate('SendInvitation')}
                         </Button>
                     </DialogActions>
                 </form>
@@ -933,75 +922,53 @@ const BusinessUsersManagement = () => {
             <Dialog
                 open={editRoleDialogOpen}
                 onClose={() => setEditRoleDialogOpen(false)}
-                maxWidth="xs"
+                maxWidth="sm"
                 fullWidth
-                PaperProps={{
-                    sx: {
-                        ...getGlassMorphismStyle(0.9),
-                        borderRadius: 2,
-                        ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                    }
-                }}
             >
-                <DialogTitle>{translate('ChangeUserRole')}</DialogTitle>
                 <form onSubmit={handleRoleSubmit(onEditRole)}>
+                    <DialogTitle>
+                        {translate('EditUserRole')}
+                    </DialogTitle>
                     <DialogContent>
                         {selectedUser && (
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="subtitle1">
-                                    {`${selectedUser.firstName} ${selectedUser.lastName}`}
+                            <Box sx={{ mb: 3, mt: 2 }}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    {translate('EditingRoleFor')}:
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {selectedUser.email}
+                                <Typography variant="body1">
+                                    {selectedUser.firstName} {selectedUser.lastName} ({selectedUser.email})
                                 </Typography>
-                                <Box sx={{ mt: 1 }}>
-                                    <Typography variant="body2">
-                                        {translate('CurrentRole')}:&nbsp;
-                                        {selectedUser.businessRoles && selectedUser.businessRoles.length > 0 ? (
-                                            <Chip
-                                                label={selectedUser.businessRoles[0].name}
-                                                size="small"
-                                                color="primary"
-                                                variant="outlined"
-                                            />
-                                        ) : translate('NoRole')}
-                                    </Typography>
-                                </Box>
                             </Box>
                         )}
-
-                        <Controller
-                            name="newBusinessRoleId"
-                            control={roleControl}
-                            rules={{ required: translate('NewRoleRequired') }}
-                            render={({ field }) => (
-                                <FormControl fullWidth margin="normal" error={!!roleErrors.newBusinessRoleId}>
-                                    <InputLabel>{translate('NewRole')}</InputLabel>
-                                    <Select
-                                        {...field}
-                                        label={translate('NewRole')}
-                                    >
-                                        {businessRoles.map(role => (
-                                            <MenuItem key={role.id} value={role.id}>
-                                                {role.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {roleErrors.newBusinessRoleId && (
-                                        <Typography color="error" variant="caption">
-                                            {roleErrors.newBusinessRoleId.message}
-                                        </Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Controller
+                                    name="newBusinessRoleId"
+                                    control={roleControl}
+                                    rules={{
+                                        required: translate('RoleRequired')
+                                    }}
+                                    render={({ field }) => (
+                                        <FormControl fullWidth error={!!roleErrors.newBusinessRoleId}>
+                                            <InputLabel>{translate('SelectNewRole')}</InputLabel>
+                                            <Select {...field} label={translate('SelectNewRole')}>
+                                                {businessRoles.map((role) => (
+                                                    <MenuItem key={role.id} value={role.id}>
+                                                        {role.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                            {roleErrors.newBusinessRoleId && (
+                                                <FormHelperText>{roleErrors.newBusinessRoleId.message}</FormHelperText>
+                                            )}
+                                        </FormControl>
                                     )}
-                                </FormControl>
-                            )}
-                        />
+                                />
+                            </Grid>
+                        </Grid>
                     </DialogContent>
-                    <DialogActions sx={{ px: 3, pb: 3 }}>
-                        <Button
-                            onClick={() => setEditRoleDialogOpen(false)}
-                            color="inherit"
-                            disabled={isChangingRole}
-                        >
+                    <DialogActions>
+                        <Button onClick={() => setEditRoleDialogOpen(false)}>
                             {translate('Cancel')}
                         </Button>
                         <Button
@@ -1009,56 +976,43 @@ const BusinessUsersManagement = () => {
                             variant="contained"
                             color="primary"
                             disabled={isChangingRole}
-                            startIcon={isChangingRole ? <CircularProgress size={20} /> : <EditIcon />}
-                            sx={{
-                                ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                            }}
+                            startIcon={isChangingRole ? <CircularProgress size={16} /> : <EditIcon />}
                         >
-                            {isChangingRole ? translate('Updating') : translate('UpdateRole')}
+                            {translate('UpdateRole')}
                         </Button>
                     </DialogActions>
                 </form>
             </Dialog>
 
-            {/* Confirm Delete Dialog */}
+            {/* Confirm Delete User Dialog */}
             <Dialog
                 open={confirmDeleteDialogOpen}
                 onClose={() => setConfirmDeleteDialogOpen(false)}
-                maxWidth="xs"
-                PaperProps={{
-                    sx: {
-                        ...getGlassMorphismStyle(0.9),
-                        borderRadius: 2,
-                        ...(themePrefs.useGlowEffects && getGlowEffect(theme.palette.primary.main, 'low'))
-                    }
-                }}
+                maxWidth="sm"
+                fullWidth
             >
-                <DialogTitle>{translate('ConfirmRemoveUser')}</DialogTitle>
+                <DialogTitle>
+                    {translate('ConfirmRemoveUser')}
+                </DialogTitle>
                 <DialogContent>
-                    {userToDelete && (
-                        <Typography>
-                            {translate('RemoveUserConfirmation', {
-                                name: `${userToDelete.firstName} ${userToDelete.lastName}`
-                            })}
-                        </Typography>
-                    )}
+                    <Typography>
+                        {translate('AreYouSureRemoveUser', {
+                            name: userToDelete ? `${userToDelete.firstName} ${userToDelete.lastName}` : ''
+                        })}
+                    </Typography>
                 </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button
-                        onClick={() => setConfirmDeleteDialogOpen(false)}
-                        color="inherit"
-                        disabled={isRemoving}
-                    >
+                <DialogActions>
+                    <Button onClick={() => setConfirmDeleteDialogOpen(false)}>
                         {translate('Cancel')}
                     </Button>
                     <Button
-                        onClick={handleDeleteUser}
                         variant="contained"
                         color="error"
+                        onClick={handleRemoveUserConfirm}
                         disabled={isRemoving}
-                        startIcon={isRemoving ? <CircularProgress size={20} /> : <DeleteIcon />}
+                        startIcon={isRemoving ? <CircularProgress size={16} /> : <DeleteIcon />}
                     >
-                        {isRemoving ? translate('Removing') : translate('Remove')}
+                        {translate('RemoveUser')}
                     </Button>
                 </DialogActions>
             </Dialog>

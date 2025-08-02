@@ -58,24 +58,24 @@ import {
     CheckCircle as CheckIcon,
     Cancel as CancelIcon
 } from '@mui/icons-material';
-// Note: react-dropzone import removed for better compatibility
 import useCustomTranslation from '../../../hooks/useCustomTranslation';
 import { useSpatialTheme } from '../../../hooks/useSpatialTheme';
 import useAnalytics from '../../../analytics/hooks/useAnalytics';
-import { 
+import {
     useGetBusinessMediaQuery,
     useGetMediaTypesQuery,
-    useAttachCampaignMediaMutation 
+    useAttachCampaignMediaMutation
 } from '../../../api/mediaApi';
 import {
-    useUploadImageToVuforiaMutation,
-    useBatchUploadToVuforiaMutation,
-    vuforiaUploadUtils
+    useCreateTargetMutation,
+    useCreateTargetsBatchMutation,
+    vuforiaUtils
 } from '../../../api/vuforiaApi';
 
 /**
  * Campaign Media Step - Enhanced with Vuforia AR upload support
  * Allows users to attach existing media or upload new images to Vuforia for AR experiences
+ * Updated to work with new Vuforia API that requires Base64 encoding
  */
 const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false }) => {
     const { translate } = useCustomTranslation();
@@ -92,7 +92,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     const [mediaMetadata, setMediaMetadata] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [mediaTypeFilter, setMediaTypeFilter] = useState('');
-    
+
     // Vuforia-specific state
     const [isVuforiaUploadOpen, setIsVuforiaUploadOpen] = useState(false);
     const [vuforiaFiles, setVuforiaFiles] = useState([]);
@@ -107,23 +107,37 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     const [uploadProgress, setUploadProgress] = useState({});
     const [uploadErrors, setUploadErrors] = useState({});
 
-    // API hooks
-    const { data: businessMedia, isLoading: isLoadingMedia, refetch: refetchMedia } = useGetBusinessMediaQuery({
+    // API hooks - Updated with new Vuforia mutations
+    const { data: businessMediaResponse, isLoading: isLoadingMedia, refetch: refetchMedia } = useGetBusinessMediaQuery({
         businessId,
         mediaTypeId: mediaTypeFilter,
         page: 1,
         pageSize: 50
     });
-    const { data: mediaTypes } = useGetMediaTypesQuery();
+    const { data: mediaTypesData } = useGetMediaTypesQuery();
     const [attachMedia, { isLoading: isAttaching }] = useAttachCampaignMediaMutation();
-    const [uploadToVuforia, { isLoading: isUploading }] = useUploadImageToVuforiaMutation();
-    const [batchUploadToVuforia, { isLoading: isBatchUploading }] = useBatchUploadToVuforiaMutation();
+
+    // Updated Vuforia API hooks
+    const [createTarget, { isLoading: isUploading }] = useCreateTargetMutation();
+    const [createTargetsBatch, { isLoading: isBatchUploading }] = useCreateTargetsBatchMutation();
+
+    // Extract data from ServiceResponse
+    const businessMedia = useMemo(() => {
+        return businessMediaResponse?.items || [];
+    }, [businessMediaResponse]);
+
+    const mediaTypes = useMemo(() => {
+        if (Array.isArray(mediaTypesData)) {
+            return mediaTypesData;
+        }
+        return mediaTypesData?.types || [];
+    }, [mediaTypesData]);
 
     // Memoized filtered media
     const filteredMedia = useMemo(() => {
-        if (!businessMedia?.data) return [];
-        
-        return businessMedia.data.filter(media => 
+        if (!businessMedia?.length) return [];
+
+        return businessMedia.filter(media =>
             media.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             media.description?.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -132,13 +146,18 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     // File input handling for Vuforia uploads (without external dependencies)
     const handleFileSelection = useCallback((event) => {
         const files = Array.from(event.target.files || []);
-        
+
         // Validate files using Vuforia utils
         const validFiles = [];
         const invalidFiles = [];
 
         files.forEach(file => {
-            const validation = vuforiaUploadUtils.validateUploadFile(file);
+            const validation = vuforiaUtils.validateMediaFile(file, {
+                maxSize: 10 * 1024 * 1024, // 10MB
+                allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+                allowedExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+            });
+
             if (validation.isValid) {
                 validFiles.push({
                     file,
@@ -152,10 +171,10 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
         });
 
         if (invalidFiles.length > 0) {
-            const errorMessages = invalidFiles.map(({ file, errors }) => 
+            const errorMessages = invalidFiles.map(({ file, errors }) =>
                 `${file.name}: ${errors.join(', ')}`
             ).join('\n');
-            
+
             setUploadErrors(prev => ({
                 ...prev,
                 validation: errorMessages
@@ -177,7 +196,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     // Handle tab change
     const handleTabChange = (event, newValue) => {
         setSelectedTab(newValue);
-        
+
         analytics.trackEvent('campaign_media_tab_change', {
             tab: newValue === 0 ? 'existing_media' : 'vuforia_upload',
             business_id: businessId
@@ -188,7 +207,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     const handleOpenMediaModal = () => {
         setIsMediaModalOpen(true);
         refetchMedia();
-        
+
         analytics.trackEvent('campaign_media_modal_open', {
             business_id: businessId
         });
@@ -264,39 +283,56 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
 
     // Validate video metadata
     const videoMetadataValidation = useMemo(() => {
-        return vuforiaUploadUtils.validateVideoMetadata(videoMetadata);
+        return vuforiaUtils.validateVideoMetadata(videoMetadata);
     }, [videoMetadata]);
 
-    // Upload single file to Vuforia
+    // Upload single file to Vuforia - Updated for new API
     const uploadSingleFile = async (fileItem) => {
         try {
             setUploadProgress(prev => ({ ...prev, [fileItem.id]: 0 }));
             setUploadErrors(prev => ({ ...prev, [fileItem.id]: null }));
 
-            const result = await uploadToVuforia({
+            // Update file status
+            setVuforiaFiles(prev => prev.map(f =>
+                f.id === fileItem.id ? { ...f, status: 'uploading' } : f
+            ));
+
+            // Simulate progress since we can't track real progress
+            const progressInterval = setInterval(() => {
+                setUploadProgress(prev => ({
+                    ...prev,
+                    [fileItem.id]: Math.min((prev[fileItem.id] || 0) + 20, 90)
+                }));
+            }, 300);
+
+            // Prepare target data with Base64 conversion
+            const targetData = await vuforiaUtils.prepareTargetData({
                 file: fileItem.file,
-                userId: 'current_user', // This should come from auth context
-                videoMetadata: videoMetadata.videoUrl ? videoMetadata : null
-            }).unwrap();
+                name: fileItem.file.name.split('.')[0], // Use filename without extension
+                width: 1.0, // Default width
+                videoMetadata: videoMetadata.videoUrl ? videoMetadata : null,
+                active: true
+            });
 
-            const formattedResult = vuforiaUploadUtils.formatUploadResponse(result);
+            // Create target using new API
+            const result = await createTarget(targetData).unwrap();
 
-            if (formattedResult.success) {
-                // Add to campaign media
+            clearInterval(progressInterval);
+            setUploadProgress(prev => ({ ...prev, [fileItem.id]: 100 }));
+
+            if (result.success && result.targetId) {
+                // Add to campaign media with new response structure
                 const mediaItem = {
-                    id: formattedResult.imageId,
+                    id: result.targetId,
                     name: fileItem.file.name,
                     type: 'ar_image',
                     metadata: JSON.stringify(videoMetadata),
-                    url: formattedResult.blobUrl,
-                    thumbnailUrl: formattedResult.blobUrl,
+                    url: URL.createObjectURL(fileItem.file), // Create local URL for preview
+                    thumbnailUrl: URL.createObjectURL(fileItem.file),
                     source: 'vuforia',
                     vuforiaData: {
-                        imageId: formattedResult.imageId,
-                        isDuplicate: formattedResult.isDuplicate,
-                        duplicateId: formattedResult.duplicateId,
-                        similarity: formattedResult.similarity,
-                        processingTime: formattedResult.processingTime
+                        targetId: result.targetId,
+                        transactionId: result.transactionId
                     }
                 };
 
@@ -304,106 +340,126 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                 onChange({ ...formData, media: updatedMedia });
 
                 // Update file status
-                setVuforiaFiles(prev => prev.map(f => 
-                    f.id === fileItem.id 
+                setVuforiaFiles(prev => prev.map(f =>
+                    f.id === fileItem.id
                         ? { ...f, status: 'completed', progress: 100 }
                         : f
                 ));
 
                 analytics.trackEvent('vuforia_upload_success', {
-                    image_id: formattedResult.imageId,
-                    is_duplicate: formattedResult.isDuplicate,
-                    processing_time: formattedResult.processingTime,
+                    target_id: result.targetId,
+                    transaction_id: result.transactionId,
                     business_id: businessId
                 });
             } else {
-                throw new Error(formattedResult.message || 'Upload failed');
+                throw new Error(result.message || 'Upload failed');
             }
         } catch (error) {
-            setUploadErrors(prev => ({ 
-                ...prev, 
-                [fileItem.id]: error.message || 'Upload failed' 
+            console.error('Vuforia upload error:', error);
+
+            const errorMessage = error?.message || error?.data?.message || 'Upload failed';
+
+            setUploadErrors(prev => ({
+                ...prev,
+                [fileItem.id]: errorMessage
             }));
-            
-            setVuforiaFiles(prev => prev.map(f => 
-                f.id === fileItem.id 
+
+            setVuforiaFiles(prev => prev.map(f =>
+                f.id === fileItem.id
                     ? { ...f, status: 'error' }
                     : f
             ));
 
             analytics.trackEvent('vuforia_upload_error', {
                 filename: fileItem.file.name,
-                error: error.message,
+                error: errorMessage,
                 business_id: businessId
+            });
+        } finally {
+            // Clear progress for this file
+            setUploadProgress(prev => {
+                const newProgress = { ...prev };
+                delete newProgress[fileItem.id];
+                return newProgress;
             });
         }
     };
 
-    // Upload all pending files
+    // Upload all pending files - Updated for new batch API
     const handleUploadAllFiles = async () => {
         const pendingFiles = vuforiaFiles.filter(f => f.status === 'pending');
-        
+
         if (pendingFiles.length === 0) return;
 
         // Check if we should use batch upload (more than 1 file)
         if (pendingFiles.length > 1) {
             try {
-                const files = pendingFiles.map(f => f.file);
-                const result = await batchUploadToVuforia({
-                    files,
-                    userId: 'current_user',
-                    videoMetadata: videoMetadata.videoUrl ? videoMetadata : null
-                }).unwrap();
+                // Show batch upload progress
+                pendingFiles.forEach(file => {
+                    setVuforiaFiles(prev => prev.map(f =>
+                        f.id === file.id ? { ...f, status: 'uploading' } : f
+                    ));
+                    setUploadProgress(prev => ({ ...prev, [file.id]: 50 }));
+                });
 
-                const formattedResult = vuforiaUploadUtils.formatUploadResponse(result);
+                // Prepare batch targets with Base64 conversion
+                const targets = await vuforiaUtils.prepareBatchTargets(
+                    pendingFiles.map(f => ({
+                        file: f.file,
+                        name: f.file.name.split('.')[0],
+                        width: 1.0,
+                        videoMetadata: videoMetadata.videoUrl ? videoMetadata : null,
+                        active: true
+                    }))
+                );
 
-                if (formattedResult.success && result.results) {
+                // Create batch targets using new API
+                const result = await createTargetsBatch(targets).unwrap();
+
+                if (result.success && result.results) {
                     // Process batch results
                     const newMediaItems = [];
-                    
+
                     result.results.forEach((uploadResult, index) => {
                         const fileItem = pendingFiles[index];
-                        
-                        if (uploadResult.success) {
+
+                        if (uploadResult.success && uploadResult.targetId) {
                             const mediaItem = {
-                                id: uploadResult.image_id,
+                                id: uploadResult.targetId,
                                 name: fileItem.file.name,
                                 type: 'ar_image',
                                 metadata: JSON.stringify(videoMetadata),
-                                url: uploadResult.blob_url,
-                                thumbnailUrl: uploadResult.blob_url,
+                                url: URL.createObjectURL(fileItem.file),
+                                thumbnailUrl: URL.createObjectURL(fileItem.file),
                                 source: 'vuforia',
                                 vuforiaData: {
-                                    imageId: uploadResult.image_id,
-                                    isDuplicate: uploadResult.is_duplicate,
-                                    duplicateId: uploadResult.duplicate_id,
-                                    similarity: uploadResult.similarity,
-                                    processingTime: uploadResult.processing_time
+                                    targetId: uploadResult.targetId,
+                                    transactionId: uploadResult.transactionId
                                 }
                             };
                             newMediaItems.push(mediaItem);
-                            
+
                             // Update file status
-                            setVuforiaFiles(prev => prev.map(f => 
-                                f.id === fileItem.id 
+                            setVuforiaFiles(prev => prev.map(f =>
+                                f.id === fileItem.id
                                     ? { ...f, status: 'completed', progress: 100 }
                                     : f
                             ));
+                            setUploadProgress(prev => ({ ...prev, [fileItem.id]: 100 }));
                         } else {
-                            setUploadErrors(prev => ({ 
-                                ...prev, 
-                                [fileItem.id]: uploadResult.message || 'Upload failed' 
+                            setUploadErrors(prev => ({
+                                ...prev,
+                                [fileItem.id]: uploadResult.message || 'Upload failed'
                             }));
-                            
-                            setVuforiaFiles(prev => prev.map(f => 
-                                f.id === fileItem.id 
+
+                            setVuforiaFiles(prev => prev.map(f =>
+                                f.id === fileItem.id
                                     ? { ...f, status: 'error' }
                                     : f
                             ));
                         }
                     });
 
-                    // Add successful uploads to campaign media
                     if (newMediaItems.length > 0) {
                         const updatedMedia = [...(formData.media || []), ...newMediaItems];
                         onChange({ ...formData, media: updatedMedia });
@@ -411,31 +467,40 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
 
                     analytics.trackEvent('vuforia_batch_upload_complete', {
                         total_files: pendingFiles.length,
-                        successful_uploads: newMediaItems.length,
-                        failed_uploads: pendingFiles.length - newMediaItems.length,
+                        successful: newMediaItems.length,
+                        failed: pendingFiles.length - newMediaItems.length,
                         business_id: businessId
                     });
+                } else {
+                    throw new Error(result.message || 'Batch upload failed');
                 }
             } catch (error) {
-                // Mark all pending files as error
-                pendingFiles.forEach(fileItem => {
-                    setUploadErrors(prev => ({ 
-                        ...prev, 
-                        [fileItem.id]: error.message || 'Batch upload failed' 
+                console.error('Batch upload error:', error);
+
+                const errorMessage = error?.message || error?.data?.message || 'Batch upload failed';
+
+                // Mark all files as error
+                pendingFiles.forEach(file => {
+                    setUploadErrors(prev => ({
+                        ...prev,
+                        [file.id]: errorMessage
                     }));
-                    
-                    setVuforiaFiles(prev => prev.map(f => 
-                        f.id === fileItem.id 
+
+                    setVuforiaFiles(prev => prev.map(f =>
+                        f.id === file.id
                             ? { ...f, status: 'error' }
                             : f
                     ));
                 });
 
                 analytics.trackEvent('vuforia_batch_upload_error', {
-                    total_files: pendingFiles.length,
-                    error: error.message,
+                    error: errorMessage,
+                    file_count: pendingFiles.length,
                     business_id: businessId
                 });
+            } finally {
+                // Clear all progress
+                setUploadProgress({});
             }
         } else {
             // Single file upload
@@ -443,114 +508,116 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
         }
     };
 
-    // Remove file from Vuforia upload queue
+    // Remove file from upload queue
     const handleRemoveVuforiaFile = (fileId) => {
         setVuforiaFiles(prev => prev.filter(f => f.id !== fileId));
-        setUploadProgress(prev => {
-            const newProgress = { ...prev };
-            delete newProgress[fileId];
-            return newProgress;
-        });
+
+        // Clean up errors and progress
         setUploadErrors(prev => {
             const newErrors = { ...prev };
             delete newErrors[fileId];
             return newErrors;
         });
+
+        setUploadProgress(prev => {
+            const newProgress = { ...prev };
+            delete newProgress[fileId];
+            return newProgress;
+        });
     };
 
-    // Clear all uploaded files
-    const handleClearVuforiaFiles = () => {
+    // Clear all files
+    const handleClearAllFiles = () => {
         setVuforiaFiles([]);
-        setUploadProgress({});
         setUploadErrors({});
+        setUploadProgress({});
+    };
+
+    // Get icon for media type
+    const getMediaTypeIcon = (type) => {
+        switch (type) {
+            case 'image':
+            case 'banner':
+            case 'thumbnail':
+                return <ImageIcon />;
+            case 'video':
+                return <VideoIcon />;
+            case 'document':
+                return <DocumentIcon />;
+            case 'ar_image':
+                return <ArIcon />;
+            default:
+                return <StarIcon />;
+        }
     };
 
     return (
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto' }}>
-            {/* Header */}
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                    {translate('CampaignMedia')}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {translate('CampaignMediaDescription')}
-                </Typography>
-            </Box>
+        <Box>
+            <Typography variant="h6" gutterBottom>
+                {translate('CampaignMedia')}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" paragraph>
+                {translate('AddMediaToCampaignDescription')}
+            </Typography>
 
             {/* Media Tabs */}
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                <Tabs
-                    value={selectedTab}
-                    onChange={handleTabChange}
-                    aria-label="campaign media tabs"
-                    sx={{
-                        '& .MuiTab-root': {
-                            minHeight: 48,
-                            textTransform: 'none',
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                        }
-                    }}
-                >
-                    <Tab 
-                        icon={<ImageIcon />} 
-                        label={translate('ExistingMedia')}
-                        iconPosition="start"
-                    />
-                    <Tab 
-                        icon={<ArIcon />} 
-                        label={translate('VuforiaUpload')}
-                        iconPosition="start"
-                    />
-                </Tabs>
-            </Box>
+            <Tabs
+                value={selectedTab}
+                onChange={handleTabChange}
+                indicatorColor="primary"
+                textColor="primary"
+                sx={{ mb: 3 }}
+            >
+                <Tab
+                    label={translate('ExistingMedia')}
+                    icon={<ImageIcon />}
+                    iconPosition="start"
+                />
+                <Tab
+                    label={translate('UploadARImages')}
+                    icon={<ArIcon />}
+                    iconPosition="start"
+                />
+            </Tabs>
 
-            {/* Tab Content */}
+            {/* Existing Media Tab */}
             {selectedTab === 0 && (
                 <Box>
-                    {/* Existing Media Tab */}
                     <Button
                         variant="outlined"
                         startIcon={<AddIcon />}
                         onClick={handleOpenMediaModal}
                         sx={{ mb: 3 }}
                     >
-                        {translate('AttachExistingMedia')}
+                        {translate('SelectFromLibrary')}
                     </Button>
                 </Box>
             )}
 
+            {/* Vuforia Upload Tab */}
             {selectedTab === 1 && (
                 <Box>
-                    {/* Vuforia Upload Tab */}
-                    
                     {/* Video Metadata Configuration */}
                     <Accordion sx={{ mb: 3 }}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <VideoIcon color="primary" />
-                                <Typography variant="h6">
-                                    {translate('ARVideoConfiguration')}
-                                </Typography>
-                                {!videoMetadataValidation.isValid && (
-                                    <WarningIcon color="warning" fontSize="small" />
-                                )}
-                            </Box>
+                            <Typography variant="subtitle1">
+                                {translate('ARVideoConfiguration')} (Optional)
+                            </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Grid container spacing={3}>
+                            <Grid container spacing={2}>
                                 <Grid item xs={12}>
                                     <TextField
-                                        fullWidth
                                         label={translate('VideoURL')}
                                         value={videoMetadata.videoUrl}
                                         onChange={(e) => handleVideoMetadataChange('videoUrl', e.target.value)}
+                                        fullWidth
                                         placeholder="https://example.com/video.mp4"
-                                        helperText={translate('VideoURLHelp')}
+                                        helperText={translate('VideoURLHelperText')}
                                     />
                                 </Grid>
-                                
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid item xs={12} sm={6}>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -561,8 +628,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                         label={translate('AutoPlay')}
                                     />
                                 </Grid>
-                                
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid item xs={12} sm={6}>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -573,8 +639,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                         label={translate('Loop')}
                                     />
                                 </Grid>
-                                
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid item xs={12} sm={6}>
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -585,35 +650,18 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                         label={translate('Muted')}
                                     />
                                 </Grid>
-                                
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>{translate('VideoPosition')}</InputLabel>
-                                        <Select
-                                            value={videoMetadata.videoPosition}
-                                            label={translate('VideoPosition')}
-                                            onChange={(e) => handleVideoMetadataChange('videoPosition', e.target.value)}
-                                        >
-                                            <MenuItem value="overlay">{translate('Overlay')}</MenuItem>
-                                            <MenuItem value="background">{translate('Background')}</MenuItem>
-                                            <MenuItem value="inline">{translate('Inline')}</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                
                                 <Grid item xs={12} sm={6}>
                                     <TextField
-                                        fullWidth
-                                        type="number"
                                         label={translate('VideoScale')}
+                                        type="number"
                                         value={videoMetadata.videoScale}
-                                        onChange={(e) => handleVideoMetadataChange('videoScale', parseFloat(e.target.value) || 1.0)}
-                                        inputProps={{ min: 0.1, max: 5.0, step: 0.1 }}
-                                        helperText={translate('VideoScaleHelp')}
+                                        onChange={(e) => handleVideoMetadataChange('videoScale', parseFloat(e.target.value))}
+                                        fullWidth
+                                        inputProps={{ min: 0.1, max: 5, step: 0.1 }}
                                     />
                                 </Grid>
                             </Grid>
-                            
+
                             {!videoMetadataValidation.isValid && (
                                 <Alert severity="warning" sx={{ mt: 2 }}>
                                     {videoMetadataValidation.errors.join(', ')}
@@ -626,22 +674,23 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                     <Box
                         sx={{
                             border: '2px dashed',
-                            borderColor: 'grey.300',
+                            borderColor: 'divider',
                             borderRadius: 2,
                             p: 4,
                             textAlign: 'center',
                             bgcolor: 'background.paper',
-                            mb: 3,
+                            cursor: 'pointer',
                             '&:hover': {
                                 borderColor: 'primary.main',
                                 bgcolor: 'action.hover'
                             }
                         }}
+                        onClick={() => document.getElementById('vuforia-file-input').click()}
                     >
                         <input
                             type="file"
                             multiple
-                            accept="image/*"
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                             onChange={handleFileSelection}
                             style={{ display: 'none' }}
                             id="vuforia-file-input"
@@ -659,7 +708,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
 
                     {/* Validation Errors */}
                     {uploadErrors.validation && (
-                        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setUploadErrors(prev => ({ ...prev, validation: null }))}>
+                        <Alert severity="error" sx={{ mt: 2 }} onClose={() => setUploadErrors(prev => ({ ...prev, validation: null }))}>
                             <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line' }}>
                                 {uploadErrors.validation}
                             </Typography>
@@ -668,7 +717,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
 
                     {/* File List */}
                     {vuforiaFiles.length > 0 && (
-                        <Box sx={{ mb: 3 }}>
+                        <Box sx={{ mt: 3 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h6">
                                     {translate('FilesToUpload')} ({vuforiaFiles.length})
@@ -676,17 +725,21 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="contained"
-                                        startIcon={isUploading || isBatchUploading ? <CircularProgress size={16} /> : <UploadIcon />}
+                                        startIcon={isUploading || isBatchUploading ? <CircularProgress size={20} /> : <UploadIcon />}
                                         onClick={handleUploadAllFiles}
-                                        disabled={isUploading || isBatchUploading || vuforiaFiles.every(f => f.status !== 'pending')}
+                                        disabled={
+                                            isUploading ||
+                                            isBatchUploading ||
+                                            vuforiaFiles.filter(f => f.status === 'pending').length === 0
+                                        }
                                     >
                                         {translate('UploadAll')}
                                     </Button>
                                     <Button
                                         variant="outlined"
                                         color="error"
-                                        startIcon={<CancelIcon />}
-                                        onClick={handleClearVuforiaFiles}
+                                        onClick={handleClearAllFiles}
+                                        disabled={isUploading || isBatchUploading}
                                     >
                                         {translate('ClearAll')}
                                     </Button>
@@ -694,53 +747,60 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                             </Box>
 
                             <List>
-                                {vuforiaFiles.map((fileItem) => (
-                                    <ListItem
-                                        key={fileItem.id}
-                                        sx={{
-                                            border: '1px solid',
-                                            borderColor: 'divider',
-                                            borderRadius: 1,
-                                            mb: 1,
-                                            bgcolor: 'background.paper'
-                                        }}
-                                    >
+                                {vuforiaFiles.map((file) => (
+                                    <ListItem key={file.id}>
                                         <ListItemAvatar>
                                             <Avatar>
-                                                {fileItem.status === 'completed' && <CheckIcon color="success" />}
-                                                {fileItem.status === 'error' && <WarningIcon color="error" />}
-                                                {fileItem.status === 'pending' && <ImageIcon />}
+                                                <ImageIcon />
                                             </Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={fileItem.file.name}
+                                            primary={file.file.name}
                                             secondary={
                                                 <Box>
-                                                    <Typography variant="caption">
-                                                        {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
+                                                    <Typography variant="caption" component="span">
+                                                        {vuforiaUtils.formatFileSize(file.file.size)}
                                                     </Typography>
-                                                    {uploadErrors[fileItem.id] && (
-                                                        <Typography variant="caption" color="error" display="block">
-                                                            {uploadErrors[fileItem.id]}
-                                                        </Typography>
-                                                    )}
-                                                    {uploadProgress[fileItem.id] !== undefined && (
-                                                        <LinearProgress 
-                                                            variant="determinate" 
-                                                            value={uploadProgress[fileItem.id]} 
+                                                    {file.status === 'uploading' && (
+                                                        <LinearProgress
+                                                            variant="determinate"
+                                                            value={uploadProgress[file.id] || 0}
                                                             sx={{ mt: 1 }}
                                                         />
+                                                    )}
+                                                    {uploadErrors[file.id] && (
+                                                        <Alert severity="error" sx={{ mt: 1 }} size="small">
+                                                            {uploadErrors[file.id]}
+                                                        </Alert>
                                                     )}
                                                 </Box>
                                             }
                                         />
-                                        <IconButton
-                                            edge="end"
-                                            onClick={() => handleRemoveVuforiaFile(fileItem.id)}
-                                            disabled={fileItem.status === 'uploading'}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            {file.status === 'pending' && (
+                                                <Chip
+                                                    label={translate('Pending')}
+                                                    size="small"
+                                                    color="default"
+                                                />
+                                            )}
+                                            {file.status === 'uploading' && (
+                                                <CircularProgress size={20} />
+                                            )}
+                                            {file.status === 'completed' && (
+                                                <CheckIcon color="success" />
+                                            )}
+                                            {file.status === 'error' && (
+                                                <CancelIcon color="error" />
+                                            )}
+                                            <IconButton
+                                                edge="end"
+                                                onClick={() => handleRemoveVuforiaFile(file.id)}
+                                                disabled={file.status === 'uploading'}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Box>
                                     </ListItem>
                                 ))}
                             </List>
@@ -755,7 +815,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                     <Typography variant="h6" gutterBottom>
                         {translate('AttachedMedia')} ({formData.media.length})
                     </Typography>
-                    
+
                     <Grid container spacing={2}>
                         {formData.media.map((media, index) => (
                             <Grid item xs={12} sm={6} md={4} key={index}>
@@ -787,17 +847,13 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                         <Typography variant="caption" color="text.secondary">
                                             {translate('Type')}: {media.type}
                                         </Typography>
-                                        {media.vuforiaData?.isDuplicate && (
-                                            <Chip
-                                                label={translate('Duplicate')}
-                                                size="small"
-                                                color="warning"
-                                                variant="outlined"
-                                                sx={{ mt: 1 }}
-                                            />
+                                        {media.vuforiaData?.targetId && (
+                                            <Typography variant="caption" display="block" color="text.secondary">
+                                                Target ID: {media.vuforiaData.targetId}
+                                            </Typography>
                                         )}
                                     </CardContent>
-                                    <CardActions sx={{ pt: 0 }}>
+                                    <CardActions>
                                         <IconButton
                                             size="small"
                                             color="error"
@@ -805,13 +861,6 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                         >
                                             <DeleteIcon />
                                         </IconButton>
-                                        {media.source === 'vuforia' && media.vuforiaData && (
-                                            <Tooltip title={`Processing time: ${media.vuforiaData.processingTime}s`}>
-                                                <IconButton size="small">
-                                                    <InfoIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                        )}
                                     </CardActions>
                                 </Card>
                             </Grid>
@@ -820,41 +869,38 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                 </Box>
             )}
 
-            {/* Existing Media Selection Modal */}
+            {/* Existing Media Selection Dialog */}
             <Dialog
                 open={isMediaModalOpen}
                 onClose={handleCloseMediaModal}
                 maxWidth="md"
                 fullWidth
-                fullScreen={isMobile}
             >
                 <DialogTitle>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="h6">{translate('SelectMedia')}</Typography>
-                        <IconButton onClick={handleCloseMediaModal}>
-                            <DeleteIcon />
-                        </IconButton>
-                    </Box>
+                    {translate('SelectMediaFromLibrary')}
                 </DialogTitle>
 
                 <DialogContent>
                     {/* Search and Filter */}
                     <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
                         <TextField
-                            fullWidth
                             placeholder={translate('SearchMedia')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            size="small"
+                            sx={{ flex: 1 }}
                         />
-                        <FormControl sx={{ minWidth: 150 }}>
+                        <FormControl size="small" sx={{ minWidth: 150 }}>
                             <InputLabel>{translate('MediaType')}</InputLabel>
                             <Select
                                 value={mediaTypeFilter}
-                                label={translate('MediaType')}
                                 onChange={(e) => setMediaTypeFilter(e.target.value)}
+                                label={translate('MediaType')}
                             >
-                                <MenuItem value="">{translate('All')}</MenuItem>
-                                {mediaTypes?.map((type) => (
+                                <MenuItem value="">
+                                    <em>{translate('All')}</em>
+                                </MenuItem>
+                                {mediaTypes.map((type) => (
                                     <MenuItem key={type.id} value={type.id}>
                                         {type.name}
                                     </MenuItem>
@@ -863,7 +909,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                         </FormControl>
                     </Box>
 
-                    {/* Media List */}
+                    {/* Media Grid */}
                     {isLoadingMedia ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                             <CircularProgress />

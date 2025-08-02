@@ -1,7 +1,8 @@
 // businessApi.js
 import baseApi, { getApiUrl, businessApi } from './baseApi';
 import { transformServiceResponse, transformServiceErrorResponse, transformPaginatedResponse } from './baseApiHelpers';
-import { setActiveBusiness } from '../reducers/businessReducer';
+import {setActiveBusiness} from "../reducers/authReducer";
+
 
 export const businessApiExtended = businessApi.injectEndpoints({
     endpoints: (builder) => ({
