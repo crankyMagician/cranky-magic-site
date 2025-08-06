@@ -161,6 +161,37 @@ const authSlice = createSlice({
                         state.businesses[index] = payload;
                     }
                 }
+
+                // Update localStorage as well
+                try {
+                    const authInfo = AuthTokenService.getAuthInfo();
+                    AuthTokenService.setAuthInfo({
+                        ...authInfo,
+                        activeBusiness: payload
+                    });
+                } catch (error) {
+                    console.error('Error updating active business in localStorage:', error);
+                }
+            }
+        },
+        switchActiveBusiness: (state, { payload }) => {
+            // Switch to a different business by ID
+            const businessId = typeof payload === 'object' ? payload.id : payload;
+            const newActiveBusiness = state.businesses.find(b => b.id === businessId);
+
+            if (newActiveBusiness && !isDeepEqual(state.activeBusiness, newActiveBusiness)) {
+                state.activeBusiness = newActiveBusiness;
+
+                // Update localStorage as well
+                try {
+                    const authInfo = AuthTokenService.getAuthInfo();
+                    AuthTokenService.setAuthInfo({
+                        ...authInfo,
+                        activeBusiness: newActiveBusiness
+                    });
+                } catch (error) {
+                    console.error('Error switching active business in localStorage:', error);
+                }
             }
         }
     },
@@ -176,7 +207,8 @@ export const {
     updateUser,
     updateRoles,
     updateBusinesses,
-    setActiveBusiness
+    setActiveBusiness,
+    switchActiveBusiness
 } = authSlice.actions;
 
 export default authSlice.reducer;
@@ -190,6 +222,11 @@ export const selectAuthError = (state) => state.auth.error;
 export const selectUserRoles = (state) => state.auth.roles;
 export const selectUserBusinesses = (state) => state.auth.businesses;
 export const selectActiveBusiness = (state) => state.auth.activeBusiness;
+
+// New selector for active business ID
+export const selectActiveBusinessId = (state) => {
+    return state.auth.activeBusiness?.id || null;
+};
 
 // Complex selectors
 export const selectUserById = (state, userId) => {
@@ -215,10 +252,41 @@ export const selectHasAllRoles = (state, roleNames) => {
 };
 
 export const selectIsBusinessOwner = (state, businessId) => {
+    if (!businessId) return false;
     const business = selectBusinessById(state, businessId);
-    return business?.ownerId === state.auth.user?.id;
+    return business?.role === 'owner';
 };
 
 export const selectIsActiveBusinessOwner = (state) => {
-    return state.auth.activeBusiness?.ownerId === state.auth.user?.id;
+    return state.auth.activeBusiness?.role === 'owner';
+};
+
+// New selector to get business role for a specific business
+export const selectBusinessRole = (state, businessId) => {
+    if (!businessId) return null;
+    const business = selectBusinessById(state, businessId);
+    return business?.role || null;
+};
+
+// New selector to get active business role
+export const selectActiveBusinessRole = (state) => {
+    return state.auth.activeBusiness?.role || null;
+};
+
+// New selector to check if user has access to a specific business
+export const selectHasBusinessAccess = (state, businessId) => {
+    if (!businessId) return false;
+    return state.auth.businesses.some(b => b.id === businessId);
+};
+
+// New selector to get business permissions
+export const selectBusinessPermissions = (state, businessId) => {
+    if (!businessId) return [];
+    const business = selectBusinessById(state, businessId);
+    return business?.permissions || [];
+};
+
+// New selector to get active business permissions
+export const selectActiveBusinessPermissions = (state) => {
+    return state.auth.activeBusiness?.permissions || [];
 };

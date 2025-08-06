@@ -6,11 +6,19 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
     endpoints: (builder) => ({
         // Create campaign
         createCampaign: builder.mutation({
-            query: ({ businessId, ...campaignData }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns`, 'main'),
-                method: 'POST',
-                body: campaignData,
-            }),
+            query: ({ businessId, ...campaignData }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for creating campaign');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns`, 'main'),
+                    method: 'POST',
+                    body: campaignData,
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to create campaign'),
             invalidatesTags: (result, error, { businessId }) => [
@@ -21,11 +29,24 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Update campaign
         updateCampaign: builder.mutation({
-            query: ({ businessId, campaignId, ...updateData }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}`, 'main'),
-                method: 'PUT',
-                body: updateData,
-            }),
+            query: ({ businessId, campaignId, ...updateData }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for updating campaign');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for updating campaign');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}`, 'main'),
+                    method: 'PUT',
+                    body: updateData,
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to update campaign'),
             invalidatesTags: (result, error, { businessId, campaignId }) => [
@@ -36,10 +57,23 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Get campaign by ID
         getCampaignById: builder.query({
-            query: ({ businessId, campaignId }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}`, 'main'),
-                method: 'GET',
-            }),
+            query: ({ businessId, campaignId }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for getting campaign');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for getting campaign');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}`, 'main'),
+                    method: 'GET',
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to get campaign'),
             providesTags: (result, error, { campaignId }) => [{ type: 'Campaign', id: campaignId }],
@@ -47,10 +81,23 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Delete campaign
         deleteCampaign: builder.mutation({
-            query: ({ businessId, campaignId }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}`, 'main'),
-                method: 'DELETE',
-            }),
+            query: ({ businessId, campaignId }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for deleting campaign');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for deleting campaign');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}`, 'main'),
+                    method: 'DELETE',
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to delete campaign'),
             invalidatesTags: (result, error, { businessId, campaignId }) => [
@@ -61,40 +108,98 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Get campaigns for a business
         getCampaignsByBusiness: builder.query({
-            query: ({ businessId, page = 1, pageSize = 10 }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns`, 'main'),
-                method: 'GET',
-                params: { page, pageSize },
-            }),
+            query: ({ businessId, page = 1, pageSize = 10, status, search }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for getting campaigns');
+                }
+
+                // Ensure page and pageSize are properly converted to integers
+                const validPage = Math.max(1, parseInt(page, 10) || 1);
+                const validPageSize = Math.max(1, Math.min(100, parseInt(pageSize, 10) || 10));
+
+                // Build query parameters object
+                const params = {
+                    page: validPage,
+                    pageSize: validPageSize
+                };
+
+                // Add optional parameters only if they have valid values
+                if (status && status !== 'all' && typeof status === 'string') {
+                    params.status = status;
+                }
+
+                if (search && typeof search === 'string' && search.trim()) {
+                    params.search = search.trim();
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns`, 'main'),
+                    method: 'GET',
+                    params: params,
+                };
+            },
             transformResponse: (response) => transformPaginatedResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to get campaigns'),
             providesTags: (result, error, { businessId }) => [
                 { type: 'BusinessCampaigns', id: businessId },
                 'Campaign'
             ],
+            // Add additional options for better error handling
+            forceRefetch: ({ currentArg, previousArg }) => {
+                // Force refetch if businessId changes
+                return currentArg?.businessId !== previousArg?.businessId;
+            },
         }),
 
         // Attach media to campaign
         attachCampaignMedia: builder.mutation({
-            query: ({ businessId, ...attachmentData }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/media`, 'main'),
-                method: 'POST',
-                body: attachmentData,
-            }),
+            query: ({ businessId, campaignId, ...attachmentData }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for attaching campaign media');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/media`, 'main'),
+                    method: 'POST',
+                    body: { campaignId, ...attachmentData },
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to attach media to campaign'),
             invalidatesTags: (result, error, { businessId, campaignId }) => [
-                { type: 'Campaign', id: attachmentData.campaignId },
-                { type: 'CampaignMedia', id: attachmentData.campaignId }
+                { type: 'Campaign', id: campaignId },
+                { type: 'CampaignMedia', id: campaignId }
             ],
         }),
 
         // Delete campaign media
         deleteCampaignMedia: builder.mutation({
-            query: ({ businessId, campaignId, mediaAssetId }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}/media/${mediaAssetId}`, 'main'),
-                method: 'DELETE',
-            }),
+            query: ({ businessId, campaignId, mediaAssetId }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for deleting campaign media');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for deleting campaign media');
+                }
+
+                const validMediaAssetId = mediaAssetId ? String(mediaAssetId) : null;
+                if (!validMediaAssetId || validMediaAssetId === 'undefined' || validMediaAssetId === 'null') {
+                    throw new Error('Valid mediaAssetId is required for deleting campaign media');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}/media/${validMediaAssetId}`, 'main'),
+                    method: 'DELETE',
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to remove media from campaign'),
             invalidatesTags: (result, error, { campaignId }) => [
@@ -105,11 +210,24 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Update campaign status
         updateCampaignStatus: builder.mutation({
-            query: ({ businessId, campaignId, status }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}/status`, 'main'),
-                method: 'PUT',
-                body: { campaignId, status },
-            }),
+            query: ({ businessId, campaignId, status }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for updating campaign status');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for updating campaign status');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}/status`, 'main'),
+                    method: 'PUT',
+                    body: { campaignId: validCampaignId, status },
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to update campaign status'),
             invalidatesTags: (result, error, { campaignId }) => [
@@ -119,10 +237,23 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Get Vuforia stats for campaign (if this endpoint exists)
         getCampaignVuforiaStats: builder.query({
-            query: ({ businessId, campaignId }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}/vuforia-stats`, 'main'),
-                method: 'GET',
-            }),
+            query: ({ businessId, campaignId }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for getting Vuforia stats');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for getting Vuforia stats');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}/vuforia-stats`, 'main'),
+                    method: 'GET',
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to get Vuforia stats'),
             providesTags: (result, error, { campaignId }) => [
@@ -132,11 +263,24 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
 
         // Bulk update Vuforia media (if this endpoint exists)
         bulkUpdateVuforiaMedia: builder.mutation({
-            query: ({ businessId, campaignId, updates }) => ({
-                url: getApiUrl(`api/business/${businessId}/campaigns/${campaignId}/vuforia-media/bulk`, 'main'),
-                method: 'PUT',
-                body: updates,
-            }),
+            query: ({ businessId, campaignId, updates }) => {
+                // Ensure businessId is properly converted to string and validate
+                const validBusinessId = businessId ? String(businessId) : null;
+                if (!validBusinessId || validBusinessId === 'undefined' || validBusinessId === 'null') {
+                    throw new Error('Valid businessId is required for bulk updating Vuforia media');
+                }
+
+                const validCampaignId = campaignId ? String(campaignId) : null;
+                if (!validCampaignId || validCampaignId === 'undefined' || validCampaignId === 'null') {
+                    throw new Error('Valid campaignId is required for bulk updating Vuforia media');
+                }
+
+                return {
+                    url: getApiUrl(`api/business/${validBusinessId}/campaigns/${validCampaignId}/vuforia-media/bulk`, 'main'),
+                    method: 'PUT',
+                    body: updates,
+                };
+            },
             transformResponse: (response) => transformServiceResponse(response),
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to bulk update Vuforia media'),
             invalidatesTags: (result, error, { campaignId }) => [

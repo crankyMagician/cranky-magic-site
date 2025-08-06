@@ -2,6 +2,7 @@
 import baseApi, { getApiUrl, authApi } from './baseApi';
 import { setCredentials, logout } from '../reducers/authReducer';
 import AuthTokenService from '../services/AuthTokenService';
+import TokenDecoder from '../utilities/TokenDecoder';
 
 // Auth API endpoints
 export const authApiExtended = authApi.injectEndpoints({
@@ -17,18 +18,42 @@ export const authApiExtended = authApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
 
-                    // Save token in localStorage via AuthTokenService
+                    // Use AuthTokenService to properly extract and store auth info from token
                     if (data.token) {
-                        AuthTokenService.setAuthInfo({
-                            isAuthenticated: true,
-                            user: data.user,
-                            authToken: data.token,
-                            roles: data.roles || [],
-                            businesses: data.businesses || [],
-                            activeBusiness: data.activeBusiness || null
-                        });
-                        // Update Redux state
-                        dispatch(setCredentials(data));
+                        // Let AuthTokenService extract the full auth info from the token
+                        const authInfo = AuthTokenService.extractAuthInfoFromToken(
+                            TokenDecoder.decode(data.token),
+                            data.token
+                        );
+
+                        if (authInfo) {
+                            // Update Redux state with the properly extracted auth info
+                            dispatch(setCredentials({
+                                user: authInfo.user,
+                                token: data.token,
+                                roles: authInfo.roles,
+                                businesses: authInfo.businesses,
+                                activeBusiness: authInfo.activeBusiness
+                            }));
+                        } else {
+                            // Fallback to the original data structure
+                            AuthTokenService.setAuthInfo({
+                                isAuthenticated: true,
+                                user: data.user,
+                                authToken: data.token,
+                                roles: data.roles || [],
+                                businesses: data.businesses || [],
+                                activeBusiness: data.activeBusiness || null
+                            });
+
+                            dispatch(setCredentials({
+                                user: data.user,
+                                token: data.token,
+                                roles: data.roles || [],
+                                businesses: data.businesses || [],
+                                activeBusiness: data.activeBusiness || null
+                            }));
+                        }
                     }
                 } catch (error) {
                     // Error handling logic here
@@ -89,15 +114,40 @@ export const authApiExtended = authApi.injectEndpoints({
 
                     // If response includes a token, log in the user automatically
                     if (responseData.token) {
-                        AuthTokenService.setAuthInfo({
-                            isAuthenticated: true,
-                            user: responseData.user,
-                            authToken: responseData.token,
-                            roles: responseData.roles || [],
-                            businesses: responseData.businesses || [],
-                            activeBusiness: responseData.activeBusiness || null
-                        });
-                        dispatch(setCredentials(responseData));
+                        // Use AuthTokenService to properly extract and store auth info from token
+                        const authInfo = AuthTokenService.extractAuthInfoFromToken(
+                            TokenDecoder.decode(responseData.token),
+                            responseData.token
+                        );
+
+                        if (authInfo) {
+                            // Update Redux state with the properly extracted auth info
+                            dispatch(setCredentials({
+                                user: authInfo.user,
+                                token: responseData.token,
+                                roles: authInfo.roles,
+                                businesses: authInfo.businesses,
+                                activeBusiness: authInfo.activeBusiness
+                            }));
+                        } else {
+                            // Fallback to the original data structure
+                            AuthTokenService.setAuthInfo({
+                                isAuthenticated: true,
+                                user: responseData.user,
+                                authToken: responseData.token,
+                                roles: responseData.roles || [],
+                                businesses: responseData.businesses || [],
+                                activeBusiness: responseData.activeBusiness || null
+                            });
+
+                            dispatch(setCredentials({
+                                user: responseData.user,
+                                token: responseData.token,
+                                roles: responseData.roles || [],
+                                businesses: responseData.businesses || [],
+                                activeBusiness: responseData.activeBusiness || null
+                            }));
+                        }
                     }
                 } catch (error) {
                     console.error('Reset password error:', error);
@@ -135,15 +185,6 @@ export const authApiExtended = authApi.injectEndpoints({
                 }
             },
             invalidatesTags: ['Auth', 'User'],
-        }),
-
-        // Decode token endpoint
-        decodeToken: builder.mutation({
-            query: (token) => ({
-                url: getApiUrl('decode-token', 'auth'),
-                method: 'POST',
-                body: { token },
-            }),
         }),
 
         // Business signup endpoint
@@ -187,7 +228,7 @@ export const authApiExtended = authApi.injectEndpoints({
     overrideExisting: false,
 });
 
-// Export the generated hooks
+// Export the generated hooks (REMOVED useDecodeTokenMutation)
 export const {
     useLoginMutation,
     useRegisterMutation,
@@ -197,7 +238,6 @@ export const {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useLogoutMutation,
-    useDecodeTokenMutation,
     useBusinessSignupMutation,
     useResendConfirmationMutation,
     useResendPhoneConfirmationMutation,

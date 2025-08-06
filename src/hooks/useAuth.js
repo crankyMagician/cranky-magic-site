@@ -6,8 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     useLoginMutation,
-    useLogoutMutation,
-    useDecodeTokenMutation
+    useLogoutMutation
 } from '../api/apiSlice';
 import {
     selectCurrentToken,
@@ -16,9 +15,13 @@ import {
     selectUserRoles,
     selectUserBusinesses,
     selectActiveBusiness,
-    setAuthentication
+    selectActiveBusinessId,
+    selectActiveBusinessRole,
+    setAuthentication,
+    switchActiveBusiness
 } from "../reducers/authReducer";
 import AuthTokenService from '../services/AuthTokenService';
+import TokenDecoder from '../utilities/TokenDecoder';
 import useAnalytics from '../analytics/hooks/useAnalytics';
 
 export const useAuth = () => {
@@ -28,7 +31,6 @@ export const useAuth = () => {
     // Use RTK Query hooks
     const [login, { isLoading: isLoginLoading }] = useLoginMutation();
     const [logout, { isLoading: isLogoutLoading }] = useLogoutMutation();
-    const [decodeToken] = useDecodeTokenMutation();
 
     // Get auth state from Redux
     const token = useSelector(selectCurrentToken);
@@ -37,6 +39,8 @@ export const useAuth = () => {
     const roles = useSelector(selectUserRoles);
     const businesses = useSelector(selectUserBusinesses);
     const activeBusiness = useSelector(selectActiveBusiness);
+    const activeBusinessId = useSelector(selectActiveBusinessId);
+    const activeBusinessRole = useSelector(selectActiveBusinessRole);
 
     // Use a ref to track if we've already initialized
     const hasInitializedRef = useRef(false);
@@ -48,6 +52,7 @@ export const useAuth = () => {
             return;
         }
 
+        const authInfo = AuthTokenService.getAuthInfo();
         const {
             isAuthenticated: storedAuth,
             user: storedUser,
@@ -55,7 +60,7 @@ export const useAuth = () => {
             roles: storedRoles,
             businesses: storedBusinesses,
             activeBusiness: storedActiveBusiness
-        } = AuthTokenService.getAuthInfo();
+        } = authInfo;
 
         // Only dispatch if we have valid stored authentication data
         if (storedAuth && authToken) {
@@ -70,6 +75,13 @@ export const useAuth = () => {
                 JSON.stringify(activeBusiness) !== JSON.stringify(storedActiveBusiness);
 
             if (needsUpdate) {
+                console.log('Initializing auth state from storage:', {
+                    userId: storedUser?.id,
+                    businessCount: storedBusinesses?.length || 0,
+                    activeBusinessId: storedActiveBusiness?.id || null,
+                    hasToken: !!authToken
+                });
+
                 dispatch(setAuthentication({
                     isAuthenticated: storedAuth,
                     user: storedUser,
@@ -100,7 +112,9 @@ export const useAuth = () => {
                 // Track successful login
                 analytics.trackEvent('login_success', {
                     method: 'email',
-                    user_id: result.user?.id
+                    user_id: result.user?.id,
+                    business_count: result.businesses?.length || 0,
+                    active_business_id: result.activeBusiness?.id || null
                 });
 
                 // Mark as initialized since we just logged in
@@ -129,7 +143,8 @@ export const useAuth = () => {
         try {
             // Track logout
             analytics.trackEvent('logout', {
-                user_id: user?.id
+                user_id: user?.id,
+                active_business_id: activeBusinessId
             });
 
             // Call logout mutation
@@ -157,29 +172,15 @@ export const useAuth = () => {
     };
 
     // Switch active business
-    const switchActiveBusiness = (businessId) => {
+    const switchActiveBusinessHandler = (businessId) => {
         const business = businesses.find(b => b.id === businessId);
         if (business) {
-            // Update local storage
-            const authInfo = AuthTokenService.getAuthInfo();
-            AuthTokenService.setAuthInfo({
-                ...authInfo,
-                activeBusiness: business
-            });
-
-            // Update Redux state
-            dispatch(setAuthentication({
-                isAuthenticated,
-                user,
-                token,
-                roles,
-                businesses,
-                activeBusiness: business
-            }));
+            // Update Redux state (which will also update localStorage)
+            dispatch(switchActiveBusiness(business));
 
             // Track business switch
             analytics.trackEvent('switch_active_business', {
-                from_business_id: activeBusiness?.id,
+                from_business_id: activeBusinessId,
                 to_business_id: businessId,
                 user_id: user?.id
             });
@@ -205,17 +206,41 @@ export const useAuth = () => {
         return roleNames.every(roleName => hasRole(roleName));
     };
 
-    // Validate token
-    const validateToken = async () => {
+    // Check if user has a specific business role
+    const hasBusinessRole = (businessId, roleName) => {
+        if (!businessId) return false;
+        const business = businesses.find(b => b.id === businessId);
+        return business?.role === roleName;
+    };
+
+    // Check if user is owner of a business
+    const isBusinessOwner = (businessId = null) => {
+        if (businessId) {
+            return hasBusinessRole(businessId, 'owner');
+        }
+        return activeBusinessRole === 'owner';
+    };
+
+    // Validate token (LOCAL ONLY - NO API CALL)
+    const validateToken = () => {
         if (!token) return false;
 
         try {
-            const result = await decodeToken({ token }).unwrap();
-            return result.decoded ? true : false;
+            // Decode token locally
+            const decodedToken = TokenDecoder.decode(token);
+            if (!decodedToken) return false;
+
+            // Check if token is expired
+            return !TokenDecoder.isExpired(token);
         } catch (error) {
-            console.error('Token validation error:', error);
+            console.error('Local token validation error:', error);
             return false;
         }
+    };
+
+    // Get business by ID
+    const getBusinessById = (businessId) => {
+        return businesses.find(b => b.id === businessId) || null;
     };
 
     return {
@@ -226,6 +251,8 @@ export const useAuth = () => {
         roles,
         businesses,
         activeBusiness,
+        activeBusinessId, // This is the key addition for fixing the undefined business ID
+        activeBusinessRole,
 
         // Loading states
         isLoginLoading,
@@ -234,11 +261,14 @@ export const useAuth = () => {
         // Methods
         login: handleLogin,
         logout: handleLogout,
-        switchActiveBusiness,
+        switchActiveBusiness: switchActiveBusinessHandler,
         hasRole,
         hasAnyRole,
         hasAllRoles,
+        hasBusinessRole,
+        isBusinessOwner,
         validateToken,
+        getBusinessById,
     };
 };
 

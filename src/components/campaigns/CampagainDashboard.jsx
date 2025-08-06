@@ -13,6 +13,7 @@ import {
     CircularProgress,
     Alert,
     useMediaQuery,
+    useTheme,
     Fab,
 } from '@mui/material';
 import { Add as AddIcon, Refresh as RefreshIcon } from '@mui/icons-material';
@@ -21,6 +22,7 @@ import useCustomTranslation from '../../hooks/useCustomTranslation';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 import { useMatrixText } from '../../hooks/useMatrixText';
+import useAuth from '../../hooks/useAuth';
 import CampaignList from './CampaignList';
 import CampaignFormModal from './CampaignFormModal';
 import CampaignMetrics from './CampaignMetrics';
@@ -30,11 +32,15 @@ import NoResultsFound from '../common/NoResultsFound';
  * Campaign Dashboard component
  * Main container for campaign management functionality
  */
-const CampaignDashboard = ({ businessId }) => {
+const CampaignDashboard = () => {
     const { translate } = useCustomTranslation();
     const analytics = useAnalytics();
+    const theme = useTheme();
     const { isDark, getGlassMorphismStyle, getGlowEffect, themePrefs, getAnimationDuration } = useSpatialTheme();
-    const isMobile = useMediaQuery(theme => theme.breakpoints.down('md'));
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Get authentication state and businessId - MOVED TO TOP
+    const { isAuthenticated, activeBusinessId, activeBusiness } = useAuth();
 
     // Tab state - set to 'all' to show all campaigns by default
     const [activeTab, setActiveTab] = useState('all');
@@ -43,27 +49,28 @@ const CampaignDashboard = ({ businessId }) => {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [selectedCampaign, setSelectedCampaign] = useState(null);
 
-    // RTK Query hook for fetching campaigns
+    // RTK Query hook for fetching campaigns - MOVED TO TOP, always called
     const {
         data: campaignsData,
         isLoading,
         isError,
         refetch
-    } = useGetCampaignsByBusinessQuery(businessId, {
-        // Add a refetch interval if needed
-        // pollingInterval: 30000, // Poll every 30 seconds
+    } = useGetCampaignsByBusinessQuery({
+        businessId: activeBusinessId,
+        page: 1,
+        pageSize: 50
+    }, {
+        // Skip if no businessId
+        skip: !activeBusinessId,
 
-        // Add skip condition if needed
-        // skip: !businessId,
-
-        // Better error handling
+        // Add error handling
         refetchOnError: true,
 
         // Force refresh on component remount
         refetchOnMountOrArgChange: true,
     });
 
-    // Matrix effect for dashboard title
+    // Matrix effect for dashboard title - MOVED TO TOP
     const titleText = translate('CampaignDashboard');
     const { text: animatedTitle } = useMatrixText(titleText, {
         speed: 20,
@@ -71,7 +78,7 @@ const CampaignDashboard = ({ businessId }) => {
         iterations: 1
     });
 
-    // Filter campaigns based on active tab
+    // Filter campaigns based on active tab - MOVED TO TOP
     const filteredCampaigns = useMemo(() => {
         // Handle different possible API response structures
         // Try to find campaigns in the response structure
@@ -86,6 +93,9 @@ const CampaignDashboard = ({ businessId }) => {
         } else if (Array.isArray(campaignsData)) {
             // Raw array of campaigns
             campaigns = campaignsData;
+        } else if (campaignsData?.items) {
+            // Paginated response structure
+            campaigns = campaignsData.items;
         }
 
         // If no campaigns found in any format, return empty array
@@ -110,29 +120,29 @@ const CampaignDashboard = ({ businessId }) => {
         }
     }, [campaignsData, activeTab]);
 
-    // Handler for tab change
-    const handleTabChange = (event, newValue) => {
+    // Handler for tab change - MOVED TO TOP
+    const handleTabChange = useCallback((event, newValue) => {
         setActiveTab(newValue);
 
         // Track tab change for analytics
         analytics.trackEvent('campaign_tab_change', {
             tab: newValue,
-            business_id: businessId
+            business_id: activeBusinessId
         });
-    };
+    }, [analytics, activeBusinessId]);
 
-    // Handler for opening create modal
+    // Handler for opening create modal - MOVED TO TOP
     const handleOpenCreateModal = useCallback(() => {
         setSelectedCampaign(null);
         setCreateModalOpen(true);
 
         // Track modal open for analytics
         analytics.trackEvent('campaign_create_modal_open', {
-            business_id: businessId
+            business_id: activeBusinessId
         });
-    }, [analytics, businessId]);
+    }, [analytics, activeBusinessId]);
 
-    // Handler for opening edit modal
+    // Handler for opening edit modal - MOVED TO TOP
     const handleEditCampaign = useCallback((campaign) => {
         setSelectedCampaign(campaign);
         setCreateModalOpen(true);
@@ -141,17 +151,17 @@ const CampaignDashboard = ({ businessId }) => {
         analytics.trackEvent('campaign_edit_start', {
             campaign_id: campaign.id,
             campaign_name: campaign.name,
-            business_id: businessId
+            business_id: activeBusinessId
         });
-    }, [analytics, businessId]);
+    }, [analytics, activeBusinessId]);
 
-    // Handler for closing modal
+    // Handler for closing modal - MOVED TO TOP
     const handleCloseModal = useCallback(() => {
         setCreateModalOpen(false);
         setSelectedCampaign(null);
     }, []);
 
-    // Handler for successful campaign creation/update
+    // Handler for successful campaign creation/update - MOVED TO TOP
     const handleCampaignSaved = useCallback(() => {
         handleCloseModal();
         refetch();
@@ -159,19 +169,42 @@ const CampaignDashboard = ({ businessId }) => {
         // Track success for analytics
         analytics.trackEvent('campaign_saved', {
             is_new: !selectedCampaign,
-            business_id: businessId
+            business_id: activeBusinessId
         });
-    }, [analytics, businessId, refetch, selectedCampaign]);
+    }, [analytics, activeBusinessId, refetch, selectedCampaign, handleCloseModal]);
 
-    // Manual refresh handler
+    // Manual refresh handler - MOVED TO TOP
     const handleRefresh = useCallback(() => {
         refetch();
 
         // Track refresh for analytics
         analytics.trackEvent('campaign_list_refresh', {
-            business_id: businessId
+            business_id: activeBusinessId
         });
-    }, [analytics, businessId, refetch]);
+    }, [analytics, activeBusinessId, refetch]);
+
+    // ALL HOOKS ARE NOW CALLED - Conditional rendering can begin
+
+    // Show loading or error if not authenticated or no business selected
+    if (!isAuthenticated) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <Alert severity="warning">
+                    {translate('PleaseLoginToViewCampaigns')}
+                </Alert>
+            </Box>
+        );
+    }
+
+    if (!activeBusinessId || !activeBusiness) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <Alert severity="info">
+                    {translate('PleaseSelectBusinessToViewCampaigns')}
+                </Alert>
+            </Box>
+        );
+    }
 
     // Render loading state
     if (isLoading) {
@@ -184,7 +217,7 @@ const CampaignDashboard = ({ businessId }) => {
 
     // Add debug logs to help troubleshoot data structure issues
     console.log('Raw API response:', campaignsData);
-    console.log('Campaigns path:', campaignsData?.data?.campaigns);
+    console.log('Active business ID:', activeBusinessId);
     console.log('Current tab:', activeTab);
     console.log('Filtered campaigns:', filteredCampaigns);
 
@@ -209,19 +242,24 @@ const CampaignDashboard = ({ businessId }) => {
         <Box>
             {/* Header section */}
             <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-                <Typography
-                    variant="h4"
-                    component="h1"
-                    sx={{
-                        fontWeight: 'bold',
-                        color: 'primary.main',
-                        ...(themePrefs.useGlowEffects && {
-                            textShadow: theme => `0 0 10px ${theme.palette.primary.main}40`
-                        })
-                    }}
-                >
-                    {themePrefs.animationLevel !== 'none' ? animatedTitle : titleText}
-                </Typography>
+                <Box>
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{
+                            fontWeight: 'bold',
+                            color: 'primary.main',
+                            ...(themePrefs.useGlowEffects && {
+                                textShadow: theme => `0 0 10px ${theme.palette.primary.main}40`
+                            })
+                        }}
+                    >
+                        {themePrefs.animationLevel !== 'none' ? animatedTitle : titleText}
+                    </Typography>
+                    <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 1 }}>
+                        {activeBusiness.name}
+                    </Typography>
+                </Box>
 
                 {!isMobile && (
                     <Button
@@ -245,8 +283,8 @@ const CampaignDashboard = ({ businessId }) => {
             {/* Metrics Cards Row */}
             <Box sx={{ mb: 4 }}>
                 <CampaignMetrics
-                    businessId={businessId}
-                    campaignsData={campaignsData?.data}
+                    businessId={activeBusinessId}
+                    campaignsData={campaignsData}
                 />
             </Box>
 
@@ -279,7 +317,7 @@ const CampaignDashboard = ({ businessId }) => {
                         campaigns={filteredCampaigns}
                         onEditCampaign={handleEditCampaign}
                         onRefresh={refetch}
-                        businessId={businessId}
+                        businessId={activeBusinessId}
                     />
                 ) : (
                     <NoResultsFound
@@ -330,16 +368,13 @@ const CampaignDashboard = ({ businessId }) => {
                 onClose={handleCloseModal}
                 onSave={handleCampaignSaved}
                 campaign={selectedCampaign}
-                businessId={businessId}
+                businessId={activeBusinessId}
             />
         </Box>
     );
 };
 
-CampaignDashboard.propTypes = {
-    businessId: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number
-    ]).isRequired};
+// Remove businessId from PropTypes since we're getting it from auth state now
+CampaignDashboard.propTypes = {};
 
 export default React.memo(CampaignDashboard);

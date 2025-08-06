@@ -18,7 +18,7 @@ export const apiSlice = baseApi;
 
 // Re-export all the hooks from the various APIs
 export {
-    // Auth hooks
+    // Auth hooks (REMOVED useDecodeTokenMutation)
     useLoginMutation,
     useRegisterMutation,
     useConfirmSignupMutation,
@@ -29,7 +29,6 @@ export {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useLogoutMutation,
-    useDecodeTokenMutation,
     useBusinessSignupMutation,
     useUpdateMfaPreferenceMutation,
 } from './authApi';
