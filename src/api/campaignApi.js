@@ -140,7 +140,46 @@ export const campaignApiExtended = campaignsApi.injectEndpoints({
                     params: params,
                 };
             },
-            transformResponse: (response) => transformPaginatedResponse(response),
+            transformResponse: (response) => {
+                // First, unwrap the ServiceResponse to get the data
+                const serviceData = transformServiceResponse(response);
+
+                // The serviceData should now be the 'data' object from your API response
+                // which contains { totalCount: 10, campaigns: [...] }
+                if (serviceData && typeof serviceData === 'object') {
+                    // Check if serviceData has the expected structure
+                    if (serviceData.campaigns && Array.isArray(serviceData.campaigns)) {
+                        // Return in the format expected by the components
+                        return {
+                            items: serviceData.campaigns,
+                            totalCount: serviceData.totalCount || serviceData.campaigns.length,
+                            page: 1, // You might want to extract this from query params
+                            pageSize: serviceData.campaigns.length,
+                            totalPages: Math.ceil((serviceData.totalCount || serviceData.campaigns.length) / (serviceData.campaigns.length || 10))
+                        };
+                    }
+
+                    // Fallback: if serviceData is directly an array of campaigns
+                    if (Array.isArray(serviceData)) {
+                        return {
+                            items: serviceData,
+                            totalCount: serviceData.length,
+                            page: 1,
+                            pageSize: serviceData.length,
+                            totalPages: 1
+                        };
+                    }
+                }
+
+                // Final fallback: return empty structure
+                return {
+                    items: [],
+                    totalCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalPages: 0
+                };
+            },
             transformErrorResponse: (response) => transformServiceErrorResponse(response, 'Failed to get campaigns'),
             providesTags: (result, error, { businessId }) => [
                 { type: 'BusinessCampaigns', id: businessId },

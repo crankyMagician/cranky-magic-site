@@ -57,8 +57,10 @@ import CampaignStatusChip from './CampaignStatusChip';
  * Updated to handle ServiceResponse format and pagination
  */
 const CampaignList = ({
+                          campaigns,
                           businessId,
                           onEditCampaign,
+                          onRefresh,
                           statusFilter = 'all',
                           searchTerm = ''
                       }) => {
@@ -97,14 +99,95 @@ const CampaignList = ({
     const [deleteCampaign, { isLoading: isDeleting }] = useDeleteCampaignMutation();
     const [updateCampaignStatus, { isLoading: isUpdatingStatus }] = useUpdateCampaignStatusMutation();
 
-    // Extract campaigns and pagination data from ServiceResponse
-    const campaigns = useMemo(() => {
-        return campaignsResponse?.items || [];
-    }, [campaignsResponse]);
+    // Extract campaigns and pagination data from response - UPDATED FOR NEW STRUCTURE
+    const displayCampaigns = useMemo(() => {
+        // If campaigns are passed as props (from parent component filtering), use those
+        if (campaigns && Array.isArray(campaigns)) {
+            return campaigns;
+        }
+
+        // Otherwise, extract from API response
+        if (campaignsResponse?.items) {
+            return campaignsResponse.items;
+        }
+
+        // Fallback for legacy response format
+        if (campaignsResponse?.campaigns) {
+            return campaignsResponse.campaigns;
+        }
+
+        // Final fallback
+        return [];
+    }, [campaigns, campaignsResponse]);
 
     const totalCount = useMemo(() => {
-        return campaignsResponse?.totalCount || 0;
-    }, [campaignsResponse]);
+        // If using campaigns from props, return their length
+        if (campaigns && Array.isArray(campaigns)) {
+            return campaigns.length;
+        }
+
+        // Otherwise, get from API response
+        return campaignsResponse?.totalCount || displayCampaigns.length || 0;
+    }, [campaigns, campaignsResponse, displayCampaigns]);
+
+    // Get confirmation dialog content
+    const getConfirmDialogContent = useMemo(() => {
+        if (!confirmAction || !selectedCampaign) {
+            return {
+                title: '',
+                content: '',
+                confirmText: translate('Confirm'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'primary'
+            };
+        }
+
+        if (confirmAction.type === 'delete') {
+            return {
+                title: translate('ConfirmDelete'),
+                content: translate('AreYouSureDeleteCampaign', { name: selectedCampaign.name }),
+                confirmText: translate('Delete'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'error'
+            };
+        }
+
+        if (confirmAction.type === 'status_change') {
+            return {
+                title: translate('ConfirmStatusChange'),
+                content: translate('AreYouSureChangeCampaignStatus', {
+                    name: selectedCampaign.name,
+                    status: translate(confirmAction.newStatus)
+                }),
+                confirmText: translate('ChangeStatus'),
+                cancelText: translate('Cancel'),
+                confirmColor: 'primary'
+            };
+        }
+
+        return {
+            title: '',
+            content: '',
+            confirmText: translate('Confirm'),
+            cancelText: translate('Cancel'),
+            confirmColor: 'primary'
+        };
+    }, [confirmAction, selectedCampaign, translate]);
+
+
+
+    // Get paginated campaigns for display
+    const paginatedCampaigns = useMemo(() => {
+        // If campaigns are passed as props, handle pagination locally
+        if (campaigns && Array.isArray(campaigns)) {
+            const start = page * rowsPerPage;
+            const end = start + rowsPerPage;
+            return campaigns.slice(start, end);
+        }
+
+        // Otherwise, campaigns from API are already paginated
+        return displayCampaigns;
+    }, [campaigns, displayCampaigns, page, rowsPerPage]);
 
     // Handle pagination
     const handleChangePage = (event, newPage) => {
@@ -216,7 +299,12 @@ const CampaignList = ({
                     business_id: businessId
                 });
 
-                refetch();
+                // Refresh campaigns list
+                if (onRefresh) {
+                    onRefresh();
+                } else {
+                    refetch();
+                }
             } else if (confirmAction.type === 'status_change') {
                 await updateCampaignStatus({
                     businessId,
@@ -233,7 +321,12 @@ const CampaignList = ({
                     business_id: businessId
                 });
 
-                refetch();
+                // Refresh campaigns list
+                if (onRefresh) {
+                    onRefresh();
+                } else {
+                    refetch();
+                }
             }
 
             handleConfirmDialogClose();
@@ -253,52 +346,8 @@ const CampaignList = ({
         }
     };
 
-    // Get confirmation dialog content
-    const getConfirmDialogContent = useMemo(() => {
-        if (!confirmAction || !selectedCampaign) {
-            return {
-                title: '',
-                content: '',
-                confirmText: translate('Confirm'),
-                cancelText: translate('Cancel'),
-                confirmColor: 'primary'
-            };
-        }
-
-        if (confirmAction.type === 'delete') {
-            return {
-                title: translate('ConfirmDelete'),
-                content: translate('AreYouSureDeleteCampaign', { name: selectedCampaign.name }),
-                confirmText: translate('Delete'),
-                cancelText: translate('Cancel'),
-                confirmColor: 'error'
-            };
-        }
-
-        if (confirmAction.type === 'status_change') {
-            return {
-                title: translate('ConfirmStatusChange'),
-                content: translate('AreYouSureChangeCampaignStatus', {
-                    name: selectedCampaign.name,
-                    status: translate(confirmAction.newStatus)
-                }),
-                confirmText: translate('ChangeStatus'),
-                cancelText: translate('Cancel'),
-                confirmColor: 'primary'
-            };
-        }
-
-        return {
-            title: '',
-            content: '',
-            confirmText: translate('Confirm'),
-            cancelText: translate('Cancel'),
-            confirmColor: 'primary'
-        };
-    }, [confirmAction, selectedCampaign, translate]);
-
     // Loading state
-    if (isLoading) {
+    if (isLoading && !displayCampaigns.length) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                 <CircularProgress />
@@ -307,7 +356,7 @@ const CampaignList = ({
     }
 
     // Empty state
-    if (!campaigns.length) {
+    if (!displayCampaigns.length) {
         return (
             <Box sx={{ textAlign: 'center', py: 8 }}>
                 <CampaignIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
@@ -329,7 +378,7 @@ const CampaignList = ({
         return (
             <Box>
                 <Grid container spacing={2}>
-                    {campaigns.map((campaign) => (
+                    {paginatedCampaigns.map((campaign) => (
                         <Grid item xs={12} key={campaign.id}>
                             <Card
                                 sx={{
@@ -483,7 +532,7 @@ const CampaignList = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {campaigns.map((campaign) => (
+                        {paginatedCampaigns.map((campaign) => (
                             <TableRow
                                 key={campaign.id}
                                 hover
@@ -665,11 +714,13 @@ const CampaignList = ({
 };
 
 CampaignList.propTypes = {
+    campaigns: PropTypes.array,
     businessId: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.number
     ]).isRequired,
     onEditCampaign: PropTypes.func.isRequired,
+    onRefresh: PropTypes.func,
     statusFilter: PropTypes.string,
     searchTerm: PropTypes.string
 };

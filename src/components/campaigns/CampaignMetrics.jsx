@@ -24,6 +24,7 @@ import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 /**
  * Campaign Metrics component
  * Displays key metrics about campaigns in card format
+ * Updated to handle the new API response structure
  */
 const CampaignMetrics = ({ businessId, campaignsData }) => {
     const { translate } = useCustomTranslation();
@@ -31,9 +32,27 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { isDark, getGlassMorphismStyle, getGlowEffect } = useSpatialTheme();
 
-    // Calculate metrics from campaigns data
+    // Calculate metrics from campaigns data - UPDATED FOR NEW DATA STRUCTURE
     const metrics = useMemo(() => {
-        if (!campaignsData?.campaigns) {
+        // Handle the new API response structure
+        let campaigns = [];
+
+        if (campaignsData?.items) {
+            // New format from the updated API transformation
+            campaigns = campaignsData.items;
+        } else if (Array.isArray(campaignsData)) {
+            // Fallback: if it's directly an array
+            campaigns = campaignsData;
+        } else if (campaignsData?.campaigns) {
+            // Legacy format fallback
+            campaigns = campaignsData.campaigns;
+        } else if (campaignsData?.data?.campaigns) {
+            // Handle nested data structure from raw API response
+            campaigns = campaignsData.data.campaigns;
+        }
+
+        // If no campaigns found in any format, return zero metrics
+        if (!campaigns || !Array.isArray(campaigns)) {
             return {
                 total: 0,
                 active: 0,
@@ -43,12 +62,14 @@ const CampaignMetrics = ({ businessId, campaignsData }) => {
             };
         }
 
-        const campaigns = campaignsData.campaigns;
         const total = campaigns.length;
         const active = campaigns.filter(c => c.status === 'active').length;
         const draft = campaigns.filter(c => c.status === 'draft').length;
         const completed = campaigns.filter(c => c.status === 'completed').length;
-        const totalBudget = campaigns.reduce((sum, campaign) => sum + (campaign.budget || 0), 0);
+        const totalBudget = campaigns.reduce((sum, campaign) => {
+            const budget = parseFloat(campaign.budget) || 0;
+            return sum + budget;
+        }, 0);
 
         return {
             total,
@@ -282,9 +303,21 @@ CampaignMetrics.propTypes = {
         PropTypes.string,
         PropTypes.number
     ]).isRequired,
-    campaignsData: PropTypes.shape({
-        campaigns: PropTypes.array
-    })
+    campaignsData: PropTypes.oneOfType([
+        PropTypes.shape({
+            items: PropTypes.array,
+            totalCount: PropTypes.number
+        }),
+        PropTypes.shape({
+            campaigns: PropTypes.array
+        }),
+        PropTypes.shape({
+            data: PropTypes.shape({
+                campaigns: PropTypes.array
+            })
+        }),
+        PropTypes.array
+    ])
 };
 
 export default React.memo(CampaignMetrics);

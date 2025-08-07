@@ -78,24 +78,21 @@ const CampaignDashboard = () => {
         iterations: 1
     });
 
-    // Filter campaigns based on active tab - MOVED TO TOP
+    // Filter campaigns based on active tab - UPDATED TO HANDLE NEW DATA STRUCTURE
     const filteredCampaigns = useMemo(() => {
-        // Handle different possible API response structures
-        // Try to find campaigns in the response structure
+        // Handle the new API response structure
+        // campaignsData should now be: { items: [...], totalCount: 10, page: 1, pageSize: 50, totalPages: 1 }
         let campaigns = [];
 
-        if (campaignsData?.data?.campaigns) {
-            // Standard nested structure from API
-            campaigns = campaignsData.data.campaigns;
-        } else if (campaignsData?.campaigns) {
-            // Direct campaigns array
-            campaigns = campaignsData.campaigns;
-        } else if (Array.isArray(campaignsData)) {
-            // Raw array of campaigns
-            campaigns = campaignsData;
-        } else if (campaignsData?.items) {
-            // Paginated response structure
+        if (campaignsData?.items) {
+            // New format from the updated API transformation
             campaigns = campaignsData.items;
+        } else if (Array.isArray(campaignsData)) {
+            // Fallback: if it's directly an array
+            campaigns = campaignsData;
+        } else if (campaignsData?.campaigns) {
+            // Legacy format fallback
+            campaigns = campaignsData.campaigns;
         }
 
         // If no campaigns found in any format, return empty array
@@ -280,7 +277,7 @@ const CampaignDashboard = () => {
                 )}
             </Box>
 
-            {/* Metrics Cards Row */}
+            {/* Metrics Cards Row - UPDATED TO PASS CORRECT DATA */}
             <Box sx={{ mb: 4 }}>
                 <CampaignMetrics
                     businessId={activeBusinessId}
