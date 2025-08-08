@@ -26,7 +26,8 @@ import {
     PeopleAlt as AudienceIcon,
     Image as ImageIcon,
     Movie as VideoIcon,
-    InsertDriveFile as FileIcon
+    InsertDriveFile as FileIcon,
+    ViewInAr as ArIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import useCustomTranslation from '../../../hooks/useCustomTranslation';
@@ -35,30 +36,52 @@ import CampaignStatusChip from "../CampaignStatusChip";
 
 /**
  * CampaignReviewStep - Final step in the campaign wizard to review all information
+ * Fixed to properly display the collected data from previous steps
  */
 const CampaignReviewStep = ({ formData, isEditMode }) => {
     const { translate } = useCustomTranslation();
     const { isDark, getGlassMorphismStyle } = useSpatialTheme();
 
-    // Format dates
+    // Format dates safely
     const formatDate = (date) => {
-        if (!date) return null;
+        if (!date) return translate('NotSet');
         try {
-            return format(new Date(date), 'PPP');
+            // Handle both Date objects and date strings
+            const dateObj = date instanceof Date ? date : new Date(date);
+            if (isNaN(dateObj.getTime())) {
+                return translate('InvalidDate');
+            }
+            return format(dateObj, 'PPP');
         } catch (error) {
-            return null;
+            console.error('Error formatting date:', error);
+            return translate('InvalidDate');
         }
     };
 
     // Get media icon based on type
-    const getMediaIcon = (mimeType) => {
-        if (mimeType?.startsWith('image/')) {
+    const getMediaIcon = (mediaType) => {
+        const type = mediaType?.toLowerCase() || '';
+
+        if (type.includes('ar') || type.includes('vuforia')) {
+            return <ArIcon />;
+        } else if (type.includes('image') || type.includes('banner') || type.includes('thumbnail') || type.includes('gallery')) {
             return <ImageIcon />;
-        } else if (mimeType?.startsWith('video/')) {
+        } else if (type.includes('video')) {
             return <VideoIcon />;
+        } else if (type.includes('document')) {
+            return <FileIcon />;
         } else {
             return <FileIcon />;
         }
+    };
+
+    // Format budget display
+    const formatBudget = (budget) => {
+        if (!budget || budget === '0' || budget === 0) {
+            return translate('NoBudgetSet');
+        }
+        const budgetNum = typeof budget === 'string' ? parseFloat(budget) : budget;
+        return `$${budgetNum.toFixed(2)}`;
     };
 
     return (
@@ -103,7 +126,7 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={<Typography variant="body2" color="text.secondary">{translate('CampaignName')}</Typography>}
-                                    secondary={<Typography variant="body1">{formData.name || '-'}</Typography>}
+                                    secondary={<Typography variant="body1">{formData.name || translate('NotProvided')}</Typography>}
                                 />
                             </ListItem>
 
@@ -113,7 +136,7 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={<Typography variant="body2" color="text.secondary">{translate('ExternalId')}</Typography>}
-                                    secondary={<Typography variant="body1">{formData.externalId || '-'}</Typography>}
+                                    secondary={<Typography variant="body1">{formData.externalId || translate('NotProvided')}</Typography>}
                                 />
                             </ListItem>
 
@@ -137,7 +160,7 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={<Typography variant="body2" color="text.secondary">{translate('Budget')}</Typography>}
-                                    secondary={<Typography variant="body1">${formData.budget || '0'}</Typography>}
+                                    secondary={<Typography variant="body1">{formatBudget(formData.budget)}</Typography>}
                                 />
                             </ListItem>
 
@@ -147,7 +170,7 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={<Typography variant="body2" color="text.secondary">{translate('TargetAudience')}</Typography>}
-                                    secondary={<Typography variant="body1">{formData.targetAudience || '-'}</Typography>}
+                                    secondary={<Typography variant="body1">{formData.targetAudience || translate('NotProvided')}</Typography>}
                                 />
                             </ListItem>
                         </List>
@@ -195,7 +218,7 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={<Typography variant="body2" color="text.secondary">{translate('StartDate')}</Typography>}
-                                        secondary={<Typography variant="body1">{formatDate(formData.startDate) || '-'}</Typography>}
+                                        secondary={<Typography variant="body1">{formatDate(formData.startDate)}</Typography>}
                                     />
                                 </ListItem>
                             </List>
@@ -209,11 +232,36 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={<Typography variant="body2" color="text.secondary">{translate('EndDate')}</Typography>}
-                                        secondary={<Typography variant="body1">{formatDate(formData.endDate) || '-'}</Typography>}
+                                        secondary={<Typography variant="body1">{formatDate(formData.endDate)}</Typography>}
                                     />
                                 </ListItem>
                             </List>
                         </Grid>
+
+                        {/* Campaign Duration */}
+                        {formData.startDate && formData.endDate && (
+                            <Grid item xs={12}>
+                                <Typography variant="body2" color="text.secondary">
+                                    {translate('Duration')}: {(() => {
+                                    const start = new Date(formData.startDate);
+                                    const end = new Date(formData.endDate);
+                                    const diffTime = Math.abs(end - start);
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                                    if (diffDays === 0) {
+                                        return translate('SameDay');
+                                    } else if (diffDays === 1) {
+                                        return translate('OneDay');
+                                    } else if (diffDays < 30) {
+                                        return translate('DurationDays', { count: diffDays });
+                                    } else {
+                                        const months = Math.floor(diffDays / 30);
+                                        return translate('DurationMonths', { count: months });
+                                    }
+                                })()}
+                                </Typography>
+                            </Grid>
+                        )}
                     </Grid>
                 ) : (
                     <Typography variant="body1">
@@ -234,20 +282,21 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                 }}
             >
                 <Typography variant="subtitle1" sx={{ fontWeight: 'medium', mb: 2 }}>
-                    {translate('Media')} ({formData.media.length})
+                    {translate('Media')} ({formData.media?.length || 0})
                 </Typography>
 
-                {formData.media.length > 0 ? (
+                {formData.media && formData.media.length > 0 ? (
                     <Grid container spacing={2}>
                         {formData.media.map((media, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={`${media.mediaAssetId}-${index}`}>
+                            <Grid item xs={12} sm={6} md={4} key={`${media.id || index}-${index}`}>
                                 <Card sx={{ ...getGlassMorphismStyle(0.9) }}>
-                                    {media.mimeType?.startsWith('image/') ? (
+                                    {(media.url || media.thumbnailUrl) && (media.type?.includes('image') || media.type?.includes('ar') || !media.type?.includes('document')) ? (
                                         <CardMedia
                                             component="img"
                                             height="120"
-                                            image={media.fileUrl}
-                                            alt={media.title}
+                                            image={media.thumbnailUrl || media.url}
+                                            alt={media.name}
+                                            sx={{ objectFit: 'cover' }}
                                         />
                                     ) : (
                                         <Box
@@ -259,30 +308,70 @@ const CampaignReviewStep = ({ formData, isEditMode }) => {
                                                 justifyContent: 'center'
                                             }}
                                         >
-                                            {getMediaIcon(media.mimeType)}
+                                            {getMediaIcon(media.type)}
                                         </Box>
                                     )}
                                     <CardContent sx={{ py: 1 }}>
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                                            <Typography variant="subtitle2" noWrap>
-                                                {media.title}
+                                            <Typography variant="subtitle2" noWrap sx={{ flex: 1 }}>
+                                                {media.name || translate('UntitledMedia')}
                                             </Typography>
-                                            <Chip label={media.campaignMediaType || media.mediaTypeName} size="small" />
+                                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                                {media.source === 'vuforia' && (
+                                                    <Chip
+                                                        icon={<ArIcon />}
+                                                        label="AR"
+                                                        size="small"
+                                                        color="secondary"
+                                                        variant="outlined"
+                                                    />
+                                                )}
+                                                <Chip
+                                                    label={media.type || translate('Unknown')}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Box>
                                         </Box>
                                         <Typography variant="caption" color="text.secondary" display="block" noWrap>
-                                            {media.mediaTypeName}
+                                            {media.source === 'vuforia'
+                                                ? translate('VuforiaUpload')
+                                                : media.source === 'existing'
+                                                    ? translate('ExistingMedia')
+                                                    : translate('MediaSource')}
                                         </Typography>
+                                        {media.vuforiaData?.targetId && (
+                                            <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                                                Target ID: {media.vuforiaData.targetId}
+                                            </Typography>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </Grid>
                         ))}
                     </Grid>
                 ) : (
-                    <Typography variant="body1">
-                        {translate('NoMedia')}
-                    </Typography>
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <ImageIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+                        <Typography variant="body1" color="text.secondary">
+                            {translate('NoMedia')}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            {translate('NoMediaDescription')}
+                        </Typography>
+                    </Box>
                 )}
             </Paper>
+
+            {/* Summary Alert */}
+            <Alert severity="success" sx={{ mt: 3 }}>
+                <Typography variant="body2">
+                    {isEditMode
+                        ? translate('ReadyToUpdateCampaign')
+                        : translate('ReadyToCreateCampaign')
+                    }
+                </Typography>
+            </Alert>
         </Box>
     );
 };
@@ -298,9 +387,22 @@ CampaignReviewStep.propTypes = {
         isScheduled: PropTypes.bool,
         startDate: PropTypes.instanceOf(Date),
         endDate: PropTypes.instanceOf(Date),
-        media: PropTypes.array
+        media: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            name: PropTypes.string,
+            type: PropTypes.string,
+            url: PropTypes.string,
+            thumbnailUrl: PropTypes.string,
+            source: PropTypes.string,
+            metadata: PropTypes.string,
+            vuforiaData: PropTypes.object
+        }))
     }).isRequired,
     isEditMode: PropTypes.bool
+};
+
+CampaignReviewStep.defaultProps = {
+    isEditMode: false
 };
 
 export default React.memo(CampaignReviewStep);

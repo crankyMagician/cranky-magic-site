@@ -28,7 +28,7 @@ import { useSnackbar } from 'notistack';
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 import useAnalytics from '../../analytics/hooks/useAnalytics';
-import { useCreateCampaignMutation, useUpdateCampaignMutation } from '../../api/campaignApi';
+import { useCreateCampaignMutation, useUpdateCampaignMutation } from '../../api/apiSlice';
 
 // Step components
 import CampaignBasicInfoStep from './wizard-steps/CampaignBasicInfoStep';
@@ -38,7 +38,7 @@ import CampaignReviewStep from './wizard-steps/CampaignReviewStep';
 
 /**
  * CampaignWizard - A multi-step wizard for creating or editing campaigns
- * Updated to handle ServiceResponse format and improved error handling
+ * Fixed to work with actual API implementation and match CampaignFormModal data structure
  */
 const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
     const { translate } = useCustomTranslation();
@@ -58,7 +58,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
     // Active step state
     const [activeStep, setActiveStep] = useState(0);
 
-    // Form data state
+    // Form data state - matching CampaignFormModal structure
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -78,7 +78,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
     // Loading state for the overall operation
     const isLoading = isCreating || isUpdating;
 
-    // Get error from the API - Updated to handle ServiceResponse error format
+    // Get error from the API
     const apiError = createError || updateError;
 
     // Reset form when campaign changes or modal opens
@@ -132,19 +132,34 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
         { label: translate('Review'), component: CampaignReviewStep }
     ];
 
-    // Update form data
-    const handleFormChange = useCallback((fieldName, value) => {
-        setFormData(prevData => ({
-            ...prevData,
-            [fieldName]: value
-        }));
-
-        // Clear error for this field if any
-        if (errors[fieldName]) {
-            setErrors(prevErrors => ({
-                ...prevErrors,
-                [fieldName]: undefined
+    // Update form data - updated to handle both single field and object updates
+    const handleFormChange = useCallback((fieldNameOrObject, value) => {
+        if (typeof fieldNameOrObject === 'object' && fieldNameOrObject !== null) {
+            // Handle object update (from step components)
+            setFormData(fieldNameOrObject);
+            // Clear errors for updated fields
+            const updatedFields = Object.keys(fieldNameOrObject);
+            setErrors(prevErrors => {
+                const newErrors = { ...prevErrors };
+                updatedFields.forEach(field => {
+                    delete newErrors[field];
+                });
+                return newErrors;
+            });
+        } else {
+            // Handle single field update
+            setFormData(prevData => ({
+                ...prevData,
+                [fieldNameOrObject]: value
             }));
+
+            // Clear error for this field if any
+            if (errors[fieldNameOrObject]) {
+                setErrors(prevErrors => ({
+                    ...prevErrors,
+                    [fieldNameOrObject]: undefined
+                }));
+            }
         }
     }, [errors]);
 
@@ -184,6 +199,13 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                 newErrors.budget = translate('BudgetTooHigh');
                 isValid = false;
             }
+
+            // Status validation
+            const validStatuses = ['draft', 'active', 'paused', 'completed'];
+            if (!validStatuses.includes(formData.status)) {
+                newErrors.status = translate('InvalidStatus');
+                isValid = false;
+            }
         } else if (step === 1) {
             // Schedule validation (only if scheduling is enabled)
             if (formData.isScheduled) {
@@ -200,13 +222,15 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                     isValid = false;
                 }
 
-                // Check if dates are not in the past
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                // Check if dates are not in the past (only for new campaigns)
+                if (!isEditMode) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
 
-                if (formData.startDate && new Date(formData.startDate) < today) {
-                    newErrors.startDate = translate('StartDateCannotBePast');
-                    isValid = false;
+                    if (formData.startDate && new Date(formData.startDate) < today) {
+                        newErrors.startDate = translate('StartDateCannotBePast');
+                        isValid = false;
+                    }
                 }
             }
         }
@@ -248,7 +272,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
         });
     };
 
-    // Handle form submission
+    // Handle form submission - matching CampaignFormModal's submission logic
     const handleSubmit = async () => {
         try {
             // Final validation of all steps
@@ -272,25 +296,25 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                 is_scheduled: formData.isScheduled
             });
 
-            // Prepare payload
+            // Prepare payload - matching CampaignFormModal structure
             const payload = {
-                businessId,
+                businessId: String(businessId), // Ensure businessId is string
                 name: formData.name.trim(),
                 description: formData.description?.trim() || '',
                 externalId: formData.externalId?.trim() || '',
                 status: formData.status,
                 // Only include dates if scheduling is enabled
-                startDate: formData.isScheduled ? formData.startDate?.toISOString() : null,
-                endDate: formData.isScheduled ? formData.endDate?.toISOString() : null,
+                startDate: formData.isScheduled && formData.startDate ? formData.startDate.toISOString() : null,
+                endDate: formData.isScheduled && formData.endDate ? formData.endDate.toISOString() : null,
                 // Convert budget to number
                 budget: formData.budget ? parseFloat(formData.budget) : 0,
                 targetAudience: formData.targetAudience?.trim() || '',
-                // Include media attachments
-                media: formData.media.map(m => ({
+                // Include media attachments - format them properly
+                media: formData.media.map((m, index) => ({
                     mediaAssetId: m.id,
                     mediaType: m.type,
                     metadata: m.metadata || '',
-                    sortOrder: m.sortOrder || 0
+                    sortOrder: m.sortOrder || index
                 }))
             };
 
@@ -320,14 +344,16 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
             });
 
             // Call the onSave callback with the result
-            onSave(result);
+            if (onSave) {
+                onSave(result);
+            }
 
             // Close the dialog
             onClose();
         } catch (error) {
             console.error('Failed to save campaign:', error);
 
-            // Show error message - Updated to handle ServiceResponse error format
+            // Show error message
             const errorMessage = error?.message || error?.data?.message || translate('ErrorSavingCampaign');
             enqueueSnackbar(errorMessage, { variant: 'error' });
 
@@ -410,7 +436,7 @@ const CampaignWizard = ({ open, onClose, onSave, campaign, businessId }) => {
                 </Stepper>
             </Box>
 
-            {/* API error message - Updated to handle ServiceResponse error format */}
+            {/* API error message */}
             {apiError && (
                 <Box sx={{ px: 3, pt: 0, pb: 2 }}>
                     <Alert severity="error" onClose={() => {}}>

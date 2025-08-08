@@ -19,13 +19,15 @@ import { useSpatialTheme } from '../../../hooks/useSpatialTheme';
 
 /**
  * CampaignBasicInfoStep - First step in the campaign wizard for basic information
+ * Fixed to work with the wizard's onChange prop that accepts both single field and object updates
  */
 const CampaignBasicInfoStep = ({ formData, onChange, errors }) => {
     const { translate } = useCustomTranslation();
     const { isDark, getGlassMorphismStyle } = useSpatialTheme();
 
-    // Handle field changes
+    // Handle field changes - now compatible with wizard's onChange
     const handleChange = (field) => (event) => {
+        // Call onChange with field name and value (wizard handles both formats)
         onChange(field, event.target.value);
     };
 
@@ -64,13 +66,14 @@ const CampaignBasicInfoStep = ({ formData, onChange, errors }) => {
                         label={translate('ExternalId')}
                         value={formData.externalId}
                         onChange={handleChange('externalId')}
+                        error={Boolean(errors.externalId)}
+                        helperText={errors.externalId || translate('ExternalIdHelp')}
                         fullWidth
                         variant="outlined"
                         placeholder={translate('ExternalIdPlaceholder')}
                         InputProps={{
                             sx: { borderRadius: 1 }
                         }}
-                        helperText={translate('ExternalIdHelp')}
                     />
                 </Grid>
 
@@ -88,6 +91,7 @@ const CampaignBasicInfoStep = ({ formData, onChange, errors }) => {
                         >
                             <MenuItem value="draft">{translate('Draft')}</MenuItem>
                             <MenuItem value="active">{translate('Active')}</MenuItem>
+                            <MenuItem value="paused">{translate('Paused')}</MenuItem>
                             <MenuItem value="completed">{translate('Completed')}</MenuItem>
                         </Select>
                         {errors.status && <FormHelperText>{errors.status}</FormHelperText>}
@@ -118,6 +122,8 @@ const CampaignBasicInfoStep = ({ formData, onChange, errors }) => {
                         label={translate('TargetAudience')}
                         value={formData.targetAudience}
                         onChange={handleChange('targetAudience')}
+                        error={Boolean(errors.targetAudience)}
+                        helperText={errors.targetAudience}
                         fullWidth
                         variant="outlined"
                         placeholder={translate('TargetAudiencePlaceholder')}
@@ -133,6 +139,8 @@ const CampaignBasicInfoStep = ({ formData, onChange, errors }) => {
                         label={translate('Description')}
                         value={formData.description}
                         onChange={handleChange('description')}
+                        error={Boolean(errors.description)}
+                        helperText={errors.description}
                         fullWidth
                         multiline
                         rows={4}
@@ -184,6 +192,10 @@ CampaignBasicInfoStep.propTypes = {
     }).isRequired,
     onChange: PropTypes.func.isRequired,
     errors: PropTypes.object
+};
+
+CampaignBasicInfoStep.defaultProps = {
+    errors: {}
 };
 
 export default React.memo(CampaignBasicInfoStep);

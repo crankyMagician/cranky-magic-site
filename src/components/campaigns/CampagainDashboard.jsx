@@ -24,7 +24,7 @@ import { useSpatialTheme } from '../../hooks/useSpatialTheme';
 import { useMatrixText } from '../../hooks/useMatrixText';
 import useAuth from '../../hooks/useAuth';
 import CampaignList from './CampaignList';
-import CampaignFormModal from './CampaignFormModal';
+import CampaignWizard from './CampaignWizard';
 import CampaignMetrics from './CampaignMetrics';
 import NoResultsFound from '../common/NoResultsFound';
 
@@ -45,8 +45,8 @@ const CampaignDashboard = () => {
     // Tab state - set to 'all' to show all campaigns by default
     const [activeTab, setActiveTab] = useState('all');
 
-    // Modal state
-    const [createModalOpen, setCreateModalOpen] = useState(false);
+    // Wizard state - CHANGED FROM MODAL TO WIZARD
+    const [createWizardOpen, setCreateWizardOpen] = useState(false);
     const [selectedCampaign, setSelectedCampaign] = useState(null);
 
     // RTK Query hook for fetching campaigns - MOVED TO TOP, always called
@@ -128,21 +128,21 @@ const CampaignDashboard = () => {
         });
     }, [analytics, activeBusinessId]);
 
-    // Handler for opening create modal - MOVED TO TOP
-    const handleOpenCreateModal = useCallback(() => {
+    // Handler for opening create wizard - CHANGED FROM MODAL TO WIZARD
+    const handleOpenCreateWizard = useCallback(() => {
         setSelectedCampaign(null);
-        setCreateModalOpen(true);
+        setCreateWizardOpen(true);
 
-        // Track modal open for analytics
-        analytics.trackEvent('campaign_create_modal_open', {
+        // Track wizard open for analytics
+        analytics.trackEvent('campaign_create_wizard_open', {
             business_id: activeBusinessId
         });
     }, [analytics, activeBusinessId]);
 
-    // Handler for opening edit modal - MOVED TO TOP
+    // Handler for opening edit wizard - CHANGED FROM MODAL TO WIZARD
     const handleEditCampaign = useCallback((campaign) => {
         setSelectedCampaign(campaign);
-        setCreateModalOpen(true);
+        setCreateWizardOpen(true);
 
         // Track edit action for analytics
         analytics.trackEvent('campaign_edit_start', {
@@ -152,23 +152,24 @@ const CampaignDashboard = () => {
         });
     }, [analytics, activeBusinessId]);
 
-    // Handler for closing modal - MOVED TO TOP
-    const handleCloseModal = useCallback(() => {
-        setCreateModalOpen(false);
+    // Handler for closing wizard - CHANGED FROM MODAL TO WIZARD
+    const handleCloseWizard = useCallback(() => {
+        setCreateWizardOpen(false);
         setSelectedCampaign(null);
     }, []);
 
-    // Handler for successful campaign creation/update - MOVED TO TOP
-    const handleCampaignSaved = useCallback(() => {
-        handleCloseModal();
+    // Handler for successful campaign creation/update - UPDATED FOR WIZARD
+    const handleCampaignSaved = useCallback((savedCampaign) => {
+        handleCloseWizard();
         refetch();
 
         // Track success for analytics
         analytics.trackEvent('campaign_saved', {
             is_new: !selectedCampaign,
+            campaign_id: savedCampaign?.id,
             business_id: activeBusinessId
         });
-    }, [analytics, activeBusinessId, refetch, selectedCampaign, handleCloseModal]);
+    }, [analytics, activeBusinessId, refetch, selectedCampaign, handleCloseWizard]);
 
     // Manual refresh handler - MOVED TO TOP
     const handleRefresh = useCallback(() => {
@@ -263,7 +264,7 @@ const CampaignDashboard = () => {
                         variant="contained"
                         color="primary"
                         startIcon={<AddIcon />}
-                        onClick={handleOpenCreateModal}
+                        onClick={handleOpenCreateWizard}
                         sx={{
                             ...getGlowEffect(theme => theme.palette.primary.main, 'low'),
                             transition: getAnimationDuration(300),
@@ -321,7 +322,7 @@ const CampaignDashboard = () => {
                         title={translate('NoCampaignsFound')}
                         description={translate('NoCampaignsDescription')}
                         actionText={translate('CreateFirstCampaign')}
-                        onAction={handleOpenCreateModal}
+                        onAction={handleOpenCreateWizard}
                         icon="campaign"
                     />
                 )}
@@ -337,7 +338,7 @@ const CampaignDashboard = () => {
                             right: 20,
                             ...getGlowEffect(theme => theme.palette.primary.main, 'medium')
                         }}
-                        onClick={handleOpenCreateModal}
+                        onClick={handleOpenCreateWizard}
                     >
                         <AddIcon />
                     </Fab>
@@ -359,10 +360,10 @@ const CampaignDashboard = () => {
                 </Fab>
             </Box>
 
-            {/* Campaign form modal */}
-            <CampaignFormModal
-                open={createModalOpen}
-                onClose={handleCloseModal}
+            {/* Campaign Wizard - CHANGED FROM CampaignFormModal to CampaignWizard */}
+            <CampaignWizard
+                open={createWizardOpen}
+                onClose={handleCloseWizard}
                 onSave={handleCampaignSaved}
                 campaign={selectedCampaign}
                 businessId={activeBusinessId}

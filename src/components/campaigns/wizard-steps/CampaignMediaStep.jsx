@@ -61,21 +61,22 @@ import {
 import useCustomTranslation from '../../../hooks/useCustomTranslation';
 import { useSpatialTheme } from '../../../hooks/useSpatialTheme';
 import useAnalytics from '../../../analytics/hooks/useAnalytics';
+// Fixed imports - using the correct API slice exports
 import {
     useGetBusinessMediaQuery,
     useGetMediaTypesQuery,
-    useAttachCampaignMediaMutation
-} from '../../../api/mediaApi';
+    useUploadMediaMutation
+} from '../../../api/apiSlice';
 import {
     useCreateTargetMutation,
     useCreateTargetsBatchMutation,
     vuforiaUtils
-} from '../../../api/vuforiaApi';
+} from '../../../api/apiSlice';
 
 /**
  * Campaign Media Step - Enhanced with Vuforia AR upload support
  * Allows users to attach existing media or upload new images to Vuforia for AR experiences
- * Updated to work with new Vuforia API that requires Base64 encoding
+ * Updated to work with correct API imports
  */
 const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false }) => {
     const { translate } = useCustomTranslation();
@@ -107,17 +108,20 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     const [uploadProgress, setUploadProgress] = useState({});
     const [uploadErrors, setUploadErrors] = useState({});
 
-    // API hooks - Updated with new Vuforia mutations
+    // API hooks - Using correct imports from apiSlice
     const { data: businessMediaResponse, isLoading: isLoadingMedia, refetch: refetchMedia } = useGetBusinessMediaQuery({
         businessId,
         mediaTypeId: mediaTypeFilter,
         page: 1,
         pageSize: 50
+    }, {
+        skip: !businessId
     });
-    const { data: mediaTypesData } = useGetMediaTypesQuery();
-    const [attachMedia, { isLoading: isAttaching }] = useAttachCampaignMediaMutation();
 
-    // Updated Vuforia API hooks
+    const { data: mediaTypesData } = useGetMediaTypesQuery();
+    const [uploadMedia, { isLoading: isUploadingMedia }] = useUploadMediaMutation();
+
+    // Vuforia API hooks
     const [createTarget, { isLoading: isUploading }] = useCreateTargetMutation();
     const [createTargetsBatch, { isLoading: isBatchUploading }] = useCreateTargetsBatchMutation();
 
@@ -143,22 +147,40 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
         );
     }, [businessMedia, searchTerm]);
 
-    // File input handling for Vuforia uploads (without external dependencies)
+    // File input handling for Vuforia uploads
     const handleFileSelection = useCallback((event) => {
         const files = Array.from(event.target.files || []);
 
-        // Validate files using Vuforia utils
+        // Validate files
         const validFiles = [];
         const invalidFiles = [];
 
         files.forEach(file => {
-            const validation = vuforiaUtils.validateMediaFile(file, {
-                maxSize: 10 * 1024 * 1024, // 10MB
-                allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-                allowedExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-            });
+            // Basic validation
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
 
-            if (validation.isValid) {
+            let isValid = true;
+            const errors = [];
+
+            if (file.size > maxSize) {
+                errors.push(`File size exceeds maximum of 10MB`);
+                isValid = false;
+            }
+
+            if (!allowedTypes.includes(file.type)) {
+                errors.push(`File type ${file.type} is not allowed`);
+                isValid = false;
+            }
+
+            const extension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            if (!allowedExtensions.includes(extension)) {
+                errors.push(`File extension ${extension} is not allowed`);
+                isValid = false;
+            }
+
+            if (isValid) {
                 validFiles.push({
                     file,
                     id: Math.random().toString(36).substr(2, 9),
@@ -166,7 +188,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                     progress: 0
                 });
             } else {
-                invalidFiles.push({ file, errors: validation.errors });
+                invalidFiles.push({ file, errors });
             }
         });
 
@@ -247,8 +269,9 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                 source: 'existing'
             };
 
+            // Update formData through onChange prop
             const updatedMedia = [...(formData.media || []), mediaItem];
-            onChange({ ...formData, media: updatedMedia });
+            onChange('media', updatedMedia);
 
             handleCloseMediaModal();
 
@@ -265,7 +288,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
     // Remove media from campaign
     const handleRemoveMedia = (index) => {
         const updatedMedia = formData.media.filter((_, i) => i !== index);
-        onChange({ ...formData, media: updatedMedia });
+        onChange('media', updatedMedia);
 
         analytics.trackEvent('campaign_media_removed', {
             media_index: index,
@@ -286,7 +309,16 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
         return vuforiaUtils.validateVideoMetadata(videoMetadata);
     }, [videoMetadata]);
 
-    // Upload single file to Vuforia - Updated for new API
+    // Format file size for display
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    // Upload single file to Vuforia
     const uploadSingleFile = async (fileItem) => {
         try {
             setUploadProgress(prev => ({ ...prev, [fileItem.id]: 0 }));
@@ -308,26 +340,26 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
             // Prepare target data with Base64 conversion
             const targetData = await vuforiaUtils.prepareTargetData({
                 file: fileItem.file,
-                name: fileItem.file.name.split('.')[0], // Use filename without extension
-                width: 1.0, // Default width
+                name: fileItem.file.name.split('.')[0],
+                width: 1.0,
                 videoMetadata: videoMetadata.videoUrl ? videoMetadata : null,
                 active: true
             });
 
-            // Create target using new API
+            // Create target using API
             const result = await createTarget(targetData).unwrap();
 
             clearInterval(progressInterval);
             setUploadProgress(prev => ({ ...prev, [fileItem.id]: 100 }));
 
             if (result.success && result.targetId) {
-                // Add to campaign media with new response structure
+                // Add to campaign media
                 const mediaItem = {
                     id: result.targetId,
                     name: fileItem.file.name,
                     type: 'ar_image',
                     metadata: JSON.stringify(videoMetadata),
-                    url: URL.createObjectURL(fileItem.file), // Create local URL for preview
+                    url: URL.createObjectURL(fileItem.file),
                     thumbnailUrl: URL.createObjectURL(fileItem.file),
                     source: 'vuforia',
                     vuforiaData: {
@@ -337,7 +369,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                 };
 
                 const updatedMedia = [...(formData.media || []), mediaItem];
-                onChange({ ...formData, media: updatedMedia });
+                onChange('media', updatedMedia);
 
                 // Update file status
                 setVuforiaFiles(prev => prev.map(f =>
@@ -385,7 +417,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
         }
     };
 
-    // Upload all pending files - Updated for new batch API
+    // Upload all pending files
     const handleUploadAllFiles = async () => {
         const pendingFiles = vuforiaFiles.filter(f => f.status === 'pending');
 
@@ -413,7 +445,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                     }))
                 );
 
-                // Create batch targets using new API
+                // Create batch targets using API
                 const result = await createTargetsBatch(targets).unwrap();
 
                 if (result.success && result.results) {
@@ -462,7 +494,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
 
                     if (newMediaItems.length > 0) {
                         const updatedMedia = [...(formData.media || []), ...newMediaItems];
-                        onChange({ ...formData, media: updatedMedia });
+                        onChange('media', updatedMedia);
                     }
 
                     analytics.trackEvent('vuforia_batch_upload_complete', {
@@ -759,7 +791,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                             secondary={
                                                 <Box>
                                                     <Typography variant="caption" component="span">
-                                                        {vuforiaUtils.formatFileSize(file.file.size)}
+                                                        {formatFileSize(file.file.size)}
                                                     </Typography>
                                                     {file.status === 'uploading' && (
                                                         <LinearProgress
@@ -958,7 +990,6 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                                 onClick={() => {
                                     handleCloseMediaModal();
                                     // Here you would typically redirect to media upload page
-                                    // navigate('/media/upload');
                                 }}
                             >
                                 {translate('UploadNewMedia')}
@@ -1014,8 +1045,7 @@ const CampaignMediaStep = ({ formData, onChange, businessId, isEditMode = false 
                         onClick={handleAddMedia}
                         variant="contained"
                         color="primary"
-                        disabled={!selectedMediaAsset || !selectedMediaType || isAttaching}
-                        startIcon={isAttaching ? <CircularProgress size={20} /> : null}
+                        disabled={!selectedMediaAsset || !selectedMediaType}
                     >
                         {translate('AttachToCampaign')}
                     </Button>

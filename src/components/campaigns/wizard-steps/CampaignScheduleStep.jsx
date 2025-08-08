@@ -8,7 +8,8 @@ import {
     FormControlLabel,
     Switch,
     Tooltip,
-    FormHelperText
+    FormHelperText,
+    TextField
 } from '@mui/material';
 import {
     DatePicker
@@ -22,6 +23,7 @@ import useAnalytics from '../../../analytics/hooks/useAnalytics';
 
 /**
  * CampaignScheduleStep - Second step in the campaign wizard for scheduling
+ * Fixed to work with the wizard's onChange prop and date handling
  */
 const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMode }) => {
     const { translate } = useCustomTranslation();
@@ -31,7 +33,15 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
     // Handle schedule toggle
     const handleScheduleToggle = (event) => {
         const isChecked = event.target.checked;
+
+        // Update isScheduled field
         onChange('isScheduled', isChecked);
+
+        // If unchecking, clear the dates
+        if (!isChecked) {
+            onChange('startDate', null);
+            onChange('endDate', null);
+        }
 
         analytics.trackEvent('campaign_schedule_toggle', {
             is_scheduled: isChecked,
@@ -43,6 +53,7 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
 
     // Handle date changes
     const handleDateChange = (field) => (newDate) => {
+        // Update the date field
         onChange(field, newDate);
 
         analytics.trackEvent('campaign_date_change', {
@@ -50,6 +61,39 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
             business_id: businessId,
             is_edit: isEditMode
         });
+    };
+
+    // Calculate and format duration between two dates
+    const calculateDuration = (startDate, endDate) => {
+        if (!startDate || !endDate) return '';
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) {
+            return translate('SameDay');
+        } else if (diffDays === 1) {
+            return translate('OneDay');
+        } else if (diffDays < 30) {
+            return translate('DurationDays', { count: diffDays });
+        } else if (diffDays < 365) {
+            const months = Math.floor(diffDays / 30);
+            const remainingDays = diffDays % 30;
+            if (remainingDays === 0) {
+                return translate('DurationMonths', { count: months });
+            }
+            return translate('DurationMonthsDays', { months, days: remainingDays });
+        } else {
+            const years = Math.floor(diffDays / 365);
+            const remainingMonths = Math.floor((diffDays % 365) / 30);
+            if (remainingMonths === 0) {
+                return translate('DurationYears', { count: years });
+            }
+            return translate('DurationYearsMonths', { years, months: remainingMonths });
+        }
     };
 
     return (
@@ -112,6 +156,14 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
                                             }
                                         }
                                     }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            fullWidth
+                                            error={Boolean(errors.startDate)}
+                                            helperText={errors.startDate}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -119,23 +171,27 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
                                     label={translate('EndDate')}
                                     value={formData.endDate}
                                     onChange={handleDateChange('endDate')}
+                                    minDate={formData.startDate || undefined}
                                     slotProps={{
                                         textField: {
                                             fullWidth: true,
                                             variant: 'outlined',
                                             error: Boolean(errors.endDate),
-                                            helperText: errors.endDate,
+                                            helperText: errors.endDate || translate('EndDateHelperText'),
                                             InputProps: {
                                                 sx: { borderRadius: 1 }
                                             }
                                         }
                                     }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            fullWidth
+                                            error={Boolean(errors.endDate)}
+                                            helperText={errors.endDate || translate('EndDateHelperText')}
+                                        />
+                                    )}
                                 />
-                                {!errors.endDate && (
-                                    <FormHelperText>
-                                        {translate('EndDateHelperText')}
-                                    </FormHelperText>
-                                )}
                             </Grid>
                         </Grid>
                     )}
@@ -144,13 +200,44 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
                 {/* Campaign Duration Info */}
                 {formData.isScheduled && formData.startDate && formData.endDate && (
                     <Box sx={{ mt: 3 }}>
-                        <Typography variant="subtitle2">
+                        <Typography variant="subtitle2" gutterBottom>
                             {translate('CampaignDuration')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            {calculateDuration(formData.startDate, formData.endDate, translate)}
+                            {calculateDuration(formData.startDate, formData.endDate)}
                         </Typography>
+
+                        {/* Additional schedule information */}
+                        <Box sx={{ mt: 2 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                {translate('StartDate')}: {new Date(formData.startDate).toLocaleDateString()}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                {translate('EndDate')}: {new Date(formData.endDate).toLocaleDateString()}
+                            </Typography>
+                        </Box>
                     </Box>
+                )}
+
+                {/* Warning for past dates in edit mode */}
+                {isEditMode && formData.isScheduled && formData.startDate && (
+                    (() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const startDate = new Date(formData.startDate);
+                        startDate.setHours(0, 0, 0, 0);
+
+                        if (startDate < today) {
+                            return (
+                                <Box sx={{ mt: 2 }}>
+                                    <Typography variant="caption" color="warning.main">
+                                        {translate('CampaignAlreadyStarted')}
+                                    </Typography>
+                                </Box>
+                            );
+                        }
+                        return null;
+                    })()
                 )}
 
                 {/* Tips Section */}
@@ -182,35 +269,6 @@ const CampaignScheduleStep = ({ formData, onChange, errors, businessId, isEditMo
     );
 };
 
-// Helper function to calculate and format duration between two dates
-const calculateDuration = (startDate, endDate, translate) => {
-    if (!startDate || !endDate) return '';
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 30) {
-        return translate('DurationDays', { count: diffDays });
-    } else if (diffDays < 365) {
-        const months = Math.floor(diffDays / 30);
-        const remainingDays = diffDays % 30;
-        if (remainingDays === 0) {
-            return translate('DurationMonths', { count: months });
-        }
-        return translate('DurationMonthsDays', { months, days: remainingDays });
-    } else {
-        const years = Math.floor(diffDays / 365);
-        const remainingMonths = Math.floor((diffDays % 365) / 30);
-        if (remainingMonths === 0) {
-            return translate('DurationYears', { count: years });
-        }
-        return translate('DurationYearsMonths', { years, months: remainingMonths });
-    }
-};
-
 CampaignScheduleStep.propTypes = {
     formData: PropTypes.shape({
         isScheduled: PropTypes.bool,
@@ -222,6 +280,11 @@ CampaignScheduleStep.propTypes = {
     errors: PropTypes.object,
     businessId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     isEditMode: PropTypes.bool
+};
+
+CampaignScheduleStep.defaultProps = {
+    errors: {},
+    isEditMode: false
 };
 
 export default React.memo(CampaignScheduleStep);
