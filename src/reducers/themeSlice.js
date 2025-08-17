@@ -14,7 +14,13 @@ const themes = [
     'sunset',
     'mint',
     'retro_neon',
-    'high_contrast'
+    'high_contrast',
+    //added for christopher
+    'cs_color_27_v1',
+    'cs_color_30_v2',
+    'cs_color_23_v3',
+    'cs_color_29_v4',
+    'cs_color_31_v5'
 ];
 
 // Get initial theme from service or default to first theme

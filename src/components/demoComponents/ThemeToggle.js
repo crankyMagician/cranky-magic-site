@@ -22,6 +22,7 @@ import WbTwilightIcon from '@mui/icons-material/WbTwilight';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import GradientIcon from '@mui/icons-material/Gradient';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const ThemeToggle = () => {
     const dispatch = useDispatch();
@@ -54,6 +55,12 @@ const ThemeToggle = () => {
         { label: 'Sunset', value: 'sunset', icon: <WbTwilightIcon /> },
         { label: 'Mint', value: 'mint', icon: <FilterVintageIcon /> },
         { label: 'Retro Neon', value: 'retro_neon', icon: <GradientIcon /> },
+        // Add your new color schemes
+        { label: 'CS Color V1', value: 'cs_color_27_v1', icon: <AutoAwesomeIcon /> },
+        { label: 'CS Color V2', value: 'cs_color_30_v2', icon: <AutoAwesomeIcon /> },
+        { label: 'CS Color V3', value: 'cs_color_23_v3', icon: <AutoAwesomeIcon /> },
+        { label: 'CS Color V4', value: 'cs_color_29_v4', icon: <AutoAwesomeIcon /> },
+        { label: 'CS Color V5', value: 'cs_color_31_v5', icon: <AutoAwesomeIcon /> },
     ];
 
     return (
