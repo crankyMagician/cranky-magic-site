@@ -19,6 +19,9 @@ import { csColor30V2 } from "./spatialcolor/cs_color_30_v2";
 import { csColor23V3 } from "./spatialcolor/cs_color_23_v3";
 import { csColor29V4 } from "./spatialcolor/cs_color_29_v4";
 import { csColor31V5 } from "./spatialcolor/cs_color_31_v5";
+// Import Cranky Magician palettes
+import { crankyMagicianDark } from "./palettes/crankyMagicianDark";
+import { crankyMagicianLight } from "./palettes/crankyMagicianLight";
 
 // Import all typography
 import spatialModsTypography from "./typography/spatialTypograhpy";
@@ -32,6 +35,8 @@ import highContrastAccessibilityTypography from "./typography/highContrastAccess
 import darkTypography from "./typography/darkTypography";
 import corporateMemphisTypography from "./typography/corporateMemphisTypography";
 import altTypography from "./typography/altTypography";
+// Import Cranky Magician typography
+import crankyMagicianTypography from "./typography/crankyMagicianTypography";
 
 // Import icons for theme selection
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -46,9 +51,36 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import GradientIcon from '@mui/icons-material/Gradient';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import StarsIcon from '@mui/icons-material/Stars';
 
 // Central Theme Registry
 export const THEME_REGISTRY = {
+    // Cranky Magician themes (placed first for priority)
+    cranky_dark: {
+        id: 'cranky_dark',
+        name: 'Cranky Magician Dark',
+        category: 'dark',
+        palette: crankyMagicianDark,
+        typography: crankyMagicianTypography,
+        defaultComponentOverride: 'wizard',
+        icon: React.createElement(AutoFixHighIcon),
+        description: 'Mystical dark theme with wizard-inspired colors and magical effects',
+        isNew: true,
+        tags: ['magical', 'wizard', 'dark', 'cranky', 'mystical']
+    },
+    cranky_light: {
+        id: 'cranky_light',
+        name: 'Cranky Magician Light',
+        category: 'light',
+        palette: crankyMagicianLight,
+        typography: crankyMagicianTypography,
+        defaultComponentOverride: 'wizard',
+        icon: React.createElement(StarsIcon),
+        description: 'Mystical light theme with wizard-inspired colors and magical effects',
+        isNew: true,
+        tags: ['magical', 'wizard', 'light', 'cranky', 'mystical']
+    },
     light: {
         id: 'light',
         name: 'Light',
@@ -153,9 +185,9 @@ export const THEME_REGISTRY = {
         typography: sunsetTypography,
         defaultComponentOverride: 'clean',
         icon: React.createElement(WbTwilightIcon),
-        description: 'Warm sunset-inspired color palette',
+        description: 'Warm sunset-inspired color theme',
         isNew: false,
-        tags: ['warm', 'sunset', 'organic']
+        tags: ['warm', 'sunset', 'gradient']
     },
     mint: {
         id: 'mint',
@@ -165,9 +197,9 @@ export const THEME_REGISTRY = {
         typography: mintTypography,
         defaultComponentOverride: 'clean',
         icon: React.createElement(FilterVintageIcon),
-        description: 'Fresh mint green theme with calming tones',
+        description: 'Fresh mint green theme',
         isNew: false,
-        tags: ['fresh', 'mint', 'calming']
+        tags: ['fresh', 'mint', 'green']
     },
     retro_neon: {
         id: 'retro_neon',
@@ -177,9 +209,9 @@ export const THEME_REGISTRY = {
         typography: retroNeonTypography,
         defaultComponentOverride: 'cranky',
         icon: React.createElement(GradientIcon),
-        description: 'Retro neon theme with vibrant colors',
+        description: 'Vibrant retro neon theme with 80s aesthetics',
         isNew: false,
-        tags: ['retro', 'neon', 'vibrant', 'dark']
+        tags: ['retro', 'neon', '80s', 'vibrant']
     },
     high_contrast: {
         id: 'high_contrast',
@@ -203,7 +235,7 @@ export const THEME_REGISTRY = {
         icon: React.createElement(AutoAwesomeIcon),
         description: 'Custom color scheme V1',
         isNew: true,
-        tags: ['custom', 'christopher', 'unique']
+        tags: ['custom', 'christopher', 'purple']
     },
     cs_color_30_v2: {
         id: 'cs_color_30_v2',
@@ -287,6 +319,15 @@ export const isDarkTheme = (themeId) => {
 
 export const isSpatialTheme = (themeId) => {
     return themeId === 'light' || themeId === 'dark';
+};
+
+export const isCrankyMagicianTheme = (themeId) => {
+    return themeId === 'cranky_light' || themeId === 'cranky_dark';
+};
+
+export const isDarkThemeMode = (themeId) => {
+    const darkThemes = ['dark', 'cranky_dark', 'munchie_dark', 'retro_neon', 'cs_color_30_v2', 'cs_color_29_v4'];
+    return darkThemes.includes(themeId);
 };
 
 // Get palette by theme ID

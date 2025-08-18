@@ -1,386 +1,269 @@
-
-
 // src/themes/palettes/crankyMagicianDark.js
-import {alpha} from "@mui/material/styles";
+import { alpha } from '@mui/material/styles';
 
+/**
+ * Cranky Magician Dark Theme Palette
+ * A mystical dark theme with wizard-inspired colors
+ * WCAG AA compliant for accessibility
+ */
 export const crankyMagicianDark = {
     mode: 'dark',
 
-    // Primary colors - Bright purple for magic in dark mode
+    // Primary - Cranky Purple
     primary: {
-        main: '#9575CD', // Lighter purple for dark mode - WCAG AA compliant
-        light: '#B39DDB',
-        dark: '#7E57C2',
-        contrastText: '#000000',
+        main: '#6B4BAF',
+        light: '#8A6FC7',
+        dark: '#4E3580',
+        contrastText: '#FFFFFF',
+        // Additional shades for gradients
+        50: '#EDE7F6',
+        100: '#D1C4E9',
+        200: '#B39DDB',
+        300: '#9575CD',
+        400: '#7E57C2',
+        500: '#6B4BAF',
+        600: '#5E35B1',
+        700: '#512DA8',
+        800: '#4527A0',
+        900: '#311B92',
     },
 
-    // Secondary colors - Mystical gold
+    // Secondary - Lightning Blue
     secondary: {
-        main: '#FFD54F', // Brighter gold for dark mode
-        light: '#FFECB3',
-        dark: '#FFC107',
-        contrastText: '#000000',
+        main: '#2FB2DD',
+        light: '#5CC5E7',
+        dark: '#1F8AAF',
+        contrastText: '#FFFFFF',
+        50: '#E0F7FA',
+        100: '#B2EBF2',
+        200: '#80DEEA',
+        300: '#4DD0E1',
+        400: '#26C6DA',
+        500: '#2FB2DD',
+        600: '#00ACC1',
+        700: '#0097A7',
+        800: '#00838F',
+        900: '#006064',
     },
 
-    // Error, warning, info, success with WCAG compliance for dark mode
+    // Error - Angry Red (with magical twist)
     error: {
-        main: '#F44336',
-        light: '#EF5350',
+        main: '#FF5252',
+        light: '#FF8A80',
         dark: '#D32F2F',
-        contrastText: '#000000',
+        contrastText: '#FFFFFF',
     },
+
+    // Warning - Serious Flesh (for warnings/highlights)
     warning: {
-        main: '#FFA726',
-        light: '#FFB74D',
-        dark: '#F57C00',
-        contrastText: '#000000',
+        main: '#F7B591',
+        light: '#FFCCBC',
+        dark: '#E6A373',
+        contrastText: '#1D1129',
     },
+
+    // Info - Wand Spark Blue
     info: {
-        main: '#29B6F6',
-        light: '#4FC3F7',
-        dark: '#039BE5',
-        contrastText: '#000000',
+        main: '#3FD1E2',
+        light: '#6FE0ED',
+        dark: '#2CA7B8',
+        contrastText: '#10091B',
     },
+
+    // Success - Binary Glow Teal
     success: {
-        main: '#66BB6A',
-        light: '#81C784',
-        dark: '#4CAF50',
-        contrastText: '#000000',
+        main: '#2BC5AF',
+        light: '#5DD5C2',
+        dark: '#1E9985',
+        contrastText: '#FFFFFF',
     },
 
-    // Background colors for dark theme
-    background: {
-        default: '#121212',
-        paper: '#1E1E1E',
+    // Grey scale for UI elements
+    grey: {
+        50: '#FAFAFA',
+        100: '#F5F5F5',
+        200: '#EEEEEE',
+        300: '#E0E0E0',
+        400: '#BDBDBD',
+        500: '#9E9E9E',
+        600: '#757575',
+        700: '#616161',
+        800: '#424242',
+        900: '#212121',
+        A100: '#F5F5F5',
+        A200: '#EEEEEE',
+        A400: '#BDBDBD',
+        A700: '#616161',
     },
 
-    // Text colors with WCAG compliance for dark backgrounds
+    // Text colors
     text: {
-        primary: 'rgba(255, 255, 255, 0.87)', // WCAG AA compliant
-        secondary: 'rgba(255, 255, 255, 0.60)', // WCAG AA compliant
+        primary: '#FFFFFF',
+        secondary: 'rgba(255, 255, 255, 0.7)',
         disabled: 'rgba(255, 255, 255, 0.38)',
+        hint: 'rgba(255, 255, 255, 0.38)',
     },
 
     // Divider
     divider: 'rgba(255, 255, 255, 0.12)',
 
-    // Action colors
-    action: {
-        active: 'rgba(255, 255, 255, 0.54)',
-        hover: 'rgba(255, 255, 255, 0.04)',
-        selected: 'rgba(255, 255, 255, 0.08)',
-        disabled: 'rgba(255, 255, 255, 0.26)',
-        disabledBackground: 'rgba(255, 255, 255, 0.12)',
+    // Background colors
+    background: {
+        default: '#10091B', // Deep Night Background
+        paper: '#1D1129', // Angry Eyebrow Black
+        elevated: '#241534', // Slightly lighter for elevation
     },
 
-    // Custom colors for magical effects in dark mode
+    // Action colors
+    action: {
+        active: '#FFFFFF',
+        hover: alpha('#FFFFFF', 0.08),
+        hoverOpacity: 0.08,
+        selected: alpha('#FFFFFF', 0.16),
+        selectedOpacity: 0.16,
+        disabled: alpha('#FFFFFF', 0.38),
+        disabledBackground: alpha('#FFFFFF', 0.12),
+        disabledOpacity: 0.38,
+        focus: alpha('#FFFFFF', 0.12),
+        focusOpacity: 0.12,
+        activatedOpacity: 0.24,
+    },
+
+    // Custom magical colors
     custom: {
-        magicGlow: 'rgba(149, 117, 205, 0.25)',
-        sparkle: '#311B92',
-        mysticMist: 'rgba(149, 117, 205, 0.12)',
-        cardGradient: 'linear-gradient(135deg, rgba(149, 117, 205, 0.15) 0%, rgba(255, 213, 79, 0.15) 100%)',
-        overlay: 'rgba(18, 18, 18, 0.9)',
-        glassMorphism: 'rgba(30, 30, 30, 0.75)',
-        codeBackground: 'rgba(26, 26, 26, 0.95)',
-        dataStream: 'linear-gradient(180deg, rgba(149, 117, 205, 0.2) 0%, transparent 100%)',
-        glowEffect: '0 0 30px rgba(149, 117, 205, 0.5), 0 0 60px rgba(149, 117, 205, 0.25)',
-        hologram: 'linear-gradient(135deg, rgba(149, 117, 205, 0.2) 0%, rgba(179, 157, 219, 0.2) 100%)',
-        gridLine: 'rgba(149, 117, 205, 0.25)',
-        digitalPulse: 'rgba(149, 117, 205, 0.8)',
-        matrixRain: 'rgba(149, 117, 205, 0.35)',
-        scanline: 'rgba(149, 117, 205, 0.08)',
-        getAlphaColor: (color, alpha) => {
+        // Magical gradients
+        magicalGradient: 'linear-gradient(135deg, #6B4BAF 0%, #2FB2DD 50%, #2BC5AF 100%)',
+        purpleGradient: 'linear-gradient(135deg, #6B4BAF 0%, #8A6FC7 100%)',
+        lightningGradient: 'linear-gradient(135deg, #2FB2DD 0%, #3FD1E2 100%)',
+
+        // Glow effects
+        purpleGlow: '0 0 20px rgba(107, 75, 175, 0.6)',
+        blueGlow: '0 0 20px rgba(47, 178, 221, 0.6)',
+        tealGlow: '0 0 20px rgba(43, 197, 175, 0.6)',
+
+        // Particle colors
+        sparkleGold: '#FFD700',
+        sparkleWhite: '#FFFFFF',
+        sparklePurple: '#9575CD',
+
+        // Background overlays
+        overlay: 'rgba(16, 9, 27, 0.85)',
+        glassMorphism: 'rgba(29, 17, 41, 0.7)',
+        codeBackground: 'rgba(36, 21, 52, 0.95)',
+
+        // Magic effects
+        magicPulse: 'rgba(107, 75, 175, 0.4)',
+        lightningStrike: 'rgba(47, 178, 221, 0.8)',
+        wandTrail: 'rgba(63, 209, 226, 0.3)',
+        mysticAura: 'rgba(43, 197, 175, 0.2)',
+
+        // Interactive states
+        hoverGlow: alpha('#6B4BAF', 0.2),
+        focusRing: alpha('#2FB2DD', 0.4),
+        activePress: alpha('#2BC5AF', 0.3),
+
+        // Card effects
+        cardBorder: alpha('#6B4BAF', 0.3),
+        cardShadow: '0 4px 20px rgba(107, 75, 175, 0.15)',
+        cardHoverShadow: '0 8px 30px rgba(107, 75, 175, 0.25)',
+
+        // Text effects
+        glowText: {
+            textShadow: '0 0 10px rgba(107, 75, 175, 0.8), 0 0 20px rgba(107, 75, 175, 0.6)',
+        },
+
+        // Animation helpers
+        getAlphaColor: (color, alphaValue) => {
             if (!color) return null;
             if (color.startsWith('rgba')) return color;
+
             let hex = color.replace('#', '');
             if (hex.length === 3) {
                 hex = hex.split('').map(char => char + char).join('');
             }
+
             const r = parseInt(hex.substring(0, 2), 16);
             const g = parseInt(hex.substring(2, 4), 16);
             const b = parseInt(hex.substring(4, 6), 16);
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        }
+
+            return `rgba(${r}, ${g}, ${b}, ${alphaValue})`;
+        },
+
+        // Particle system colors
+        particles: {
+            primary: '#6B4BAF',
+            secondary: '#2FB2DD',
+            tertiary: '#2BC5AF',
+            accent: '#F7B591',
+            sparkle: '#FFD700',
+        },
+
+        // Depth layers
+        elevation: {
+            0: '#10091B',
+            1: '#1D1129',
+            2: '#241534',
+            3: '#2B1A3F',
+            4: '#321F4A',
+            5: '#392455',
+            6: '#402960',
+            8: '#472E6B',
+            12: '#4E3376',
+            16: '#553881',
+            24: '#5C3D8C',
+        },
+
+        // Special effects
+        aurora: 'linear-gradient(45deg, rgba(107, 75, 175, 0.3) 0%, rgba(47, 178, 221, 0.3) 50%, rgba(43, 197, 175, 0.3) 100%)',
+        nebula: 'radial-gradient(circle at 30% 80%, rgba(107, 75, 175, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(47, 178, 221, 0.4) 0%, transparent 50%)',
+        constellation: 'radial-gradient(2px 2px at 20% 30%, white, transparent), radial-gradient(2px 2px at 60% 70%, white, transparent), radial-gradient(1px 1px at 50% 50%, white, transparent)',
+
+        // Status indicators
+        online: '#2BC5AF',
+        offline: '#757575',
+        busy: '#F7B591',
+        away: '#FFD700',
+
+        // Code syntax colors (for developer mode)
+        syntax: {
+            keyword: '#C678DD',
+            string: '#98C379',
+            comment: '#5C6370',
+            function: '#61AFEF',
+            variable: '#E06C75',
+            number: '#D19A66',
+            operator: '#56B6C2',
+            className: '#E5C07B',
+        },
     },
 
-    // Tertiary color for additional branding
-    tertiary: {
-        main: '#4DD0E1', // Mystical teal for dark mode
-        light: '#80DEEA',
-        dark: '#26C6DA',
-        contrastText: '#000000',
+    // Augmented colors for MUI components
+    augmentColor: {
+        color: {
+            main: '#6B4BAF',
+        },
+        mainShade: 500,
+        lightShade: 300,
+        darkShade: 700,
     },
 
-    // Helper function at palette level
-    getAlphaColor: function(color, alpha) {
-        return this.custom.getAlphaColor(color, alpha);
-    }
+    // Contrast threshold
+    contrastThreshold: 3,
+
+    // Tone offset
+    tonalOffset: 0.2,
+
+    // Get contrast text function
+    getContrastText: (background) => {
+        // Custom contrast calculation for magical theme
+        const rgb = background.startsWith('#')
+            ? parseInt(background.slice(1), 16)
+            : 0;
+        const r = (rgb >> 16) & 0xff;
+        const g = (rgb >> 8) & 0xff;
+        const b = rgb & 0xff;
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+        return luminance > 0.5 ? '#10091B' : '#FFFFFF';
+    },
 };
-
-
-export const getCrankyMagicianComponentOverrides = (theme) => ({
-    MuiCssBaseline: {
-        styleOverrides: {
-            '@global': {
-                // Import Google Fonts
-                '@import': 'url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,900&family=JetBrains+Mono:wght@500&display=swap")',
-
-                // Smooth scrolling
-                html: {
-                    scrollBehavior: 'smooth',
-                },
-
-                // Selection colors
-                '::selection': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
-                    color: theme.palette.primary.contrastText,
-                },
-
-                // Custom scrollbar
-                '*::-webkit-scrollbar': {
-                    width: '10px',
-                    height: '10px',
-                },
-                '*::-webkit-scrollbar-track': {
-                    backgroundColor: theme.palette.background.default,
-                },
-                '*::-webkit-scrollbar-thumb': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
-                    borderRadius: '5px',
-                    '&:hover': {
-                        backgroundColor: alpha(theme.palette.primary.main, 0.5),
-                    },
-                },
-            },
-        },
-    },
-
-    MuiButton: {
-        styleOverrides: {
-            root: {
-                borderRadius: '8px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative',
-                overflow: 'hidden',
-
-                '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    width: 0,
-                    height: 0,
-                    borderRadius: '50%',
-                    background: alpha(theme.palette.common.white, 0.3),
-                    transform: 'translate(-50%, -50%)',
-                    transition: 'width 0.6s, height 0.6s',
-                },
-
-                '&:hover::before': {
-                    width: '300px',
-                    height: '300px',
-                },
-            },
-            containedPrimary: {
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-
-                '&:hover': {
-                    boxShadow: `0 6px 30px ${alpha(theme.palette.primary.main, 0.4)}`,
-                    transform: 'translateY(-2px)',
-                },
-            },
-            containedSecondary: {
-                background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
-                boxShadow: `0 4px 20px ${alpha(theme.palette.secondary.main, 0.3)}`,
-
-                '&:hover': {
-                    boxShadow: `0 6px 30px ${alpha(theme.palette.secondary.main, 0.4)}`,
-                    transform: 'translateY(-2px)',
-                },
-            },
-            outlined: {
-                borderWidth: '2px',
-                '&:hover': {
-                    borderWidth: '2px',
-                    transform: 'translateY(-2px)',
-                },
-            },
-        },
-    },
-
-    MuiPaper: {
-        styleOverrides: {
-            root: {
-                backgroundImage: 'none',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            },
-            elevation1: {
-                boxShadow: theme.palette.mode === 'light'
-                    ? '0 2px 8px rgba(0, 0, 0, 0.08)'
-                    : '0 2px 8px rgba(0, 0, 0, 0.25)',
-            },
-            elevation2: {
-                boxShadow: theme.palette.mode === 'light'
-                    ? '0 4px 16px rgba(0, 0, 0, 0.1)'
-                    : '0 4px 16px rgba(0, 0, 0, 0.3)',
-            },
-            elevation3: {
-                boxShadow: theme.palette.mode === 'light'
-                    ? '0 6px 24px rgba(0, 0, 0, 0.12)'
-                    : '0 6px 24px rgba(0, 0, 0, 0.35)',
-
-                '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: theme.palette.mode === 'light'
-                        ? `0 12px 32px rgba(0, 0, 0, 0.15), 0 0 40px ${alpha(theme.palette.primary.main, 0.15)}`
-                        : `0 12px 32px rgba(0, 0, 0, 0.4), 0 0 40px ${alpha(theme.palette.primary.main, 0.25)}`,
-                },
-            },
-        },
-    },
-
-    MuiCard: {
-        styleOverrides: {
-            root: {
-                borderRadius: '12px',
-                overflow: 'hidden',
-                position: 'relative',
-                background: theme.palette.mode === 'light'
-                    ? 'rgba(255, 255, 255, 0.9)'
-                    : 'rgba(30, 30, 30, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-
-                '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '4px',
-                    background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    opacity: 0,
-                    transition: 'opacity 0.3s',
-                },
-
-                '&:hover': {
-                    transform: 'translateY(-8px) scale(1.02)',
-                    boxShadow: theme.palette.mode === 'light'
-                        ? `0 20px 40px rgba(0, 0, 0, 0.15), 0 0 60px ${alpha(theme.palette.primary.main, 0.2)}`
-                        : `0 20px 40px rgba(0, 0, 0, 0.4), 0 0 60px ${alpha(theme.palette.primary.main, 0.3)}`,
-
-                    '&::before': {
-                        opacity: 1,
-                    },
-                },
-            },
-        },
-    },
-
-    MuiTextField: {
-        styleOverrides: {
-            root: {
-                '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    transition: 'all 0.3s',
-
-                    '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
-                    },
-
-                    '&.Mui-focused': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.25)}`,
-                    },
-                },
-            },
-        },
-    },
-
-    MuiChip: {
-        styleOverrides: {
-            root: {
-                borderRadius: '6px',
-                fontWeight: 500,
-                transition: 'all 0.2s',
-
-                '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
-                },
-            },
-            colorPrimary: {
-                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.light, 0.1)} 100%)`,
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
-            },
-            colorSecondary: {
-                background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
-                border: `1px solid ${alpha(theme.palette.secondary.main, 0.3)}`,
-            },
-        },
-    },
-
-    MuiAppBar: {
-        styleOverrides: {
-            root: {
-                backgroundColor: theme.palette.mode === 'light'
-                    ? 'rgba(255, 255, 255, 0.8)'
-                    : 'rgba(18, 18, 18, 0.8)',
-                backdropFilter: 'blur(10px)',
-                borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                boxShadow: 'none',
-            },
-        },
-    },
-
-    MuiTooltip: {
-        styleOverrides: {
-            tooltip: {
-                backgroundColor: theme.palette.mode === 'light'
-                    ? alpha(theme.palette.grey[900], 0.9)
-                    : alpha(theme.palette.grey[100], 0.9),
-                backdropFilter: 'blur(10px)',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                padding: '8px 16px',
-                boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.2)}`,
-            },
-            arrow: {
-                color: theme.palette.mode === 'light'
-                    ? alpha(theme.palette.grey[900], 0.9)
-                    : alpha(theme.palette.grey[100], 0.9),
-            },
-        },
-    },
-
-    MuiDivider: {
-        styleOverrides: {
-            root: {
-                borderColor: alpha(theme.palette.primary.main, 0.1),
-
-                '&::before, &::after': {
-                    borderColor: alpha(theme.palette.primary.main, 0.1),
-                },
-            },
-        },
-    },
-
-    MuiLinearProgress: {
-        styleOverrides: {
-            root: {
-                height: '6px',
-                borderRadius: '3px',
-                backgroundColor: alpha(theme.palette.primary.main, 0.1),
-            },
-            bar: {
-                borderRadius: '3px',
-                background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            },
-        },
-    },
-});

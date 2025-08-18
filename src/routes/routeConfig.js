@@ -25,15 +25,8 @@ import Example from '../example/Example';
 import AboutUs from '../components/common/AboutUs';
 import StreamVideo from '../components/demoComponents/StreamVideo';
 import Calendar from '../components/demoComponents/Calendar';
-import BusinessSignupPage from '../pages/BusinessSignupPage';
-import LoginPage from '../pages/LoginPage';
-import ForgotPasswordPage from '../pages/ForgotPasswordPage';
-import ChangePasswordPage from '../pages/ChangePasswordPage';
-import SpatialDemoPanel from '../components/demo/SpatialDemoPanel';
-import CampaignManagementPage from "../pages/CampaignManagementPage";
-import InvitationLanding from "../components/business/InvitationLanding";
-import BusinessUsersPage from "../pages/BusinessUsersPage";
-import BusinessRolesPage from "../pages/BusinessRolesPage";
+
+
 
 // Add console logging to verify each component is a function
 console.log('Component types check:');
@@ -43,12 +36,9 @@ console.log('AboutUs:', typeof AboutUs);
 console.log('StreamVideo:', typeof StreamVideo);
 console.log('Calendar:', typeof Calendar);
 
-console.log('BusinessSignupPage:', typeof BusinessSignupPage);
-console.log('LoginPage:', typeof LoginPage);
-console.log('ForgotPasswordPage:', typeof ForgotPasswordPage);
-console.log('ChangePasswordPage:', typeof ChangePasswordPage);
+
 console.log('SpatialDemoPanel:', typeof SpatialDemoPanel);
-console.log('CampaignManagementPage:', typeof CampaignManagementPage);
+
 
 // Create a fallback component for any invalid components
 const FallbackComponent = () => (
@@ -101,99 +91,11 @@ const routes = [
             }
         }
     },
-    {
-        path: '/spatial-mods',
-        element: typeof SpatialDemoPanel === 'function' ? <SpatialDemoPanel /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Spatial Demo',
-            description: 'Spatial effects demonstration',
-            icon: <DashboardIcon />,
-            nav: {
-                label: 'Spatial Demo',
-                group: 'demo',
-                order: 1,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
 
-    // Campaign Management Route
-    {
-        path: '/campaigns',
-        element: typeof CampaignManagementPage === 'function' ? <CampaignManagementPage /> : <FallbackComponent />,
-        exact: true,
-        auth: true, // Requires authentication
-        meta: {
-            title: 'Campaign Management',
-            description: 'Create and manage your marketing campaigns',
-            icon: <CampaignIcon />,
-            nav: {
-                label: 'Campaigns',
-                group: 'main',
-                order: 3,
-                showInNav: true,
-                showInFooter: false,
-            }
-        }
-    },
-    // Authentication & Account routes
-    {
-        path: '/login',
-        element: typeof LoginPage === 'function' ? <LoginPage /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Login',
-            description: 'Login to your account',
-            icon: null,
-            nav: {
-                label: 'Login',
-                group: 'auth',
-                order: 1,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
-    {
-        path: '/forgot-password',
-        element: typeof ForgotPasswordPage === 'function' ? <ForgotPasswordPage /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Forgot Password',
-            description: 'Reset your password',
-            icon: null,
-            nav: {
-                label: 'Forgot Password',
-                group: 'auth',
-                order: 2,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
-    {
-        path: '/change-password',
-        element: typeof ChangePasswordPage === 'function' ? <ChangePasswordPage /> : <FallbackComponent />,
-        exact: true,
-        auth: true,
-        meta: {
-            title: 'Change Password',
-            description: 'Change your account password',
-            icon: null,
-            nav: {
-                label: 'Change Password',
-                group: 'auth',
-                order: 3,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
+
+
+
+
    /* {
         path: '/edit-account',
         element: typeof AccountSettingsPage === 'function' ? <AccountSettingsPage /> : <FallbackComponent />,
@@ -212,24 +114,7 @@ const routes = [
             }
         }
     },*/
-    {
-        path: '/business-signup',
-        element: typeof BusinessSignupPage === 'function' ? <BusinessSignupPage /> : <FallbackComponent />,
-        exact: true,
-        auth: false,
-        meta: {
-            title: 'Business Signup',
-            description: 'Create a business account',
-            icon: <Business />,
-            nav: {
-                label: 'Business Signup',
-                group: 'auth',
-                order: 4,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
+
 /*
     // Content pages
     {
@@ -363,65 +248,9 @@ const routes = [
             }
         }
     },
-    // Business Users Management
-    {
-        path: '/business-users',
-        element: typeof BusinessUsersPage === 'function' ? <BusinessUsersPage /> : <FallbackComponent />,
-        exact: true,
-        auth: true, // Requires authentication
-        meta: {
-            title: 'Business Users',
-            description: 'Manage business users and invitations',
-            icon: <PeopleIcon />,
-            nav: {
-                label: 'Users',
-                group: 'company',
-                order: 2,
-                showInNav: true,
-                showInFooter: false,
-            }
-        }
-    },
 
-    // Business Roles Management
-    {
-        path: '/business-roles',
-        element: typeof BusinessRolesPage === 'function' ? <BusinessRolesPage /> : <FallbackComponent />,
-        exact: true,
-        auth: true, // Requires authentication
-        meta: {
-            title: 'Business Roles',
-            description: 'Manage business roles and permissions',
-            icon: <SecurityIcon />,
-            nav: {
-                label: 'Roles & Permissions',
-                group: 'company',
-                order: 3,
-                showInNav: true,
-                showInFooter: false,
-            }
-        }
-    },
 
-    // Invitation Landing Page (public)
-    {
-        path: '/invitation',
-        element: typeof InvitationLanding === 'function' ? <InvitationLanding /> : <FallbackComponent />,
-        exact: true,
-        auth: false, // Public route
-        meta: {
-            title: 'Business Invitation',
-            description: 'Accept a business invitation',
-            icon: <EmailIcon />,
-            nav: {
-                label: 'Accept Invitation',
-                group: 'auth',
-                order: 5,
-                showInNav: false,
-                showInFooter: false,
-            }
-        }
-    },
+
 ];
 
 export default routes;

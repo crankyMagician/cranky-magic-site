@@ -14,6 +14,7 @@ import darkTypography from "./darkTypography";
 import corporateMemphisTypography from "./corporateMemphisTypography";
 import altTypography from "./altTypography";
 import robotoTypography from "./robotoTypography"; // Add the new Roboto typography
+import crankyMagicianTypography from "./crankyMagicianTypography";
 
 // Import icons for typography selection
 import TextFieldsIcon from '@mui/icons-material/TextFields';
@@ -31,6 +32,15 @@ import FontDownloadIcon from '@mui/icons-material/FontDownload'; // Icon for Rob
 
 // Typography Registry
 export const TYPOGRAPHY_REGISTRY = {
+    cranky: {
+        id: 'cranky',
+        name: 'Cranky',
+        description: 'Magical typography with mystical flair',
+        typography: crankyMagicianTypography, // Make sure you have crankyTypography imported
+        icon: React.createElement(AutoAwesomeIcon),
+        category: 'magical',
+        tags: ['magical', 'mystical', 'fantasy', 'enchanted']
+    },
     spatial: {
         id: 'spatial',
         name: 'Spatial',

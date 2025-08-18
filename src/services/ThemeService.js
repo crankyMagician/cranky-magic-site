@@ -92,8 +92,8 @@ class ThemeService {
             console.log(`Typography set to: ${typographyId}`);
         } else {
             console.warn(`Invalid typography: ${typographyId}. Available typographies:`, this.availableTypographies);
-            console.warn(`Using default spatial typography.`);
-            localStorage.setItem(this.typographyKey, 'spatial');
+            console.warn(`Using default typography.`);
+            localStorage.setItem(this.typographyKey, 'default');
         }
     }
 
@@ -103,8 +103,8 @@ class ThemeService {
         if (savedTypography && validateTypographyId(savedTypography)) {
             return savedTypography;
         }
-        console.log(`ThemeService.getTypography - returning default: spatial`);
-        return 'spatial'; // Default to spatial typography
+        console.log(`ThemeService.getTypography - returning default: default`);
+        return 'default'; // Default to non-spatial typography
     }
 
     static getAvailableTypographies() {
@@ -140,7 +140,7 @@ class ThemeService {
                 newTheme = 'munchie';
                 break;
             default:
-                // For other themes, just toggle to light/dark spatial theme
+                // For other themes, just toggle to light/dark
                 newTheme = this.isDarkMode() ? 'light' : 'dark';
         }
 
@@ -161,8 +161,6 @@ class ThemeService {
             highContrast: false,
             reducedMotion: false,
             fontScale: 1.0, // Default font scale factor
-            useScanlines: true, // Matrix-style scanline effect
-            useGlowEffects: true, // Glow effects around elements
         };
     }
 
