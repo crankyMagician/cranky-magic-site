@@ -15,7 +15,7 @@ COPY . .
 # Build React
 ARG REACT_APP_ENV=production
 ENV REACT_APP_ENV=${REACT_APP_ENV}
-ARG PUBLIC_URL=https://crankymagician.com/
+ARG PUBLIC_URL=/
 ENV PUBLIC_URL=${PUBLIC_URL}
 RUN npm run build
 
