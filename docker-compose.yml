@@ -1,0 +1,21 @@
+version: "3.9"
+
+networks:
+  frontend:
+    external: true
+    name: frontend
+
+services:
+  redpathportfolio:
+    image: redpathportfolio:latest
+    container_name: redpathportfolio
+    restart: always
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+
+      # Router
+      - "traefik.http.routers.redpathportfolio.rule=Host(`crankymagician.com`)"
+      - "traefik.http.routers.redpathportfolio.entrypoints=websecure"
+      - "traefik.http.routers.redpathportfolio.tls.certresolver=le"
