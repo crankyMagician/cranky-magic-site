@@ -1,18 +1,11 @@
 # syntax=docker/dockerfile:1.7
-
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package definitions first
 COPY package*.json ./
-
-# Install deps (works even if no lockfile)
 RUN --mount=type=cache,target=/root/.npm npm install
 
-# Copy rest of app
 COPY . .
-
-# Build React
 ARG REACT_APP_ENV=production
 ENV REACT_APP_ENV=${REACT_APP_ENV}
 ARG PUBLIC_URL=/
@@ -20,37 +13,42 @@ ENV PUBLIC_URL=${PUBLIC_URL}
 RUN npm run build
 
 # ---- Runtime ----
-FROM nginx:1.27-alpine
-WORKDIR /usr/share/nginx/html
+FROM httpd:2.4-alpine
+WORKDIR /usr/local/apache2/htdocs/
 
 # Copy build artifacts
-COPY --from=builder /app/build .
+COPY --from=builder /app/build/ .
 
-# Minimal nginx.conf for React SPA
-RUN printf "server {\n\
-    listen 80;\n\
-    server_name _;\n\
-    root /usr/share/nginx/html;\n\
-    index index.html;\n\
-\n\
-    # Main SPA route\n\
-    location / {\n\
-        try_files \$uri /index.html;\n\
-    }\n\
-\n\
-    # Cache static assets\n\
-    location /static/ {\n\
-        expires 1y;\n\
-        add_header Cache-Control \"public\";\n\
-    }\n\
-\n\
-    # Cache common frontend assets (js, css, fonts, images)\n\
-    location ~* \\.(?:ico|css|js|gif|jpe?g|png|woff2?|woff|ttf|svg|eot)$ {\n\
-        expires 1M;\n\
-        add_header Cache-Control \"public\";\n\
-    }\n\
-}\n" > /etc/nginx/conf.d/default.conf
+# Copy assets if needed
+COPY --from=builder /app/public/assets ./assets
 
+# Apache config for React SPA
+RUN printf " \
+<Directory \"/usr/local/apache2/htdocs\">\n\
+    AllowOverride None\n\
+    Require all granted\n\
+</Directory>\n\
+\n\
+# Send everything to index.html for SPA routing\n\
+<IfModule mod_rewrite.c>\n\
+    RewriteEngine On\n\
+    RewriteCond %%{REQUEST_FILENAME} !-f\n\
+    RewriteCond %%{REQUEST_FILENAME} !-d\n\
+    RewriteRule ^ index.html [L]\n\
+</IfModule>\n\
+\n\
+# Caching for static files\n\
+<IfModule mod_expires.c>\n\
+    ExpiresActive On\n\
+    ExpiresByType text/css \"access plus 1 month\"\n\
+    ExpiresByType application/javascript \"access plus 1 month\"\n\
+    ExpiresByType image/jpeg \"access plus 1 year\"\n\
+    ExpiresByType image/png \"access plus 1 year\"\n\
+    ExpiresByType image/gif \"access plus 1 year\"\n\
+    ExpiresByType font/woff2 \"access plus 1 year\"\n\
+</IfModule>\n\
+" > /usr/local/apache2/conf/extra/react-spa.conf \
+ && echo "Include conf/extra/react-spa.conf" >> /usr/local/apache2/conf/httpd.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["httpd-foreground"]
