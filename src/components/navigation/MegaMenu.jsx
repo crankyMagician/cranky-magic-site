@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
@@ -20,22 +20,13 @@ import {
     IconButton,
     Drawer,
     Divider,
-    Avatar
 } from '@mui/material';
 import {
     Menu as MenuIcon,
-    GridView,
     ChevronRight,
     Home,
-    CalendarMonth,
-    Info,
-    ContactMail,
-    Email,
     Login,
     AppRegistration,
-    VideoLibrary,
-    Style as StyleIcon,
-    AccountCircle,
     Logout,
 } from '@mui/icons-material';
 
@@ -44,45 +35,13 @@ import logoImage from '../../assets/logo/default_logo.png';
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Sidebar from './Sidebar';
+import { routes, adaptRoutesForMegaMenu, useRouteContext } from '../../routes';
 
 // Define a consistent maximum width for navigation components
 const MAX_NAV_WIDTH = 'lg';
 
 // Define the breakpoint for switching to sidebar
 const SIDEBAR_BREAKPOINT = 'md';
-
-// Define the navigation items based on the routes in MainContent.js
-const navigationGroups = [
-    {
-        title: 'Main',
-        items: [
-            { path: '/', label: 'Home', icon: <Home /> },
-            { path: '/theme', label: 'Theme', icon: <StyleIcon /> },
-            { path: '/about-us', label: 'About Us', icon: <Info /> },
-            { path: '/contact-us', label: 'Contact Us', icon: <ContactMail /> },
-        ]
-    },
-    {
-        title: 'Media',
-        items: [
-            { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary /> },
-            { path: '/calendar', label: 'Calendar', icon: <CalendarMonth /> },
-        ]
-    },
-    {
-        title: 'Community',
-        items: [
-            { path: '/newsletter-signup', label: 'Newsletter', icon: <Email /> },
-        ]
-    },
-    {
-        title: 'Account',
-        requiresAuth: true,
-        items: [
-            { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle /> },
-        ]
-    }
-];
 
 const MegaMenu = () => {
     const theme = useTheme();
@@ -94,10 +53,14 @@ const MegaMenu = () => {
     const handleLogout = useLogout();
     const logoUrl = logoImage;
     const location = useLocation();
+    const { userRoles } = useRouteContext();
 
     // State for managing menu popovers
     const [anchorEl, setAnchorEl] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // Get navigation items using our new adapter
+    const navigationGroups = adaptRoutesForMegaMenu(routes, isAuthenticated, userRoles);
 
     // Handle menu open/close
     const handleMenuOpen = (event) => {
@@ -117,6 +80,11 @@ const MegaMenu = () => {
         return <Sidebar />;
     }
 
+    // Find key navigation items to show directly in the top bar
+    const homeRoute = routes.find(route => route.path === '/');
+    const aboutRoute = routes.find(route => route.path === '/about-us');
+    const contactRoute = routes.find(route => route.path === '/contact-us');
+
     // Mobile drawer content
     const drawer = (
         <Box sx={{ width: 300, pt: 2 }}>
@@ -126,64 +94,62 @@ const MegaMenu = () => {
             <Divider />
 
             {navigationGroups.map((group) => (
-                (!group.requiresAuth || (group.requiresAuth && isAuthenticated)) && (
-                    <Box key={group.title}>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                px: 2,
-                                py: 1,
-                                fontWeight: 'bold',
-                                color: theme.palette.text.primary,
-                                fontFamily: theme.typography.h6.fontFamily,
-                            }}
-                        >
-                            {translate(group.title)}
-                        </Typography>
-                        <List>
-                            {group.items.map((item) => (
-                                <ListItem
-                                    button
-                                    component={RouterLink}
-                                    to={item.path}
-                                    key={item.path}
-                                    onClick={handleDrawerToggle}
-                                    selected={location.pathname === item.path}
-                                    sx={{
-                                        borderRadius: 1,
-                                        my: 0.5,
-                                        mx: 1,
-                                        '&.Mui-selected': {
-                                            backgroundColor: theme.palette.action.selected,
-                                            '&:hover': {
-                                                backgroundColor: theme.palette.action.hover,
-                                            },
+                <Box key={group.label}>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            px: 2,
+                            py: 1,
+                            fontWeight: 'bold',
+                            color: theme.palette.text.primary,
+                            fontFamily: theme.typography.h6.fontFamily,
+                        }}
+                    >
+                        {translate(group.label)}
+                    </Typography>
+                    <List>
+                        {group.items.map((item) => (
+                            <ListItem
+                                button
+                                component={RouterLink}
+                                to={item.path}
+                                key={item.path}
+                                onClick={handleDrawerToggle}
+                                selected={location.pathname === item.path}
+                                sx={{
+                                    borderRadius: 1,
+                                    my: 0.5,
+                                    mx: 1,
+                                    '&.Mui-selected': {
+                                        backgroundColor: theme.palette.action.selected,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.action.hover,
                                         },
+                                    },
+                                }}
+                            >
+                                <ListItemIcon sx={{
+                                    color: location.pathname === item.path ?
+                                        theme.palette.primary.main :
+                                        theme.palette.text.secondary,
+                                    minWidth: 40,
+                                }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={translate(item.label)}
+                                    primaryTypographyProps={{
+                                        variant: 'body1',
+                                        fontFamily: theme.typography.body1.fontFamily,
+                                        fontWeight: location.pathname === item.path ? 600 : 400,
+                                        color: theme.palette.text.primary,
                                     }}
-                                >
-                                    <ListItemIcon sx={{
-                                        color: location.pathname === item.path ?
-                                            theme.palette.primary.main :
-                                            theme.palette.text.secondary,
-                                        minWidth: 40,
-                                    }}>
-                                        {item.icon}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={translate(item.label)}
-                                        primaryTypographyProps={{
-                                            variant: 'body1',
-                                            fontFamily: theme.typography.body1.fontFamily,
-                                            fontWeight: location.pathname === item.path ? 600 : 400,
-                                            color: theme.palette.text.primary,
-                                        }}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                        <Divider />
-                    </Box>
-                )
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Divider />
+                </Box>
             ))}
 
             <Box sx={{ px: 2, py: 2 }}>
@@ -230,7 +196,7 @@ const MegaMenu = () => {
                                 color="primary"
                                 startIcon={<AppRegistration />}
                                 component={RouterLink}
-                                to="/register"
+                                to="/business-signup"
                                 onClick={handleDrawerToggle}
                                 sx={{
                                     fontFamily: theme.typography.button.fontFamily,
@@ -312,48 +278,56 @@ const MegaMenu = () => {
                                 </Button>
 
                                 {/* Direct navigation buttons for key pages */}
-                                <Button
-                                    component={RouterLink}
-                                    to="/"
-                                    color="inherit"
-                                    sx={{
-                                        ml: 2,
-                                        color: location.pathname === '/' ?
-                                            theme.palette.primary.main :
-                                            theme.palette.text.primary,
-                                        fontFamily: theme.typography.button.fontFamily,
-                                    }}
-                                >
-                                    {translate('Home')}
-                                </Button>
-                                <Button
-                                    component={RouterLink}
-                                    to="/about-us"
-                                    color="inherit"
-                                    sx={{
-                                        ml: 2,
-                                        color: location.pathname === '/about-us' ?
-                                            theme.palette.primary.main :
-                                            theme.palette.text.primary,
-                                        fontFamily: theme.typography.button.fontFamily,
-                                    }}
-                                >
-                                    {translate('About Us')}
-                                </Button>
-                                <Button
-                                    component={RouterLink}
-                                    to="/contact-us"
-                                    color="inherit"
-                                    sx={{
-                                        ml: 2,
-                                        color: location.pathname === '/contact-us' ?
-                                            theme.palette.primary.main :
-                                            theme.palette.text.primary,
-                                        fontFamily: theme.typography.button.fontFamily,
-                                    }}
-                                >
-                                    {translate('Contact Us')}
-                                </Button>
+                                {homeRoute && (
+                                    <Button
+                                        component={RouterLink}
+                                        to={homeRoute.path}
+                                        color="inherit"
+                                        sx={{
+                                            ml: 2,
+                                            color: location.pathname === homeRoute.path ?
+                                                theme.palette.primary.main :
+                                                theme.palette.text.primary,
+                                            fontFamily: theme.typography.button.fontFamily,
+                                        }}
+                                    >
+                                        {translate(homeRoute.meta.title)}
+                                    </Button>
+                                )}
+
+                                {aboutRoute && (
+                                    <Button
+                                        component={RouterLink}
+                                        to={aboutRoute.path}
+                                        color="inherit"
+                                        sx={{
+                                            ml: 2,
+                                            color: location.pathname === aboutRoute.path ?
+                                                theme.palette.primary.main :
+                                                theme.palette.text.primary,
+                                            fontFamily: theme.typography.button.fontFamily,
+                                        }}
+                                    >
+                                        {translate(aboutRoute.meta.title)}
+                                    </Button>
+                                )}
+
+                                {contactRoute && (
+                                    <Button
+                                        component={RouterLink}
+                                        to={contactRoute.path}
+                                        color="inherit"
+                                        sx={{
+                                            ml: 2,
+                                            color: location.pathname === contactRoute.path ?
+                                                theme.palette.primary.main :
+                                                theme.palette.text.primary,
+                                            fontFamily: theme.typography.button.fontFamily,
+                                        }}
+                                    >
+                                        {translate(contactRoute.meta.title)}
+                                    </Button>
+                                )}
                             </Box>
 
                             {/* Authentication buttons */}
@@ -390,7 +364,7 @@ const MegaMenu = () => {
                                             variant="contained"
                                             color="primary"
                                             component={RouterLink}
-                                            to="/register"
+                                            to="/business-signup"
                                             startIcon={<AppRegistration />}
                                             sx={{
                                                 fontFamily: theme.typography.button.fontFamily,
@@ -457,54 +431,52 @@ const MegaMenu = () => {
                 >
                     <Grid container spacing={3}>
                         {navigationGroups.map((group) => (
-                            (!group.requiresAuth || (group.requiresAuth && isAuthenticated)) && (
-                                <Grid item xs={12} sm={3} key={group.title}>
-                                    <Typography
-                                        variant="h6"
-                                        color="primary"
-                                        sx={{
-                                            mb: 1,
-                                            fontWeight: 'bold',
-                                            fontFamily: theme.typography.h6.fontFamily,
-                                        }}
-                                    >
-                                        {translate(group.title)}
-                                    </Typography>
-                                    <List dense>
-                                        {group.items.map((item) => (
-                                            <ListItem
-                                                button
-                                                component={RouterLink}
-                                                to={item.path}
-                                                key={item.path}
-                                                onClick={handleMenuClose}
-                                                sx={{
-                                                    borderRadius: 1,
-                                                    '&:hover': {
-                                                        backgroundColor: theme.palette.action.hover,
-                                                    },
+                            <Grid item xs={12} sm={3} key={group.label}>
+                                <Typography
+                                    variant="h6"
+                                    color="primary"
+                                    sx={{
+                                        mb: 1,
+                                        fontWeight: 'bold',
+                                        fontFamily: theme.typography.h6.fontFamily,
+                                    }}
+                                >
+                                    {translate(group.label)}
+                                </Typography>
+                                <List dense>
+                                    {group.items.map((item) => (
+                                        <ListItem
+                                            button
+                                            component={RouterLink}
+                                            to={item.path}
+                                            key={item.path}
+                                            onClick={handleMenuClose}
+                                            sx={{
+                                                borderRadius: 1,
+                                                '&:hover': {
+                                                    backgroundColor: theme.palette.action.hover,
+                                                },
+                                            }}
+                                        >
+                                            <ListItemIcon sx={{
+                                                minWidth: 36,
+                                                color: theme.palette.text.secondary,
+                                            }}>
+                                                {item.icon}
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={translate(item.label)}
+                                                primaryTypographyProps={{
+                                                    variant: 'body2',
+                                                    fontFamily: theme.typography.body2.fontFamily,
+                                                    color: theme.palette.text.primary,
                                                 }}
-                                            >
-                                                <ListItemIcon sx={{
-                                                    minWidth: 36,
-                                                    color: theme.palette.text.secondary,
-                                                }}>
-                                                    {item.icon}
-                                                </ListItemIcon>
-                                                <ListItemText
-                                                    primary={translate(item.label)}
-                                                    primaryTypographyProps={{
-                                                        variant: 'body2',
-                                                        fontFamily: theme.typography.body2.fontFamily,
-                                                        color: theme.palette.text.primary,
-                                                    }}
-                                                />
-                                                <ChevronRight fontSize="small" color="action" />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </Grid>
-                            )
+                                            />
+                                            <ChevronRight fontSize="small" color="action" />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Grid>
                         ))}
                     </Grid>
                 </Paper>

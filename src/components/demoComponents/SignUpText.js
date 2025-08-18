@@ -8,7 +8,7 @@ const SignUpTextHere = () => {
     return (
         <Typography variant="body2" align="center">
             {translate ('No account? Sign up')}{' '}
-            <Link component={RouterLink} to="/register">
+            <Link component={RouterLink} to="/business-signup">
                 {translate('Here')}
             </Link>
         </Typography>
@@ -21,7 +21,7 @@ const SignUpTextSignUp = () => {
     return (
         <Typography variant="body2" align="center">
             {translate('No account? Click here to')}{' '}
-            <Link component={RouterLink} to="/register">
+            <Link component={RouterLink} to="/business-signup">
                 {translate('Sign Up')}
             </Link>
         </Typography>

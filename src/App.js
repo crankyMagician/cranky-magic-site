@@ -1,8 +1,7 @@
-// src/App.js - Updated with analytics integration
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './translations/translationManager';
@@ -11,32 +10,50 @@ import AppLayout from './AppLayout';
 import MainContent from './MainContent';
 import useAppInitialization from './hooks/useAppInitialization';
 import useCustomTranslation from "./hooks/useCustomTranslation";
-import DebugPanel from './components/common/DebugPanel';
+import DebugPanel from './debug-panel/DebugPanel';
 import AnalyticsProvider from './AnalyticsProvider';
-import usePageTracking from './analytics/hooks/usePageTracking';
-import useSessionTracking from './analytics/hooks/useSessionTracking';
+import { RouteProvider } from './routes';
 
-// Create an analytics-aware MainContent component
-const AnalyticsMainContent = () => {
-    // Use analytics hooks
-    usePageTracking();
-    useSessionTracking();
+// Memoize the analytics-aware MainContent component to prevent unnecessary re-renders
+const AnalyticsMainContent = React.memo(() => {
+    useEffect(() => {
+        console.log("AnalyticsMainContent mounted");
+        return () => console.log("AnalyticsMainContent unmounted");
+    }, []);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log("AnalyticsMainContent rendering");
+    }
 
     return <MainContent />;
-};
+});
 
-function App() {
-    const dispatch = useDispatch();
-    const { changeLanguage, currentLanguageDirection } = useCustomTranslation();
+// Main App component
+const App = () => {
+    useEffect(() => {
+        console.log("App component mounted");
+        return () => console.log("App component unmounted");
+    }, []);
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log("App component rendering");
+    }
+
+    const { currentLanguageDirection } = useCustomTranslation();
 
     // Authentication, theme, and preferences hooks
     useAppInitialization();
 
-    // Fetch the current theme mode and language direction from Redux state
+    // Fetch the current theme mode, component override, and typography from Redux state
     const themeMode = useSelector(state => state.theme.mode);
+    const componentOverride = useSelector(state => state.theme.componentOverride);
+    const typography = useSelector(state => state.theme.typography);
 
-    // Get the theme object based on the current theme mode and language direction
-    const theme = getTheme(themeMode, currentLanguageDirection);
+    // Create theme with theme mode, component override, and typography - don't recreate it on every render
+    const theme = useMemo(() =>
+            getTheme(themeMode, componentOverride, typography, currentLanguageDirection),
+        [themeMode, componentOverride, typography, currentLanguageDirection]
+    );
 
     // Only show debug panel in development mode
     const isDevelopment = process.env.NODE_ENV === 'development';
@@ -45,16 +62,27 @@ function App() {
         <AnalyticsProvider>
             <ThemeProvider theme={theme}>
                 <Router>
-                    <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false}
-                                    closeOnClick rtl={currentLanguageDirection === 'rtl'} pauseOnFocusLoss draggable pauseOnHover />
-                    <AppLayout>
-                        <AnalyticsMainContent />
-                    </AppLayout>
-                    {isDevelopment && <DebugPanel />}
+                    <RouteProvider>
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={currentLanguageDirection === 'rtl'}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
+                        <AppLayout>
+                            <AnalyticsMainContent />
+                        </AppLayout>
+                        {isDevelopment && <DebugPanel />}
+                    </RouteProvider>
                 </Router>
             </ThemeProvider>
         </AnalyticsProvider>
     );
-}
+};
 
-export default App;
+export default React.memo(App);

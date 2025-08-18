@@ -1,30 +1,24 @@
-import {extendedApi} from "./extendedApi";
+/**
+ * Main API slice that re-exports all API hooks
+ */
+import baseApi, {
+    authApi,
+    businessApi,
+    mediaApi,
+    campaignsApi,
+    commoApi,
+    invitationsApi,
+    vuforiaApi,
+    apiReducers,
+    apiMiddleware
+} from './baseApi';
 
-export const apiSlice = extendedApi.enhanceEndpoints({
-    addTagTypes: [
-        'Moves',
-        'Munchies',
-        'CraftingRecipes',
-        'Items',
-        'Abilities',
-        'Effects',
-        'MoveEffects',
-        'MunchieTypes',
-        'StatusConditions',
-        'MunchiePhotos',
-        'ItemPhotos',
-        'LearnableMoves',
-        'MunchieStats',
-        'Business',
-        'BusinessUsers',
-        'BusinessRoles',
-    ],
-    endpoints: () => ({}),
-});
+// Export the base API as apiSlice (this is what your app is looking for)
+export const apiSlice = baseApi;
 
-export const {
-
-    // Auth endpoints
+// Re-export all the hooks from the various APIs
+export {
+    // Auth hooks (REMOVED useDecodeTokenMutation)
     useLoginMutation,
     useRegisterMutation,
     useConfirmSignupMutation,
@@ -35,20 +29,104 @@ export const {
     useResetPasswordMutation,
     useChangePasswordMutation,
     useLogoutMutation,
-    useDecodeTokenMutation,
     useBusinessSignupMutation,
     useUpdateMfaPreferenceMutation,
+} from './authApi';
 
-    // Business endpoints
+export {
+    // Business hooks
     useGetActiveBusinessQuery,
     useGetBusinessByIdQuery,
     useUpdateBusinessMutation,
     useSetActiveBusinessMutation,
     useInviteUserToBusinessMutation,
     useGetBusinessUsersQuery,
+    useGetBusinessUsersRolesQuery,
+    useGetBusinessUsersPermissionsQuery,
     useChangeUserRoleMutation,
     useRemoveUserFromBusinessMutation,
     useGetBusinessRolesQuery,
     useCreateBusinessRoleMutation,
     useDeleteBusinessRoleMutation,
-} = apiSlice;
+} from './businessApi';
+
+export {
+    // Media hooks
+    useUploadMediaMutation,
+    useUpdateBusinessLogoMutation,
+    useGetMediaByIdQuery,
+    useDeleteMediaMutation,
+    useGetBusinessMediaQuery,
+    useGetMediaTypesQuery,
+    useDownloadMediaQuery,
+} from './mediaApi';
+
+export {
+    // Campaign hooks
+    useCreateCampaignMutation,
+    useUpdateCampaignMutation,
+    useGetCampaignByIdQuery,
+    useDeleteCampaignMutation,
+    useGetCampaignsByBusinessQuery,
+    useAttachCampaignMediaMutation,
+    useDeleteCampaignMediaMutation,
+    useUpdateCampaignStatusMutation,
+    // New Vuforia-enhanced campaign hooks
+    useGetCampaignVuforiaStatsQuery,
+    useBulkUpdateVuforiaMediaMutation,
+    campaignMediaUtils,
+} from './campaignApi';
+
+export {
+    // Commo hooks
+    useSendSmsMutation,
+    useSendEmailMutation,
+} from './commoApi';
+
+export {
+    // Invitation hooks
+    useSendInvitationMutation,
+    useVerifyInvitationQuery,
+    useAcceptInvitationMutation,
+    useGetInvitationsByBusinessQuery,
+    useResendInvitationMutation,
+    useDeleteInvitationMutation,
+    useUpdateBusinessRoleMutation,
+    useRemoveBusinessRoleMutation,
+} from './invitationApi';
+
+// Export Vuforia API hooks - UPDATED!
+export {
+    // Vuforia target management hooks
+    useCreateTargetMutation,
+    useCreateTargetWithVideoMutation,
+    useListTargetsQuery,
+    useGetTargetQuery,
+    useGetTargetWithMetadataQuery,
+    useUpdateTargetMutation,
+    useDeleteTargetMutation,
+    useActivateTargetMutation,
+    useDeactivateTargetMutation,
+    useCreateTargetsBatchMutation,
+    useDeleteTargetsBatchMutation,
+    useCheckVuforiaHealthQuery,
+    useTestAuthenticationMutation,
+    useCheckSimilarImageMutation,
+    // Vuforia utility functions
+    vuforiaUtils,
+} from './vuforiaApi';
+
+// Export reducers and middleware for store configuration
+export const apiSliceReducers = apiReducers;
+export const apiSliceMiddleware = apiMiddleware;
+
+// Export the API slices themselves
+export {
+    authApi,
+    businessApi,
+    mediaApi,
+    campaignsApi,
+    commoApi,
+    invitationsApi,
+    vuforiaApi
+};

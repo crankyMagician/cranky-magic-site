@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import LanguageService from '../services/LanguageService'; // Import the LanguageService
-import { logWarning } from '../utilities/Logger';
 
 // Initialize the language from localStorage or default to 'en'
 const initialState = {
@@ -17,7 +16,7 @@ const languageSlice = createSlice({
             LanguageService.setLanguage(newLanguage); // Persist the new language in localStorage
             // Logging the current language for visibility
             console.log('Current language:', state.language);
-            logWarning(`languageSlice: Language changed to ${state.language}`, 'blue');
+            console.log(`languageSlice: Language changed to ${state.language}`, 'blue');
         },
     },
 });

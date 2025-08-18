@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import ChangePassword from '../components/Auth/ChangePassword';
+import ChangePassword from '../components/auth/ChangePassword';
 import AuthRouteWrapper from '../utilities/AuthRouteWrapper';
 
 const ChangePasswordPage = () => {

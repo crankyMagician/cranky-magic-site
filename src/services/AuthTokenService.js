@@ -37,7 +37,8 @@ class AuthTokenService {
                 userId: user?.id,
                 hasToken: !!authToken,
                 rolesCount: roles?.length || 0,
-                businessesCount: businesses?.length || 0
+                businessesCount: businesses?.length || 0,
+                activeBusinessId: activeBusiness?.id || null
             });
         } catch (error) {
             console.error('Error storing auth info:', error);
@@ -55,7 +56,7 @@ class AuthTokenService {
             const activeBusiness = JSON.parse(localStorage.getItem(this.activeBusinessKey) || 'null');
             const tokenExpiry = localStorage.getItem(this.tokenExpiryKey);
 
-            // Validate token if it exists
+            // Validate token if it exists and refresh auth info from token if needed
             if (authToken) {
                 const isExpired = tokenExpiry && Date.now() >= parseInt(tokenExpiry) * 1000;
                 if (isExpired) {
@@ -63,11 +64,23 @@ class AuthTokenService {
                     this.clearAuthInfo();
                     return { isAuthenticated: false };
                 }
+
+                // If we have a token but missing activeBusiness, try to decode it
+                if (isAuthenticated && (!activeBusiness || !activeBusiness.id) && businesses.length > 0) {
+                    const decodedToken = TokenDecoder.decode(authToken);
+                    if (decodedToken) {
+                        const refreshedAuthInfo = this.extractAuthInfoFromToken(decodedToken, authToken);
+                        if (refreshedAuthInfo.activeBusiness) {
+                            console.log('Refreshed activeBusiness from token');
+                            return refreshedAuthInfo;
+                        }
+                    }
+                }
             }
 
-            return { 
-                isAuthenticated, 
-                user, 
+            return {
+                isAuthenticated,
+                user,
                 authToken,
                 roles,
                 businesses,
@@ -96,6 +109,86 @@ class AuthTokenService {
         }
     }
 
+    // Extract authentication information from decoded token (PUBLIC METHOD)
+    static extractAuthInfoFromToken(decodedToken, authToken) {
+        try {
+            // Extract user information
+            const user = {
+                id: decodedToken.id,
+                email: decodedToken.email,
+                phoneNumber: decodedToken.phoneNumber,
+                username: decodedToken.username
+            };
+
+            // Extract roles - handle both legacy and new token formats
+            let roles = [];
+            if (decodedToken.roles) {
+                // Legacy format
+                roles = decodedToken.roles;
+            } else if (decodedToken.globalRoles) {
+                // New format
+                roles = decodedToken.globalRoles;
+            }
+
+            // Extract businesses - handle both legacy and new formats
+            let businesses = [];
+            if (decodedToken.businesses && Array.isArray(decodedToken.businesses)) {
+                // New format with business objects
+                businesses = decodedToken.businesses.map(business => ({
+                    id: business.id,
+                    name: business.name,
+                    slug: business.slug,
+                    role: business.role,
+                    description: business.description || null,
+                    externalId: business.externalId || null,
+                    logoUrl: business.logoUrl || null,
+                    permissions: business.permissions || []
+                }));
+            } else if (decodedToken.businessRoles) {
+                // Legacy format or businessRoles object format
+                const businessRoles = decodedToken.businessRoles;
+                businesses = Object.keys(businessRoles).map(businessId => ({
+                    id: parseInt(businessId, 10),
+                    name: `Business ${businessId}`, // Fallback name
+                    role: Array.isArray(businessRoles[businessId]) ? businessRoles[businessId][0] : businessRoles[businessId],
+                    permissions: []
+                }));
+            }
+
+            // Find active business
+            let activeBusiness = null;
+            if (decodedToken.activeBusinessId && businesses.length > 0) {
+                // New format with activeBusinessId
+                const activeBusinessId = parseInt(decodedToken.activeBusinessId, 10);
+                activeBusiness = businesses.find(b => b.id === activeBusinessId) || null;
+            } else if (decodedToken.activeBusiness) {
+                // Legacy format with activeBusiness object
+                activeBusiness = decodedToken.activeBusiness;
+            } else if (businesses.length > 0) {
+                // Fallback to first business if no active business specified
+                activeBusiness = businesses[0];
+            }
+
+            const authInfo = {
+                isAuthenticated: true,
+                user,
+                authToken,
+                roles,
+                businesses,
+                activeBusiness,
+                tokenExpiry: decodedToken.exp ? new Date(decodedToken.exp * 1000) : null
+            };
+
+            // Store the extracted information
+            this.setAuthInfo(authInfo);
+
+            return authInfo;
+        } catch (error) {
+            console.error('Error extracting auth info from token:', error);
+            return null;
+        }
+    }
+
     // Parse and decode JWT token
     static parseToken() {
         const token = localStorage.getItem(this.authTokenKey);
@@ -104,27 +197,20 @@ class AuthTokenService {
         try {
             const decodedToken = TokenDecoder.decode(token);
             if (!decodedToken) return null;
-            
-            // Update stored information with decoded token data
-            this.setAuthInfo({
-                isAuthenticated: true,
-                user: {
-                    id: decodedToken.id,
-                    email: decodedToken.email,
-                    phoneNumber: decodedToken.phoneNumber,
-                    username: decodedToken.username
-                },
-                authToken: token,
-                roles: decodedToken.roles || [],
-                businesses: decodedToken.businesses || [],
-                activeBusiness: decodedToken.activeBusiness || null
-            });
 
-            return decodedToken;
+            // Extract and store auth info from token
+            const authInfo = this.extractAuthInfoFromToken(decodedToken, token);
+            return authInfo ? decodedToken : null;
         } catch (e) {
             console.error("Error decoding token", e);
             return null;
         }
+    }
+
+    // Get active business ID (convenience method)
+    static getActiveBusinessId() {
+        const { activeBusiness } = this.getAuthInfo();
+        return activeBusiness?.id || null;
     }
 
     // Check if user has a specific role
@@ -201,6 +287,28 @@ class AuthTokenService {
             return;
         }
         TokenDecoder.prettyPrint(token, verify);
+    }
+
+    // Set active business (when user switches businesses)
+    static setActiveBusiness(businessId) {
+        try {
+            const { businesses, ...authInfo } = this.getAuthInfo();
+            const newActiveBusiness = businesses.find(b => b.id === businessId);
+
+            if (newActiveBusiness) {
+                this.setAuthInfo({
+                    ...authInfo,
+                    businesses,
+                    activeBusiness: newActiveBusiness
+                });
+                return newActiveBusiness;
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Error setting active business:', error);
+            return null;
+        }
     }
 }
 

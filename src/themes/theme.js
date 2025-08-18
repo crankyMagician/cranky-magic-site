@@ -1,26 +1,20 @@
 // src/themes/theme.js
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
-import { getPaletteByMode } from './themeMappings';
-import { getTypographyByMode } from "./fontMappings";
-import crankyComponentOverrides from './muicomponents/crankyComponentOverrides';
+import { getPaletteByThemeId, isDarkTheme, isSpatialTheme } from './themeRegistry';
+import { getComponentOverridesById } from './muicomponents';
+import { getTypographyStylesById } from './typography';
 import breakpoints from './breakpoints/breakpoints';
 import ThemeService from '../services/ThemeService';
 import * as colorUtils from "../utilities/colorUtilities";
 
-
-// Function to determine if a theme is a spatial theme
-const isSpatialTheme = (mode) => {
-    return mode === 'light' || mode === 'dark';
-};
-
 // Function to determine if a theme is a dark mode theme
-const isDarkTheme = (mode) => {
-    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'altTheme';
+const isDarkThemeMode = (mode) => {
+    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'cs_color_30_v2' || mode === 'cs_color_29_v4';
 };
 
 // Matrix-inspired effects for both dark and light themes
 const getMatrixEffects = (mode) => {
-    const isDark = isDarkTheme(mode);
+    const isDark = isDarkThemeMode(mode);
 
     return {
         matrixEffects: {
@@ -31,9 +25,9 @@ const getMatrixEffects = (mode) => {
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 2000,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 1,
                     background: `repeating-linear-gradient(
                         0deg,
                         ${isDark ? 'rgba(214, 90, 49, 0.03)' : 'rgba(214, 90, 49, 0.015)'} 0px,
@@ -43,6 +37,12 @@ const getMatrixEffects = (mode) => {
                     )`,
                     pointerEvents: 'none',
                     opacity: isDark ? 1 : 0.7,
+                    '@media (orientation: landscape)': {
+                        opacity: isDark ? 0.8 : 0.5,
+                    },
+                    '@media (orientation: portrait)': {
+                        opacity: isDark ? 1 : 0.7,
+                    },
                 },
             },
 
@@ -54,7 +54,7 @@ const getMatrixEffects = (mode) => {
                 width: '100%',
                 height: '100%',
                 pointerEvents: 'none',
-                zIndex: 1999,
+                zIndex: -1,
                 overflow: 'hidden',
                 opacity: isDark ? 0.13 : 0.05,
             },
@@ -66,9 +66,9 @@ const getMatrixEffects = (mode) => {
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 1998,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: -2,
                     background: `
                         linear-gradient(90deg, ${isDark ? 'rgba(214, 90, 49, 0.05)' : 'rgba(214, 90, 49, 0.02)'} 1px, transparent 1px),
                         linear-gradient(0deg, ${isDark ? 'rgba(214, 90, 49, 0.05)' : 'rgba(214, 90, 49, 0.02)'} 1px, transparent 1px)
@@ -106,33 +106,36 @@ const getMatrixEffects = (mode) => {
     };
 };
 
-// Function to create and return a theme based on the mode and optional direction
-export const getTheme = (mode, direction = 'ltr') => {
+// Function to create and return a theme based on the mode, component override, and typography
+export const getTheme = (mode, componentOverride = 'cranky', typography = 'spatial', direction = 'ltr') => {
     // Check if it's a spatial theme or use provided theme
     const themeMode = mode || 'light'; // Default to light if no mode is provided
+    const overrideMode = componentOverride || 'cranky'; // Default to cranky if no override is provided
+    const typographyMode = typography || 'spatial'; // Default to spatial if no typography is provided
     const usesSpatialEffects = isSpatialTheme(themeMode);
-    const isDark = isDarkTheme(themeMode);
+    const isDark = isDarkThemeMode(themeMode);
 
-    // Get palette and typography based on mode
-    const palette = getPaletteByMode(themeMode);
-    const typography = getTypographyByMode(themeMode);
+    // Get palette, typography, and component overrides from registries
+    const palette = getPaletteByThemeId(themeMode);
+    const typographyStyles = getTypographyStylesById(typographyMode);
+    const componentOverrides = getComponentOverridesById(overrideMode);
 
     // Get theme preferences from ThemeService
     const themePrefs = ThemeService.getThemePreferences();
 
-    // We'll always use crankyComponentOverrides now
-    const componentOverrides = crankyComponentOverrides;
-
     // Create the base theme without mixins first to avoid circular reference
     let theme = createTheme({
         palette,
-        typography,
+        typography: typographyStyles,
         components: componentOverrides,
         breakpoints,
         direction,
         // Add Matrix-inspired effects only if using spatial theme
         ...(usesSpatialEffects && getMatrixEffects(themeMode)),
     });
+
+    // Rest of the theme creation logic remains the same...
+    // [Include all the mixins, transitions, spacing, shapes, and CSS baseline logic from the previous implementation]
 
     // Now create a complete theme with custom mixins
     theme = createTheme({
@@ -333,18 +336,62 @@ export const getTheme = (mode, direction = 'ltr') => {
             components: {
                 ...theme.components,
                 MuiCssBaseline: {
+                    ...theme.components.MuiCssBaseline,
                     styleOverrides: {
-                        'html, body': {
+                        ...theme.components.MuiCssBaseline?.styleOverrides,
+                        // Force theme reapplication and handle fullscreen
+                        'html': {
+                            backgroundColor: `${theme.palette.background.default} !important`,
+                            color: `${theme.palette.text.primary} !important`,
+                            minHeight: '100%',
+                            transition: 'none', // Prevent transition artifacts
+                            // Handle different fullscreen states
+                            '&:-webkit-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:-moz-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:fullscreen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                        },
+                        'body': {
+                            backgroundColor: `${theme.palette.background.default} !important`,
+                            color: `${theme.palette.text.primary} !important`,
                             position: 'relative',
+                            minHeight: '100vh',
+                            // Handle fullscreen transitions
+                            '&:-webkit-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:-moz-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:fullscreen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
                         },
                         'body::after': {
                             content: '""',
                             position: 'fixed',
                             top: 0,
                             left: 0,
-                            width: '100vw',
-                            height: '100vh',
-                            zIndex: 9999,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 1,
                             pointerEvents: 'none',
                             opacity: isDark ? 0.15 : 0.08,
                             background: `repeating-linear-gradient(
@@ -355,10 +402,111 @@ export const getTheme = (mode, direction = 'ltr') => {
                                 transparent 2px
                             )`,
                             animation: 'scanline-motion 8s linear infinite',
+                            // Handle different screen orientations and sizes
+                            '@media (orientation: landscape)': {
+                                opacity: isDark ? 0.1 : 0.05,
+                            },
+                            '@media (orientation: portrait)': {
+                                opacity: isDark ? 0.15 : 0.08,
+                            },
+                            '@media (max-width: 768px)': {
+                                opacity: isDark ? 0.08 : 0.04,
+                            },
+                            // Handle fullscreen states
+                            'html:fullscreen &, html:-webkit-full-screen &, html:-moz-full-screen &': {
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                zIndex: 1,
+                            },
                         },
                         '@keyframes scanline-motion': {
                             '0%': { backgroundPosition: '0 0' },
                             '100%': { backgroundPosition: '0 100px' }
+                        },
+                        // Add global root styles to ensure theme persistence
+                        '#root': {
+                            backgroundColor: theme.palette.background.default,
+                            color: theme.palette.text.primary,
+                            minHeight: '100vh',
+                            position: 'relative',
+                            // Handle fullscreen for React root
+                            'html:fullscreen &, html:-webkit-full-screen &, html:-moz-full-screen &': {
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: theme.palette.background.default,
+                            },
+                        },
+                        // Ensure all major containers maintain theme
+                        '.MuiContainer-root, .MuiGrid-root, .MuiBox-root': {
+                            transition: 'none', // Prevent flash during fullscreen
+                        },
+                    },
+                },
+            },
+        });
+    } else {
+        // Even without scanlines, ensure proper fullscreen handling
+        theme = createTheme({
+            ...theme,
+            components: {
+                ...theme.components,
+                MuiCssBaseline: {
+                    ...theme.components.MuiCssBaseline,
+                    styleOverrides: {
+                        ...theme.components.MuiCssBaseline?.styleOverrides,
+                        'html': {
+                            backgroundColor: `${theme.palette.background.default} !important`,
+                            color: `${theme.palette.text.primary} !important`,
+                            minHeight: '100%',
+                            transition: 'none',
+                            '&:-webkit-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:-moz-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:fullscreen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                        },
+                        'body': {
+                            backgroundColor: `${theme.palette.background.default} !important`,
+                            color: `${theme.palette.text.primary} !important`,
+                            minHeight: '100vh',
+                            '&:-webkit-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:-moz-full-screen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                            '&:fullscreen': {
+                                backgroundColor: `${theme.palette.background.default} !important`,
+                                width: '100% !important',
+                                height: '100% !important',
+                            },
+                        },
+                        '#root': {
+                            backgroundColor: theme.palette.background.default,
+                            color: theme.palette.text.primary,
+                            minHeight: '100vh',
+                            'html:fullscreen &, html:-webkit-full-screen &, html:-moz-full-screen &': {
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: theme.palette.background.default,
+                            },
                         },
                     },
                 },

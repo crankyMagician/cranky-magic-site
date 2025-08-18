@@ -1,54 +1,63 @@
-import React from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import routes from './routes/routeConfig';
+import { AuthGuard } from './routes';
 import { useSelector } from 'react-redux';
-import {Routes, Route, Navigate, useParams} from 'react-router-dom';
-import RegisterUser from './components/demoComponents/RegisterUser';
-import Example from "./example/Example";
-import AuthRouteWrapper from './utilities/AuthRouteWrapper';
-import AccountSettingsPage from "./components/demoComponents/AccountSettingsPage";
-// Import the ContactUs component
-import ContactUs from "./components/common/ContactUsComponent"; // Make sure this path is correct
-import NewsletterSignup from "./components/demoComponents/NewsletterSignup";
-import AboutUs from "./components/common/AboutUs";
-import StreamVideo from "./components/demoComponents/StreamVideo";
-import Calendar from "./components/demoComponents/Calendar";
-import LandingPage from "./components/demoComponents/LandingPage";
-import BusinessSignupPage from "./pages/BusinessSignupPage";
-import LoginPage from "./pages/LoginPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ChangePasswordPage from "./pages/ChangePasswordPage";
-import DirectPasswordReset from "./components/Auth/DirectPasswordReset";
-import SpatialDemoPanel from "./components/demo/SpatialDemoPanel";
 
-const MainContent = () => {
+// Use React.memo to prevent unnecessary renders
+const MainContent = React.memo(() => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const routesRef = useRef(routes);
+    const initialRenderRef = useRef(true);
+
+    // Only log on mount and unmount
+    useEffect(() => {
+        console.log('MainContent mounted');
+        return () => {
+            console.log('MainContent unmounted');
+        };
+    }, []);
+
+    // Log only on first render
+    if (initialRenderRef.current) {
+        console.log(`MainContent rendering with ${routes.length} routes`);
+        initialRenderRef.current = false;
+    }
+
+    // Memoize route elements to prevent recreation
+    const routeElements = useMemo(() => {
+        return routesRef.current.map((route) => {
+            const { path, element, exact, auth, roles = [] } = route;
+
+            // Determine what to render
+            let renderedElement;
+            if (auth) {
+                renderedElement = <AuthGuard requiredRoles={roles}>{element}</AuthGuard>;
+            } else if (path === '/login' && isAuthenticated) {
+                renderedElement = <Navigate replace to="/" />;
+            } else {
+                renderedElement = element;
+            }
+
+            return (
+                <Route
+                    key={path}
+                    path={path}
+                    element={renderedElement}
+                    exact={exact || undefined}
+                />
+            );
+        });
+    }, [isAuthenticated]); // Only rebuild routes when authentication state changes
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             <Routes>
-                <Route path="/" element={<Example />} />
-                <Route path="/spatial-mods" element={<SpatialDemoPanel />} />
-                <Route path="/login" element={!isAuthenticated ? <LoginPage/> : <Navigate replace to="/"/>}/>
-                <Route path="/register" element={!isAuthenticated ? <RegisterUser/> : <Navigate replace to="/"/>}/>
-                <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
-                <Route path="/direct-reset" element={<DirectPasswordReset/>}/>
-                <Route path="/change-password" element={<ChangePasswordPage/>}/>
-                <Route path="/edit-account" element={<AuthRouteWrapper><AccountSettingsPage/></AuthRouteWrapper>}/>
-                <Route path="/business-signup" element={<BusinessSignupPage />} />
-
-                {/* API Routes*/}
-               
-                {/* Unauthenticated Routes*/}
-                <Route path="/contact-us" element={<ContactUs/>}/>
-                <Route path="/newsletter-signup" element={<NewsletterSignup/>}/>
-                <Route path="/about-us" element={<AboutUs/>}/>
-                <Route path="/video-stream" element={<StreamVideo/>}/>
-                <Route path="/calendar" element={<Calendar/>}/>
-                <Route path="/theme" element={<Example/>}/>
-                {/* Redirect unauthenticated users attempting to access unknown routes to the login page */}
-                <Route path="*" element={<Navigate replace to="/"/>}/>
+                {routeElements}
+                <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
         </div>
     );
-};
+});
 
 export default MainContent;
