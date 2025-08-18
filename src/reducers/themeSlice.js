@@ -1,32 +1,24 @@
+// src/reducers/themeSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 import ThemeService from '../services/ThemeService';
+import { getAvailableThemeIds } from '../themes/themeRegistry';
+import { getAvailableComponentOverrideIds } from '../themes/muicomponents';
+import { getAvailableTypographyIds } from '../themes/typography';
 
-// Define an array of theme modes you want to support
-const themes = [
-    'light',
-    'dark',
-    'munchie',
-    'munchie_dark',
-    'professional',
-    'startup',
-    'memphis',
-    'altTheme',
-    'sunset',
-    'mint',
-    'retro_neon',
-    'high_contrast',
-    //added for christopher
-    'cs_color_27_v1',
-    'cs_color_30_v2',
-    'cs_color_23_v3',
-    'cs_color_29_v4',
-    'cs_color_31_v5'
-];
+// Get available themes, overrides, and typographies from registries
+const themes = getAvailableThemeIds();
+const componentOverrides = getAvailableComponentOverrideIds();
+const typographies = getAvailableTypographyIds();
 
-// Get initial theme from service or default to first theme
+// Get initial values from service
 const initialTheme = ThemeService.getTheme();
+const initialComponentOverride = ThemeService.getComponentOverride();
+const initialTypography = ThemeService.getTypography();
+
 const initialState = {
     mode: themes.includes(initialTheme) ? initialTheme : themes[0],
+    componentOverride: componentOverrides.includes(initialComponentOverride) ? initialComponentOverride : componentOverrides[0],
+    typography: typographies.includes(initialTypography) ? initialTypography : typographies[0],
 };
 
 export const themeSlice = createSlice({
@@ -49,12 +41,60 @@ export const themeSlice = createSlice({
                 ThemeService.setTheme(action.payload); // Save the theme when it's set
             }
         },
+
+        toggleComponentOverride: (state) => {
+            // Find the current component override's index
+            const currentOverrideIndex = componentOverrides.indexOf(state.componentOverride);
+            // Calculate the index of the next override
+            const nextOverrideIndex = (currentOverrideIndex + 1) % componentOverrides.length;
+            // Set the override to the next one
+            state.componentOverride = componentOverrides[nextOverrideIndex];
+            ThemeService.setComponentOverride(state.componentOverride); // Save the override when toggled
+        },
+
+        setComponentOverride: (state, action) => {
+            if (componentOverrides.includes(action.payload)) {
+                state.componentOverride = action.payload;
+                ThemeService.setComponentOverride(action.payload); // Save the override when it's set
+            }
+        },
+
+        toggleTypography: (state) => {
+            // Find the current typography's index
+            const currentTypographyIndex = typographies.indexOf(state.typography);
+            // Calculate the index of the next typography
+            const nextTypographyIndex = (currentTypographyIndex + 1) % typographies.length;
+            // Set the typography to the next one
+            state.typography = typographies[nextTypographyIndex];
+            ThemeService.setTypography(state.typography); // Save the typography when toggled
+        },
+
+        setTypography: (state, action) => {
+            if (typographies.includes(action.payload)) {
+                state.typography = action.payload;
+                ThemeService.setTypography(action.payload); // Save the typography when it's set
+            }
+        },
     },
 });
 
-export const { toggleTheme, setTheme } = themeSlice.actions;
+export const {
+    toggleTheme,
+    setTheme,
+    toggleComponentOverride,
+    setComponentOverride,
+    toggleTypography,
+    setTypography
+} = themeSlice.actions;
 
-// New selector to get the list of available themes
+// Selectors to get available options
 export const selectAvailableThemes = () => themes;
+export const selectAvailableComponentOverrides = () => componentOverrides;
+export const selectAvailableTypographies = () => typographies;
+
+// Selectors for current values
+export const selectCurrentTheme = (state) => state.theme.mode;
+export const selectCurrentComponentOverride = (state) => state.theme.componentOverride;
+export const selectCurrentTypography = (state) => state.theme.typography;
 
 export default themeSlice.reducer;

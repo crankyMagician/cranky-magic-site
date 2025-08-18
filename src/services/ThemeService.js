@@ -1,22 +1,31 @@
 // src/services/ThemeService.js
+import { getAvailableThemeIds, validateThemeId, isDarkTheme, getThemeById } from '../themes/themeRegistry';
+import { getAvailableComponentOverrideIds, validateComponentOverrideId, getComponentOverrideById } from '../themes/muicomponents';
+import { getAvailableTypographyIds, validateTypographyId, getTypographyById } from '../themes/typography';
+
 class ThemeService {
     static themeKey = 'appTheme';
+    static componentOverrideKey = 'componentOverride';
+    static typographyKey = 'typography';
     static themePrefsKey = 'themePreferences';
 
-    // Available themes - UPDATED to include your new color schemes
-    static availableThemes = [
-        'light', 'dark', 'munchie', 'munchie_dark', 'professional',
-        'startup', 'memphis', 'altTheme', 'sunset', 'mint',
-        'retro_neon', 'high_contrast',
-        // Add your new color schemes
-        'cs_color_27_v1', 'cs_color_30_v2', 'cs_color_23_v3',
-        'cs_color_29_v4', 'cs_color_31_v5'
-    ];
+    // Available options from registries
+    static get availableThemes() {
+        return getAvailableThemeIds();
+    }
 
-    // Set the main theme
+    static get availableComponentOverrides() {
+        return getAvailableComponentOverrideIds();
+    }
+
+    static get availableTypographies() {
+        return getAvailableTypographyIds();
+    }
+
+    // Theme management
     static setTheme(theme) {
-        console.log(`ThemeService.setTheme called with: ${theme}`); // Debug log
-        if (this.availableThemes.includes(theme)) {
+        console.log(`ThemeService.setTheme called with: ${theme}`);
+        if (validateThemeId(theme)) {
             localStorage.setItem(this.themeKey, theme);
             console.log(`Theme set to: ${theme}`);
         } else {
@@ -26,26 +35,92 @@ class ThemeService {
         }
     }
 
-    // Get the current theme
     static getTheme() {
         const savedTheme = localStorage.getItem(this.themeKey);
-        console.log(`ThemeService.getTheme - savedTheme: ${savedTheme}`); // Debug log
-        // Verify the saved theme is valid
-        if (savedTheme && this.availableThemes.includes(savedTheme)) {
+        console.log(`ThemeService.getTheme - savedTheme: ${savedTheme}`);
+        if (savedTheme && validateThemeId(savedTheme)) {
             return savedTheme;
         }
-        console.log(`ThemeService.getTheme - returning default: light`); // Debug log
+        console.log(`ThemeService.getTheme - returning default: light`);
         return 'light'; // Default to light theme
     }
 
-    // Check if theme is dark mode - UPDATED to include new dark themes
-    static isDarkMode() {
-        const theme = this.getTheme();
-        const darkThemes = ['dark', 'munchie_dark', 'retro_neon', 'cs_color_30_v2', 'cs_color_29_v4'];
-        return darkThemes.includes(theme);
+    static getAvailableThemes() {
+        return this.availableThemes;
     }
 
-    // Toggle between light and dark modes (only for same theme family)
+    static validateTheme(themeId) {
+        return validateThemeId(themeId);
+    }
+
+    // Component override management
+    static setComponentOverride(overrideId) {
+        console.log(`ThemeService.setComponentOverride called with: ${overrideId}`);
+        if (validateComponentOverrideId(overrideId)) {
+            localStorage.setItem(this.componentOverrideKey, overrideId);
+            console.log(`Component override set to: ${overrideId}`);
+        } else {
+            console.warn(`Invalid component override: ${overrideId}. Available overrides:`, this.availableComponentOverrides);
+            console.warn(`Using default cranky override.`);
+            localStorage.setItem(this.componentOverrideKey, 'cranky');
+        }
+    }
+
+    static getComponentOverride() {
+        const savedOverride = localStorage.getItem(this.componentOverrideKey);
+        console.log(`ThemeService.getComponentOverride - savedOverride: ${savedOverride}`);
+        if (savedOverride && validateComponentOverrideId(savedOverride)) {
+            return savedOverride;
+        }
+        console.log(`ThemeService.getComponentOverride - returning default: cranky`);
+        return 'cranky'; // Default to cranky override
+    }
+
+    static getAvailableComponentOverrides() {
+        return this.availableComponentOverrides;
+    }
+
+    static validateComponentOverride(overrideId) {
+        return validateComponentOverrideId(overrideId);
+    }
+
+    // Typography management
+    static setTypography(typographyId) {
+        console.log(`ThemeService.setTypography called with: ${typographyId}`);
+        if (validateTypographyId(typographyId)) {
+            localStorage.setItem(this.typographyKey, typographyId);
+            console.log(`Typography set to: ${typographyId}`);
+        } else {
+            console.warn(`Invalid typography: ${typographyId}. Available typographies:`, this.availableTypographies);
+            console.warn(`Using default spatial typography.`);
+            localStorage.setItem(this.typographyKey, 'spatial');
+        }
+    }
+
+    static getTypography() {
+        const savedTypography = localStorage.getItem(this.typographyKey);
+        console.log(`ThemeService.getTypography - savedTypography: ${savedTypography}`);
+        if (savedTypography && validateTypographyId(savedTypography)) {
+            return savedTypography;
+        }
+        console.log(`ThemeService.getTypography - returning default: spatial`);
+        return 'spatial'; // Default to spatial typography
+    }
+
+    static getAvailableTypographies() {
+        return this.availableTypographies;
+    }
+
+    static validateTypography(typographyId) {
+        return validateTypographyId(typographyId);
+    }
+
+    // Legacy compatibility methods
+    static isDarkMode() {
+        const theme = this.getTheme();
+        return isDarkTheme(theme);
+    }
+
     static toggleDarkMode() {
         const currentTheme = this.getTheme();
         let newTheme;
@@ -73,12 +148,11 @@ class ThemeService {
         return newTheme;
     }
 
-    // Save additional theme preferences (animation level, contrast settings, etc.)
+    // Theme preferences (existing + new)
     static setThemePreferences(preferences) {
         localStorage.setItem(this.themePrefsKey, JSON.stringify(preferences));
     }
 
-    // Get saved theme preferences
     static getThemePreferences() {
         const prefsString = localStorage.getItem(this.themePrefsKey);
         return prefsString ? JSON.parse(prefsString) : {
@@ -92,53 +166,49 @@ class ThemeService {
         };
     }
 
-    // Update a single theme preference without changing others
     static updateThemePreference(key, value) {
         const currentPrefs = this.getThemePreferences();
         currentPrefs[key] = value;
         this.setThemePreferences(currentPrefs);
     }
 
-    // Get theme icon based on theme name
-    static getThemeIcon(themeName) {
-        // This would be implemented if we were using theme icons outside of the ThemeToggle component
-        return null;
+    // Utility methods
+    static getThemeInfo(themeId) {
+        return getThemeById(themeId);
     }
 
-    // Get theme display name - UPDATED to include new themes
-    static getThemeDisplayName(themeName) {
-        const names = {
-            'light': 'Light',
-            'dark': 'Dark',
-            'munchie': 'Munchie',
-            'munchie_dark': 'Munchie Dark',
-            'professional': 'Professional',
-            'startup': 'Startup',
-            'memphis': 'Corporate Memphis',
-            'altTheme': 'Alternative',
-            'sunset': 'Sunset',
-            'mint': 'Mint',
-            'retro_neon': 'Retro Neon',
-            'high_contrast': 'High Contrast',
-            // Add your new color schemes
-            'cs_color_27_v1': 'CS Color V1',
-            'cs_color_30_v2': 'CS Color V2',
-            'cs_color_23_v3': 'CS Color V3',
-            'cs_color_29_v4': 'CS Color V4',
-            'cs_color_31_v5': 'CS Color V5'
-        };
+    static getComponentOverrideInfo(overrideId) {
+        return getComponentOverrideById(overrideId);
+    }
 
-        return names[themeName] || 'Unknown Theme';
+    static getTypographyInfo(typographyId) {
+        return getTypographyById(typographyId);
+    }
+
+    static getThemeIcon(themeName) {
+        const themeInfo = this.getThemeInfo(themeName);
+        return themeInfo ? themeInfo.icon : null;
+    }
+
+    static getThemeDisplayName(themeName) {
+        const themeInfo = this.getThemeInfo(themeName);
+        return themeInfo ? themeInfo.name : 'Unknown Theme';
     }
 
     // Debug method to check current state
     static getDebugInfo() {
         return {
             currentTheme: this.getTheme(),
+            currentComponentOverride: this.getComponentOverride(),
+            currentTypography: this.getTypography(),
             isDarkMode: this.isDarkMode(),
             availableThemes: this.availableThemes,
+            availableComponentOverrides: this.availableComponentOverrides,
+            availableTypographies: this.availableTypographies,
             preferences: this.getThemePreferences(),
             localStorageTheme: localStorage.getItem(this.themeKey),
+            localStorageComponentOverride: localStorage.getItem(this.componentOverrideKey),
+            localStorageTypography: localStorage.getItem(this.typographyKey),
             localStoragePrefs: localStorage.getItem(this.themePrefsKey)
         };
     }

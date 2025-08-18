@@ -466,6 +466,16 @@
   "BusinessRoles": "Business Roles",
   "BusinessInvitation": "Business Invitation",
   "AcceptInvitation": "Accept Invitation",
-  "Home": "Home"
+  "Home": "Home",
+  "Color Theme": "Color Theme",
+  "Style Override": "Style Override",
+  "Current Style": "Current Style",
+  "Current Configuration": "Current Configuration",
+  "Theme Settings": "Theme Settings",
+  "Component Style": "Component Style",
+  "Choose your color theme and visual style": "Choose your color theme and visual style",
+  "Select how components should look and feel": "Select how components should look and feel",
+  "Color Palette": "Color Palette",
+  "Typography Examples": "Typography Examples"
 
 }

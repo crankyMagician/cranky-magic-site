@@ -44,13 +44,15 @@ const App = () => {
     // Authentication, theme, and preferences hooks
     useAppInitialization();
 
-    // Fetch the current theme mode from Redux state
+    // Fetch the current theme mode, component override, and typography from Redux state
     const themeMode = useSelector(state => state.theme.mode);
+    const componentOverride = useSelector(state => state.theme.componentOverride);
+    const typography = useSelector(state => state.theme.typography);
 
-    // Create theme once - don't recreate it on every render
+    // Create theme with theme mode, component override, and typography - don't recreate it on every render
     const theme = useMemo(() =>
-            getTheme(themeMode, currentLanguageDirection),
-        [themeMode, currentLanguageDirection]
+            getTheme(themeMode, componentOverride, typography, currentLanguageDirection),
+        [themeMode, componentOverride, typography, currentLanguageDirection]
     );
 
     // Only show debug panel in development mode

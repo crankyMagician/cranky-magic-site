@@ -1,6 +1,6 @@
 // src/themes/muicomponents/spatialComponentsOverrides.js
 
-const spatialComponentsOverrides = {
+const matrixComponentsOverrides = {
     // Button overrides for futuristic styling
     MuiButton: {
         styleOverrides: {
@@ -1246,4 +1246,4 @@ const spatialComponentsOverrides = {
     }
 };
 
-export default spatialComponentsOverrides;
+export default matrixComponentsOverrides;
