@@ -19,3 +19,4 @@ services:
       - "traefik.http.routers.redpathportfolio.rule=Host(`crankymagician.com`)"
       - "traefik.http.routers.redpathportfolio.entrypoints=websecure"
       - "traefik.http.routers.redpathportfolio.tls.certresolver=le"
+      - "traefik.http.services.redpathportfolio.loadbalancer.server.port=3000"
