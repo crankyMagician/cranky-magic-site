@@ -18,30 +18,11 @@ RUN npm run build
 
 # ---- Runtime Stage ----
 FROM node:20-alpine
+
 WORKDIR /app
+COPY --from=builder /app/build .
 
-# Install only production deps (Express)
-RUN npm install express serve-static
-
-# Copy built React app
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package*.json ./
-
-# Add a minimal server.js
-RUN printf "const express = require('express');\n\
-const path = require('path');\n\
-const app = express();\n\
-\n\
-// Serve static files\n\
-app.use(express.static(path.join(__dirname, 'build')));\n\
-\n\
-// SPA fallback\n\
-app.get('*', (req, res) => {\n\
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));\n\
-});\n\
-\n\
-const port = process.env.PORT || 3000;\n\
-app.listen(port, () => console.log(\`React app listening on port \${port}\`));\n" > server.js
+RUN npm install -g serve
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["serve", "-s", ".", "-l", "3000"]
