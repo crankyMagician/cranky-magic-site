@@ -21,20 +21,15 @@ WORKDIR /usr/local/apache2/htdocs/
 COPY --from=builder /app/build/ .
 
 # Optional: custom Apache config for SPA
-RUN printf "ServerName localhost\n\
-<Directory /usr/local/apache2/htdocs/>\n\
-    Options FollowSymLinks\n\
-    AllowOverride None\n\
-    Require all granted\n\
-</Directory>\n\
-\n\
-# Redirect all requests to index.html for React Router\n\
+RUN printf "\
 <IfModule mod_rewrite.c>\n\
     RewriteEngine On\n\
     RewriteCond %%{REQUEST_FILENAME} !-f\n\
     RewriteCond %%{REQUEST_FILENAME} !-d\n\
     RewriteRule ^ index.html [L]\n\
-</IfModule>\n" > /usr/local/apache2/conf/httpd.conf
+</IfModule>\n" \
+> /usr/local/apache2/conf/extra/react-spa.conf && \
+echo "Include conf/extra/react-spa.conf" >> /usr/local/apache2/conf/httpd.conf
 
 EXPOSE 80
 CMD ["httpd-foreground"]
