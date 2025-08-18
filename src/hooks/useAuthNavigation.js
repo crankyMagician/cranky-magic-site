@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './useAuth';
+import useAuth from './useAuth';
 
 export const useAuthNavigation = () => {
     const navigate = useNavigate();
@@ -10,7 +10,19 @@ export const useAuthNavigation = () => {
         navigate('/login');
     };
 
-    return {
-        handleLogout
+    const handleRedirectToLogin = () => {
+        navigate('/login');
     };
-}; 
+
+    const handleRedirectToDashboard = () => {
+        navigate('/dashboard');
+    };
+
+    return {
+        handleLogout,
+        handleRedirectToLogin,
+        handleRedirectToDashboard
+    };
+};
+
+export default useAuthNavigation;

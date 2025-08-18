@@ -1,15 +1,16 @@
-// src/state/store/store.jsx
 import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import rootReducer from '../../reducers/rootReducer';
-import { extendedApi } from "../../api/extendedApi";
+import { apiSlice } from '../../api/apiSlice';
 
 const store = configureStore({
     reducer: rootReducer,
-    // Manages the RTK Query Cache
-    middleware: getDefaultMiddleware =>
-        getDefaultMiddleware().concat(
-            extendedApi.middleware,
-        )
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(apiSlice.middleware),
+    devTools: process.env.NODE_ENV !== 'production',
 });
+
+// Optional, but required for refetchOnFocus/refetchOnReconnect behaviors
+setupListeners(store.dispatch);
 
 export default store;

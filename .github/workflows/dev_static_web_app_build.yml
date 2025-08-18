@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: 🚀🔥 Super-Powered Static Web App Deployment 🌐✨
 
 on:
   push:
@@ -13,15 +13,45 @@ jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: 🏗️ Build and Deploy Magic ✨
     env:
-      CI: false # Prevents React from treating warnings as errors
+      CI: false
+      REACT_APP_ENV: development
+      REACT_APP_AUTH_API_URL: /auth-api
+      REACT_APP_MAIN_API_URL: /main-api
+      REACT_APP_ENABLE_ANALYTICS: ${{ secrets.REACT_APP_ENABLE_ANALYTICS }}
+      REACT_APP_POSTHOG_API_KEY: ${{ secrets.REACT_APP_POSTHOG_API_KEY }}
+      REACT_APP_POSTHOG_HOST: ${{ secrets.REACT_APP_POSTHOG_HOST }}
+      REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+      REACT_APP_ANALYTICS_SAMPLE_RATE: ${{ secrets.REACT_APP_ANALYTICS_SAMPLE_RATE }}
     steps:
-      - uses: actions/checkout@v3
+      - name: 📥 Checkout Repository 📂
+        uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
-      - name: Build And Deploy
+
+      - name: 🛠️ Setup Debug Logs 📝
+        run: |
+          echo "🚀 Starting deployment process at $(date)"
+          echo "🌍 Working directory: $GITHUB_WORKSPACE"
+          echo "🔧 Node version: $(node -v)"
+          echo "📦 npm version: $(npm -v)"
+          echo "🔍 Environment: $REACT_APP_ENV"
+          echo "🌐 API paths configured: $REACT_APP_AUTH_API_URL and $REACT_APP_MAIN_API_URL"
+          echo "📜 Files in root directory:"
+          ls -la
+
+      - name: 🔍 Verify staticwebapp.config.json
+        run: |
+          echo "🔎 Checking staticwebapp.config.json content:"
+          cat staticwebapp.config.json
+          echo "🔄 Updating rewrite parameter format..."
+          # This is a safety check to make sure we're using {0} format
+          sed -i 's/{path}/{0}/g' staticwebapp.config.json
+          cat staticwebapp.config.json
+
+      - name: 🏗️ Build And Deploy to Azure ☁️
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -31,15 +61,27 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: "build"
+          app_build_command: "npm install && npm run build && cp staticwebapp.config.json build/"
+
+      - name: 📊 Deployment Results 📈
+        if: always()
+        run: |
+          echo "✅ Deployment job completed with status: ${{ job.status }}"
+          echo "⏱️ Deployment finished at $(date)"
+          echo "📱 Your app should be available at https://dev.portal.spatialmods.com"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
+    name: 🧹 Cleanup PR Environment 🧼
     steps:
-      - name: Close Pull Request
+      - name: 🚮 Close Pull Request Environment 🔒
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_ISLAND_02BC8571E }}
           action: "close"
+          app_location: ''
+
+      - name: 📝 Cleanup Log 🧹
+        run: echo "🧼 Pull request environment cleanup completed at $(date) 🚀"

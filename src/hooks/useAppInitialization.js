@@ -1,4 +1,3 @@
-// useAppInitialization.js
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import TokenDecoder from '../utilities/TokenDecoder';
@@ -9,48 +8,73 @@ const useAppInitialization = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        const checkToken = () => {
-            const token = AuthTokenService.getAuthInfo().authToken;
-            if (!token) {
-                console.log('No token found');
+        const checkToken = async () => {
+            const { authToken, user } = AuthTokenService.getAuthInfo();
+            if (!authToken) {
+                console.log('No token found during app initialization');
                 return;
             }
 
             try {
-                const decodedToken = TokenDecoder.decode(token);
+                // First decode locally to check expiration and extract basic info
+                const decodedToken = TokenDecoder.decode(authToken);
                 if (!decodedToken) {
-                    console.error('Invalid token format');
+                    console.error('Invalid token format during app initialization');
                     AuthTokenService.clearAuthInfo();
                     return;
                 }
 
                 // Check if token is expired
-                if (TokenDecoder.isExpired(token)) {
-                    console.log('Token expired');
+                if (TokenDecoder.isExpired(authToken)) {
+                    console.log('Token expired during app initialization');
                     AuthTokenService.clearAuthInfo();
                     return;
                 }
 
-                // Update auth state with decoded token data
+                console.log('Token validation successful, extracting auth info:', {
+                    userId: decodedToken.id,
+                    hasActiveBusinessId: !!decodedToken.activeBusinessId,
+                    businessCount: decodedToken.businesses?.length || 0,
+                    exp: new Date(decodedToken.exp * 1000).toLocaleString()
+                });
+
+                // Use AuthTokenService to parse and store the complete auth info
+                const parsedToken = AuthTokenService.parseToken();
+                if (!parsedToken) {
+                    console.error('Failed to parse token during app initialization');
+                    AuthTokenService.clearAuthInfo();
+                    return;
+                }
+
+                // Get the refreshed auth info (which includes the parsed token data)
+                const authInfo = AuthTokenService.getAuthInfo();
+                if (!authInfo.isAuthenticated) {
+                    console.error('Auth info invalid after token parsing');
+                    return;
+                }
+
+                // Update Redux state with the parsed auth info (LOCAL ONLY - NO API CALL)
                 dispatch(setCredentials({
-                    user: {
-                        id: decodedToken.id,
-                        email: decodedToken.email,
-                        phoneNumber: decodedToken.phoneNumber,
-                        username: decodedToken.username
-                    },
-                    token,
-                    roles: decodedToken.roles || [],
-                    businesses: decodedToken.businesses || [],
-                    activeBusiness: decodedToken.activeBusiness || null
+                    user: authInfo.user,
+                    token: authToken,
+                    roles: authInfo.roles || [],
+                    businesses: authInfo.businesses || [],
+                    activeBusiness: authInfo.activeBusiness || null
                 }));
+
+                console.log('App initialization complete (local token decode):', {
+                    userId: authInfo.user?.id,
+                    activeBusinessId: authInfo.activeBusiness?.id,
+                    businessCount: authInfo.businesses?.length || 0
+                });
 
                 // If we're on the login page, redirect to dashboard
                 if (window.location.pathname === '/login') {
                     window.location.href = '/dashboard';
                 }
+
             } catch (error) {
-                console.error('Error validating token:', error);
+                console.error('Error during app initialization token validation:', error);
                 AuthTokenService.clearAuthInfo();
             }
         };

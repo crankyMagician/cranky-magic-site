@@ -11,8 +11,11 @@ import {sunsetPalette} from "./palettes/sunsetPalette";
 import {mintPalette} from "./palettes/mintPalette";
 import {retroNeonPalette} from "./palettes/retroNeonPalette";
 import {highContrastPalette} from "./palettes/highContrastPalette";
-import {crankyMagicianLight} from "./palettes/crankyMagicianLight";
-import {crankyMagicianDark} from "./palettes/crankyMagicianDark";
+import {csColor27V1} from "./spatialcolor/cs_color_27_v1";
+import {csColor30V2} from "./spatialcolor/cs_color_30_v2";
+import {csColor23V3} from "./spatialcolor/cs_color_23_v3";
+import {csColor29V4} from "./spatialcolor/cs_color_29_v4";
+import {csColor31V5} from "./spatialcolor/cs_color_31_v5";
 
 // Map theme modes to their respective palettes
 const themeModeMappings = {
@@ -28,8 +31,12 @@ const themeModeMappings = {
     mint: mintPalette,
     retro_neon: retroNeonPalette,
     high_contrast: highContrastPalette,
-    cranky_light: crankyMagicianLight,
-    cranky_dark: crankyMagicianDark
+    // Add your new color schemes
+    cs_color_27_v1: csColor27V1,
+    cs_color_30_v2: csColor30V2,
+    cs_color_23_v3: csColor23V3,
+    cs_color_29_v4: csColor29V4,
+    cs_color_31_v5: csColor31V5
 };
 
 // Function to get the palette by mode
@@ -39,5 +46,3 @@ export const getPaletteByMode = (mode) => {
 };
 
 export default themeModeMappings;
-
-

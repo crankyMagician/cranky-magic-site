@@ -22,35 +22,17 @@ import {
     Menu as MenuIcon,
     ChevronLeft as ChevronLeftIcon,
     ChevronRight as ChevronRightIcon,
-    Home,
-    CalendarMonth,
-    Info,
-    ContactMail,
-    Email,
-    Login,
-    AppRegistration,
-    VideoLibrary,
-    Style as StyleIcon,
-    AccountCircle,
     Logout,
+    Login,
+    AppRegistration
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
 import Branding from '../demoComponents/Branding';
 import logoImage from '../../assets/logo/default_logo.png';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
-
-// Navigation items with icons and accessibility enhancement
-const navigationItems = [
-    { path: '/', label: 'Home', icon: <Home />, requiresAuth: false },
-    { path: '/theme', label: 'Theme', icon: <StyleIcon />, requiresAuth: false },
-    { path: '/about-us', label: 'About Us', icon: <Info />, requiresAuth: false },
-    { path: '/contact-us', label: 'Contact Us', icon: <ContactMail />, requiresAuth: false },
-    { path: '/video-stream', label: 'Video Stream', icon: <VideoLibrary />, requiresAuth: false },
-    { path: '/calendar', label: 'Calendar', icon: <CalendarMonth />, requiresAuth: false },
-    { path: '/newsletter-signup', label: 'Newsletter', icon: <Email />, requiresAuth: false },
-    { path: '/edit-account', label: 'Account Settings', icon: <AccountCircle />, requiresAuth: true },
-];
+import useAnalytics from '../../analytics/hooks/useAnalytics';
+import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 
 const Sidebar = ({ children }) => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -61,6 +43,7 @@ const Sidebar = ({ children }) => {
     const location = useLocation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { userRoles } = useRouteContext();
 
     const drawerWidth = 240;
 
@@ -68,62 +51,84 @@ const Sidebar = ({ children }) => {
         setOpen(!open);
     };
 
-    // Filter navigation items based on authentication status
-    const filteredNavItems = navigationItems.filter(item =>
-        !item.requiresAuth || (item.requiresAuth && isAuthenticated)
-    );
+    // Get sidebar navigation items using the new adapter
+    const sidebarGroups = adaptRoutesForSidebar(routes, isAuthenticated, userRoles);
 
     const NavigationList = ({ onClick }) => (
-        <List>
-            {filteredNavItems.map((item) => (
-                <ListItem
-                    button
-                    key={item.path}
-                    component={RouterLink}
-                    to={item.path}
-                    onClick={onClick}
-                    selected={location.pathname === item.path}
-                    sx={{
-                        minHeight: 48,
-                        justifyContent: open ? 'initial' : 'center',
-                        px: 2.5,
-                        '&.Mui-selected': {
-                            backgroundColor: theme.palette.action.selected,
-                            '&:hover': {
-                                backgroundColor: theme.palette.action.hover,
-                            },
-                        },
-                    }}
-                >
-                    <ListItemIcon
-                        sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : 'auto',
-                            justifyContent: 'center',
-                            color: location.pathname === item.path ?
-                                theme.palette.primary.main :
-                                theme.palette.text.secondary,
-                        }}
-                    >
-                        {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={translate(item.label)}
-                        primaryTypographyProps={{
-                            variant: 'body2',
-                            sx: {
+        <>
+            {sidebarGroups.map((group) => (
+                <div key={group.label}>
+                    {open && (
+                        <Typography
+                            variant="subtitle2"
+                            color="textSecondary"
+                            sx={{
+                                px: 3,
+                                mt: 2,
+                                mb: 1,
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
                                 opacity: open ? 1 : 0,
-                                fontFamily: theme.typography.body2.fontFamily,
-                                fontWeight: location.pathname === item.path ? 600 : 400,
-                                color: theme.palette.text.primary,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                            }
-                        }}
-                    />
-                </ListItem>
+                            }}
+                        >
+                            {translate(group.label)}
+                        </Typography>
+                    )}
+                    <List>
+                        {group.items.map((item) => (
+                            <ListItem
+                                button
+                                key={item.path}
+                                component={RouterLink}
+                                to={item.path}
+                                onClick={onClick}
+                                selected={location.pathname === item.path}
+                                sx={{
+                                    minHeight: 48,
+                                    justifyContent: open ? 'initial' : 'center',
+                                    px: 2.5,
+                                    '&.Mui-selected': {
+                                        backgroundColor: theme.palette.action.selected,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.action.hover,
+                                        },
+                                    },
+                                }}
+                            >
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 0,
+                                        mr: open ? 3 : 'auto',
+                                        justifyContent: 'center',
+                                        color: location.pathname === item.path ?
+                                            theme.palette.primary.main :
+                                            theme.palette.text.secondary,
+                                    }}
+                                >
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={translate(item.label)}
+                                    primaryTypographyProps={{
+                                        variant: 'body2',
+                                        sx: {
+                                            opacity: open ? 1 : 0,
+                                            fontFamily: theme.typography.body2.fontFamily,
+                                            fontWeight: location.pathname === item.path ? 600 : 400,
+                                            color: theme.palette.text.primary,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                        }
+                                    }}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </div>
             ))}
-        </List>
+        </>
     );
 
     // Authentication links
@@ -198,7 +203,7 @@ const Sidebar = ({ children }) => {
             <ListItem
                 button
                 component={RouterLink}
-                to="/register"
+                to="/business-signup"
                 sx={{
                     minHeight: 48,
                     justifyContent: open ? 'initial' : 'center',
