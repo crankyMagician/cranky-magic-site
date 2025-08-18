@@ -32,8 +32,22 @@ RUN printf "server {\n\
     server_name _;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
+\n\
+    # Main SPA route\n\
     location / {\n\
         try_files \$uri /index.html;\n\
+    }\n\
+\n\
+    # Cache static assets\n\
+    location /static/ {\n\
+        expires 1y;\n\
+        add_header Cache-Control \"public\";\n\
+    }\n\
+\n\
+    # Cache common frontend assets (js, css, fonts, images)\n\
+    location ~* \\.(?:ico|css|js|gif|jpe?g|png|woff2?|woff|ttf|svg|eot)$ {\n\
+        expires 1M;\n\
+        add_header Cache-Control \"public\";\n\
     }\n\
 }\n" > /etc/nginx/conf.d/default.conf
 
