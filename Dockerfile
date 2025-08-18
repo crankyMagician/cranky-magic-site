@@ -37,8 +37,6 @@ RUN printf "server {\n\
     }\n\
 }\n" > /etc/nginx/conf.d/default.conf
 
-#HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-#  CMD wget -qO- http://localhost/ || exit 1
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
