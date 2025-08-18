@@ -1,23 +1,30 @@
 # syntax=docker/dockerfile:1.7
 
-# Build stage
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Copy package definitions first
 COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
+
+# Install deps (works even if no lockfile)
+RUN --mount=type=cache,target=/root/.npm npm install
+
+# Copy rest of app
 COPY . .
+
+# Build React
 ARG REACT_APP_ENV=production
 ENV REACT_APP_ENV=${REACT_APP_ENV}
 RUN npm run build
 
-# Run stage
+# ---- Runtime ----
 FROM nginx:1.27-alpine
 WORKDIR /usr/share/nginx/html
 
-# Copy build output
+# Copy build artifacts
 COPY --from=builder /app/build .
 
-# Drop in minimal nginx.conf directly
+# Minimal nginx.conf for React SPA
 RUN printf "server {\n\
     listen 80;\n\
     server_name _;\n\
