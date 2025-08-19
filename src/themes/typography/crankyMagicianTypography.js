@@ -1,69 +1,50 @@
 // src/themes/typography/crankyMagicianTypography.js
 
+// Import font sources
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
+import '@fontsource/inter/900.css';
+import '@fontsource/orbitron/400.css';
+import '@fontsource/orbitron/500.css';
+import '@fontsource/orbitron/600.css';
+import '@fontsource/orbitron/700.css';
+import '@fontsource/orbitron/800.css';
+import '@fontsource/orbitron/900.css';
+import '@fontsource/fira-code/300.css';
+import '@fontsource/fira-code/400.css';
+import '@fontsource/fira-code/500.css';
+import '@fontsource/fira-code/600.css';
+import '@fontsource/fira-code/700.css';
+import '@fontsource/cinzel/400.css';
+import '@fontsource/cinzel/500.css';
+import '@fontsource/cinzel/600.css';
+import '@fontsource/cinzel/700.css';
+import '@fontsource/cinzel/800.css';
+import '@fontsource/cinzel/900.css';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/500.css';
+import '@fontsource/playfair-display/600.css';
+import '@fontsource/playfair-display/700.css';
+import '@fontsource/playfair-display/800.css';
+import '@fontsource/playfair-display/900.css';
+
 /**
  * Cranky Magician Typography System
  * Magical and technical fonts with animated effects
+ * Perfect for mystical wizard-themed interfaces
  */
 const crankyMagicianTypography = {
-    // Font families
-    fontFamily: [
-        'Inter',
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        '"Helvetica Neue"',
-        'Arial',
-        'sans-serif',
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-    ].join(','),
+    // Default font family for general text
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 
-    // Display font for headings
-    displayFontFamily: [
-        'Orbitron',
-        'Space Mono',
-        'monospace',
-    ].join(','),
-
-    // Code font
-    codeFontFamily: [
-        'Fira Code',
-        'JetBrains Mono',
-        'Monaco',
-        'Consolas',
-        '"Courier New"',
-        'monospace',
-    ].join(','),
-
-    // Magical script font for special effects
-    magicalFontFamily: [
-        'Cinzel',
-        'Playfair Display',
-        'Georgia',
-        'serif',
-    ].join(','),
-
-    // Font weights
-    fontWeightLight: 300,
-    fontWeightRegular: 400,
-    fontWeightMedium: 500,
-    fontWeightSemiBold: 600,
-    fontWeightBold: 700,
-    fontWeightExtraBold: 800,
-    fontWeightBlack: 900,
-
-    // HTML font size (16px default)
-    htmlFontSize: 16,
-
-    // Typography variants
     h1: {
-        fontFamily: [
-            'Orbitron',
-            'Space Mono',
-            'monospace',
-        ].join(','),
+        fontFamily: 'Orbitron, "Space Mono", monospace', // Mystical tech headers
         fontWeight: 900,
         fontSize: '3.5rem',
         lineHeight: 1.2,
@@ -75,18 +56,10 @@ const crankyMagicianTypography = {
         '@media (max-width:600px)': {
             fontSize: '2.25rem',
         },
-        // Magical glow effect
-        '&.magical-glow': {
-            animation: 'magicalGlow 2s ease-in-out infinite alternate',
-        },
     },
 
     h2: {
-        fontFamily: [
-            'Orbitron',
-            'Space Mono',
-            'monospace',
-        ].join(','),
+        fontFamily: 'Orbitron, "Space Mono", monospace',
         fontWeight: 800,
         fontSize: '2.75rem',
         lineHeight: 1.3,
@@ -100,11 +73,7 @@ const crankyMagicianTypography = {
     },
 
     h3: {
-        fontFamily: [
-            'Orbitron',
-            'Space Mono',
-            'monospace',
-        ].join(','),
+        fontFamily: 'Orbitron, "Space Mono", monospace',
         fontWeight: 700,
         fontSize: '2.25rem',
         lineHeight: 1.35,
@@ -118,11 +87,7 @@ const crankyMagicianTypography = {
     },
 
     h4: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 700,
         fontSize: '1.75rem',
         lineHeight: 1.4,
@@ -136,11 +101,7 @@ const crankyMagicianTypography = {
     },
 
     h5: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 600,
         fontSize: '1.5rem',
         lineHeight: 1.45,
@@ -154,11 +115,7 @@ const crankyMagicianTypography = {
     },
 
     h6: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 600,
         fontSize: '1.25rem',
         lineHeight: 1.5,
@@ -172,11 +129,7 @@ const crankyMagicianTypography = {
     },
 
     subtitle1: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 500,
         fontSize: '1.125rem',
         lineHeight: 1.5,
@@ -184,11 +137,7 @@ const crankyMagicianTypography = {
     },
 
     subtitle2: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 500,
         fontSize: '1rem',
         lineHeight: 1.5,
@@ -196,11 +145,7 @@ const crankyMagicianTypography = {
     },
 
     body1: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 400,
         fontSize: '1rem',
         lineHeight: 1.6,
@@ -208,11 +153,7 @@ const crankyMagicianTypography = {
     },
 
     body2: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 400,
         fontSize: '0.875rem',
         lineHeight: 1.6,
@@ -220,11 +161,7 @@ const crankyMagicianTypography = {
     },
 
     button: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 600,
         fontSize: '0.875rem',
         lineHeight: 1.75,
@@ -233,11 +170,7 @@ const crankyMagicianTypography = {
     },
 
     caption: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 400,
         fontSize: '0.75rem',
         lineHeight: 1.66,
@@ -245,11 +178,7 @@ const crankyMagicianTypography = {
     },
 
     overline: {
-        fontFamily: [
-            'Inter',
-            'Roboto',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Inter, Roboto, sans-serif',
         fontWeight: 600,
         fontSize: '0.75rem',
         lineHeight: 2.66,
@@ -257,14 +186,9 @@ const crankyMagicianTypography = {
         textTransform: 'uppercase',
     },
 
-    // Custom variants for magical effects
+    // Custom typography variants for magical effects
     magical: {
-        fontFamily: [
-            'Cinzel',
-            'Playfair Display',
-            'Georgia',
-            'serif',
-        ].join(','),
+        fontFamily: 'Cinzel, "Playfair Display", Georgia, serif', // Elegant magical script
         fontWeight: 600,
         fontSize: '1.25rem',
         lineHeight: 1.5,
@@ -273,13 +197,7 @@ const crankyMagicianTypography = {
     },
 
     code: {
-        fontFamily: [
-            'Fira Code',
-            'JetBrains Mono',
-            'Monaco',
-            'Consolas',
-            'monospace',
-        ].join(','),
+        fontFamily: '"Fira Code", "JetBrains Mono", Monaco, Consolas, monospace',
         fontWeight: 400,
         fontSize: '0.875rem',
         lineHeight: 1.5,
@@ -287,135 +205,49 @@ const crankyMagicianTypography = {
     },
 
     glitch: {
-        fontFamily: [
-            'Orbitron',
-            'Space Mono',
-            'monospace',
-        ].join(','),
+        fontFamily: 'Orbitron, "Space Mono", monospace',
         fontWeight: 700,
         fontSize: '1.5rem',
         lineHeight: 1.2,
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
-        position: 'relative',
-        '&::before, &::after': {
-            content: 'attr(data-text)',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-        },
-        '&::before': {
-            animation: 'glitch-1 0.5s infinite',
-            color: '#6B4BAF',
-            zIndex: -1,
-        },
-        '&::after': {
-            animation: 'glitch-2 0.5s infinite',
-            color: '#2FB2DD',
-            zIndex: -2,
-        },
     },
 
-    // Responsive font sizes
-    responsive: {
-        '@media (max-width:600px)': {
-            fontSize: 14,
-        },
+    // Data display typography for magical meters and stats
+    dataLabel: {
+        fontFamily: 'Orbitron, "Space Mono", monospace',
+        fontWeight: 600,
+        fontSize: '0.85rem',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
     },
 
-    // Custom animation keyframes to be added to global styles
-    animations: `
-        @keyframes magicalGlow {
-            0% {
-                text-shadow: 
-                    0 0 10px rgba(107, 75, 175, 0.5),
-                    0 0 20px rgba(107, 75, 175, 0.3),
-                    0 0 30px rgba(107, 75, 175, 0.2);
-            }
-            100% {
-                text-shadow: 
-                    0 0 20px rgba(107, 75, 175, 0.8),
-                    0 0 30px rgba(107, 75, 175, 0.6),
-                    0 0 40px rgba(107, 75, 175, 0.4);
-            }
-        }
-        
-        @keyframes glitch-1 {
-            0%, 100% {
-                clip-path: inset(0 0 0 0);
-                transform: translate(0);
-            }
-            20% {
-                clip-path: inset(33% 0 30% 0);
-                transform: translate(-2px, 2px);
-            }
-            40% {
-                clip-path: inset(20% 0 60% 0);
-                transform: translate(2px, -2px);
-            }
-            60% {
-                clip-path: inset(70% 0 10% 0);
-                transform: translate(-2px, 2px);
-            }
-            80% {
-                clip-path: inset(10% 0 80% 0);
-                transform: translate(2px, -2px);
-            }
-        }
-        
-        @keyframes glitch-2 {
-            0%, 100% {
-                clip-path: inset(0 0 0 0);
-                transform: translate(0);
-            }
-            20% {
-                clip-path: inset(60% 0 20% 0);
-                transform: translate(2px, -2px);
-            }
-            40% {
-                clip-path: inset(10% 0 80% 0);
-                transform: translate(-2px, 2px);
-            }
-            60% {
-                clip-path: inset(40% 0 40% 0);
-                transform: translate(2px, 2px);
-            }
-            80% {
-                clip-path: inset(80% 0 10% 0);
-                transform: translate(-2px, -2px);
-            }
-        }
-        
-        @keyframes typewriter {
-            from {
-                width: 0;
-            }
-            to {
-                width: 100%;
-            }
-        }
-        
-        @keyframes blink {
-            50% {
-                border-color: transparent;
-            }
-        }
-    `,
+    digitDisplay: {
+        fontFamily: 'Orbitron, "Space Mono", monospace',
+        fontWeight: 700,
+        fontSize: '1.25rem',
+        letterSpacing: '0.1em',
+    },
 
-    // Font loading configuration
-    fontDisplay: 'swap',
+    // Spell incantation text
+    incantation: {
+        fontFamily: 'Cinzel, "Playfair Display", Georgia, serif',
+        fontWeight: 500,
+        fontSize: '1.1rem',
+        lineHeight: 1.6,
+        letterSpacing: '0.03em',
+        fontStyle: 'italic',
+    },
 
-    // Custom font imports (to be added to index.html or CSS)
-    fontImports: [
-        '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");',
-        '@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");',
-        '@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap");',
-        '@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap");',
-        '@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");',
-        '@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap");',
-    ],
+    // Mystical runes or symbols
+    runic: {
+        fontFamily: 'Orbitron, "Space Mono", monospace',
+        fontWeight: 800,
+        fontSize: '1.5rem',
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+    },
 };
 
+export { crankyMagicianTypography };
 export default crankyMagicianTypography;

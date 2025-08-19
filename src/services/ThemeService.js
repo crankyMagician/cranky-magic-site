@@ -30,8 +30,8 @@ class ThemeService {
             console.log(`Theme set to: ${theme}`);
         } else {
             console.warn(`Invalid theme: ${theme}. Available themes:`, this.availableThemes);
-            console.warn(`Using default light theme.`);
-            localStorage.setItem(this.themeKey, 'light');
+            console.warn(`Using default cranky_dark theme.`);
+            localStorage.setItem(this.themeKey, 'cranky_dark');
         }
     }
 
@@ -41,8 +41,8 @@ class ThemeService {
         if (savedTheme && validateThemeId(savedTheme)) {
             return savedTheme;
         }
-        console.log(`ThemeService.getTheme - returning default: light`);
-        return 'light'; // Default to light theme
+        console.log(`ThemeService.getTheme - returning default: cranky_dark`);
+        return 'cranky_dark'; // Default to cranky_dark theme
     }
 
     static getAvailableThemes() {
@@ -61,8 +61,8 @@ class ThemeService {
             console.log(`Component override set to: ${overrideId}`);
         } else {
             console.warn(`Invalid component override: ${overrideId}. Available overrides:`, this.availableComponentOverrides);
-            console.warn(`Using default cranky override.`);
-            localStorage.setItem(this.componentOverrideKey, 'cranky');
+            console.warn(`Using default wizard override.`);
+            localStorage.setItem(this.componentOverrideKey, 'wizard');
         }
     }
 
@@ -72,8 +72,8 @@ class ThemeService {
         if (savedOverride && validateComponentOverrideId(savedOverride)) {
             return savedOverride;
         }
-        console.log(`ThemeService.getComponentOverride - returning default: cranky`);
-        return 'cranky'; // Default to cranky override
+        console.log(`ThemeService.getComponentOverride - returning default: wizard`);
+        return 'wizard'; // Default to wizard component override
     }
 
     static getAvailableComponentOverrides() {
@@ -92,8 +92,8 @@ class ThemeService {
             console.log(`Typography set to: ${typographyId}`);
         } else {
             console.warn(`Invalid typography: ${typographyId}. Available typographies:`, this.availableTypographies);
-            console.warn(`Using default typography.`);
-            localStorage.setItem(this.typographyKey, 'default');
+            console.warn(`Using default cranky typography.`);
+            localStorage.setItem(this.typographyKey, 'cranky');
         }
     }
 
@@ -103,8 +103,8 @@ class ThemeService {
         if (savedTypography && validateTypographyId(savedTypography)) {
             return savedTypography;
         }
-        console.log(`ThemeService.getTypography - returning default: default`);
-        return 'default'; // Default to non-spatial typography
+        console.log(`ThemeService.getTypography - returning default: cranky`);
+        return 'cranky'; // Default to cranky typography
     }
 
     static getAvailableTypographies() {
@@ -115,33 +115,39 @@ class ThemeService {
         return validateTypographyId(typographyId);
     }
 
-    // Legacy compatibility methods
+    // Utility methods for checking theme properties
     static isDarkMode() {
-        const theme = this.getTheme();
-        return isDarkTheme(theme);
+        const currentTheme = this.getTheme();
+        return isDarkTheme(currentTheme);
     }
 
-    static toggleDarkMode() {
+    static isLightMode() {
+        return !this.isDarkMode();
+    }
+
+    // Toggle between light and dark themes
+    static toggleThemeMode() {
         const currentTheme = this.getTheme();
         let newTheme;
 
-        // Match themes with their dark counterparts
-        switch(currentTheme) {
-            case 'light':
-                newTheme = 'dark';
-                break;
-            case 'dark':
-                newTheme = 'light';
-                break;
-            case 'munchie':
-                newTheme = 'munchie_dark';
-                break;
-            case 'munchie_dark':
+        if (this.isDarkMode()) {
+            // Switch to a light theme
+            if (currentTheme === 'cranky_dark') {
+                newTheme = 'cranky_light';
+            } else if (currentTheme === 'munchie_dark') {
                 newTheme = 'munchie';
-                break;
-            default:
-                // For other themes, just toggle to light/dark
-                newTheme = this.isDarkMode() ? 'light' : 'dark';
+            } else {
+                newTheme = 'light';
+            }
+        } else {
+            // Switch to a dark theme
+            if (currentTheme === 'cranky_light') {
+                newTheme = 'cranky_dark';
+            } else if (currentTheme === 'munchie') {
+                newTheme = 'munchie_dark';
+            } else {
+                newTheme = 'dark';
+            }
         }
 
         this.setTheme(newTheme);
