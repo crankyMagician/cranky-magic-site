@@ -16,6 +16,6 @@ services:
       - "traefik.enable=true"
 
       # Router
-      - "traefik.http.routers.redpathportfolio.rule=Host(`crankymagician.com`)"
+      - "traefik.http.routers.redpathportfolio.rule=Host(`crankymagician.com`) || Host(`www.crankymagician.com`)"
       - "traefik.http.routers.redpathportfolio.entrypoints=websecure"
       - "traefik.http.routers.redpathportfolio.tls.certresolver=le"
