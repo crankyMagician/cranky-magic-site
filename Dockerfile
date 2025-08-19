@@ -28,6 +28,9 @@ RUN printf "server {\n\
     server_name _;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
+    location /static/ { }\n\
+    location /assets/ { }\n\
+    location /media/  { }\n\
     location / {\n\
         try_files \$uri /index.html;\n\
     }\n\
