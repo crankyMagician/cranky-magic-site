@@ -1,0 +1,15 @@
+name: 🪲 Bug report
+labels: ["🪲 Bug","🔍 Needs Review"]
+body:
+  - type: textarea
+    id: repro
+    attributes: { label: "Repro steps", placeholder: "1) … 2) …" }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: "Expected" }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: "Actual" }
+    validations: { required: true }
