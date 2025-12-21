@@ -1,8 +1,0 @@
-docs:
-  - changed-files:
-      - any-glob-to-any-file: ["docs/**","**/*.md"]
-ui-ux:
-  - changed-files:
-      - any-glob-to-any-file: ["web/**","app/**","ui/**"]
-dependencies:
-  - title: "/^chore\\(deps\\)/"
