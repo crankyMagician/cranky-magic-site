@@ -255,10 +255,10 @@ const ContactSection = React.memo(() => {
                     </Box>
                 </Fade>
 
-                <Grid container spacing={4}>
+                <Grid container spacing={4} alignItems="stretch">
                     {/* Contact Form */}
-                    <Grid item xs={12} md={7}>
-                        <Fade in timeout={1000}>
+                    <Grid item xs={12} md={7} sx={{ display: 'flex' }}>
+                        <Fade in timeout={1000} style={{ width: '100%' }}>
                             <Paper
                                 elevation={0}
                                 sx={{
@@ -268,7 +268,8 @@ const ContactSection = React.memo(() => {
                                         ? 'rgba(255,255,255,0.05)'
                                         : 'rgba(0,0,0,0.02)',
                                     border: `1px solid ${theme.palette.divider}`,
-                                    backdropFilter: 'blur(10px)'
+                                    backdropFilter: 'blur(10px)',
+                                    width: '100%'
                                 }}
                             >
                                 <Typography
@@ -370,9 +371,14 @@ const ContactSection = React.memo(() => {
                     </Grid>
 
                     {/* Contact Information */}
-                    <Grid item xs={12} md={5}>
-                        <Fade in timeout={1200}>
-                            <Box>
+                    <Grid item xs={12} md={5} sx={{ display: 'flex' }}>
+                        <Fade in timeout={1200} style={{ width: '100%' }}>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                                width: '100%'
+                            }}>
                                 {/* Contact Info Cards */}
                                 <Box sx={{ mb: 4 }}>
                                     {contactInfo.map((info, index) => (
@@ -435,7 +441,11 @@ const ContactSection = React.memo(() => {
                                             ? 'rgba(255,255,255,0.05)'
                                             : 'rgba(0,0,0,0.02)',
                                         border: `1px solid ${theme.palette.divider}`,
-                                        textAlign: 'center'
+                                        textAlign: 'center',
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center'
                                     }}
                                 >
                                     <Typography variant="h6" color="text.primary" sx={{ mb: 2 }}>
