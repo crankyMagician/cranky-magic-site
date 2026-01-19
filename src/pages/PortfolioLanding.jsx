@@ -28,6 +28,10 @@ import TimelineSection from '../components/landing/TimelineSection';
 import BlogSection from '../components/landing/BlogSection';
 import ContactSection from '../components/landing/ContactSection';
 
+// Navigation and CTA components
+import LandingNavBar from '../components/navigation/LandingNavBar';
+import CTABand from '../components/sections/CTABand';
+
 const PortfolioLanding = React.memo(() => {
     const theme = useTheme();
     const { translate } = useCustomTranslation();
@@ -136,6 +140,21 @@ const PortfolioLanding = React.memo(() => {
         }
     }, []);
 
+    // Smooth scroll to specific section
+    const scrollToSection = useCallback((sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            const headerOffset = LAYOUT_CONFIG.HEADER_HEIGHT;
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth',
+            });
+        }
+    }, []);
+
     // Register sections for intersection observer
     useEffect(() => {
         const cleanupFunctions = [];
@@ -168,17 +187,14 @@ const PortfolioLanding = React.memo(() => {
     // Background styles based on theme
     const getBackgroundStyle = useCallback((variant = 'default') => {
         const backgrounds = {
-            default: isDarkMode ? theme.palette.background.default : theme.palette.background.default,
-            paper: isDarkMode ? theme.palette.background.paper : theme.palette.background.paper,
+            default: theme.palette.background.default,
+            paper: theme.palette.background.paper,
             gradient: isDarkMode
                 ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900]} 100%)`
                 : `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100]} 100%)`,
-            primaryGradient: isDarkMode
-                ? `linear-gradient(135deg, ${theme.palette.primary.dark}15 0%, ${theme.palette.background.paper} 100%)`
-                : `linear-gradient(135deg, ${theme.palette.primary.main}10 0%, ${theme.palette.background.paper} 100%)`,
-            secondaryGradient: isDarkMode
-                ? `linear-gradient(45deg, ${theme.palette.background.paper} 0%, ${theme.palette.secondary.dark}10 100%)`
-                : `linear-gradient(45deg, ${theme.palette.background.paper} 0%, ${theme.palette.secondary.main}08 100%)`,
+            subtle: isDarkMode
+                ? theme.palette.grey[900]
+                : theme.palette.grey[50],
         };
 
         return backgrounds[variant] || backgrounds.default;
@@ -194,6 +210,9 @@ const PortfolioLanding = React.memo(() => {
                 overflow: 'hidden',
             }}
         >
+            {/* Landing Navigation Bar */}
+            <LandingNavBar />
+
             {/* Hero Section - Full viewport */}
             <Box
                 id={PORTFOLIO_SECTIONS.HERO}
@@ -209,6 +228,17 @@ const PortfolioLanding = React.memo(() => {
                     onScrollToNext={() => handleScrollToNext(PORTFOLIO_SECTIONS.HERO)}
                 />
             </Box>
+
+            {/* CTA Band 1: After Hero - Immediate engagement */}
+            <CTABand
+                headline="Ready to Build Something Amazing?"
+                description="I specialize in scalable solutions across web, mobile, and cloud platforms"
+                primaryCtaText="View My Work"
+                primaryCtaOnClick={() => scrollToSection('projects-section')}
+                secondaryCtaText="Download Resume"
+                secondaryCtaOnClick={() => window.open('/Resume.pdf', '_blank')}
+                variant="gradient"
+            />
 
             {/* Skills Section */}
             <Box
@@ -240,13 +270,24 @@ const PortfolioLanding = React.memo(() => {
                 </Container>
             </Box>
 
+            {/* CTA Band 2: After Projects - Conversion focus */}
+            <CTABand
+                headline="Let's Collaborate"
+                description="Available for consulting, full-stack development, and cloud architecture projects"
+                primaryCtaText="Get In Touch"
+                primaryCtaOnClick={() => scrollToSection('contact-section')}
+                secondaryCtaText="View GitHub"
+                secondaryCtaOnClick={() => window.open('https://github.com/sam-redpath', '_blank')}
+                variant="gradient"
+            />
+
             {/* Framework Capabilities Section */}
             <Box
                 id={PORTFOLIO_SECTIONS.FRAMEWORKS}
                 component="section"
                 sx={{
                     py: { xs: 6, md: 10 },
-                    background: getBackgroundStyle('primaryGradient'),
+                    background: getBackgroundStyle('subtle'),
                     position: 'relative',
                 }}
             >
@@ -291,7 +332,7 @@ const PortfolioLanding = React.memo(() => {
                 component="section"
                 sx={{
                     py: { xs: 8, md: 12 },
-                    background: getBackgroundStyle('secondaryGradient'),
+                    background: getBackgroundStyle('subtle'),
                     position: 'relative',
                 }}
             >

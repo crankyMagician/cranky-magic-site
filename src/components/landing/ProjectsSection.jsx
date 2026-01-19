@@ -50,6 +50,7 @@ import {
     ANALYTICS_EVENTS,
     CONTENT_LIMITS,
 } from './utils/portfolioConstants';
+import { projectsData as realProjectsData } from '../../data/projectsData';
 
 const ProjectsSection = React.memo(() => {
     const theme = useTheme();
@@ -87,128 +88,15 @@ const ProjectsSection = React.memo(() => {
         triggerOnScroll: true,
     });
 
-    // Projects data
-    const projectsData = useMemo(() => [
-        {
-            id: 'ecommerce-platform',
-            title: 'E-Commerce Platform',
-            description: 'Full-stack e-commerce solution with real-time inventory, payment processing, and admin dashboard',
-            longDescription: 'A comprehensive e-commerce platform built with React, Node.js, and PostgreSQL. Features include real-time inventory management, Stripe payment integration, advanced search and filtering, user authentication, order tracking, and a powerful admin dashboard for analytics and management.',
-            image: '/assets/images/projects/ecommerce.jpg',
-            technologies: ['React', 'Node.js', 'PostgreSQL', 'Redis', 'Stripe', 'Docker'],
-            category: 'fullstack',
-            featured: true,
-            demoUrl: 'https://demo.example.com/ecommerce',
-            githubUrl: 'https://github.com/username/ecommerce',
-            stats: {
-                users: '10K+',
-                orders: '50K+',
-                uptime: '99.9%'
-            },
-            date: '2024',
-            teamSize: 4,
-        },
-        {
-            id: 'ai-dashboard',
-            title: 'AI Analytics Dashboard',
-            description: 'Real-time data visualization dashboard with ML-powered insights and predictive analytics',
-            longDescription: 'An advanced analytics dashboard that leverages machine learning for predictive insights. Built with React, D3.js, and Python backend. Features include real-time data streaming, customizable widgets, automated reporting, and ML-powered anomaly detection.',
-            image: '/assets/images/projects/ai-dashboard.jpg',
-            technologies: ['React', 'D3.js', 'Python', 'TensorFlow', 'WebSocket', 'MongoDB'],
-            category: 'frontend',
-            featured: true,
-            demoUrl: 'https://demo.example.com/analytics',
-            githubUrl: 'https://github.com/username/ai-dashboard',
-            stats: {
-                dataPoints: '1M+',
-                predictions: '95%',
-                performance: '60fps'
-            },
-            date: '2024',
-            teamSize: 3,
-        },
-        {
-            id: 'mobile-app',
-            title: 'Task Management Mobile App',
-            description: 'Cross-platform mobile application for team collaboration and task management',
-            longDescription: 'A React Native application for team collaboration with real-time updates, push notifications, and offline support. Features include task assignment, progress tracking, team chat, file sharing, and calendar integration.',
-            image: '/assets/images/projects/mobile-app.jpg',
-            technologies: ['React Native', 'Firebase', 'Redux', 'Node.js', 'Socket.io'],
-            category: 'mobile',
-            featured: false,
-            demoUrl: 'https://demo.example.com/mobile',
-            githubUrl: 'https://github.com/username/task-app',
-            stats: {
-                downloads: '25K+',
-                rating: '4.8',
-                platforms: '2'
-            },
-            date: '2023',
-            teamSize: 2,
-        },
-        {
-            id: 'blockchain-voting',
-            title: 'Blockchain Voting System',
-            description: 'Secure, transparent voting platform built on Ethereum blockchain',
-            longDescription: 'A decentralized voting application ensuring transparency and security through blockchain technology. Built with Solidity smart contracts, Web3.js, and React. Features include voter verification, real-time results, and immutable vote records.',
-            image: '/assets/images/projects/blockchain.jpg',
-            technologies: ['Solidity', 'Web3.js', 'React', 'Ethereum', 'IPFS', 'Truffle'],
-            category: 'blockchain',
-            featured: true,
-            githubUrl: 'https://github.com/username/blockchain-voting',
-            stats: {
-                votes: '100K+',
-                gasOptimized: '40%',
-                security: 'A+'
-            },
-            date: '2023',
-            teamSize: 5,
-        },
-        {
-            id: 'video-streaming',
-            title: 'Video Streaming Platform',
-            description: 'Scalable video streaming service with adaptive bitrate and CDN integration',
-            longDescription: 'A Netflix-like streaming platform with adaptive bitrate streaming, CDN integration, and personalized recommendations. Built with React, Node.js, and AWS services. Features include 4K streaming, offline downloads, and AI-powered content recommendations.',
-            image: '/assets/images/projects/streaming.jpg',
-            technologies: ['React', 'Node.js', 'AWS', 'FFmpeg', 'Redis', 'ElasticSearch'],
-            category: 'fullstack',
-            featured: false,
-            demoUrl: 'https://demo.example.com/streaming',
-            stats: {
-                streams: '1M+',
-                quality: '4K',
-                latency: '<50ms'
-            },
-            date: '2023',
-            teamSize: 6,
-        },
-        {
-            id: 'iot-dashboard',
-            title: 'IoT Device Management',
-            description: 'Real-time IoT device monitoring and control dashboard',
-            longDescription: 'A comprehensive IoT platform for device management, monitoring, and control. Features real-time data visualization, device provisioning, firmware updates, and alerting systems. Built with React, Node.js, and MQTT.',
-            image: '/assets/images/projects/iot.jpg',
-            technologies: ['React', 'Node.js', 'MQTT', 'InfluxDB', 'Grafana', 'Docker'],
-            category: 'fullstack',
-            featured: false,
-            githubUrl: 'https://github.com/username/iot-platform',
-            stats: {
-                devices: '50K+',
-                dataPoints: '10M+',
-                uptime: '99.95%'
-            },
-            date: '2022',
-            teamSize: 4,
-        },
-    ], []);
+    // Use real projects data from data file
+    const projectsData = realProjectsData;
 
-    // Project categories
+    // Project categories - updated to match real projects data
     const categories = useMemo(() => [
         { id: 'all', label: translate('All Projects'), count: projectsData.length },
         { id: 'fullstack', label: translate('Full Stack'), count: projectsData.filter(p => p.category === 'fullstack').length },
         { id: 'frontend', label: translate('Frontend'), count: projectsData.filter(p => p.category === 'frontend').length },
-        { id: 'mobile', label: translate('Mobile'), count: projectsData.filter(p => p.category === 'mobile').length },
-        { id: 'blockchain', label: translate('Blockchain'), count: projectsData.filter(p => p.category === 'blockchain').length },
+        { id: 'backend', label: translate('Backend'), count: projectsData.filter(p => p.category === 'backend').length },
     ], [projectsData, translate]);
 
     // Filter projects

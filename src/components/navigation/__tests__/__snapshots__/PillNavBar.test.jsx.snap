@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PillNavBar Component Rendering matches snapshot 1`] = `
+<div>
+  <header
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation8 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionStatic css-q4ky4-MuiPaper-root-MuiAppBar-root"
+  >
+    <div
+      class="MuiContainer-root css-6tfsyk-MuiContainer-root"
+    >
+      <div
+        class="MuiToolbar-root MuiToolbar-regular css-qx1vow-MuiToolbar-root"
+      >
+        <div
+          class="MuiBox-root css-pgi5df"
+        >
+          <div
+            data-testid="branding"
+          >
+            Branding
+          </div>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-dp8q6f-MuiTypography-root"
+          >
+            Magic React
+          </h6>
+        </div>
+        <div
+          class="MuiBox-root css-84nudp"
+        >
+          <ul
+            class="MuiList-root MuiList-padding css-1soxdf3-MuiList-root"
+          >
+            <a
+              class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1udkr3h-MuiListItem-root"
+              href="/dashboard"
+            >
+              <div
+                class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-lu84ty-MuiTypography-root"
+                  style="font-size: 0.85rem; color: rgb(255, 255, 255);"
+                >
+                  Dashboard
+                </p>
+              </div>
+            </a>
+            <a
+              class="MuiListItem-root MuiListItem-gutters MuiListItem-padding css-1udkr3h-MuiListItem-root"
+              href="/campaigns"
+            >
+              <div
+                class="MuiListItemText-root css-tlelie-MuiListItemText-root"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-lu84ty-MuiTypography-root"
+                  style="font-size: 0.85rem; color: rgb(255, 255, 255);"
+                >
+                  Campaigns
+                </p>
+              </div>
+            </a>
+          </ul>
+          <div
+            class="MuiBox-root css-1l1ulax"
+          >
+            <a
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInherit MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorInherit MuiButton-root MuiButton-text MuiButton-textInherit MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorInherit css-1ss04zk-MuiButtonBase-root-MuiButton-root"
+              href="/login"
+              tabindex="0"
+            >
+              Login
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </a>
+            <a
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorPrimary css-jb8syd-MuiButtonBase-root-MuiButton-root"
+              href="/business-signup"
+              tabindex="0"
+            >
+              Register
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+`;

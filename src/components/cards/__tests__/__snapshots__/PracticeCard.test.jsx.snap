@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PracticeCard Component Logo Overlay matches snapshot with logo overlay 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1yc4mac"
+  >
+    <img
+      alt=""
+      aria-hidden="true"
+      class="MuiBox-root css-dohu1h"
+      src="portal-line-purple.png"
+    />
+    <h6
+      class="MuiTypography-root MuiTypography-subtitle1 css-so6koa-MuiTypography-root"
+    >
+      Test Practice
+    </h6>
+    <p
+      class="MuiTypography-root MuiTypography-body2 css-lxk7lg-MuiTypography-root"
+    >
+      This is a test practice description
+    </p>
+    <div
+      class="MuiBox-root css-7qf7vt"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo css-1ubbeta-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Learn More
+        <span
+          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeLarge css-z4rqyd-MuiButton-endIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ArrowForwardIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`PracticeCard Component Logo Overlay matches snapshot without logo overlay 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1yc4mac"
+  >
+    <h6
+      class="MuiTypography-root MuiTypography-subtitle1 css-so6koa-MuiTypography-root"
+    >
+      Test Practice
+    </h6>
+    <p
+      class="MuiTypography-root MuiTypography-body2 css-lxk7lg-MuiTypography-root"
+    >
+      This is a test practice description
+    </p>
+    <div
+      class="MuiBox-root css-7qf7vt"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo css-1ubbeta-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Learn More
+        <span
+          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeLarge css-z4rqyd-MuiButton-endIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ArrowForwardIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`PracticeCard Component Rendering matches snapshot 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1yc4mac"
+  >
+    <img
+      alt=""
+      aria-hidden="true"
+      class="MuiBox-root css-dohu1h"
+      src="portal-line-purple.png"
+    />
+    <h6
+      class="MuiTypography-root MuiTypography-subtitle1 css-so6koa-MuiTypography-root"
+    >
+      Test Practice
+    </h6>
+    <p
+      class="MuiTypography-root MuiTypography-body2 css-lxk7lg-MuiTypography-root"
+    >
+      This is a test practice description
+    </p>
+    <div
+      class="MuiBox-root css-7qf7vt"
+    >
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo css-1ubbeta-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        Learn More
+        <span
+          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeLarge css-z4rqyd-MuiButton-endIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ArrowForwardIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;

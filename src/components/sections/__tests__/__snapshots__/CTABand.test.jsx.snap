@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CTABand Component Default Rendering matches snapshot 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1pjmpw4"
+  >
+    <img
+      alt=""
+      aria-hidden="true"
+      class="MuiBox-root css-1y77d01"
+      src="hero-backdrop.png"
+    />
+    <div
+      class="MuiContainer-root css-1n90oyh-MuiContainer-root"
+    >
+      <div
+        class="MuiBox-root css-1rr4qq7"
+      >
+        <h4
+          class="MuiTypography-root MuiTypography-h4 css-1n07rxw-MuiTypography-root"
+        >
+          Start innovating now
+        </h4>
+        <h6
+          class="MuiTypography-root MuiTypography-h6 css-jd6dpp-MuiTypography-root"
+        >
+          No complex setups. No 3D modeling nightmares. Just stunning AR experiences for your audience.
+        </h6>
+      </div>
+      <div
+        class="MuiStack-root css-w7gobd-MuiStack-root"
+      >
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorSecondary MuiButton-root MuiButton-contained MuiButton-containedSecondary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorSecondary css-1hjer71-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          Innovate
+          <span
+            class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeLarge css-z4rqyd-MuiButton-endIcon"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              data-testid="ArrowForwardIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12 4-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit MuiButton-root MuiButton-outlined MuiButton-outlinedInherit MuiButton-sizeLarge MuiButton-outlinedSizeLarge MuiButton-colorInherit css-8xs0tz-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          View Plans
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

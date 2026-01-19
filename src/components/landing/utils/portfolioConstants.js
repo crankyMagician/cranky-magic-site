@@ -159,10 +159,10 @@ export const API_ENDPOINTS = {
 
 // External Links
 export const EXTERNAL_LINKS = {
-    GITHUB: 'https://github.com',
-    LINKEDIN: 'https://linkedin.com',
-    TWITTER: 'https://twitter.com',
-    RESUME: '/resume.pdf',
+    GITHUB: 'https://github.com/sam-redpath',
+    LINKEDIN: 'https://linkedin.com/in/sam-redpath',
+    TWITTER: 'https://twitter.com/samredpath',
+    RESUME: '/Resume.pdf',
 };
 
 // Asset Paths

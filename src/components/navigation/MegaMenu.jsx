@@ -30,8 +30,6 @@ import {
     Logout,
 } from '@mui/icons-material';
 
-import Branding from '../demoComponents/Branding';
-import logoImage from '../../assets/logo/default_logo.png';
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import Sidebar from './Sidebar';
@@ -51,7 +49,6 @@ const MegaMenu = () => {
     const { translate } = useCustomTranslation();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
-    const logoUrl = logoImage;
     const location = useLocation();
     const { userRoles } = useRouteContext();
 
@@ -89,7 +86,9 @@ const MegaMenu = () => {
     const drawer = (
         <Box sx={{ width: 300, pt: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <img src={logoUrl} alt="Logo" style={{ height: 40 }} />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    {translate('Company Name')}
+                </Typography>
             </Box>
             <Divider />
 
@@ -228,7 +227,6 @@ const MegaMenu = () => {
                 <Toolbar disableGutters>
                     {/* Logo and branding */}
                     <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-                        <Branding logoUrl={logoUrl} />
                         <Typography
                             variant="h6"
                             noWrap

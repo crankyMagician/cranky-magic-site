@@ -30,8 +30,8 @@ class ThemeService {
             console.log(`Theme set to: ${theme}`);
         } else {
             console.warn(`Invalid theme: ${theme}. Available themes:`, this.availableThemes);
-            console.warn(`Using default cranky_dark theme.`);
-            localStorage.setItem(this.themeKey, 'cranky_dark');
+            console.warn(`Using default professional theme.`);
+            localStorage.setItem(this.themeKey, 'professional');
         }
     }
 
@@ -41,8 +41,8 @@ class ThemeService {
         if (savedTheme && validateThemeId(savedTheme)) {
             return savedTheme;
         }
-        console.log(`ThemeService.getTheme - returning default: cranky_dark`);
-        return 'cranky_dark'; // Default to cranky_dark theme
+        console.log(`ThemeService.getTheme - returning default: professional`);
+        return 'professional'; // Default to professional theme
     }
 
     static getAvailableThemes() {
@@ -61,8 +61,8 @@ class ThemeService {
             console.log(`Component override set to: ${overrideId}`);
         } else {
             console.warn(`Invalid component override: ${overrideId}. Available overrides:`, this.availableComponentOverrides);
-            console.warn(`Using default wizard override.`);
-            localStorage.setItem(this.componentOverrideKey, 'wizard');
+            console.warn(`Using default clean override.`);
+            localStorage.setItem(this.componentOverrideKey, 'clean');
         }
     }
 
@@ -72,8 +72,8 @@ class ThemeService {
         if (savedOverride && validateComponentOverrideId(savedOverride)) {
             return savedOverride;
         }
-        console.log(`ThemeService.getComponentOverride - returning default: wizard`);
-        return 'wizard'; // Default to wizard component override
+        console.log(`ThemeService.getComponentOverride - returning default: clean`);
+        return 'clean'; // Default to clean component override
     }
 
     static getAvailableComponentOverrides() {
@@ -92,8 +92,8 @@ class ThemeService {
             console.log(`Typography set to: ${typographyId}`);
         } else {
             console.warn(`Invalid typography: ${typographyId}. Available typographies:`, this.availableTypographies);
-            console.warn(`Using default cranky typography.`);
-            localStorage.setItem(this.typographyKey, 'cranky');
+            console.warn(`Using default professional typography.`);
+            localStorage.setItem(this.typographyKey, 'professional');
         }
     }
 
@@ -103,8 +103,8 @@ class ThemeService {
         if (savedTypography && validateTypographyId(savedTypography)) {
             return savedTypography;
         }
-        console.log(`ThemeService.getTypography - returning default: cranky`);
-        return 'cranky'; // Default to cranky typography
+        console.log(`ThemeService.getTypography - returning default: professional`);
+        return 'professional'; // Default to professional typography
     }
 
     static getAvailableTypographies() {

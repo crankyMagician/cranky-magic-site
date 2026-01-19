@@ -30,8 +30,6 @@ import { useLogout } from '../../hooks/useLogout';
 // Import the translation hook
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 
-import Branding from '../demoComponents/Branding';
-import logoImage from '../../assets/logo/default_logo.png';
 import Sidebar from './Sidebar';
 import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 
@@ -44,7 +42,6 @@ const MAX_NAV_WIDTH = 'lg';
 const Navbar = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
-    const logoUrl = logoImage;
     const location = useLocation();
     const { userRoles } = useRouteContext();
 
@@ -183,7 +180,6 @@ const Navbar = () => {
     const renderDrawerContent = () => (
         <Box sx={{ width: { xs: '80%', sm: 280 }, p: 2 }} role="presentation">
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <img src={logoUrl} alt="Logo" style={{ height: 40, marginRight: 8 }} />
                 <Typography
                     variant="h6"
                     sx={{
@@ -271,7 +267,6 @@ const Navbar = () => {
                 <Toolbar>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
                         <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-                            <Branding logoUrl={logoUrl} />
                             <Typography
                                 variant="h6"
                                 component="div"

@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpotlightBand Component Default Rendering matches snapshot 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-18w90id"
+  >
+    <img
+      alt=""
+      class="MuiBox-root css-15d8ey1"
+      src="hero-backdrop-purple.png"
+    />
+    <div
+      class="MuiContainer-root css-u90jps-MuiContainer-root"
+    >
+      <div
+        class="MuiStack-root css-v2woy3-MuiStack-root"
+      >
+        <h4
+          class="MuiTypography-root MuiTypography-h4 css-1513v87-MuiTypography-root"
+        >
+          Community Spotlight
+        </h4>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-199dpqz-MuiTypography-root"
+        >
+          We periodically recognize the astounding creative work of our members by spotlighting them in our community portal. The Magic React community is comprised of creators, entrepreneurs, agency directors, and you. Through our members-only community we hope to provide a creative, collaborative space of ideas, trends, and general appreciation for the effort and art of our collective industry.
+        </p>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo MuiButton-root MuiButton-contained MuiButton-containedInfo MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-colorInfo css-462j3w-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          Learn More
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </div>
+      <img
+        alt="Community Spotlight"
+        class="MuiBox-root css-fhkbn7"
+        src="PORTAL TRIANGLE - MONSTER.png"
+      />
+    </div>
+  </div>
+</div>
+`;

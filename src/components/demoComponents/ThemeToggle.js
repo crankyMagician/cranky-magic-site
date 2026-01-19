@@ -56,8 +56,8 @@ const ThemeToggle = () => {
         { label: 'Sunset', value: 'sunset', icon: <WbTwilightIcon /> },
         { label: 'Mint', value: 'mint', icon: <FilterVintageIcon /> },
         { label: 'Retro Neon', value: 'retro_neon', icon: <GradientIcon /> },
-        { label: 'Cranky Magician Light', value: 'cranky_light', icon: <AutoAwesomeIcon /> },
-        { label: 'Cranky Magician Dark', value: 'cranky_dark', icon: <AutoFixHighIcon /> },
+        { label: 'Mystical Light', value: 'cranky_light', icon: <AutoAwesomeIcon /> },
+        { label: 'Mystical Dark', value: 'cranky_dark', icon: <AutoFixHighIcon /> },
     ];
 
     return (

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Container, Typography, Link, Grid, useTheme, Paper, Divider } from '@mui/material';
-import Branding from '../demoComponents/Branding';
-import logoImage from '../../assets/logo/default_logo.png';
 
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -25,7 +23,6 @@ const socialLinks = [
 
 const Footer = () => {
     const theme = useTheme();
-    const logoUrl = logoImage;
     const { translate } = useCustomTranslation();
     const { isAuthenticated, userRoles } = useRouteContext();
 
@@ -48,8 +45,7 @@ const Footer = () => {
                     {/* Company info and logo */}
                     <Grid item xs={12} md={4}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Branding logoUrl={logoUrl} />
-                            <Typography variant="h6" component="div" sx={{ ml: 1 }}>
+                            <Typography variant="h6" component="div">
                                 {translate('Company Name')}
                             </Typography>
                         </Box>

@@ -264,7 +264,7 @@ const Example = () => {
             reducedMotion: reducedMotion,
             timestamp: new Date().toISOString(),
             version: '2.0',
-            appName: 'Cranky Magician Theme System',
+            appName: 'Theme System',
         };
 
         const configString = JSON.stringify(config, null, 2);
@@ -386,7 +386,7 @@ const Example = () => {
                                 animation: isAnimated ? 'pulse 2s infinite' : 'none',
                             }}
                         >
-                            {translate('WelcomeTitle') || 'Cranky Magician Theme System'}
+                            {translate('WelcomeTitle') || 'Theme System'}
                         </Typography>
                         <Typography
                             variant="h2"
@@ -1301,9 +1301,9 @@ const Example = () => {
 
                             <Box>
                                 <Typography variant="body1" paragraph>
-                                    Body 1: In the realm of code and magic, where algorithms dance with
-                                    ancient spells, the Cranky Magician weaves digital enchantments.
-                                    Each line of code is a incantation, every function a magical ritual.
+                                    Body 1: In the realm of code and design, where algorithms meet aesthetics,
+                                    the developer weaves digital experiences.
+                                    Each line of code is a creation, every function a building block.
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
                                     Font: {fontInfo.body1}

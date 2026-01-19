@@ -167,7 +167,7 @@ const OverrideStyleToggle = () => {
             value: 'cranky',
             label: translate('Magical') || 'Magical',
             icon: <AutoAwesomeIcon />,
-            description: translate('CrankyMagicianEffects') || 'Cranky Magician effects with sparkles and mystical animations',
+            description: translate('MagicalEffects') || 'Magical effects with sparkles and mystical animations',
             color: theme.palette.primary.main,
             sparkle: true
         },

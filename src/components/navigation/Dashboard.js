@@ -35,8 +35,6 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
-import Branding from '../demoComponents/Branding';
-import logoImage from '../../assets/logo/default_logo.png';
 import Sidebar from './Sidebar';
 import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 import PageHeader from '../layout/PageHeader';
@@ -48,7 +46,6 @@ const Dashboard = ({ children }) => {
     const { translate } = useCustomTranslation();
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
-    const logoUrl = logoImage;
     const [open, setOpen] = useState(false); // Start collapsed
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -374,7 +371,6 @@ const Dashboard = ({ children }) => {
                             alignItems: 'center'
                         }}
                     >
-                        <Branding logoUrl={logoUrl} />
                         <Typography
                             variant="h6"
                             component="div"

@@ -30,6 +30,7 @@ import {
 import useCustomTranslation from '../../hooks/useCustomTranslation';
 import {FORM_EVENTS, INTERACTION_EVENTS} from "../../analytics/constants/events";
 import useAnalytics from "../../analytics/hooks/useAnalytics";
+import { contactInfo as realContactInfo, emailApiConfig } from '../../data/contactData';
 
 const ContactSection = React.memo(() => {
     const theme = useTheme();
@@ -52,54 +53,31 @@ const ContactSection = React.memo(() => {
         severity: 'success'
     });
 
-    // Contact information
+    // Contact information - using real data from contactData.js
     const contactInfo = [
         {
             icon: <Email />,
             title: translate('Email'),
-            value: 'hello@crankymagician.dev',
-            link: 'mailto:hello@crankymagician.dev'
-        },
-        {
-            icon: <Phone />,
-            title: translate('Phone'),
-            value: '+1 (555) 123-4567',
-            link: 'tel:+15551234567'
+            value: realContactInfo.email,
+            link: `mailto:${realContactInfo.email}`
         },
         {
             icon: <LocationOn />,
             title: translate('Location'),
-            value: 'San Francisco, CA',
+            value: realContactInfo.location,
             link: null
         }
     ];
 
-    // Social links
+    // Social links - using real GitHub URL
     const socialLinks = [
-        {
-            icon: <LinkedIn />,
-            name: 'LinkedIn',
-            url: 'https://linkedin.com/in/crankymagician',
-            color: '#0077B5'
-        },
         {
             icon: <GitHub />,
             name: 'GitHub',
-            url: 'https://github.com/crankymagician',
+            url: realContactInfo.github,
             color: '#333'
-        },
-        {
-            icon: <Twitter />,
-            name: 'Twitter',
-            url: 'https://twitter.com/crankymagician',
-            color: '#1DA1F2'
-        },
-        {
-            icon: <Language />,
-            name: 'Website',
-            url: 'https://crankymagician.dev',
-            color: theme.palette.primary.main
         }
+        // TODO: Add LinkedIn, Twitter, Website when available
     ];
 
     const handleInputChange = useCallback((e) => {
@@ -165,27 +143,59 @@ const ContactSection = React.memo(() => {
         setLoading(true);
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Use Cranky-Commo API
+            const apiUrl = emailApiConfig.baseUrl;
+            const endpoint = emailApiConfig.endpoint;
 
-            trackEvent(FORM_EVENTS.SUBMIT_SUCCESS, {
-                form_id: 'contact_form',
-                section: 'contact'
+            const response = await fetch(`${apiUrl}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    subject: formData.subject,
+                    message: formData.message
+                })
             });
 
-            setSnackbar({
-                open: true,
-                message: translate('Message sent successfully!'),
-                severity: 'success'
-            });
+            const data = await response.json();
 
-            // Reset form
-            setFormData({
-                name: '',
-                email: '',
-                subject: '',
-                message: ''
-            });
+            if (response.ok && data.success) {
+                trackEvent(FORM_EVENTS.SUBMIT_SUCCESS, {
+                    form_id: 'contact_form',
+                    section: 'contact'
+                });
+
+                setSnackbar({
+                    open: true,
+                    message: data.message || translate('Message sent successfully! ✨'),
+                    severity: 'success'
+                });
+
+                // Reset form
+                setFormData({
+                    name: '',
+                    email: '',
+                    subject: '',
+                    message: ''
+                });
+                setErrors({});
+            } else {
+                // Handle validation or rate limit errors from API
+                let errorMessage = translate('Failed to send message. Please try again.');
+
+                if (response.status === 429) {
+                    errorMessage = translate('Too many submissions. Please wait 15 minutes and try again.');
+                } else if (data.errors) {
+                    errorMessage = data.errors.join('. ');
+                } else if (data.message) {
+                    errorMessage = data.message;
+                }
+
+                throw new Error(errorMessage);
+            }
         } catch (error) {
             trackEvent(FORM_EVENTS.SUBMIT_FAILURE, {
                 form_id: 'contact_form',
@@ -195,7 +205,7 @@ const ContactSection = React.memo(() => {
 
             setSnackbar({
                 open: true,
-                message: translate('Failed to send message. Please try again.'),
+                message: error.message || translate('Failed to send message. Please try again.'),
                 severity: 'error'
             });
         } finally {

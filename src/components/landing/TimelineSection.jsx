@@ -58,6 +58,7 @@ import {
     ANALYTICS_EVENTS,
     CONTENT_LIMITS,
 } from './utils/portfolioConstants';
+import { experienceData as realExperienceData } from '../../data/experienceData';
 
 const TimelineSection = React.memo(() => {
     const theme = useTheme();
@@ -94,140 +95,18 @@ const TimelineSection = React.memo(() => {
         triggerOnScroll: true,
     });
 
-    // Timeline data
-    const timelineData = useMemo(() => [
-        {
-            id: 'senior-fullstack-2023',
-            date: '2023 - Present',
-            title: 'Senior Full Stack Developer',
-            company: 'Tech Innovation Corp',
-            location: 'San Francisco, CA',
-            type: 'work',
-            icon: <Work />,
-            color: theme.palette.primary.main,
-            description: 'Leading development of cloud-native applications and mentoring junior developers',
-            achievements: [
-                'Architected microservices reducing system latency by 40%',
-                'Led team of 5 developers on flagship product',
-                'Implemented CI/CD pipeline saving 20 hours/week',
-                'Mentored 3 junior developers to mid-level positions'
-            ],
-            technologies: ['React', 'Node.js', 'AWS', 'Kubernetes', 'GraphQL'],
-            impact: {
-                users: '100K+',
-                performance: '+40%',
-                teamSize: 5
-            }
-        },
-        {
-            id: 'fullstack-2021',
-            date: '2021 - 2023',
-            title: 'Full Stack Developer',
-            company: 'Digital Solutions Inc',
-            location: 'New York, NY',
-            type: 'work',
-            icon: <Code />,
-            color: theme.palette.secondary.main,
-            description: 'Developed and maintained enterprise web applications for Fortune 500 clients',
-            achievements: [
-                'Built real-time analytics dashboard used by 50K+ users',
-                'Reduced application load time by 60%',
-                'Integrated third-party APIs for payment processing',
-                'Received "Developer of the Year" award'
-            ],
-            technologies: ['React', 'Python', 'PostgreSQL', 'Redis', 'Docker'],
-            impact: {
-                revenue: '+$2M',
-                efficiency: '+35%',
-                clients: 15
-            }
-        },
-        {
-            id: 'frontend-2019',
-            date: '2019 - 2021',
-            title: 'Frontend Developer',
-            company: 'Creative Agency',
-            location: 'Los Angeles, CA',
-            type: 'work',
-            icon: <Computer />,
-            color: theme.palette.info.main,
-            description: 'Created engaging user interfaces for various client projects',
-            achievements: [
-                'Developed 20+ responsive websites',
-                'Improved SEO scores by average of 40 points',
-                'Established component library used across projects',
-                'Trained team on React best practices'
-            ],
-            technologies: ['React', 'Vue.js', 'Sass', 'Webpack', 'Jest'],
-            impact: {
-                projects: 20,
-                satisfaction: '95%',
-                codeReuse: '70%'
-            }
-        },
-        {
-            id: 'certification-aws',
-            date: '2022',
-            title: 'AWS Solutions Architect',
-            company: 'Amazon Web Services',
-            type: 'certification',
-            icon: <EmojiEvents />,
-            color: theme.palette.warning.main,
-            description: 'Achieved AWS Solutions Architect Associate certification',
-            achievements: [
-                'Mastered cloud architecture principles',
-                'Designed scalable and resilient systems',
-                'Implemented cost-optimization strategies',
-                'Applied knowledge to production systems'
-            ],
-            technologies: ['AWS', 'Cloud Architecture', 'DevOps', 'Security'],
-        },
-        {
-            id: 'degree-cs',
-            date: '2015 - 2019',
-            title: 'Bachelor of Computer Science',
-            company: 'University of California',
-            location: 'Berkeley, CA',
-            type: 'education',
-            icon: <School />,
-            color: theme.palette.success.main,
-            description: 'Graduated with honors, specialized in Software Engineering',
-            achievements: [
-                'Dean\'s List for 4 consecutive semesters',
-                'Led university hackathon winning team',
-                'Published research paper on ML applications',
-                'Teaching assistant for Data Structures course'
-            ],
-            technologies: ['Java', 'Python', 'C++', 'Algorithms', 'ML'],
-            impact: {
-                gpa: '3.8',
-                projects: 15,
-                awards: 3
-            }
-        },
-        {
-            id: 'freelance-2018',
-            date: '2018 - 2019',
-            title: 'Freelance Developer',
-            company: 'Self-Employed',
-            type: 'work',
-            icon: <Rocket />,
-            color: theme.palette.primary.dark,
-            description: 'Provided web development services to small businesses',
-            achievements: [
-                'Completed 10+ client projects on time',
-                'Built e-commerce platform generating $500K revenue',
-                'Maintained 5-star rating on freelance platforms',
-                'Established long-term client relationships'
-            ],
-            technologies: ['WordPress', 'PHP', 'JavaScript', 'MySQL'],
-            impact: {
-                clients: 10,
-                rating: '5.0',
-                revenue: '$100K+'
-            }
-        },
-    ], [theme]);
+    // Use real experience data from data file, adding theme colors
+    const timelineData = useMemo(() => {
+        return realExperienceData.map((item, index) => ({
+            ...item,
+            color: item.color || (
+                item.type === 'work' ? theme.palette.primary.main :
+                item.type === 'education' ? theme.palette.success.main :
+                item.type === 'projects' ? theme.palette.secondary.main :
+                theme.palette.info.main
+            )
+        }));
+    }, [theme]);
 
     // Filter timeline items for display
     const displayedItems = useMemo(() => {

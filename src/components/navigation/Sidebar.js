@@ -28,8 +28,6 @@ import {
 } from '@mui/icons-material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
-import Branding from '../demoComponents/Branding';
-import logoImage from '../../assets/logo/default_logo.png';
 import useCustomTranslation from "../../hooks/useCustomTranslation";
 import useAnalytics from '../../analytics/hooks/useAnalytics';
 import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
@@ -37,7 +35,6 @@ import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 const Sidebar = ({ children }) => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const handleLogout = useLogout();
-    const logoUrl = logoImage;
     const [open, setOpen] = useState(false); // Start collapsed
     const { translate } = useCustomTranslation();
     const location = useLocation();
@@ -274,7 +271,6 @@ const Sidebar = ({ children }) => {
                             alignItems: 'center'
                         }}
                     >
-                        <Branding logoUrl={logoUrl} />
                         <Typography
                             variant="h6"
                             component="div"
