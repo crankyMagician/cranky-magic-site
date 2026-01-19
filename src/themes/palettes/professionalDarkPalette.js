@@ -26,7 +26,7 @@ export const professionalDarkPalette = {
         main: '#F59E0B', // Amber for warnings (no orange)
         light: '#FBBF24', // Light amber for subtle warnings
         dark: '#D97706', // Deeper amber for serious warnings
-        contrastText: '#000000', // Black for contrast
+        contrastText: '#FFFFFF', // White for contrast in dark mode
     },
     info: {
         main: '#0EA5E9', // Sky blue for information
@@ -53,7 +53,7 @@ export const professionalDarkPalette = {
         main: '#22D3EE', // Cyan accent for highlights
         light: '#67E8F9', // Lighter cyan for subtle accents
         dark: '#06B6D4', // Deeper cyan for emphasis
-        contrastText: '#000000', // Black for contrast
+        contrastText: '#0C1222', // Dark background color for contrast on bright cyan
     },
     action: {
         active: '#F8FAFC', // Near-white for active elements

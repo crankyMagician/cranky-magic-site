@@ -154,21 +154,21 @@ const HeroSection = ({ onScrollToNext = () => {} }) => {
             icon: GitHubIcon,
             label: 'GitHub',
             url: EXTERNAL_LINKS.GITHUB,
-            color: isDarkMode ? '#ffffff' : '#24292e',
+            color: isDarkMode ? theme.palette.text.primary : '#24292e',
         },
         {
             icon: LinkedInIcon,
             label: 'LinkedIn',
             url: EXTERNAL_LINKS.LINKEDIN,
-            color: '#0077b5',
+            color: isDarkMode ? '#38BDF8' : '#0077b5',
         },
         {
             icon: EmailIcon,
             label: 'Email',
             url: `mailto:${contactInfo.email}`,
-            color: isDarkMode ? '#ffffff' : '#000000',
+            color: isDarkMode ? theme.palette.text.primary : '#333333',
         },
-    ], [isDarkMode]);
+    ], [isDarkMode, theme.palette.text.primary]);
 
     // Background gradient based on theme - professional dark uses teal-tinted gradient
     const backgroundGradient = useMemo(() => {
