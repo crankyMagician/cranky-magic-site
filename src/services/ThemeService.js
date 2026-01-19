@@ -30,8 +30,8 @@ class ThemeService {
             console.log(`Theme set to: ${theme}`);
         } else {
             console.warn(`Invalid theme: ${theme}. Available themes:`, this.availableThemes);
-            console.warn(`Using default professional theme.`);
-            localStorage.setItem(this.themeKey, 'professional');
+            console.warn(`Using default professional_dark theme.`);
+            localStorage.setItem(this.themeKey, 'professional_dark');
         }
     }
 
@@ -41,8 +41,8 @@ class ThemeService {
         if (savedTheme && validateThemeId(savedTheme)) {
             return savedTheme;
         }
-        console.log(`ThemeService.getTheme - returning default: professional`);
-        return 'professional'; // Default to professional theme
+        console.log(`ThemeService.getTheme - returning default: professional_dark`);
+        return 'professional_dark'; // Default to professional dark theme
     }
 
     static getAvailableThemes() {
@@ -136,6 +136,8 @@ class ThemeService {
                 newTheme = 'cranky_light';
             } else if (currentTheme === 'munchie_dark') {
                 newTheme = 'munchie';
+            } else if (currentTheme === 'professional_dark') {
+                newTheme = 'professional';
             } else {
                 newTheme = 'light';
             }
@@ -145,6 +147,8 @@ class ThemeService {
                 newTheme = 'cranky_dark';
             } else if (currentTheme === 'munchie') {
                 newTheme = 'munchie_dark';
+            } else if (currentTheme === 'professional') {
+                newTheme = 'professional_dark';
             } else {
                 newTheme = 'dark';
             }

@@ -23,16 +23,35 @@ const AppLayout = ({ children }) => {
     // By default, show header for all routes except home route
     const showPageHeader = currentRoute?.path !== '/';
 
+    // Check if we're on the portfolio/home page (full-width layout)
+    const isFullWidthPage = currentRoute?.path === '/';
+
     // Define the breakpoint for switching to sidebar on small screens
     const isSidebarBreakpoint = useMediaQuery(theme.breakpoints.down('md'));
 
     // Common main content area with page header
     const MainContent = () => (
-        <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
-            <Container maxWidth="xl">
-                {showPageHeader && <PageHeader />}
-                {children}
-            </Container>
+        <Box
+            component="main"
+            sx={{
+                flexGrow: 1,
+                p: isFullWidthPage ? 0 : 2,
+                backgroundColor: theme.palette.background.default,
+            }}
+        >
+            {isFullWidthPage ? (
+                // Full-width layout for portfolio page
+                <>
+                    {showPageHeader && <PageHeader />}
+                    {children}
+                </>
+            ) : (
+                // Constrained layout for other pages
+                <Container maxWidth="xl">
+                    {showPageHeader && <PageHeader />}
+                    {children}
+                </Container>
+            )}
         </Box>
     );
 
@@ -70,7 +89,7 @@ const AppLayout = ({ children }) => {
         case 'navbar':
         default:
             return (
-                <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', margin: 0, padding: 0 }}>
                     <Navbar />
                     <MainContent />
                     <Footer />

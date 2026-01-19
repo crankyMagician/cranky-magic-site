@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import { Box, Container, useTheme } from '@mui/material';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import { Box, Container, useTheme, alpha } from '@mui/material';
 import { useSelector } from 'react-redux';
 import useAnalytics from '../analytics/hooks/useAnalytics';
 import useScrollTracking from '../analytics/hooks/useScrollTracking';
@@ -25,12 +25,13 @@ import SkillsSection from '../components/landing/SkillsSection';
 import ProjectsSection from '../components/landing/ProjectsSection';
 import FrameworkSection from '../components/landing/FrameworkSection';
 import TimelineSection from '../components/landing/TimelineSection';
-import BlogSection from '../components/landing/BlogSection';
 import ContactSection from '../components/landing/ContactSection';
 
 // Navigation and CTA components
-import LandingNavBar from '../components/navigation/LandingNavBar';
 import CTABand from '../components/sections/CTABand';
+
+// Geometric decorations
+import { SectionDecorations } from '../components/common/GeometricDecorations';
 
 const PortfolioLanding = React.memo(() => {
     const theme = useTheme();
@@ -184,21 +185,56 @@ const PortfolioLanding = React.memo(() => {
         });
     }, [isIntersecting, handleSectionView]);
 
-    // Background styles based on theme
+    // Check if using professional dark theme
+    const isProfessionalDark = currentTheme === 'professional_dark';
+
+    // Background styles based on theme - professional dark uses teal-tinted colors
     const getBackgroundStyle = useCallback((variant = 'default') => {
+        if (isProfessionalDark) {
+            const backgrounds = {
+                default: '#0C1222',
+                paper: '#162032',
+                gradient: 'linear-gradient(135deg, #0C1222 0%, #0F172A 50%, #134E4A 100%)',
+                subtle: '#0F172A',
+                tealTinted: 'linear-gradient(180deg, #0C1222 0%, #134E4A 100%)',
+            };
+            return backgrounds[variant] || backgrounds.default;
+        }
+
         const backgrounds = {
             default: theme.palette.background.default,
             paper: theme.palette.background.paper,
             gradient: isDarkMode
-                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900]} 100%)`
-                : `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100]} 100%)`,
+                ? `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900] || '#1a1a1a'} 100%)`
+                : `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100] || '#f5f5f5'} 100%)`,
             subtle: isDarkMode
-                ? theme.palette.grey[900]
-                : theme.palette.grey[50],
+                ? (theme.palette.grey[900] || '#1a1a1a')
+                : (theme.palette.grey[50] || '#fafafa'),
         };
 
         return backgrounds[variant] || backgrounds.default;
-    }, [isDarkMode, theme]);
+    }, [isDarkMode, theme, isProfessionalDark]);
+
+    // Grid pattern for professional dark theme sections
+    const sectionGridPattern = useMemo(() => {
+        if (!isProfessionalDark) return 'none';
+        return `
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 80px,
+                ${alpha('#0D9488', 0.02)} 80px,
+                ${alpha('#0D9488', 0.02)} 81px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 80px,
+                ${alpha('#0D9488', 0.02)} 80px,
+                ${alpha('#0D9488', 0.02)} 81px
+            )
+        `;
+    }, [isProfessionalDark]);
 
     return (
         <Box
@@ -210,9 +246,6 @@ const PortfolioLanding = React.memo(() => {
                 overflow: 'hidden',
             }}
         >
-            {/* Landing Navigation Bar */}
-            <LandingNavBar />
-
             {/* Hero Section - Full viewport */}
             <Box
                 id={PORTFOLIO_SECTIONS.HERO}
@@ -248,9 +281,22 @@ const PortfolioLanding = React.memo(() => {
                     py: { xs: 6, md: 10 },
                     background: getBackgroundStyle('paper'),
                     position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': isProfessionalDark ? {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: sectionGridPattern,
+                        pointerEvents: 'none',
+                    } : {},
                 }}
             >
-                <Container maxWidth="xl">
+                {/* Geometric decorations */}
+                {isProfessionalDark && SectionDecorations.skills({ theme })}
+                <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                     <SkillsSection />
                 </Container>
             </Box>
@@ -263,9 +309,22 @@ const PortfolioLanding = React.memo(() => {
                     py: { xs: 6, md: 10 },
                     background: getBackgroundStyle('default'),
                     position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': isProfessionalDark ? {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: sectionGridPattern,
+                        pointerEvents: 'none',
+                    } : {},
                 }}
             >
-                <Container maxWidth="xl">
+                {/* Geometric decorations */}
+                {isProfessionalDark && SectionDecorations.projects({ theme })}
+                <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                     <ProjectsSection />
                 </Container>
             </Box>
@@ -289,9 +348,12 @@ const PortfolioLanding = React.memo(() => {
                     py: { xs: 6, md: 10 },
                     background: getBackgroundStyle('subtle'),
                     position: 'relative',
+                    overflow: 'hidden',
                 }}
             >
-                <Container maxWidth="xl">
+                {/* Geometric decorations */}
+                {isProfessionalDark && SectionDecorations.frameworks({ theme })}
+                <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                     <FrameworkSection />
                 </Container>
             </Box>
@@ -304,25 +366,13 @@ const PortfolioLanding = React.memo(() => {
                     py: { xs: 6, md: 10 },
                     background: getBackgroundStyle('default'),
                     position: 'relative',
+                    overflow: 'hidden',
                 }}
             >
-                <Container maxWidth="xl">
+                {/* Geometric decorations */}
+                {isProfessionalDark && SectionDecorations.timeline({ theme })}
+                <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                     <TimelineSection />
-                </Container>
-            </Box>
-
-            {/* Blog/Articles Section */}
-            <Box
-                id={PORTFOLIO_SECTIONS.BLOG}
-                component="section"
-                sx={{
-                    py: { xs: 6, md: 10 },
-                    background: getBackgroundStyle('paper'),
-                    position: 'relative',
-                }}
-            >
-                <Container maxWidth="xl">
-                    <BlogSection />
                 </Container>
             </Box>
 
@@ -334,9 +384,12 @@ const PortfolioLanding = React.memo(() => {
                     py: { xs: 8, md: 12 },
                     background: getBackgroundStyle('subtle'),
                     position: 'relative',
+                    overflow: 'hidden',
                 }}
             >
-                <Container maxWidth="xl">
+                {/* Geometric decorations */}
+                {isProfessionalDark && SectionDecorations.contact({ theme })}
+                <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
                     <ContactSection />
                 </Container>
             </Box>

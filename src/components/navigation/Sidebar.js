@@ -16,7 +16,6 @@ import {
     useTheme,
     useMediaQuery,
     Button,
-    Container
 } from '@mui/material';
 import {
     Menu as MenuIcon,
@@ -238,10 +237,13 @@ const Sidebar = ({ children }) => {
             <CssBaseline />
             <AppBar
                 position="fixed"
+                elevation={0}
                 sx={{
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                     width: { md: `calc(100% - ${open ? drawerWidth : 73}px)` },
                     ml: { md: `${open ? drawerWidth : 73}px` },
+                    backgroundColor: theme.palette.background.paper,
+                    borderBottom: `1px solid ${theme.palette.divider}`,
                     transition: theme => theme.transitions.create(['width', 'margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.leavingScreen,
@@ -392,9 +394,10 @@ const Sidebar = ({ children }) => {
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    p: 3,
+                    p: 0,
                     width: { md: `calc(100% - ${open ? drawerWidth : 73}px)` },
                     ml: { md: `${open ? drawerWidth : 73}px` },
+                    backgroundColor: theme.palette.background.default,
                     transition: theme => theme.transitions.create(['width', 'margin'], {
                         easing: theme.transitions.easing.sharp,
                         duration: theme.transitions.duration.enteringScreen,
@@ -402,9 +405,7 @@ const Sidebar = ({ children }) => {
                     mt: '64px', // Offset for AppBar
                 }}
             >
-                <Container maxWidth="xl">
-                    {children}
-                </Container>
+                {children}
             </Box>
         </Box>
     );

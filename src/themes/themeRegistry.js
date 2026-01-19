@@ -22,6 +22,8 @@ import { csColor31V5 } from "./spatialcolor/cs_color_31_v5";
 // Import Cranky Magician palettes
 import { crankyMagicianDark } from "./palettes/crankyMagicianDark";
 import { crankyMagicianLight } from "./palettes/crankyMagicianLight";
+// Import Professional Dark palette
+import { professionalDarkPalette } from "./palettes/professionalDarkPalette";
 
 // Import all typography
 import spatialModsTypography from "./typography/spatialTypograhpy";
@@ -140,6 +142,18 @@ export const THEME_REGISTRY = {
         description: 'Clean, professional theme for business applications',
         isNew: false,
         tags: ['business', 'professional', 'clean']
+    },
+    professional_dark: {
+        id: 'professional_dark',
+        name: 'Professional Dark',
+        category: 'dark',
+        palette: professionalDarkPalette,
+        typography: professionalTypography,
+        defaultComponentOverride: 'clean',
+        icon: React.createElement(BusinessIcon),
+        description: 'Sophisticated dark theme with teal accents for professional applications',
+        isNew: true,
+        tags: ['business', 'professional', 'dark', 'teal', 'modern']
     },
     startup: {
         id: 'startup',
@@ -326,7 +340,7 @@ export const isCrankyMagicianTheme = (themeId) => {
 };
 
 export const isDarkThemeMode = (themeId) => {
-    const darkThemes = ['dark', 'cranky_dark', 'munchie_dark', 'retro_neon', 'cs_color_30_v2', 'cs_color_29_v4'];
+    const darkThemes = ['dark', 'cranky_dark', 'munchie_dark', 'retro_neon', 'cs_color_30_v2', 'cs_color_29_v4', 'professional_dark'];
     return darkThemes.includes(themeId);
 };
 

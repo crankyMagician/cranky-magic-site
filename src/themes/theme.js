@@ -9,7 +9,7 @@ import * as colorUtils from "../utilities/colorUtilities";
 
 // Function to determine if a theme is a dark mode theme
 const isDarkThemeMode = (mode) => {
-    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'cs_color_30_v2' || mode === 'cs_color_29_v4';
+    return mode === 'dark' || mode === 'munchie_dark' || mode === 'retro_neon' || mode === 'cs_color_30_v2' || mode === 'cs_color_29_v4' || mode === 'professional_dark' || mode === 'cranky_dark';
 };
 
 // Function to create and return a theme based on the mode, component override, and typography

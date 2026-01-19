@@ -5,8 +5,6 @@ import {
     Grid,
     Card,
     CardContent,
-    CardMedia,
-    CardActions,
     Button,
     Chip,
     Stack,
@@ -16,7 +14,6 @@ import {
     useTheme,
     useMediaQuery,
     alpha,
-    Skeleton,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -51,6 +48,8 @@ import {
     CONTENT_LIMITS,
 } from './utils/portfolioConstants';
 import { projectsData as realProjectsData } from '../../data/projectsData';
+import TechIcon from '../common/TechIcon';
+import { getTechIcon } from '../../utils/techIconMapping';
 
 const ProjectsSection = React.memo(() => {
     const theme = useTheme();
@@ -63,7 +62,6 @@ const ProjectsSection = React.memo(() => {
 
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedProject, setSelectedProject] = useState(null);
-    const [imageLoadingStates, setImageLoadingStates] = useState({});
 
     // Section visibility tracking
     const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
@@ -146,14 +144,6 @@ const ProjectsSection = React.memo(() => {
             window.open(url, '_blank', 'noopener noreferrer');
         }
     }, [analytics]);
-
-    const handleImageLoad = useCallback((projectId) => {
-        setImageLoadingStates(prev => ({ ...prev, [projectId]: 'loaded' }));
-    }, []);
-
-    const handleImageError = useCallback((projectId) => {
-        setImageLoadingStates(prev => ({ ...prev, [projectId]: 'error' }));
-    }, []);
 
     return (
         <Box
@@ -312,47 +302,105 @@ const ProjectsSection = React.memo(() => {
                                     />
                                 )}
 
-                                {/* Project Image */}
+                                {/* Tech Stack Display */}
                                 <Box
                                     sx={{
                                         position: 'relative',
-                                        paddingTop: '56.25%', // 16:9 aspect ratio
+                                        height: project.featured ? 220 : 180,
                                         overflow: 'hidden',
-                                        backgroundColor: theme.palette.action.hover,
-                                    }}
-                                >
-                                    {imageLoadingStates[project.id] !== 'loaded' && (
-                                        <Skeleton
-                                            variant="rectangular"
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                            }}
-                                        />
-                                    )}
-                                    <Box
-                                        component="img"
-                                        className="project-image"
-                                        src={project.image}
-                                        alt={project.title}
-                                        onLoad={() => handleImageLoad(project.id)}
-                                        onError={() => handleImageError(project.id)}
-                                        sx={{
+                                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.15)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        '&::before': {
+                                            content: '""',
                                             position: 'absolute',
                                             top: 0,
                                             left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: theme.transitions.create(['transform'], {
-                                                duration: theme.transitions.duration.standard,
-                                            }),
-                                            display: imageLoadingStates[project.id] === 'error' ? 'none' : 'block',
-                                        }}
-                                    />
+                                            right: 0,
+                                            bottom: 0,
+                                            backgroundImage: `
+                                                repeating-linear-gradient(
+                                                    0deg,
+                                                    transparent,
+                                                    transparent 40px,
+                                                    ${alpha(theme.palette.primary.main, 0.03)} 40px,
+                                                    ${alpha(theme.palette.primary.main, 0.03)} 41px
+                                                ),
+                                                repeating-linear-gradient(
+                                                    90deg,
+                                                    transparent,
+                                                    transparent 40px,
+                                                    ${alpha(theme.palette.primary.main, 0.03)} 40px,
+                                                    ${alpha(theme.palette.primary.main, 0.03)} 41px
+                                                )
+                                            `,
+                                            pointerEvents: 'none',
+                                        },
+                                    }}
+                                >
+                                    {/* Primary Tech Icon - Large */}
+                                    {(() => {
+                                        const primaryTech = project.stats?.language || project.technologies[0];
+                                        const techInfo = getTechIcon(primaryTech);
+                                        const IconComponent = techInfo?.icon;
+                                        return (
+                                            <Box
+                                                className="project-image"
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    transition: theme.transitions.create(['transform'], {
+                                                        duration: theme.transitions.duration.standard,
+                                                    }),
+                                                }}
+                                            >
+                                                {IconComponent && (
+                                                    <Box
+                                                        sx={{
+                                                            fontSize: project.featured ? 80 : 64,
+                                                            color: techInfo.color || theme.palette.primary.main,
+                                                            filter: `drop-shadow(0 4px 20px ${alpha(techInfo.color || theme.palette.primary.main, 0.4)})`,
+                                                            mb: 1,
+                                                        }}
+                                                    >
+                                                        <IconComponent size={project.featured ? 80 : 64} />
+                                                    </Box>
+                                                )}
+                                                {/* Secondary tech icons in a row */}
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1.5}
+                                                    sx={{
+                                                        mt: 2,
+                                                        opacity: 0.7,
+                                                    }}
+                                                >
+                                                    {project.technologies.slice(1, 5).map((tech) => {
+                                                        const secondaryTechInfo = getTechIcon(tech);
+                                                        const SecondaryIcon = secondaryTechInfo?.icon;
+                                                        return SecondaryIcon ? (
+                                                            <Tooltip key={tech} title={tech} arrow>
+                                                                <Box
+                                                                    sx={{
+                                                                        color: secondaryTechInfo.color || theme.palette.text.secondary,
+                                                                        transition: 'transform 0.2s ease',
+                                                                        '&:hover': {
+                                                                            transform: 'scale(1.2)',
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <SecondaryIcon size={24} />
+                                                                </Box>
+                                                            </Tooltip>
+                                                        ) : null;
+                                                    })}
+                                                </Stack>
+                                            </Box>
+                                        );
+                                    })()}
 
                                     {/* Hover Overlay */}
                                     <Box
@@ -363,7 +411,7 @@ const ProjectsSection = React.memo(() => {
                                             left: 0,
                                             right: 0,
                                             bottom: 0,
-                                            backgroundColor: alpha(theme.palette.background.default, 0.9),
+                                            backgroundColor: alpha(theme.palette.background.default, 0.95),
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
@@ -468,12 +516,16 @@ const ProjectsSection = React.memo(() => {
                                         {project.technologies.slice(0, 4).map((tech) => (
                                             <Chip
                                                 key={tech}
+                                                icon={<TechIcon tech={tech} size={14} showTooltip={false} />}
                                                 label={tech}
                                                 size="small"
                                                 variant="outlined"
                                                 sx={{
                                                     borderColor: alpha(theme.palette.primary.main, 0.3),
                                                     fontSize: '0.75rem',
+                                                    '& .MuiChip-icon': {
+                                                        marginLeft: '8px',
+                                                    },
                                                 }}
                                             />
                                         ))}
@@ -586,18 +638,99 @@ const ProjectsSection = React.memo(() => {
                         </DialogTitle>
 
                         <DialogContent dividers>
-                            {/* Project Image */}
+                            {/* Tech Stack Display */}
                             <Box
-                                component="img"
-                                src={selectedProject.image}
-                                alt={selectedProject.title}
                                 sx={{
                                     width: '100%',
-                                    height: 'auto',
-                                    borderRadius: 1,
+                                    height: 200,
+                                    borderRadius: 2,
                                     mb: 3,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: `linear-gradient(135deg, ${alpha(theme.palette.primary.dark, 0.15)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 50%, ${alpha(theme.palette.primary.main, 0.1)} 100%)`,
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    '&::before': {
+                                        content: '""',
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        backgroundImage: `
+                                            repeating-linear-gradient(
+                                                0deg,
+                                                transparent,
+                                                transparent 40px,
+                                                ${alpha(theme.palette.primary.main, 0.03)} 40px,
+                                                ${alpha(theme.palette.primary.main, 0.03)} 41px
+                                            ),
+                                            repeating-linear-gradient(
+                                                90deg,
+                                                transparent,
+                                                transparent 40px,
+                                                ${alpha(theme.palette.primary.main, 0.03)} 40px,
+                                                ${alpha(theme.palette.primary.main, 0.03)} 41px
+                                            )
+                                        `,
+                                        pointerEvents: 'none',
+                                    },
                                 }}
-                            />
+                            >
+                                {(() => {
+                                    const primaryTech = selectedProject.stats?.language || selectedProject.technologies[0];
+                                    const techInfo = getTechIcon(primaryTech);
+                                    const IconComponent = techInfo?.icon;
+                                    return (
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            {IconComponent && (
+                                                <Box
+                                                    sx={{
+                                                        color: techInfo.color || theme.palette.primary.main,
+                                                        filter: `drop-shadow(0 4px 20px ${alpha(techInfo.color || theme.palette.primary.main, 0.4)})`,
+                                                        mb: 2,
+                                                    }}
+                                                >
+                                                    <IconComponent size={100} />
+                                                </Box>
+                                            )}
+                                            <Stack
+                                                direction="row"
+                                                spacing={2}
+                                                sx={{ opacity: 0.8 }}
+                                            >
+                                                {selectedProject.technologies.slice(1, 6).map((tech) => {
+                                                    const secondaryTechInfo = getTechIcon(tech);
+                                                    const SecondaryIcon = secondaryTechInfo?.icon;
+                                                    return SecondaryIcon ? (
+                                                        <Tooltip key={tech} title={tech} arrow>
+                                                            <Box
+                                                                sx={{
+                                                                    color: secondaryTechInfo.color || theme.palette.text.secondary,
+                                                                    transition: 'transform 0.2s ease',
+                                                                    '&:hover': {
+                                                                        transform: 'scale(1.2)',
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <SecondaryIcon size={32} />
+                                                            </Box>
+                                                        </Tooltip>
+                                                    ) : null;
+                                                })}
+                                            </Stack>
+                                        </Box>
+                                    );
+                                })()}
+                            </Box>
 
                             {/* Project Details */}
                             <Typography variant="body1" paragraph>
@@ -613,9 +746,15 @@ const ProjectsSection = React.memo(() => {
                                     {selectedProject.technologies.map((tech) => (
                                         <Chip
                                             key={tech}
+                                            icon={<TechIcon tech={tech} size={16} showTooltip={false} />}
                                             label={tech}
                                             color="primary"
                                             variant="outlined"
+                                            sx={{
+                                                '& .MuiChip-icon': {
+                                                    marginLeft: '8px',
+                                                },
+                                            }}
                                         />
                                     ))}
                                 </Stack>

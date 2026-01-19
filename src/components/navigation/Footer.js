@@ -1,194 +1,211 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { Box, Container, Typography, Link, Grid, useTheme, Paper, Divider } from '@mui/material';
+import { Box, Container, Typography, Link, Stack, useTheme, alpha, IconButton, Tooltip } from '@mui/material';
 
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import EmailIcon from '@mui/icons-material/Email';
+
+// Import geometric decorations
+import { GlowOrb, Hexagon, CircleRing, Diamond, FloatingLine } from '../common/GeometricDecorations';
 
 // Import the useCustomTranslation hook
 import useCustomTranslation from "../../hooks/useCustomTranslation";
-import { routes, adaptRoutesForFooter, useRouteContext } from '../../routes';
 
-// Social media links
-const socialLinks = [
-    { icon: <LinkedInIcon />, url: 'https://www.linkedin.com', label: 'LinkedIn' },
-    { icon: <FacebookIcon />, url: 'https://www.facebook.com', label: 'Facebook' },
-    { icon: <InstagramIcon />, url: 'https://www.instagram.com', label: 'Instagram' },
-    { icon: <TwitterIcon />, url: 'https://www.twitter.com', label: 'Twitter' },
-    { icon: <GitHubIcon />, url: 'https://www.github.com', label: 'GitHub' },
+// Social/contact links
+const contactLinks = [
+    { icon: <LinkedInIcon />, url: 'https://www.linkedin.com/in/sam-redpath', label: 'LinkedIn' },
+    { icon: <GitHubIcon />, url: 'https://github.com/crankyMagician', label: 'GitHub' },
+    { icon: <EmailIcon />, url: 'mailto:website@crankymagician.com', label: 'Email' },
 ];
 
 const Footer = () => {
     const theme = useTheme();
     const { translate } = useCustomTranslation();
-    const { isAuthenticated, userRoles } = useRouteContext();
-
-    // Get footer links using the new adapter
-    const footerLinkGroups = adaptRoutesForFooter(routes);
+    const isProfessionalDark = theme.palette.mode === 'dark';
 
     return (
         <Box
             component="footer"
             sx={{
-                backgroundColor: theme.palette.mode === 'dark' ? 'background.paper' : theme.palette.primary.main,
-                color: theme.palette.mode === 'dark' ? 'text.primary' : theme.palette.primary.contrastText,
-                py: 6,
-                mt: 'auto', // Push footer to the bottom
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                py: { xs: 6, md: 8 },
+                mt: 'auto',
+                borderTop: `1px solid ${theme.palette.divider}`,
+                position: 'relative',
+                overflow: 'hidden',
             }}
         >
-            <Container maxWidth="lg">
-                {/* Main footer content */}
-                <Grid container spacing={4} justifyContent="space-between">
-                    {/* Company info and logo */}
-                    <Grid item xs={12} md={4}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h6" component="div">
-                                {translate('Company Name')}
-                            </Typography>
-                        </Box>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                            {translate('Building innovative solutions for a better future. Our company is dedicated to delivering high-quality products and services to our clients.')}
-                        </Typography>
+            {/* Geometric Decorations */}
+            {isProfessionalDark && (
+                <>
+                    <GlowOrb
+                        position={{ top: '-20%', left: '5%' }}
+                        size={{ xs: 150, md: 250 }}
+                        color={theme.palette.primary.main}
+                        opacity={0.08}
+                        animate={false}
+                    />
+                    <GlowOrb
+                        position={{ bottom: '-30%', right: '10%' }}
+                        size={{ xs: 180, md: 300 }}
+                        color={theme.palette.tertiary?.main || '#22D3EE'}
+                        opacity={0.06}
+                        animate={false}
+                    />
+                    <Hexagon
+                        position={{ top: '20%', right: '8%' }}
+                        size={{ xs: 40, md: 70 }}
+                        opacity={0.04}
+                        rotate={15}
+                    />
+                    <CircleRing
+                        position={{ bottom: '30%', left: '12%' }}
+                        size={{ xs: 50, md: 80 }}
+                        opacity={0.06}
+                    />
+                    <Diamond
+                        position={{ top: '40%', left: '5%' }}
+                        size={{ xs: 20, md: 35 }}
+                        opacity={0.05}
+                    />
+                    <FloatingLine
+                        position={{ bottom: '20%', right: '15%' }}
+                        width={{ xs: 60, md: 100 }}
+                        rotate={-30}
+                        opacity={0.06}
+                    />
+                </>
+            )}
 
-                        {/* Social media links */}
-                        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-                            {socialLinks.map((social, index) => (
-                                <Link
-                                    key={index}
-                                    href={social.url}
-                                    target="_blank"
-                                    rel="noopener"
-                                    aria-label={social.label}
+            {/* Grid pattern overlay */}
+            {isProfessionalDark && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `
+                            repeating-linear-gradient(
+                                0deg,
+                                transparent,
+                                transparent 60px,
+                                ${alpha(theme.palette.primary.main, 0.02)} 60px,
+                                ${alpha(theme.palette.primary.main, 0.02)} 61px
+                            ),
+                            repeating-linear-gradient(
+                                90deg,
+                                transparent,
+                                transparent 60px,
+                                ${alpha(theme.palette.primary.main, 0.02)} 60px,
+                                ${alpha(theme.palette.primary.main, 0.02)} 61px
+                            )
+                        `,
+                        pointerEvents: 'none',
+                    }}
+                />
+            )}
+
+            <Container maxWidth={false} sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 }, position: 'relative', zIndex: 1 }}>
+                {/* Main footer content */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
+                    }}
+                >
+                    {/* Name/Brand */}
+                    <Typography
+                        variant="h4"
+                        component="div"
+                        sx={{
+                            fontWeight: 700,
+                            mb: 1,
+                            background: isProfessionalDark
+                                ? `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.tertiary?.main || '#22D3EE'} 100%)`
+                                : theme.palette.text.primary,
+                            backgroundClip: isProfessionalDark ? 'text' : 'unset',
+                            WebkitBackgroundClip: isProfessionalDark ? 'text' : 'unset',
+                            WebkitTextFillColor: isProfessionalDark ? 'transparent' : 'unset',
+                        }}
+                    >
+                        {translate('Company Name')}
+                    </Typography>
+
+                    {/* Tagline */}
+                    <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{
+                            mb: 4,
+                            maxWidth: 500,
+                        }}
+                    >
+                        Full Stack Developer & Cloud Architect
+                    </Typography>
+
+                    {/* Social/Contact Links */}
+                    <Stack
+                        direction="row"
+                        spacing={2}
+                        sx={{ mb: 4 }}
+                    >
+                        {contactLinks.map((contact, index) => (
+                            <Tooltip key={index} title={contact.label} arrow>
+                                <IconButton
+                                    component={Link}
+                                    href={contact.url}
+                                    target={contact.url.startsWith('mailto') ? '_self' : '_blank'}
+                                    rel="noopener noreferrer"
+                                    aria-label={contact.label}
                                     sx={{
-                                        color: 'inherit',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        transition: 'transform 0.2s',
+                                        color: theme.palette.text.secondary,
+                                        backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                                        transition: 'all 0.3s ease',
                                         '&:hover': {
-                                            transform: 'scale(1.2)',
+                                            color: theme.palette.primary.main,
+                                            backgroundColor: alpha(theme.palette.primary.main, 0.15),
+                                            transform: 'translateY(-3px)',
+                                            boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
                                         },
                                     }}
                                 >
-                                    {social.icon}
-                                </Link>
-                            ))}
-                        </Box>
-                    </Grid>
+                                    {contact.icon}
+                                </IconButton>
+                            </Tooltip>
+                        ))}
+                    </Stack>
 
-                    {/* Footer links */}
-                    {footerLinkGroups.map((group, index) => (
-                        <Grid item xs={6} sm={4} md={2} key={index}>
-                            <Typography
-                                variant="subtitle1"
-                                component="h3"
-                                sx={{
-                                    fontWeight: 'bold',
-                                    mb: 2,
-                                    borderBottom: 1,
-                                    borderColor: 'divider',
-                                    pb: 1
-                                }}
-                            >
-                                {translate(group.title)}
-                            </Typography>
-                            <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none' }}>
-                                {group.items.map((item, itemIndex) => (
-                                    <Box component="li" key={itemIndex} sx={{ mb: 1 }}>
-                                        <Link
-                                            component={RouterLink}
-                                            to={item.path}
-                                            sx={{
-                                                color: 'inherit',
-                                                textDecoration: 'none',
-                                                transition: 'color 0.2s',
-                                                '&:hover': {
-                                                    color: theme.palette.secondary.main,
-                                                    textDecoration: 'underline',
-                                                },
-                                            }}
-                                        >
-                                            {translate(item.label)}
-                                        </Link>
-                                    </Box>
-                                ))}
-                            </Box>
-                        </Grid>
-                    ))}
-                </Grid>
+                    {/* Divider line */}
+                    <Box
+                        sx={{
+                            width: { xs: 100, md: 150 },
+                            height: 2,
+                            background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
+                            mb: 4,
+                        }}
+                    />
 
-                <Divider sx={{ my: 4, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-
-                {/* Newsletter subscription teaser */}
-                <Paper
-                    elevation={3}
-                    sx={{
-                        p: 3,
-                        mb: 4,
-                        bgcolor: theme.palette.mode === 'dark' ? 'background.default' : 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: 2
-                    }}
-                >
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} md={8}>
-                            <Typography variant="h6" gutterBottom>
-                                {translate('Subscribe to our Newsletter')}
-                            </Typography>
-                            <Typography variant="body2">
-                                {translate('Stay updated with our latest news and updates. Join our newsletter for exclusive content.')}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-                            <Link
-                                component={RouterLink}
-                                to="/newsletter-signup"
-                                sx={{
-                                    display: 'inline-block',
-                                    px: 3,
-                                    py: 1,
-                                    bgcolor: theme.palette.secondary.main,
-                                    color: theme.palette.secondary.contrastText,
-                                    borderRadius: 1,
-                                    textDecoration: 'none',
-                                    fontWeight: 'medium',
-                                    '&:hover': {
-                                        bgcolor: theme.palette.secondary.dark,
-                                    },
-                                }}
-                            >
-                                {translate('Sign Up')}
-                            </Link>
-                        </Grid>
-                    </Grid>
-                </Paper>
-
-                {/* Copyright */}
-                <Box
-                    sx={{
-                        textAlign: 'center',
-                        py: 3,
-                        bgcolor: theme.palette.mode === 'dark'
-                            ? 'rgba(0, 0, 0, 0.2)'
-                            : 'rgba(0, 0, 0, 0.1)',
-                        borderRadius: 1,
-                    }}
-                >
-                    <Typography variant="body2">
-                        © {new Date().getFullYear()} {translate('Copyright:')}
-                        <Link
-                            href="https://example.com/"
-                            color="inherit"
-                            sx={{ ml: 0.5, fontWeight: 'medium' }}
-                        >
-                            {translate('Company Name')}
-                        </Link>
+                    {/* Copyright */}
+                    <Typography variant="body2" color="text.secondary">
+                        © {new Date().getFullYear()} {translate('Company Name')}. All rights reserved.
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                        {translate('All Rights Reserved')}
+
+                    {/* Built with */}
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                            mt: 1,
+                            opacity: 0.7,
+                        }}
+                    >
+                        Built with React & Material-UI
                     </Typography>
                 </Box>
             </Container>

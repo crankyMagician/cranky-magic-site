@@ -16,7 +16,6 @@ import {
     ListItemIcon,
     ListItemText,
     Divider,
-    Container
 } from '@mui/material';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import {
@@ -35,9 +34,6 @@ import { routes, adaptRoutesForSidebar, useRouteContext } from '../../routes';
 
 // Define the breakpoint for switching to sidebar
 const SIDEBAR_BREAKPOINT = 'md';
-
-// Maximum width for the navigation container
-const MAX_NAV_WIDTH = 'lg';
 
 const Navbar = () => {
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -258,65 +254,71 @@ const Navbar = () => {
     return (
         <AppBar
             position="static"
-            elevation={1}
+            elevation={0}
             sx={{
                 zIndex: theme.zIndex.drawer + 1,
+                backgroundColor: theme.palette.background.paper,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                borderRadius: 0,
+                width: '100%',
+                minWidth: '100%',
+                left: 0,
+                right: 0,
+                margin: 0,
             }}
         >
-            <Container maxWidth={MAX_NAV_WIDTH}>
-                <Toolbar>
-                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
-                        <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-                            <Typography
-                                variant="h6"
-                                component="div"
-                                sx={{
-                                    fontFamily: theme.typography.h6.fontFamily,
-                                    color: theme.palette.text.primary,
-                                }}
-                            >
-                                {translate('Company Name')}
-                            </Typography>
-                        </RouterLink>
-                    </Box>
+            <Toolbar sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: isMobile ? 1 : 0 }}>
+                    <RouterLink to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{
+                                fontFamily: theme.typography.h6.fontFamily,
+                                color: theme.palette.text.primary,
+                            }}
+                        >
+                            {translate('Company Name')}
+                        </Typography>
+                    </RouterLink>
+                </Box>
 
-                    {isMobile ? (
-                        <>
-                            <IconButton
-                                color="inherit"
-                                aria-label={translate("open drawer")}
-                                edge="end"
-                                onClick={toggleDrawer(true)}
-                                sx={{ color: theme.palette.text.primary }}
-                            >
-                                <MenuIcon />
-                            </IconButton>
-                            <Drawer
-                                anchor="right"
-                                open={isDrawerOpen}
-                                onClose={toggleDrawer(false)}
-                                PaperProps={{
-                                    sx: {
-                                        width: { xs: '80%', sm: 280 },
-                                        backgroundColor: theme.palette.background.paper,
-                                    }
-                                }}
-                            >
-                                {renderDrawerContent()}
-                            </Drawer>
-                        </>
-                    ) : (
-                        <>
-                            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-                                {renderNavItems()}
-                            </Box>
-                            <Box sx={{ flexGrow: 0 }}>
-                                {renderAuthButtons()}
-                            </Box>
-                        </>
-                    )}
-                </Toolbar>
-            </Container>
+                {isMobile ? (
+                    <>
+                        <IconButton
+                            color="inherit"
+                            aria-label={translate("open drawer")}
+                            edge="end"
+                            onClick={toggleDrawer(true)}
+                            sx={{ color: theme.palette.text.primary }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Drawer
+                            anchor="right"
+                            open={isDrawerOpen}
+                            onClose={toggleDrawer(false)}
+                            PaperProps={{
+                                sx: {
+                                    width: { xs: '80%', sm: 280 },
+                                    backgroundColor: theme.palette.background.paper,
+                                }
+                            }}
+                        >
+                            {renderDrawerContent()}
+                        </Drawer>
+                    </>
+                ) : (
+                    <>
+                        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+                            {renderNavItems()}
+                        </Box>
+                        <Box sx={{ flexGrow: 0 }}>
+                            {renderAuthButtons()}
+                        </Box>
+                    </>
+                )}
+            </Toolbar>
         </AppBar>
     );
 };

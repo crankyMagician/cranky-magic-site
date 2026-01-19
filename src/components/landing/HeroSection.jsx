@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Box, Container, Typography, Button, Grid, useTheme, IconButton } from '@mui/material';
+import { Box, Container, Typography, Button, Grid, useTheme, IconButton, alpha } from '@mui/material';
 import { useSelector } from 'react-redux';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -13,10 +13,97 @@ import {
 } from './utils/portfolioConstants';
 import { contactInfo } from '../../data/contactData';
 
+// Geometric decorative shapes component
+const GeometricDecorations = ({ isDarkMode, theme }) => (
+    <>
+        {/* Large teal glow orb - top right */}
+        <Box
+            sx={{
+                position: 'absolute',
+                top: '10%',
+                right: '5%',
+                width: { xs: 200, md: 400 },
+                height: { xs: 200, md: 400 },
+                borderRadius: '50%',
+                background: `radial-gradient(circle, ${alpha(theme.palette.primary.main, 0.15)} 0%, transparent 70%)`,
+                filter: 'blur(40px)',
+                pointerEvents: 'none',
+                animation: 'pulse 8s ease-in-out infinite',
+                '@keyframes pulse': {
+                    '0%, 100%': { opacity: 0.6, transform: 'scale(1)' },
+                    '50%': { opacity: 0.8, transform: 'scale(1.1)' },
+                },
+            }}
+        />
+        {/* Smaller cyan glow orb - bottom left */}
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: '20%',
+                left: '10%',
+                width: { xs: 150, md: 300 },
+                height: { xs: 150, md: 300 },
+                borderRadius: '50%',
+                background: `radial-gradient(circle, ${alpha(theme.palette.tertiary?.main || '#22D3EE', 0.12)} 0%, transparent 70%)`,
+                filter: 'blur(60px)',
+                pointerEvents: 'none',
+                animation: 'float 6s ease-in-out infinite',
+            }}
+        />
+        {/* Hexagon decoration - top left */}
+        <Box
+            sx={{
+                position: 'absolute',
+                top: '15%',
+                left: '8%',
+                width: { xs: 60, md: 120 },
+                height: { xs: 70, md: 140 },
+                opacity: 0.08,
+                pointerEvents: 'none',
+                '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    background: theme.palette.primary.main,
+                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                },
+            }}
+        />
+        {/* Circle ring decoration - right side */}
+        <Box
+            sx={{
+                position: 'absolute',
+                top: '40%',
+                right: '15%',
+                width: { xs: 80, md: 160 },
+                height: { xs: 80, md: 160 },
+                borderRadius: '50%',
+                border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                pointerEvents: 'none',
+            }}
+        />
+        {/* Small dots pattern - bottom right */}
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: '25%',
+                right: '20%',
+                width: 100,
+                height: 100,
+                opacity: 0.15,
+                pointerEvents: 'none',
+                backgroundImage: `radial-gradient(${theme.palette.primary.main} 2px, transparent 2px)`,
+                backgroundSize: '20px 20px',
+            }}
+        />
+    </>
+);
+
 const HeroSection = ({ onScrollToNext = () => {} }) => {
     const theme = useTheme();
     const currentTheme = useSelector(state => state.theme.mode);
-    const isDarkMode = currentTheme === 'dark';
+    const isDarkMode = theme.palette.mode === 'dark';
 
     const containerRef = useRef(null);
 
@@ -83,12 +170,38 @@ const HeroSection = ({ onScrollToNext = () => {} }) => {
         },
     ], [isDarkMode]);
 
-    // Background gradient based on theme
+    // Background gradient based on theme - professional dark uses teal-tinted gradient
     const backgroundGradient = useMemo(() => {
         if (isDarkMode) {
-            return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900]} 100%)`;
+            // Check if using professional dark theme (teal-tinted gradient)
+            const isProfessionalDark = currentTheme === 'professional_dark';
+            if (isProfessionalDark) {
+                return 'linear-gradient(135deg, #0C1222 0%, #0F172A 50%, #134E4A 100%)';
+            }
+            return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[900] || '#1a1a1a'} 100%)`;
         }
-        return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100]} 100%)`;
+        return `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100] || '#f5f5f5'} 100%)`;
+    }, [isDarkMode, theme, currentTheme]);
+
+    // Grid pattern overlay for depth
+    const gridPattern = useMemo(() => {
+        if (!isDarkMode) return 'none';
+        return `
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 50px,
+                ${alpha(theme.palette.primary.main, 0.03)} 50px,
+                ${alpha(theme.palette.primary.main, 0.03)} 51px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 50px,
+                ${alpha(theme.palette.primary.main, 0.03)} 50px,
+                ${alpha(theme.palette.primary.main, 0.03)} 51px
+            )
+        `;
     }, [isDarkMode, theme]);
 
     return (
@@ -108,9 +221,33 @@ const HeroSection = ({ onScrollToNext = () => {} }) => {
                 overflow: 'hidden',
                 pt: { xs: 8, md: 0 },
                 pb: { xs: 8, md: 0 },
+                // Float animation keyframes
+                '@keyframes float': {
+                    '0%, 100%': { transform: 'translateY(0px)' },
+                    '50%': { transform: 'translateY(-20px)' },
+                },
             }}
         >
-            <Container maxWidth="lg">
+            {/* Grid pattern overlay */}
+            {isDarkMode && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: gridPattern,
+                        pointerEvents: 'none',
+                        zIndex: 0,
+                    }}
+                />
+            )}
+
+            {/* Geometric decorations */}
+            <GeometricDecorations isDarkMode={isDarkMode} theme={theme} />
+
+            <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
                 <Grid container spacing={4} alignItems="center">
                     {/* Content Column */}
                     <Grid item xs={12} md={12}>

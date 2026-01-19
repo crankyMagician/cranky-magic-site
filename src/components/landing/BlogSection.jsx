@@ -57,6 +57,8 @@ import {
     CONTENT_LIMITS,
     EXTERNAL_LINKS,
 } from './utils/portfolioConstants';
+import TechIcon from '../common/TechIcon';
+import { hasTechIcon } from '../../utils/techIconMapping';
 
 const BlogSection = React.memo(() => {
     const theme = useTheme();
@@ -646,6 +648,7 @@ const BlogSection = React.memo(() => {
                                                     {post.tags.slice(0, 3).map((tag) => (
                                                         <Chip
                                                             key={tag}
+                                                            icon={hasTechIcon(tag) ? <TechIcon tech={tag} size={12} showTooltip={false} /> : undefined}
                                                             label={tag}
                                                             size="small"
                                                             variant="outlined"
@@ -653,6 +656,9 @@ const BlogSection = React.memo(() => {
                                                                 height: 24,
                                                                 fontSize: '0.75rem',
                                                                 borderColor: theme.palette.divider,
+                                                                '& .MuiChip-icon': {
+                                                                    marginLeft: '6px',
+                                                                },
                                                             }}
                                                         />
                                                     ))}
@@ -795,7 +801,7 @@ const BlogSection = React.memo(() => {
                                             }}
                                         >
                                             <Chip
-                                                icon={<LocalOffer sx={{ fontSize: 16 }} />}
+                                                icon={hasTechIcon(tag) ? <TechIcon tech={tag} size={14} showTooltip={false} /> : <LocalOffer sx={{ fontSize: 16 }} />}
                                                 label={tag}
                                                 size="small"
                                                 variant="outlined"
@@ -805,6 +811,9 @@ const BlogSection = React.memo(() => {
                                                     '&:hover': {
                                                         borderColor: theme.palette.primary.main,
                                                         backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                                    },
+                                                    '& .MuiChip-icon': {
+                                                        marginLeft: '6px',
                                                     },
                                                 }}
                                             />

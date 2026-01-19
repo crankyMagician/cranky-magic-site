@@ -61,16 +61,26 @@ const cleanComponentOverrides = {
         },
     },
 
-    // AppBar with clean design
+    // AppBar with clean design - full width, no border-radius
     MuiAppBar: {
         styleOverrides: {
             root: ({ theme }) => ({
                 boxShadow: 'none',
+                borderRadius: 0,
                 borderBottom: theme.palette.mode === 'light'
                     ? '1px solid rgba(0, 0, 0, 0.08)'
                     : '1px solid rgba(255, 255, 255, 0.08)',
-                backgroundColor: theme.palette.background.default,
+                backgroundColor: theme.palette.background.paper,
             }),
+        },
+    },
+
+    // Toolbar - no extra border-radius
+    MuiToolbar: {
+        styleOverrides: {
+            root: {
+                borderRadius: 0,
+            },
         },
     },
 
