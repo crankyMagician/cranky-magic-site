@@ -273,6 +273,7 @@ const ContactSection = React.memo(() => {
                             >
                                 <Typography
                                     variant="h5"
+                                    color="text.primary"
                                     sx={{ mb: 3, fontWeight: 600 }}
                                 >
                                     {translate('Send a Message')}
@@ -437,7 +438,7 @@ const ContactSection = React.memo(() => {
                                         textAlign: 'center'
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{ mb: 2 }}>
+                                    <Typography variant="h6" color="text.primary" sx={{ mb: 2 }}>
                                         {translate('Connect on Social')}
                                     </Typography>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>

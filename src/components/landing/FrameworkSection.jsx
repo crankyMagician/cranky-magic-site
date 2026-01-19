@@ -623,7 +623,7 @@ const FrameworkSection = React.memo(() => {
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Bolt color="primary" />
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
                                 {frameworkFeatures.length}+
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -633,7 +633,7 @@ const FrameworkSection = React.memo(() => {
                         <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Extension color="secondary" />
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
                                 50+
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -643,7 +643,7 @@ const FrameworkSection = React.memo(() => {
                         <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Settings color="success" />
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
                                 100%
                             </Typography>
                             <Typography variant="body2" color="text.secondary">

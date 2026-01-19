@@ -372,6 +372,7 @@ const SkillsSection = React.memo(() => {
                                     <Typography
                                         variant="h5"
                                         component="h3"
+                                        color="text.primary"
                                         sx={{
                                             fontWeight: 700,
                                             fontSize: { xs: '1.25rem', md: '1.5rem' },

@@ -665,6 +665,7 @@ const TimelineSection = React.memo(() => {
                     <Typography
                         variant="h5"
                         gutterBottom
+                        color="text.primary"
                         sx={{ fontWeight: 700 }}
                     >
                         {translate("Let's Build Something Together")}
