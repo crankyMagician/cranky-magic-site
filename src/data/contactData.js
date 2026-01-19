@@ -5,16 +5,16 @@
  */
 
 export const contactInfo = {
-  email: 'brian.s.redpath@gmail.com',
-  location: 'Inglewood, CA',
-  github: 'https://github.com/sam-redpath',
+  email: 'website@crankymagician.com',
+  location: 'Los Angeles, CA',
+  github: 'https://github.com/crankyMagician',
   linkedin: 'https://www.linkedin.com/in/sam-redpath',
 };
 
 export const socialLinks = [
   {
     platform: 'GitHub',
-    url: 'https://github.com/sam-redpath',
+    url: 'https://github.com/crankyMagician',
     icon: 'GitHubIcon',
     display: true
   },

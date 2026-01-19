@@ -56,12 +56,6 @@ const ContactSection = React.memo(() => {
     // Contact information - using real data from contactData.js
     const contactInfo = [
         {
-            icon: <Email />,
-            title: translate('Email'),
-            value: realContactInfo.email,
-            link: `mailto:${realContactInfo.email}`
-        },
-        {
             icon: <LocationOn />,
             title: translate('Location'),
             value: realContactInfo.location,
@@ -69,15 +63,26 @@ const ContactSection = React.memo(() => {
         }
     ];
 
-    // Social links - using real GitHub URL
+    // Social links
     const socialLinks = [
         {
-            icon: <GitHub />,
+            icon: <LinkedIn sx={{ fontSize: 32 }} />,
+            name: 'LinkedIn',
+            url: 'https://www.linkedin.com/in/sam-redpath',
+            color: theme.palette.mode === 'dark' ? '#0A66C2' : '#0A66C2'
+        },
+        {
+            icon: <GitHub sx={{ fontSize: 32 }} />,
             name: 'GitHub',
-            url: realContactInfo.github,
-            color: '#333'
+            url: 'https://github.com/crankyMagician',
+            color: theme.palette.mode === 'dark' ? '#f0f6fc' : '#333'
+        },
+        {
+            icon: <Email sx={{ fontSize: 32 }} />,
+            name: 'Email',
+            url: 'mailto:website@crankymagician.com',
+            color: theme.palette.primary.main
         }
-        // TODO: Add LinkedIn, Twitter, Website when available
     ];
 
     const handleInputChange = useCallback((e) => {
@@ -451,21 +456,28 @@ const ContactSection = React.memo(() => {
                                     <Typography variant="h6" color="text.primary" sx={{ mb: 2 }}>
                                         {translate('Connect on Social')}
                                     </Typography>
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
                                         {socialLinks.map((social) => (
-                                            <Tooltip key={social.name} title={social.name}>
+                                            <Tooltip key={social.name} title={social.name} arrow>
                                                 <IconButton
                                                     href={social.url}
-                                                    target="_blank"
+                                                    target={social.url.startsWith('mailto') ? '_self' : '_blank'}
                                                     rel="noopener noreferrer"
                                                     onClick={() => handleSocialClick(social)}
                                                     sx={{
                                                         color: social.color,
-                                                        border: `2px solid ${social.color}22`,
+                                                        width: 56,
+                                                        height: 56,
+                                                        border: `2px solid ${social.color}33`,
+                                                        backgroundColor: theme.palette.mode === 'dark'
+                                                            ? 'rgba(255,255,255,0.05)'
+                                                            : 'rgba(0,0,0,0.02)',
+                                                        transition: 'all 0.3s ease',
                                                         '&:hover': {
-                                                            backgroundColor: social.color + '11',
+                                                            backgroundColor: social.color + '22',
                                                             transform: 'translateY(-4px)',
-                                                            borderColor: social.color
+                                                            borderColor: social.color,
+                                                            boxShadow: `0 8px 25px ${social.color}33`
                                                         }
                                                     }}
                                                 >
