@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './translations/translationManager';
 import { getTheme } from './themes/theme';
+import { buildPaletteFromBrand } from './themes/customPalette';
 import AppLayout from './AppLayout';
 import MainContent from './MainContent';
 import useAppInitialization from './hooks/useAppInitialization';
@@ -49,11 +50,26 @@ const App = () => {
     const themeMode = useSelector(state => state.theme.mode);
     const componentOverride = useSelector(state => state.theme.componentOverride);
     const typography = useSelector(state => state.theme.typography);
+    const customBrand = useSelector(state => state.theme.customBrand);
+    const brandMode = useSelector(state => state.theme.brandMode);
+
+    // Key on the serialized colours: the brand is an object, so using it directly as a
+    // dependency would rebuild the whole theme on every render.
+    const brandKey = useMemo(
+        () => (themeMode === 'custom' ? JSON.stringify(customBrand?.colors?.[brandMode] ?? null) : ''),
+        [themeMode, customBrand, brandMode]
+    );
+
+    const customPalette = useMemo(
+        () => (themeMode === 'custom' && customBrand ? buildPaletteFromBrand(customBrand, brandMode) : null),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [themeMode, brandKey, brandMode]
+    );
 
     // Create theme with theme mode, component override, and typography - don't recreate it on every render
     const theme = useMemo(() =>
-            getTheme(themeMode, componentOverride, typography, currentLanguageDirection),
-        [themeMode, componentOverride, typography, currentLanguageDirection]
+            getTheme(themeMode, componentOverride, typography, currentLanguageDirection, customPalette),
+        [themeMode, componentOverride, typography, currentLanguageDirection, customPalette]
     );
 
     // Only show debug panel in development mode

@@ -8,6 +8,11 @@ class ThemeService {
     static componentOverrideKey = 'componentOverride';
     static typographyKey = 'typography';
     static themePrefsKey = 'themePreferences';
+    static customBrandKey = 'customBrand';
+    static brandModeKey = 'brandMode';
+
+    // Sentinel theme id meaning "render the user's custom brand, not a registry preset"
+    static CUSTOM_THEME_ID = 'custom';
 
     // Available options from registries
     static get availableThemes() {
@@ -24,25 +29,52 @@ class ThemeService {
 
     // Theme management
     static setTheme(theme) {
-        console.log(`ThemeService.setTheme called with: ${theme}`);
-        if (validateThemeId(theme)) {
+        if (theme === this.CUSTOM_THEME_ID || validateThemeId(theme)) {
             localStorage.setItem(this.themeKey, theme);
-            console.log(`Theme set to: ${theme}`);
-        } else {
-            console.warn(`Invalid theme: ${theme}. Available themes:`, this.availableThemes);
-            console.warn(`Using default professional_dark theme.`);
-            localStorage.setItem(this.themeKey, 'professional_dark');
+            return;
         }
+        // Decline the write rather than clobbering whatever is already stored.
+        console.warn(`Invalid theme: ${theme}. Keeping the existing stored theme.`);
     }
 
     static getTheme() {
         const savedTheme = localStorage.getItem(this.themeKey);
-        console.log(`ThemeService.getTheme - savedTheme: ${savedTheme}`);
-        if (savedTheme && validateThemeId(savedTheme)) {
+        if (savedTheme === this.CUSTOM_THEME_ID || (savedTheme && validateThemeId(savedTheme))) {
             return savedTheme;
         }
-        console.log(`ThemeService.getTheme - returning default: professional_dark`);
         return 'professional_dark'; // Default to professional dark theme
+    }
+
+    // Custom brand (full ringle-shaped object). Reads never throw on corrupt storage.
+    static setCustomBrand(brand) {
+        try {
+            if (brand === null) {
+                localStorage.removeItem(this.customBrandKey);
+            } else {
+                localStorage.setItem(this.customBrandKey, JSON.stringify(brand));
+            }
+        } catch (e) {
+            console.warn('Could not persist custom brand:', e.message);
+        }
+    }
+
+    static getCustomBrand() {
+        try {
+            const raw = localStorage.getItem(this.customBrandKey);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    static setBrandMode(mode) {
+        localStorage.setItem(this.brandModeKey, mode === 'dark' ? 'dark' : 'light');
+    }
+
+    static getBrandMode() {
+        return localStorage.getItem(this.brandModeKey) === 'dark' ? 'dark' : 'light';
     }
 
     static getAvailableThemes() {

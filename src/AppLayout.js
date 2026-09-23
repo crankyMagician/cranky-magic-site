@@ -29,8 +29,10 @@ const AppLayout = ({ children }) => {
     // Define the breakpoint for switching to sidebar on small screens
     const isSidebarBreakpoint = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Common main content area with page header
-    const MainContent = () => (
+    // A plain element, not a component declared in render. Declaring a component here
+    // gives it a new identity every render, which makes React unmount and remount the
+    // whole subtree and destroy any state the page below is holding.
+    const mainContent = (
         <Box
             component="main"
             sx={{
@@ -72,7 +74,7 @@ const AppLayout = ({ children }) => {
             return (
                 <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                     <Hoverbar />
-                    <MainContent />
+                    {mainContent}
                     <Footer />
                 </Box>
             );
@@ -81,7 +83,7 @@ const AppLayout = ({ children }) => {
             return (
                 <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                     <MegaMenu />
-                    <MainContent />
+                    {mainContent}
                     <Footer />
                 </Box>
             );
@@ -91,7 +93,7 @@ const AppLayout = ({ children }) => {
             return (
                 <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', margin: 0, padding: 0 }}>
                     <Navbar />
-                    <MainContent />
+                    {mainContent}
                     <Footer />
                 </Box>
             );

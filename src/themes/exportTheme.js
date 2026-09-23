@@ -1,10 +1,10 @@
-// Build a complete theme export object matching the ringle brand.json shape,
-// wrapped with schemaVersion/exportedAt and a "feel" section for site-specific picks
+// Build a complete theme export matching ringle's packages/shared/brand.json shape,
+// wrapped with schemaVersion/exportedAt and a "feel" section for site-specific picks.
 
-import { getThemeById, getPaletteByThemeId } from './themeRegistry';
 import { getTypographyStylesById } from './typography';
 import { getPairedPalettes } from './themeModePairs';
 import { SITE_BRAND_INFO } from './siteBrandInfo';
+import { buildPaletteFromBrand, paletteToBrandColors } from './customPalette';
 import ThemeService from '../services/ThemeService';
 
 const extractFontFamilyName = (fontFamilyString) => {
@@ -13,22 +13,18 @@ const extractFontFamilyName = (fontFamilyString) => {
   return matches ? matches[1].trim() : fontFamilyString;
 };
 
-const normalizeColor = (color) => {
-  if (typeof color === 'string') return color;
-  if (typeof color === 'object' && color.main) return color.main;
-  return '#000000';
-};
-
-const buildColorGroup = (paletteColor) => {
-  if (!paletteColor) {
-    return { main: '#000000', light: '#333333', dark: '#000000', contrastText: '#FFFFFF' };
+/**
+ * Colours for one mode, always routed through createTheme's augmentation so light/dark/
+ * contrastText are real derived values rather than the literal #000000 a main-only
+ * palette used to produce.
+ */
+const colorsForMode = (customBrand, themeId, mode) => {
+  if (customBrand) {
+    const palette = buildPaletteFromBrand(customBrand, mode);
+    return paletteToBrandColors(palette, mode, customBrand.colors?.[mode] || {});
   }
-  return {
-    main: normalizeColor(paletteColor.main || paletteColor),
-    light: normalizeColor(paletteColor.light),
-    dark: normalizeColor(paletteColor.dark),
-    contrastText: normalizeColor(paletteColor.contrastText || '#FFFFFF'),
-  };
+  const paired = getPairedPalettes(themeId);
+  return paletteToBrandColors(paired[mode], mode);
 };
 
 export const buildThemeExport = ({
@@ -38,58 +34,31 @@ export const buildThemeExport = ({
   animation,
   animationSpeed,
   reducedMotion,
+  customBrand = null,
 }) => {
-  const pairedPalettes = getPairedPalettes(themeId);
   const typographyObj = getTypographyStylesById(typography);
   const themePreferences = ThemeService.getThemePreferences();
+
+  const company = { ...SITE_BRAND_INFO.company, ...(customBrand?.company || {}) };
+  const logo = { ...SITE_BRAND_INFO.logo, ...(customBrand?.logo || {}) };
+
+  const fonts = customBrand?.fonts || {
+    heading: extractFontFamilyName(typographyObj?.h1?.fontFamily),
+    body: extractFontFamilyName(typographyObj?.fontFamily),
+    emailStack: `'${extractFontFamilyName(typographyObj?.fontFamily)}', 'Helvetica Neue', Arial, sans-serif`,
+  };
 
   return {
     schemaVersion: 1,
     exportedAt: new Date().toISOString(),
     brand: {
-      company: SITE_BRAND_INFO.company,
-      logo: SITE_BRAND_INFO.logo,
+      company,
+      logo,
       colors: {
-        light: {
-          primary: buildColorGroup(pairedPalettes.light.primary),
-          secondary: buildColorGroup(pairedPalettes.light.secondary),
-          error: buildColorGroup(pairedPalettes.light.error),
-          warning: buildColorGroup(pairedPalettes.light.warning),
-          info: buildColorGroup(pairedPalettes.light.info),
-          success: buildColorGroup(pairedPalettes.light.success),
-          background: {
-            default: pairedPalettes.light.background?.default || '#FFFFFF',
-            paper: pairedPalettes.light.background?.paper || '#FAFAFA',
-          },
-          text: {
-            primary: pairedPalettes.light.text?.primary || '#000000',
-            secondary: pairedPalettes.light.text?.secondary || '#666666',
-            disabled: pairedPalettes.light.text?.disabled || '#CCCCCC',
-          },
-        },
-        dark: {
-          primary: buildColorGroup(pairedPalettes.dark.primary),
-          secondary: buildColorGroup(pairedPalettes.dark.secondary),
-          error: buildColorGroup(pairedPalettes.dark.error),
-          warning: buildColorGroup(pairedPalettes.dark.warning),
-          info: buildColorGroup(pairedPalettes.dark.info),
-          success: buildColorGroup(pairedPalettes.dark.success),
-          background: {
-            default: pairedPalettes.dark.background?.default || '#121212',
-            paper: pairedPalettes.dark.background?.paper || '#1E1E1E',
-          },
-          text: {
-            primary: pairedPalettes.dark.text?.primary || '#FFFFFF',
-            secondary: pairedPalettes.dark.text?.secondary || '#AAAAAA',
-            disabled: pairedPalettes.dark.text?.disabled || '#666666',
-          },
-        },
+        light: colorsForMode(customBrand, themeId, 'light'),
+        dark: colorsForMode(customBrand, themeId, 'dark'),
       },
-      fonts: {
-        heading: extractFontFamilyName(typographyObj?.h1?.fontFamily),
-        body: extractFontFamilyName(typographyObj?.fontFamily),
-        emailStack: `'${extractFontFamilyName(typographyObj?.fontFamily)}', 'Helvetica Neue', Arial, sans-serif`,
-      },
+      fonts,
     },
     feel: {
       themeId,

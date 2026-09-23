@@ -19,8 +19,15 @@ const initialComponentOverride = ThemeService.getComponentOverride();
 const initialTypography = ThemeService.getTypography();
 const initialAnimation = AnimationService.getAnimation();
 
+const CUSTOM = ThemeService.CUSTOM_THEME_ID;
+const storedBrand = ThemeService.getCustomBrand();
+
 const initialState = {
-    mode: themes.includes(initialTheme) ? initialTheme : themes[0],
+    customBrand: storedBrand,
+    brandMode: ThemeService.getBrandMode(),
+    mode: initialTheme === CUSTOM && storedBrand
+        ? CUSTOM
+        : themes.includes(initialTheme) ? initialTheme : themes[0],
     componentOverride: componentOverrides.includes(initialComponentOverride) ? initialComponentOverride : componentOverrides[0],
     typography: typographies.includes(initialTypography) ? initialTypography : typographies[0],
     animation: animations.includes(initialAnimation) || initialAnimation === 'none' ? initialAnimation : 'magical',
@@ -40,9 +47,48 @@ export const themeSlice = createSlice({
         },
 
         setTheme: (state, action) => {
-            if (themes.includes(action.payload)) {
+            const isCustom = action.payload === CUSTOM && state.customBrand;
+            if (themes.includes(action.payload) || isCustom) {
                 state.mode = action.payload;
                 ThemeService.setTheme(action.payload);
+            }
+        },
+
+        // Custom brand editing
+        setCustomBrand: (state, action) => {
+            state.customBrand = action.payload;
+            ThemeService.setCustomBrand(action.payload);
+            if (action.payload) {
+                state.mode = CUSTOM;
+                ThemeService.setTheme(CUSTOM);
+            }
+        },
+
+        updateBrandField: (state, action) => {
+            const { path, value } = action.payload;
+            if (!state.customBrand || !Array.isArray(path) || !path.length) return;
+
+            let node = state.customBrand;
+            for (let i = 0; i < path.length - 1; i += 1) {
+                if (!node[path[i]] || typeof node[path[i]] !== 'object') node[path[i]] = {};
+                node = node[path[i]];
+            }
+            node[path[path.length - 1]] = value;
+            ThemeService.setCustomBrand(state.customBrand);
+        },
+
+        setBrandMode: (state, action) => {
+            const next = action.payload === 'dark' ? 'dark' : 'light';
+            state.brandMode = next;
+            ThemeService.setBrandMode(next);
+        },
+
+        resetCustomBrand: (state) => {
+            state.customBrand = null;
+            ThemeService.setCustomBrand(null);
+            if (state.mode === CUSTOM) {
+                state.mode = themes[0];
+                ThemeService.setTheme(themes[0]);
             }
         },
 
@@ -147,6 +193,10 @@ export const {
     setAnimationSpeed,
     toggleReducedMotion,
     resetThemeSettings,
+    setCustomBrand,
+    updateBrandField,
+    setBrandMode,
+    resetCustomBrand,
 } = themeSlice.actions;
 
 // Selectors

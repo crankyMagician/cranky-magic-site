@@ -40,6 +40,7 @@ import { getAvailableTypographyIds } from '../themes/typography';
 import { getAvailableAnimationIds } from '../themes/animations';
 import { buildThemeExport } from '../themes/exportTheme';
 import { downloadJson } from '../utilities/downloadFile';
+import BrandEditor from '../components/brand/BrandEditor';
 
 const SPEEDS = [
     { value: 0.5, label: 'Slow' },
@@ -58,6 +59,7 @@ const ThemeStudio = () => {
     const animation = useSelector(state => state.theme.animation);
     const animationSpeed = useSelector(state => state.theme.animationSpeed);
     const reducedMotion = useSelector(state => state.theme.reducedMotion);
+    const customBrand = useSelector(state => state.theme.customBrand);
 
     const themes = useMemo(() => getAllThemes(), []);
     const componentOverrides = useMemo(() => getAvailableComponentOverrideIds(), []);
@@ -87,10 +89,12 @@ const ThemeStudio = () => {
             animation,
             animationSpeed,
             reducedMotion,
+            customBrand,
         });
         const stamp = new Date().toISOString().split('T')[0];
-        downloadJson(`theme-${themeId}-${stamp}.json`, payload);
-    }, [themeId, componentOverride, typography, animation, animationSpeed, reducedMotion]);
+        const name = customBrand ? 'brand' : `theme-${themeId}`;
+        downloadJson(`${name}-${stamp}.json`, payload);
+    }, [themeId, componentOverride, typography, animation, animationSpeed, reducedMotion, customBrand]);
 
     return (
         <Box sx={{ bgcolor: 'background.default', color: 'text.primary', minHeight: '100vh', py: 5 }}>
@@ -148,6 +152,12 @@ const ThemeStudio = () => {
                         );
                     })}
                 </Grid>
+
+                <Divider sx={{ mb: 4 }} />
+
+                <BrandEditor />
+
+                <Divider sx={{ mb: 4 }} />
 
                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
                     Feel

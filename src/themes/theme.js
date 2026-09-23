@@ -13,15 +13,17 @@ const isDarkThemeMode = (mode) => {
 };
 
 // Function to create and return a theme based on the mode, component override, and typography
-export const getTheme = (mode, componentOverride = 'cranky', typography = 'default', direction = 'ltr') => {
+export const getTheme = (mode, componentOverride = 'cranky', typography = 'default', direction = 'ltr', customPalette = null) => {
     // Use provided mode or default to light
     const themeMode = mode || 'light';
     const overrideMode = componentOverride || 'cranky';
     const typographyMode = typography || 'default';
-    const isDark = isDarkThemeMode(themeMode);
+
+    // A custom palette carries its own mode, so don't consult the preset id list for it.
+    const isDark = customPalette ? customPalette.mode === 'dark' : isDarkThemeMode(themeMode);
 
     // Get palette, typography, and component overrides from registries
-    const palette = getPaletteByThemeId(themeMode);
+    const palette = customPalette || getPaletteByThemeId(themeMode);
     const typographyStyles = getTypographyStylesById(typographyMode);
     const componentOverrides = getComponentOverrideById(overrideMode); // Fixed: using correct function name
 
