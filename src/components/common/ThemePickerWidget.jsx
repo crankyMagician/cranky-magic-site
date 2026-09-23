@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Palette as PaletteIcon } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTheme, setComponentOverride, setTypography, setAnimation, setAnimationSpeed, setReducedMotion } from '../../reducers/themeSlice';
+import { setTheme, setComponentOverride, setTypography, setAnimation, setAnimationSpeed } from '../../reducers/themeSlice';
 import ThemeService from '../../services/ThemeService';
 import { getAllThemes } from '../../themes/themeRegistry';
 import { getAvailableComponentOverrideIds } from '../../themes/muicomponents';
@@ -65,10 +65,6 @@ const ThemePickerWidget = React.memo(() => {
 
   const handleAnimationSpeedChange = (speed) => {
     dispatch(setAnimationSpeed(speed));
-  };
-
-  const handleReducedMotionChange = (enabled) => {
-    dispatch(setReducedMotion(enabled));
   };
 
   const handleExport = () => {
@@ -224,14 +220,6 @@ const ThemePickerWidget = React.memo(() => {
                 <MenuItem value={1}>Normal</MenuItem>
                 <MenuItem value={1.5}>Fast</MenuItem>
                 <MenuItem value={2}>Very Fast</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <FormLabel sx={{ mb: 1 }}>Reduced Motion</FormLabel>
-              <Select value={currentReducedMotion} onChange={(e) => handleReducedMotionChange(e.target.value)}>
-                <MenuItem value={false}>Off</MenuItem>
-                <MenuItem value={true}>On</MenuItem>
               </Select>
             </FormControl>
           </>
