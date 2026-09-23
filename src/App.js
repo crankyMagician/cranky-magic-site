@@ -13,6 +13,7 @@ import useCustomTranslation from "./hooks/useCustomTranslation";
 import DebugPanel from './debug-panel/DebugPanel';
 import AnalyticsProvider from './AnalyticsProvider';
 import { RouteProvider } from './routes';
+import ThemePickerWidget from './components/common/ThemePickerWidget';
 
 // Memoize the analytics-aware MainContent component to prevent unnecessary re-renders
 const AnalyticsMainContent = React.memo(() => {
@@ -77,6 +78,7 @@ const App = () => {
                         <AppLayout>
                             <AnalyticsMainContent />
                         </AppLayout>
+                        <ThemePickerWidget />
                         {isDevelopment && <DebugPanel />}
                     </RouteProvider>
                 </Router>

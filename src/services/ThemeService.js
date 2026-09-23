@@ -171,6 +171,8 @@ class ThemeService {
             highContrast: false,
             reducedMotion: false,
             fontScale: 1.0, // Default font scale factor
+            useScanlines: true,
+            useGlowEffects: true,
         };
     }
 
