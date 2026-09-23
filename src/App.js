@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
@@ -61,6 +62,7 @@ const App = () => {
     return (
         <AnalyticsProvider>
             <ThemeProvider theme={theme}>
+                <CssBaseline />
                 <Router>
                     <RouteProvider>
                         <ToastContainer
