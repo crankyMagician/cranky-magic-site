@@ -11,6 +11,7 @@ class ThemeService {
     static customBrandKey = 'customBrand';
     static brandModeKey = 'brandMode';
     static componentSettingsKey = 'componentSettings';
+    static savedPalettesKey = 'savedPalettes';
 
     // Sentinel theme id meaning "render the user's custom brand, not a registry preset"
     static CUSTOM_THEME_ID = 'custom';
@@ -67,6 +68,27 @@ class ThemeService {
             return parsed && typeof parsed === 'object' ? parsed : null;
         } catch (e) {
             return null;
+        }
+    }
+
+    // Named palettes the visitor has saved. Always an array, even if storage is corrupt.
+    static setSavedPalettes(list) {
+        try {
+            localStorage.setItem(this.savedPalettesKey, JSON.stringify(Array.isArray(list) ? list : []));
+        } catch (e) {
+            console.warn('Could not persist saved palettes:', e.message);
+        }
+    }
+
+    static getSavedPalettes() {
+        try {
+            const raw = localStorage.getItem(this.savedPalettesKey);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter((p) => p && typeof p === 'object' && p.id && p.brand);
+        } catch (e) {
+            return [];
         }
     }
 

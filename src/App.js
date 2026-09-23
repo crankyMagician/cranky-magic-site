@@ -60,8 +60,13 @@ const App = () => {
 
     // Key on the serialized colours: the brand is an object, so using it directly as a
     // dependency would rebuild the whole theme on every render.
+    // Both halves matter: the ringle colours and the hand-picked overrides for the theme
+    // keys ringle has no slot for. Leaving the overrides out means editing a grey or a
+    // gradient changes state and repaints nothing.
     const brandKey = useMemo(
-        () => (themeMode === 'custom' ? JSON.stringify(customBrand?.colors?.[brandMode] ?? null) : ''),
+        () => (themeMode === 'custom'
+            ? JSON.stringify([customBrand?.colors?.[brandMode] ?? null, customBrand?.palette?.[brandMode] ?? null])
+            : ''),
         [themeMode, customBrand, brandMode]
     );
 

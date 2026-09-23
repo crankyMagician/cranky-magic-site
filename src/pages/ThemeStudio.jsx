@@ -39,6 +39,8 @@ import { buildThemeExport } from '../themes/exportTheme';
 import { downloadJson } from '../utilities/downloadFile';
 import BrandEditor from '../components/brand/BrandEditor';
 import PalettePanel from '../components/brand/PalettePanel';
+import AdvancedPalette from '../components/brand/AdvancedPalette';
+import SavedPalettes from '../components/brand/SavedPalettes';
 import ComponentSettings from '../components/brand/ComponentSettings';
 import AnimationShowcase from '../components/animation/AnimationShowcase';
 
@@ -163,6 +165,14 @@ const ThemeStudio = () => {
                 <Divider sx={{ mb: 4 }} />
 
                 <BrandEditor />
+
+                <Divider sx={{ mb: 4 }} />
+
+                <SavedPalettes />
+
+                <Divider sx={{ mb: 4 }} />
+
+                <AdvancedPalette />
 
                 <Divider sx={{ mb: 4 }} />
 

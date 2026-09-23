@@ -90,6 +90,31 @@ export const parseBrandJson = (text) => {
         return fail('No usable colours found. Expected colors.light and/or colors.dark with hex values like "#0E4938".');
     }
 
+    // The theme-system overrides, if this file carries any. A bare ringle brand.json does
+    // not, and nothing here is required, so a missing block just means everything derives.
+    const paletteOverrides = (() => {
+        const raw2 = source.palette;
+        if (!raw2 || typeof raw2 !== 'object') return null;
+        const out = {};
+        ['light', 'dark'].forEach((mode) => {
+            const node = raw2[mode];
+            if (!node || typeof node !== 'object') return;
+            const kept = {};
+            if (typeof node.divider === 'string' && node.divider.trim()) kept.divider = node.divider.trim();
+            ['tertiary', 'grey', 'action', 'custom'].forEach((section) => {
+                if (!node[section] || typeof node[section] !== 'object') return;
+                const values = {};
+                Object.entries(node[section]).forEach(([key, value]) => {
+                    if (typeof value === 'number') { values[key] = value; return; }
+                    if (typeof value === 'string' && value.trim()) values[key] = value.trim();
+                });
+                if (Object.keys(values).length) kept[section] = values;
+            });
+            if (Object.keys(kept).length) out[mode] = kept;
+        });
+        return Object.keys(out).length ? out : null;
+    })();
+
     const company = source.company && typeof source.company === 'object' ? source.company : {};
     const logo = source.logo && typeof source.logo === 'object' ? source.logo : {};
     const fonts = source.fonts && typeof source.fonts === 'object' ? source.fonts : {};
@@ -147,6 +172,7 @@ export const parseBrandJson = (text) => {
                 light: light || dark,
                 dark: dark || light,
             },
+            ...(paletteOverrides ? { palette: paletteOverrides } : {}),
             fonts: {
                 heading: str(fonts.heading, 'Inter'),
                 body: str(fonts.body, 'Inter'),

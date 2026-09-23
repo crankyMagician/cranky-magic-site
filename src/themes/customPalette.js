@@ -72,8 +72,6 @@ const buildAction = (text, isDark) => ({
  * wizard pack reaches for.
  */
 const buildCustomEffects = (primary, secondary, tertiary, background, paper, text, isDark) => {
-    const getAlphaColor = (color, alpha) => withAlpha(color, alpha);
-
     return {
         // Gradients and glows
         dataStream: `linear-gradient(180deg, ${withAlpha(primary, 0.3)} 0%, ${withAlpha(primary, 0)} 100%)`,
@@ -99,17 +97,65 @@ const buildCustomEffects = (primary, secondary, tertiary, background, paper, tex
             ? `0 10px 24px rgba(0, 0, 0, 0.5), 0 0 12px ${withAlpha(primary, 0.28)}`
             : `0 10px 24px ${withAlpha(text, 0.16)}, 0 0 12px ${withAlpha(primary, 0.18)}`,
         nebula: `radial-gradient(circle at 30% 20%, ${withAlpha(secondary, 0.35)} 0%, ${withAlpha(primary, 0.2)} 40%, transparent 70%)`,
-        glowText: { textShadow: `0 0 8px ${withAlpha(primary, 0.6)}` },
-
-        getAlphaColor,
+        // Stored flat so an override is the same kind of value as every other effect.
+        // It is wrapped back into { textShadow } when the palette is assembled.
+        glowText: `0 0 8px ${withAlpha(primary, 0.6)}`,
     };
+};
+
+/**
+ * Everything in the theme palette that ringle's schema has no slot for.
+ *
+ * Kept separate from assembly so the editor can show what a value would be if it were
+ * left alone, which is what makes "reset to derived" possible per field.
+ */
+export const deriveExtras = ({ primary, secondary, background, paper, text, isDark }) => {
+    const tertiaryMain = secondary || primary;
+    const tertiary = {
+        main: tertiaryMain,
+        light: shade(tertiaryMain, 0.25),
+        dark: shade(tertiaryMain, -0.25),
+        contrastText: bestContrastText(tertiaryMain),
+    };
+
+    return {
+        tertiary,
+        divider: withAlpha(text, isDark ? 0.18 : 0.12),
+        grey: buildGrey(background, text),
+        action: buildAction(text, isDark),
+        custom: buildCustomEffects(primary, secondary, tertiary.main, background, paper, text, isDark),
+    };
+};
+
+/** Overlay hand-picked values on the derived ones, ignoring anything blank. */
+const applyOverrides = (derived, overrides) => {
+    if (!overrides || typeof overrides !== 'object') return derived;
+    const out = { ...derived };
+
+    if (isHex(overrides.divider) || typeof overrides.divider === 'string') {
+        if (String(overrides.divider).trim()) out.divider = overrides.divider.trim();
+    }
+
+    ['tertiary', 'grey', 'action', 'custom'].forEach((section) => {
+        const incoming = overrides[section];
+        if (!incoming || typeof incoming !== 'object') return;
+        const merged = { ...derived[section] };
+        Object.entries(incoming).forEach(([key, value]) => {
+            if (value === null || value === undefined || value === '') return;
+            if (typeof value === 'number') { merged[key] = value; return; }
+            if (typeof value === 'string' && value.trim()) merged[key] = value.trim();
+        });
+        out[section] = merged;
+    });
+
+    return out;
 };
 
 /**
  * Build a complete MUI palette from one mode of a ringle colour block.
  * Returns null when the input is unusable, which lets the caller fall back.
  */
-export const buildDerivedPalette = (colors, brandMode) => {
+export const buildDerivedPalette = (colors, brandMode, overrides = null) => {
     if (!colors || typeof colors !== 'object') return null;
     if (!isHex(colors.primary?.main)) return null;
 
@@ -133,9 +179,6 @@ export const buildDerivedPalette = (colors, brandMode) => {
             hint: textDisabled,
             inputPlaceholder: textSecondary,
         },
-        divider: withAlpha(textPrimary, isDark ? 0.18 : 0.12),
-        action: buildAction(textPrimary, isDark),
-        grey: buildGrey(background, textPrimary),
     };
 
     COLOR_GROUPS.forEach((group) => {
@@ -158,25 +201,34 @@ export const buildDerivedPalette = (colors, brandMode) => {
         palette[group] = entry;
     });
 
-    // tertiary is not part of ringle's schema but several override packs read it, so it
-    // is derived from secondary rather than left pointing at a preset.
+    // Everything ringle's schema has no slot for is derived, then overlaid with whatever
+    // the user set by hand. A derived default is a starting point, not a lock.
     const secondaryMain = palette.secondary?.main || palette.primary.main;
-    palette.tertiary = {
-        main: secondaryMain,
-        light: shade(secondaryMain, 0.25),
-        dark: shade(secondaryMain, -0.25),
-        contrastText: bestContrastText(secondaryMain),
-    };
-
-    palette.custom = buildCustomEffects(
-        palette.primary.main,
-        secondaryMain,
-        palette.tertiary.main,
-        background,
-        paper,
-        textPrimary,
-        isDark,
+    const extras = applyOverrides(
+        deriveExtras({
+            primary: palette.primary.main,
+            secondary: secondaryMain,
+            background,
+            paper,
+            text: textPrimary,
+            isDark,
+        }),
+        overrides,
     );
+
+    palette.tertiary = extras.tertiary;
+    palette.divider = extras.divider;
+    palette.grey = extras.grey;
+    palette.action = extras.action;
+
+    // glowText is stored flat so it overrides like any other effect, and is wrapped back
+    // into the shape the wizard pack reads here.
+    const { glowText, ...effects } = extras.custom;
+    palette.custom = {
+        ...effects,
+        glowText: { textShadow: glowText },
+        getAlphaColor: (color, alpha) => withAlpha(color, alpha),
+    };
 
     // A plain closure, not a method bound to `this`. The old registry palettes defined
     // this as `function () { return this.custom.getAlphaColor(...) }`, which stops working
@@ -192,7 +244,11 @@ export const buildDerivedPalette = (colors, brandMode) => {
  */
 export const buildPaletteFromBrand = (brand, brandMode) => {
     try {
-        const derived = buildDerivedPalette(brand?.colors?.[brandMode], brandMode);
+        const derived = buildDerivedPalette(
+            brand?.colors?.[brandMode],
+            brandMode,
+            brand?.palette?.[brandMode],
+        );
         if (derived) return derived;
     } catch (e) {
         console.warn('Falling back to a preset palette, the custom brand could not be applied:', e.message);
