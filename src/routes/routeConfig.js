@@ -56,7 +56,7 @@ const routes = [
     {
         path: '/',
         // Use a conditional to ensure valid component
-        element: typeof Example === 'function' ? <Example /> : <FallbackComponent />,
+        element: <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
@@ -74,7 +74,7 @@ const routes = [
     },
     {
         path: '/theme',
-        element: typeof Example === 'function' ? <Example /> : <FallbackComponent />,
+        element: <FallbackComponent />,
         exact: true,
         auth: false,
         meta: {
