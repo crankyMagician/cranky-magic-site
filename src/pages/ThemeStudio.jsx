@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
@@ -30,24 +30,17 @@ import {
     setTheme,
     setComponentOverride,
     setTypography,
-    setAnimation,
-    setAnimationSpeed,
 } from '../reducers/themeSlice';
 import ThemeService from '../services/ThemeService';
 import { getAllThemes } from '../themes/themeRegistry';
 import { getAvailableComponentOverrideIds } from '../themes/muicomponents';
 import { getAvailableTypographyIds } from '../themes/typography';
-import { getAvailableAnimationIds } from '../themes/animations';
 import { buildThemeExport } from '../themes/exportTheme';
 import { downloadJson } from '../utilities/downloadFile';
 import BrandEditor from '../components/brand/BrandEditor';
-
-const SPEEDS = [
-    { value: 0.5, label: 'Slow' },
-    { value: 1, label: 'Normal' },
-    { value: 1.5, label: 'Fast' },
-    { value: 2, label: 'Very fast' },
-];
+import PalettePanel from '../components/brand/PalettePanel';
+import ComponentSettings from '../components/brand/ComponentSettings';
+import AnimationShowcase from '../components/animation/AnimationShowcase';
 
 const ThemeStudio = () => {
     const theme = useTheme();
@@ -60,11 +53,24 @@ const ThemeStudio = () => {
     const animationSpeed = useSelector(state => state.theme.animationSpeed);
     const reducedMotion = useSelector(state => state.theme.reducedMotion);
     const customBrand = useSelector(state => state.theme.customBrand);
+    const componentSettings = useSelector(state => state.theme.componentSettings);
 
     const themes = useMemo(() => getAllThemes(), []);
     const componentOverrides = useMemo(() => getAvailableComponentOverrideIds(), []);
     const typographies = useMemo(() => getAvailableTypographyIds(), []);
-    const animations = useMemo(() => getAvailableAnimationIds(), []);
+
+    // Re-mounting the preview restarts its CSS animations, which is what makes a change of
+    // pack or speed visible straight away instead of on the next loop.
+    const [replayKey, setReplayKey] = useState(0);
+    useEffect(() => {
+        setReplayKey((k) => k + 1);
+    }, [animation, animationSpeed, reducedMotion, componentOverride, themeId]);
+
+    const entrance = theme.animation?.entrance;
+    const enterSx = useCallback(
+        (index) => theme.animation?.sx(entrance, { duration: 0.7, delay: index * 0.09 }) || {},
+        [theme.animation, entrance],
+    );
 
     const pickTheme = useCallback((id) => {
         dispatch(setTheme(id));
@@ -90,11 +96,12 @@ const ThemeStudio = () => {
             animationSpeed,
             reducedMotion,
             customBrand,
+            componentSettings,
         });
         const stamp = new Date().toISOString().split('T')[0];
-        const name = customBrand ? 'brand' : `theme-${themeId}`;
-        downloadJson(`${name}-${stamp}.json`, payload);
-    }, [themeId, componentOverride, typography, animation, animationSpeed, reducedMotion, customBrand]);
+        downloadJson(`brand-${stamp}.json`, payload);
+    }, [themeId, componentOverride, typography, animation, animationSpeed, reducedMotion,
+        customBrand, componentSettings]);
 
     return (
         <Box sx={{ bgcolor: 'background.default', color: 'text.primary', minHeight: '100vh', py: 5 }}>
@@ -120,7 +127,7 @@ const ThemeStudio = () => {
                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
                     Palette
                 </Typography>
-                <Grid container spacing={2} sx={{ mb: 5 }}>
+                <Grid container spacing={2} sx={{ mb: 5 }} data-testid="preset-grid">
                     {themes.map((t) => {
                         const active = t.id === themeId;
                         return (
@@ -159,6 +166,10 @@ const ThemeStudio = () => {
 
                 <Divider sx={{ mb: 4 }} />
 
+                <PalettePanel />
+
+                <Divider sx={{ mb: 4 }} />
+
                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
                     Feel
                 </Typography>
@@ -189,33 +200,13 @@ const ThemeStudio = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth size="small">
-                            <InputLabel id="an-label">Animation</InputLabel>
-                            <Select
-                                labelId="an-label"
-                                label="Animation"
-                                value={animation}
-                                onChange={(e) => dispatch(setAnimation(e.target.value))}
-                            >
-                                {animations.map(id => <MenuItem key={id} value={id}>{id}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth size="small">
-                            <InputLabel id="sp-label">Animation speed</InputLabel>
-                            <Select
-                                labelId="sp-label"
-                                label="Animation speed"
-                                value={animationSpeed}
-                                onChange={(e) => dispatch(setAnimationSpeed(e.target.value))}
-                            >
-                                {SPEEDS.map(s => <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Grid>
                 </Grid>
+
+                <ComponentSettings />
+
+                <Divider sx={{ mb: 4 }} />
+
+                <AnimationShowcase />
 
                 <Divider sx={{ mb: 4 }} />
 
@@ -223,9 +214,9 @@ const ThemeStudio = () => {
                     Live preview
                 </Typography>
 
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={3} sx={{ mb: 4 }} key={replayKey} data-testid="live-preview">
                     <Grid item xs={12} md={6}>
-                        <Card>
+                        <Card sx={enterSx(0)} data-testid="preview-card-0">
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>Buttons and chips</Typography>
                                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
@@ -249,7 +240,7 @@ const ThemeStudio = () => {
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <Card>
+                        <Card sx={enterSx(1)} data-testid="preview-card-1">
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>Inputs</Typography>
                                 <TextField fullWidth size="small" label="Text field" defaultValue="Sample value" sx={{ mb: 2 }} />
@@ -263,7 +254,7 @@ const ThemeStudio = () => {
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <Card>
+                        <Card sx={enterSx(2)} data-testid="preview-card-2">
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>Type scale</Typography>
                                 <Typography variant="h4">Heading four</Typography>
@@ -280,7 +271,7 @@ const ThemeStudio = () => {
                     </Grid>
 
                     <Grid item xs={12} md={6}>
-                        <Card>
+                        <Card sx={enterSx(3)} data-testid="preview-card-3">
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>Feedback</Typography>
                                 <Alert severity="success" sx={{ mb: 1 }}>Success message</Alert>

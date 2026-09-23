@@ -1,11 +1,14 @@
 // Parse a pasted or uploaded brand.json into an editable brand object.
-// Accepts either a bare ringle brand.json or one of this app's {brand, feel} exports.
-// Always returns a result object; never throws.
+//
+// Three shapes are accepted: a bare ringle brand.json, this app's current flat export
+// (the ringle keys plus `animation` and `components` siblings), and the older
+// {brand, feel} export. Always returns a result object; never throws.
 
 import { isHex } from './customPalette';
 import { SITE_BRAND_INFO, COLOR_GROUPS, STATUS_GROUPS } from './siteBrandInfo';
+import { normalizeComponentSettings } from './generatedOverrides';
 
-const fail = (error) => ({ ok: false, brand: null, error });
+const fail = (error) => ({ ok: false, brand: null, animation: null, components: null, error });
 
 const str = (v, fallback) => (typeof v === 'string' && v.trim() ? v.trim() : fallback);
 
@@ -92,9 +95,36 @@ export const parseBrandJson = (text) => {
     const fonts = source.fonts && typeof source.fonts === 'object' ? source.fonts : {};
     const D = SITE_BRAND_INFO;
 
+    // `animation` and `components` are this app's own siblings. The older export carried
+    // the same values under `feel`, and a bare ringle brand.json carries neither.
+    const legacy = raw.feel && typeof raw.feel === 'object' ? raw.feel : {};
+    const animationBlock = raw.animation && typeof raw.animation === 'object' ? raw.animation : null;
+    const componentBlock = raw.components && typeof raw.components === 'object' ? raw.components : null;
+
+    const animation = animationBlock || (legacy.animation ? {
+        pack: legacy.animation,
+        speed: legacy.animationSpeed,
+        reducedMotion: legacy.reducedMotion,
+    } : null);
+
+    const components = componentBlock || (legacy.componentOverride ? {
+        override: legacy.componentOverride,
+        typography: legacy.typography,
+        preset: legacy.themeId,
+    } : null);
+
     return {
         ok: true,
         error: null,
+        animation,
+        components: components
+            ? {
+                  override: typeof components.override === 'string' ? components.override : null,
+                  typography: typeof components.typography === 'string' ? components.typography : null,
+                  preset: typeof components.preset === 'string' ? components.preset : null,
+                  settings: normalizeComponentSettings(components),
+              }
+            : null,
         brand: {
             company: {
                 name: str(company.name, D.company.name),

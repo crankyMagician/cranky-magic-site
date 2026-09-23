@@ -103,6 +103,24 @@ export const getComponentOverrideById = (overrideId) => {
     return componentOverrideRegistry[overrideId].overrides;
 };
 
+/**
+ * Resolve a pack into a plain components object.
+ *
+ * Nine packs export an object; the wizard pack exports `(theme) => ({ ... })`. That
+ * function was being handed straight to createTheme, which expects an object, so the
+ * whole wizard pack applied nothing. Calling it here revives it without rewriting 669
+ * lines, and a pack that throws degrades to no overrides rather than taking the page down.
+ */
+export const resolveComponentOverrides = (overrides, theme) => {
+    if (typeof overrides !== 'function') return overrides || {};
+    try {
+        return overrides(theme) || {};
+    } catch (e) {
+        console.warn('Component override pack failed to resolve:', e.message);
+        return {};
+    }
+};
+
 // Get all component overrides (for UI selection)
 export const getAllComponentOverrides = () => {
     return Object.values(componentOverrideRegistry);

@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './translations/translationManager';
 import { getTheme } from './themes/theme';
 import { buildPaletteFromBrand } from './themes/customPalette';
+import { ensureFont } from './themes/brandFonts';
 import AppLayout from './AppLayout';
 import MainContent from './MainContent';
 import useAppInitialization from './hooks/useAppInitialization';
@@ -52,6 +53,10 @@ const App = () => {
     const typography = useSelector(state => state.theme.typography);
     const customBrand = useSelector(state => state.theme.customBrand);
     const brandMode = useSelector(state => state.theme.brandMode);
+    const animation = useSelector(state => state.theme.animation);
+    const animationSpeed = useSelector(state => state.theme.animationSpeed);
+    const reducedMotion = useSelector(state => state.theme.reducedMotion);
+    const componentSettings = useSelector(state => state.theme.componentSettings);
 
     // Key on the serialized colours: the brand is an object, so using it directly as a
     // dependency would rebuild the whole theme on every render.
@@ -59,6 +64,18 @@ const App = () => {
         () => (themeMode === 'custom' ? JSON.stringify(customBrand?.colors?.[brandMode] ?? null) : ''),
         [themeMode, customBrand, brandMode]
     );
+
+    const fonts = customBrand?.fonts || null;
+    const fontKey = useMemo(() => JSON.stringify(fonts ?? null), [fonts]);
+    const settingsKey = useMemo(() => JSON.stringify(componentSettings ?? null), [componentSettings]);
+
+    // Fetch a family the app does not bundle. Kept out of render because it touches the
+    // document head.
+    useEffect(() => {
+        ensureFont(fonts?.heading);
+        ensureFont(fonts?.body);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fontKey]);
 
     const customPalette = useMemo(
         () => (themeMode === 'custom' && customBrand ? buildPaletteFromBrand(customBrand, brandMode) : null),
@@ -68,8 +85,16 @@ const App = () => {
 
     // Create theme with theme mode, component override, and typography - don't recreate it on every render
     const theme = useMemo(() =>
-            getTheme(themeMode, componentOverride, typography, currentLanguageDirection, customPalette),
-        [themeMode, componentOverride, typography, currentLanguageDirection, customPalette]
+            getTheme(themeMode, componentOverride, typography, currentLanguageDirection, customPalette, {
+                fonts,
+                animation,
+                animationSpeed,
+                reducedMotion,
+                componentSettings,
+            }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [themeMode, componentOverride, typography, currentLanguageDirection, customPalette,
+         fontKey, animation, animationSpeed, reducedMotion, settingsKey]
     );
 
     // Only show debug panel in development mode

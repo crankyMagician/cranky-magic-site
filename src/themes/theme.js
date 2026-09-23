@@ -1,11 +1,20 @@
 // src/themes/theme.js
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { getPaletteByThemeId } from './themeRegistry';
-import { getComponentOverrideById } from './muicomponents'; // Fixed: changed from getComponentOverridesById to getComponentOverrideById
+import { getComponentOverrideById, resolveComponentOverrides } from './muicomponents'; // Fixed: changed from getComponentOverridesById to getComponentOverrideById
 import { getTypographyStylesById } from './typography';
 import breakpoints from './breakpoints/breakpoints';
 import ThemeService from '../services/ThemeService';
 import * as colorUtils from "../utilities/colorUtilities";
+import { applyBrandFonts } from './brandFonts';
+import { buildAnimationTheme } from './animations/animationTheme';
+import { withAlpha } from './colorMath';
+import {
+    buildStatusOverrides,
+    buildSettingsOverrides,
+    mergeComponentLayers,
+    normalizeComponentSettings,
+} from './generatedOverrides';
 
 // Function to determine if a theme is a dark mode theme
 const isDarkThemeMode = (mode) => {
@@ -13,19 +22,51 @@ const isDarkThemeMode = (mode) => {
 };
 
 // Function to create and return a theme based on the mode, component override, and typography
-export const getTheme = (mode, componentOverride = 'cranky', typography = 'default', direction = 'ltr', customPalette = null) => {
+export const getTheme = (
+    mode,
+    componentOverride = 'cranky',
+    typography = 'default',
+    direction = 'ltr',
+    customPalette = null,
+    options = {},
+) => {
     // Use provided mode or default to light
     const themeMode = mode || 'light';
     const overrideMode = componentOverride || 'cranky';
     const typographyMode = typography || 'default';
 
+    const {
+        fonts = null,
+        animation = 'magical',
+        animationSpeed = 1,
+        reducedMotion = false,
+        componentSettings = null,
+    } = options;
+
     // A custom palette carries its own mode, so don't consult the preset id list for it.
     const isDark = customPalette ? customPalette.mode === 'dark' : isDarkThemeMode(themeMode);
 
     // Get palette, typography, and component overrides from registries
-    const palette = customPalette || getPaletteByThemeId(themeMode);
-    const typographyStyles = getTypographyStylesById(typographyMode);
-    const componentOverrides = getComponentOverrideById(overrideMode); // Fixed: using correct function name
+    const basePalette = customPalette || getPaletteByThemeId(themeMode);
+    // Some registry palettes define getAlphaColor as a method bound to `this`, which stops
+    // working the moment the palette is spread. Backfill a plain closure when it is absent.
+    const palette = typeof basePalette.getAlphaColor === 'function'
+        ? basePalette
+        : { ...basePalette, getAlphaColor: (color, alpha) => withAlpha(color, alpha) };
+
+    const typographyStyles = applyBrandFonts(getTypographyStylesById(typographyMode), fonts);
+
+    // A first pass with no components, used only to resolve packs that export a function
+    // of the theme and to give the generated layers a real palette to read.
+    const shell = createTheme({ palette, typography: typographyStyles, breakpoints, direction });
+    const pack = resolveComponentOverrides(getComponentOverrideById(overrideMode), shell);
+    const componentOverrides = mergeComponentLayers(
+        pack,
+        buildStatusOverrides(shell.palette),
+        buildSettingsOverrides(componentSettings, shell.palette),
+    );
+
+    const animationTheme = buildAnimationTheme(animation, animationSpeed, reducedMotion);
 
     // Get theme preferences from ThemeService
     const themePrefs = ThemeService.getThemePreferences();
@@ -37,6 +78,7 @@ export const getTheme = (mode, componentOverride = 'cranky', typography = 'defau
         components: componentOverrides,
         breakpoints,
         direction,
+        animation: animationTheme,
     });
 
     // Now create a complete theme with custom mixins
@@ -162,27 +204,30 @@ export const getTheme = (mode, componentOverride = 'cranky', typography = 'defau
             create: (props, options = {}) => {
                 const { duration = 300, easing = 'cubic-bezier(0.4, 0, 0.2, 1)', delay = 0 } = options;
 
-                // Adjust animation speed based on preferences
-                let durationFactor = 1.0;
-                if (themePrefs.animationLevel === 'low') durationFactor = 1.5;
-                if (themePrefs.animationLevel === 'high') durationFactor = 0.7;
-                if (themePrefs.reducedMotion) durationFactor = 2.0;
+                // Driven by the animation speed the visitor actually set. This used to read
+                // the ThemeService preferences blob, which no part of the UI ever writes,
+                // so the speed control and the transition durations never agreed.
+                const durationFactor = reducedMotion ? 0 : 1 / animationTheme.speed;
 
                 const properties = Array.isArray(props) ? props : [props];
                 return properties
                     .map(prop => `${prop} ${duration * durationFactor}ms ${easing} ${delay}ms`)
                     .join(',');
             },
-            // Custom duration settings
-            duration: {
-                shortest: themePrefs.reducedMotion ? 200 : 100,
-                shorter: themePrefs.reducedMotion ? 250 : 150,
-                short: themePrefs.reducedMotion ? 350 : 250,
-                standard: themePrefs.reducedMotion ? 450 : 300,
-                complex: themePrefs.reducedMotion ? 550 : 375,
-                enteringScreen: themePrefs.reducedMotion ? 300 : 225,
-                leavingScreen: themePrefs.reducedMotion ? 300 : 195,
-            },
+            // Reduced motion means less motion, so durations collapse to nothing rather
+            // than stretching out. Otherwise every duration scales with the speed control.
+            duration: (() => {
+                const scale = (ms) => (reducedMotion ? 0 : Math.round(ms / animationTheme.speed));
+                return {
+                    shortest: scale(100),
+                    shorter: scale(150),
+                    short: scale(250),
+                    standard: scale(300),
+                    complex: scale(375),
+                    enteringScreen: scale(225),
+                    leavingScreen: scale(195),
+                };
+            })(),
             // Special easing options
             easing: {
                 ...theme.transitions.easing,
@@ -208,7 +253,9 @@ export const getTheme = (mode, componentOverride = 'cranky', typography = 'defau
         ...theme,
         shape: {
             ...theme.shape,
-            borderRadius: 4,
+            // Packs read theme.shape.borderRadius directly, so the radius control has to
+            // land here as well as in the generated component layer.
+            borderRadius: normalizeComponentSettings(componentSettings).shape.borderRadius,
             // Special shapes for specific components
             futuristic: {
                 button: {

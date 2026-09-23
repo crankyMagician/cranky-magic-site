@@ -10,6 +10,7 @@ class ThemeService {
     static themePrefsKey = 'themePreferences';
     static customBrandKey = 'customBrand';
     static brandModeKey = 'brandMode';
+    static componentSettingsKey = 'componentSettings';
 
     // Sentinel theme id meaning "render the user's custom brand, not a registry preset"
     static CUSTOM_THEME_ID = 'custom';
@@ -61,6 +62,30 @@ class ThemeService {
     static getCustomBrand() {
         try {
             const raw = localStorage.getItem(this.customBrandKey);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Component knobs (radius, density, elevation, transitions) edited in the studio.
+    static setComponentSettings(settings) {
+        try {
+            if (settings === null) {
+                localStorage.removeItem(this.componentSettingsKey);
+            } else {
+                localStorage.setItem(this.componentSettingsKey, JSON.stringify(settings));
+            }
+        } catch (e) {
+            console.warn('Could not persist component settings:', e.message);
+        }
+    }
+
+    static getComponentSettings() {
+        try {
+            const raw = localStorage.getItem(this.componentSettingsKey);
             if (!raw) return null;
             const parsed = JSON.parse(raw);
             return parsed && typeof parsed === 'object' ? parsed : null;
