@@ -1,17 +1,11 @@
 import React from "react";
-import { useSelector } from 'react-redux';
-import AuthRouteWrapper from './utilities/AuthRouteWrapper';
 
-import PortfolioLanding from "./pages/PortfolioLanding";
+import ThemeStudio from "./pages/ThemeStudio";
 
-const MainContent = () => {
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-
-    return (
-        <div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
-            <PortfolioLanding />
-        </div>
-    );
-};
+const MainContent = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <ThemeStudio />
+    </div>
+);
 
 export default MainContent;
