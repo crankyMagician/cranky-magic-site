@@ -97,26 +97,38 @@ export const validateAnimationId = (animationId) => {
     return animationRegistry.hasOwnProperty(animationId);
 };
 
-// Get animations by ID
+/**
+ * Flatten whatever a pack exports into a plain `{ name: keyframes }` map.
+ *
+ * The magical pack default-exports a wrapper of the form
+ * `{ animations, classes, transitions, hoverEffects, utils }`, while the other four
+ * export the keyframes map directly. Normalizing here means callers see one shape, and
+ * the 900-line magical file does not have to be touched.
+ */
+const flatten = (pack) => {
+    if (!pack || typeof pack !== 'object') return {};
+    const source = pack.animations && typeof pack.animations === 'object' ? pack.animations : pack;
+    const out = {};
+    Object.entries(source).forEach(([name, value]) => {
+        // Emotion keyframes serialize to an object carrying `name` and `styles`, and
+        // stringify to the generated animation name.
+        if (value && (typeof value === 'object' || typeof value === 'string')) out[name] = value;
+    });
+    return out;
+};
+
+// Get animations by ID, always as a flat keyframes map
 export const getAnimationsById = (animationId) => {
     if (!validateAnimationId(animationId)) {
         console.warn(`Invalid animation ID: ${animationId}. Using magical.`);
-        return animationRegistry.magical.animations;
+        return flatten(animationRegistry.magical.animations);
     }
-    return animationRegistry[animationId].animations;
+    return flatten(animationRegistry[animationId].animations);
 };
 
 // Get all animations info
 export const getAllAnimations = () => {
     return Object.values(animationRegistry);
-};
-
-// Get animation info
-export const getAnimationInfo = (animationId) => {
-    if (!validateAnimationId(animationId)) {
-        return animationRegistry.magical;
-    }
-    return animationRegistry[animationId];
 };
 
 // Export specific animation sets
@@ -126,75 +138,4 @@ export {
     elegantAnimations,
     dynamicAnimations,
     playfulAnimations,
-};
-
-// Export common animation utilities
-export const animationUtils = {
-    // Duration presets
-    duration: {
-        instant: 0,
-        fast: 200,
-        normal: 300,
-        slow: 500,
-        slower: 800,
-        slowest: 1200,
-    },
-
-    // Easing presets
-    easing: {
-        linear: 'linear',
-        easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-        easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
-        easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-        elastic: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-    },
-
-    // Delay presets
-    delay: {
-        none: 0,
-        short: 100,
-        medium: 200,
-        long: 400,
-        stagger: 50,
-    },
-};
-
-// Animation hooks helper
-export const createAnimationStyles = (animationId, elementType = 'default') => {
-    const animations = getAnimationsById(animationId);
-
-    if (!animations || animationId === 'none') {
-        return {};
-    }
-
-    const baseStyles = {
-        animationFillMode: 'both',
-        animationTimingFunction: animationUtils.easing.easeInOut,
-        willChange: 'transform, opacity',
-    };
-
-    // Return appropriate animation styles based on element type
-    switch (elementType) {
-        case 'entrance':
-            return {
-                ...baseStyles,
-                animation: animations.fadeIn || animations.entrance,
-                animationDuration: `${animationUtils.duration.normal}ms`,
-            };
-        case 'hover':
-            return {
-                ...baseStyles,
-                animation: animations.hover || animations.pulse,
-                animationDuration: `${animationUtils.duration.fast}ms`,
-            };
-        case 'exit':
-            return {
-                ...baseStyles,
-                animation: animations.fadeOut || animations.exit,
-                animationDuration: `${animationUtils.duration.fast}ms`,
-            };
-        default:
-            return baseStyles;
-    }
 };

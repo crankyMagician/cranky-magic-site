@@ -1,17 +1,16 @@
-// Build a complete theme export matching ringle's packages/shared/brand.json shape,
-// wrapped with schemaVersion/exportedAt and a "feel" section for site-specific picks.
+// Build the export.
+//
+// The four ringle keys sit at the top level in the order ringle writes them, so the file
+// drops into packages/shared/brand.json unchanged and its consumers need no edit. The
+// animation and component settings are added as siblings, which is how ringle's own
+// schema has grown: the only shape change it has ever had was additive.
 
 import { getTypographyStylesById } from './typography';
 import { getPairedPalettes } from './themeModePairs';
 import { SITE_BRAND_INFO } from './siteBrandInfo';
 import { buildPaletteFromBrand, paletteToBrandColors } from './customPalette';
-import ThemeService from '../services/ThemeService';
-
-const extractFontFamilyName = (fontFamilyString) => {
-  if (!fontFamilyString) return 'Default';
-  const matches = fontFamilyString.match(/^['"]?([^'",]+)['"]?/);
-  return matches ? matches[1].trim() : fontFamilyString;
-};
+import { fontsFromTypography } from './brandFonts';
+import { normalizeComponentSettings } from './generatedOverrides';
 
 /**
  * Colours for one mode, always routed through createTheme's augmentation so light/dark/
@@ -19,55 +18,50 @@ const extractFontFamilyName = (fontFamilyString) => {
  * palette used to produce.
  */
 const colorsForMode = (customBrand, themeId, mode) => {
-  if (customBrand) {
-    const palette = buildPaletteFromBrand(customBrand, mode);
-    return paletteToBrandColors(palette, mode, customBrand.colors?.[mode] || {});
-  }
-  const paired = getPairedPalettes(themeId);
-  return paletteToBrandColors(paired[mode], mode);
+    if (customBrand) {
+        const palette = buildPaletteFromBrand(customBrand, mode);
+        return paletteToBrandColors(palette, mode, customBrand.colors?.[mode] || {});
+    }
+    const paired = getPairedPalettes(themeId);
+    return paletteToBrandColors(paired[mode], mode);
 };
 
 export const buildThemeExport = ({
-  themeId,
-  componentOverride,
-  typography,
-  animation,
-  animationSpeed,
-  reducedMotion,
-  customBrand = null,
+    themeId,
+    componentOverride,
+    typography,
+    animation,
+    animationSpeed,
+    reducedMotion,
+    customBrand = null,
+    componentSettings = null,
 }) => {
-  const typographyObj = getTypographyStylesById(typography);
-  const themePreferences = ThemeService.getThemePreferences();
+    const typographyObj = getTypographyStylesById(typography);
+    const settings = normalizeComponentSettings(componentSettings);
 
-  const company = { ...SITE_BRAND_INFO.company, ...(customBrand?.company || {}) };
-  const logo = { ...SITE_BRAND_INFO.logo, ...(customBrand?.logo || {}) };
+    const company = { ...SITE_BRAND_INFO.company, ...(customBrand?.company || {}) };
+    const logo = { ...SITE_BRAND_INFO.logo, ...(customBrand?.logo || {}) };
+    const fonts = customBrand?.fonts || fontsFromTypography(typographyObj);
 
-  const fonts = customBrand?.fonts || {
-    heading: extractFontFamilyName(typographyObj?.h1?.fontFamily),
-    body: extractFontFamilyName(typographyObj?.fontFamily),
-    emailStack: `'${extractFontFamilyName(typographyObj?.fontFamily)}', 'Helvetica Neue', Arial, sans-serif`,
-  };
+    return {
+        company,
+        logo,
+        colors: {
+            light: colorsForMode(customBrand, themeId, 'light'),
+            dark: colorsForMode(customBrand, themeId, 'dark'),
+        },
+        fonts,
 
-  return {
-    schemaVersion: 1,
-    exportedAt: new Date().toISOString(),
-    brand: {
-      company,
-      logo,
-      colors: {
-        light: colorsForMode(customBrand, themeId, 'light'),
-        dark: colorsForMode(customBrand, themeId, 'dark'),
-      },
-      fonts,
-    },
-    feel: {
-      themeId,
-      componentOverride,
-      typography,
-      animation,
-      animationSpeed,
-      reducedMotion,
-      preferences: themePreferences,
-    },
-  };
+        animation: {
+            pack: animation,
+            speed: animationSpeed,
+            reducedMotion: Boolean(reducedMotion),
+        },
+        components: {
+            override: componentOverride,
+            typography,
+            preset: themeId,
+            ...settings,
+        },
+    };
 };

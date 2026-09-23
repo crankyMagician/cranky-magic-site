@@ -6,6 +6,7 @@ import { getAvailableThemeIds } from '../themes/themeRegistry';
 import { getAvailableComponentOverrideIds } from '../themes/muicomponents';
 import { getAvailableTypographyIds } from '../themes/typography';
 import { getAvailableAnimationIds } from '../themes/animations';
+import { normalizeComponentSettings, DEFAULT_COMPONENT_SETTINGS } from '../themes/generatedOverrides';
 
 // Get available options from registries
 const themes = getAvailableThemeIds();
@@ -25,6 +26,7 @@ const storedBrand = ThemeService.getCustomBrand();
 const initialState = {
     customBrand: storedBrand,
     brandMode: ThemeService.getBrandMode(),
+    componentSettings: normalizeComponentSettings(ThemeService.getComponentSettings()),
     mode: initialTheme === CUSTOM && storedBrand
         ? CUSTOM
         : themes.includes(initialTheme) ? initialTheme : themes[0],
@@ -90,6 +92,31 @@ export const themeSlice = createSlice({
                 state.mode = themes[0];
                 ThemeService.setTheme(themes[0]);
             }
+        },
+
+        // Component knobs. The path form matches updateBrandField so the editor can drive
+        // both with one helper.
+        updateComponentSetting: (state, action) => {
+            const { path, value } = action.payload;
+            if (!Array.isArray(path) || !path.length) return;
+
+            let node = state.componentSettings;
+            for (let i = 0; i < path.length - 1; i += 1) {
+                if (!node[path[i]] || typeof node[path[i]] !== 'object') node[path[i]] = {};
+                node = node[path[i]];
+            }
+            node[path[path.length - 1]] = value;
+            ThemeService.setComponentSettings(state.componentSettings);
+        },
+
+        setComponentSettings: (state, action) => {
+            state.componentSettings = normalizeComponentSettings(action.payload);
+            ThemeService.setComponentSettings(state.componentSettings);
+        },
+
+        resetComponentSettings: (state) => {
+            state.componentSettings = normalizeComponentSettings(DEFAULT_COMPONENT_SETTINGS);
+            ThemeService.setComponentSettings(state.componentSettings);
         },
 
         toggleComponentOverride: (state) => {
@@ -168,7 +195,9 @@ export const themeSlice = createSlice({
             state.animation = 'magical';
             state.animationSpeed = 1;
             state.reducedMotion = false;
+            state.componentSettings = normalizeComponentSettings(DEFAULT_COMPONENT_SETTINGS);
 
+            ThemeService.setComponentSettings(state.componentSettings);
             ThemeService.setTheme(state.mode);
             ThemeService.setComponentOverride(state.componentOverride);
             ThemeService.setTypography(state.typography);
@@ -197,6 +226,9 @@ export const {
     updateBrandField,
     setBrandMode,
     resetCustomBrand,
+    updateComponentSetting,
+    setComponentSettings,
+    resetComponentSettings,
 } = themeSlice.actions;
 
 // Selectors
@@ -207,6 +239,9 @@ export const selectCurrentAnimation = (state) => state.theme.animation;
 export const selectAnimationSpeed = (state) => state.theme.animationSpeed;
 export const selectReducedMotion = (state) => state.theme.reducedMotion;
 export const selectIsAnimated = (state) => state.theme.animation !== 'none' && !state.theme.reducedMotion;
+export const selectComponentSettings = (state) => state.theme.componentSettings;
+export const selectCustomBrand = (state) => state.theme.customBrand;
+export const selectBrandMode = (state) => state.theme.brandMode;
 export const selectAvailableThemes = () => themes;
 export const selectAvailableComponentOverrides = () => componentOverrides;
 export const selectAvailableTypographies = () => typographies;
