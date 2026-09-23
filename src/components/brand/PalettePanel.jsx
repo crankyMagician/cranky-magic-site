@@ -2,6 +2,12 @@ import React from 'react';
 import { Box, Paper, Typography, useTheme } from '@mui/material';
 
 import { COLOR_GROUPS, STATUS_GROUPS } from '../../themes/siteBrandInfo';
+import {
+    TERTIARY_KEYS,
+    GREY_KEYS,
+    ACTION_COLOR_KEYS,
+    CUSTOM_KEYS,
+} from '../../themes/paletteKeys';
 
 // Every swatch reads from the built MUI theme rather than from the editor's state. A
 // field that never reaches the palette therefore shows its old value here, which is
@@ -12,14 +18,18 @@ const keysFor = (group) =>
         ? ['main', 'light', 'dark', 'contrastText', 'text', 'icon']
         : ['main', 'light', 'dark', 'contrastText'];
 
-const Swatch = ({ label, value, testId }) => (
-    <Box sx={{ minWidth: 92 }}>
+// `background` rather than `backgroundColor`, so a gradient renders as a gradient. The
+// value is also printed, which is what makes a shadow stack (not paintable as a
+// background) still verifiable: the text comes from the built theme either way.
+const Swatch = ({ label, value, testId, wide }) => (
+    <Box sx={{ minWidth: wide ? 210 : 92, maxWidth: wide ? 210 : 'none' }}>
         <Box
             data-testid={testId}
             sx={{
                 height: 40,
                 borderRadius: 1,
-                backgroundColor: value || 'transparent',
+                background: value || 'transparent',
+                boxShadow: wide && /px/.test(String(value)) ? value : 'none',
                 border: '1px solid',
                 borderColor: 'divider',
             }}
@@ -29,7 +39,14 @@ const Swatch = ({ label, value, testId }) => (
         </Typography>
         <Typography
             variant="caption"
-            sx={{ fontFamily: 'monospace', fontSize: 10, color: 'text.disabled', display: 'block' }}
+            data-testid={`${testId}-value`}
+            sx={{
+                fontFamily: 'monospace',
+                fontSize: 10,
+                color: 'text.disabled',
+                display: 'block',
+                wordBreak: 'break-all',
+            }}
         >
             {value || '—'}
         </Typography>
@@ -86,6 +103,55 @@ const PalettePanel = () => {
                             label={key}
                             value={p?.text?.[key]}
                             testId={`palette-swatch-text-${key}`}
+                        />
+                    ))}
+                </Row>
+
+                <Row title="tertiary">
+                    {TERTIARY_KEYS.map((key) => (
+                        <Swatch
+                            key={key}
+                            label={key}
+                            value={p?.tertiary?.[key]}
+                            testId={`palette-swatch-tertiary-${key}`}
+                        />
+                    ))}
+                </Row>
+
+                <Row title="divider">
+                    <Swatch label="divider" value={p?.divider} testId="palette-swatch-divider-divider" />
+                </Row>
+
+                <Row title="grey">
+                    {GREY_KEYS.map((key) => (
+                        <Swatch
+                            key={key}
+                            label={key}
+                            value={p?.grey?.[key]}
+                            testId={`palette-swatch-grey-${key}`}
+                        />
+                    ))}
+                </Row>
+
+                <Row title="action">
+                    {ACTION_COLOR_KEYS.map((key) => (
+                        <Swatch
+                            key={key}
+                            label={key}
+                            value={p?.action?.[key]}
+                            testId={`palette-swatch-action-${key}`}
+                        />
+                    ))}
+                </Row>
+
+                <Row title="effects">
+                    {CUSTOM_KEYS.map((key) => (
+                        <Swatch
+                            key={key}
+                            label={key}
+                            value={key === 'glowText' ? p?.custom?.glowText?.textShadow : p?.custom?.[key]}
+                            testId={`palette-swatch-custom-${key}`}
+                            wide
                         />
                     ))}
                 </Row>

@@ -27,6 +27,8 @@ const initialState = {
     customBrand: storedBrand,
     brandMode: ThemeService.getBrandMode(),
     componentSettings: normalizeComponentSettings(ThemeService.getComponentSettings()),
+    savedPalettes: ThemeService.getSavedPalettes(),
+    activePaletteId: null,
     mode: initialTheme === CUSTOM && storedBrand
         ? CUSTOM
         : themes.includes(initialTheme) ? initialTheme : themes[0],
@@ -92,6 +94,84 @@ export const themeSlice = createSlice({
                 state.mode = themes[0];
                 ThemeService.setTheme(themes[0]);
             }
+        },
+
+        // Named palettes. A saved entry is a deep copy, so editing the live brand
+        // afterwards does not quietly rewrite what was saved.
+        savePalette: (state, action) => {
+            if (!state.customBrand) return;
+            const name = String(action.payload?.name || '').trim() || 'Untitled palette';
+            const id = `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+            state.savedPalettes.push({
+                id,
+                name,
+                savedAt: new Date().toISOString(),
+                brand: JSON.parse(JSON.stringify(state.customBrand)),
+            });
+            state.activePaletteId = id;
+            ThemeService.setSavedPalettes(state.savedPalettes);
+        },
+
+        updateSavedPalette: (state, action) => {
+            const entry = state.savedPalettes.find((p) => p.id === action.payload);
+            if (!entry || !state.customBrand) return;
+            entry.brand = JSON.parse(JSON.stringify(state.customBrand));
+            entry.savedAt = new Date().toISOString();
+            ThemeService.setSavedPalettes(state.savedPalettes);
+        },
+
+        loadPalette: (state, action) => {
+            const entry = state.savedPalettes.find((p) => p.id === action.payload);
+            if (!entry) return;
+            state.customBrand = JSON.parse(JSON.stringify(entry.brand));
+            state.activePaletteId = entry.id;
+            state.mode = CUSTOM;
+            ThemeService.setCustomBrand(state.customBrand);
+            ThemeService.setTheme(CUSTOM);
+        },
+
+        renamePalette: (state, action) => {
+            const entry = state.savedPalettes.find((p) => p.id === action.payload?.id);
+            if (!entry) return;
+            entry.name = String(action.payload.name || '').trim() || entry.name;
+            ThemeService.setSavedPalettes(state.savedPalettes);
+        },
+
+        duplicatePalette: (state, action) => {
+            const entry = state.savedPalettes.find((p) => p.id === action.payload);
+            if (!entry) return;
+            const id = `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+            state.savedPalettes.push({
+                id,
+                name: `${entry.name} copy`,
+                savedAt: new Date().toISOString(),
+                brand: JSON.parse(JSON.stringify(entry.brand)),
+            });
+            ThemeService.setSavedPalettes(state.savedPalettes);
+        },
+
+        deletePalette: (state, action) => {
+            state.savedPalettes = state.savedPalettes.filter((p) => p.id !== action.payload);
+            if (state.activePaletteId === action.payload) state.activePaletteId = null;
+            ThemeService.setSavedPalettes(state.savedPalettes);
+        },
+
+        // Reset one hand-picked palette override back to its derived value by removing it.
+        clearPaletteOverride: (state, action) => {
+            const { mode, section, key } = action.payload || {};
+            const node = state.customBrand?.palette?.[mode];
+            if (!node) return;
+            if (section === 'divider') delete node.divider;
+            else if (node[section]) delete node[section][key];
+            ThemeService.setCustomBrand(state.customBrand);
+        },
+
+        clearPaletteSection: (state, action) => {
+            const { mode, section } = action.payload || {};
+            const node = state.customBrand?.palette?.[mode];
+            if (!node) return;
+            delete node[section];
+            ThemeService.setCustomBrand(state.customBrand);
         },
 
         // Component knobs. The path form matches updateBrandField so the editor can drive
@@ -229,6 +309,14 @@ export const {
     updateComponentSetting,
     setComponentSettings,
     resetComponentSettings,
+    savePalette,
+    updateSavedPalette,
+    loadPalette,
+    renamePalette,
+    duplicatePalette,
+    deletePalette,
+    clearPaletteOverride,
+    clearPaletteSection,
 } = themeSlice.actions;
 
 // Selectors
@@ -240,6 +328,7 @@ export const selectAnimationSpeed = (state) => state.theme.animationSpeed;
 export const selectReducedMotion = (state) => state.theme.reducedMotion;
 export const selectIsAnimated = (state) => state.theme.animation !== 'none' && !state.theme.reducedMotion;
 export const selectComponentSettings = (state) => state.theme.componentSettings;
+export const selectSavedPalettes = (state) => state.theme.savedPalettes;
 export const selectCustomBrand = (state) => state.theme.customBrand;
 export const selectBrandMode = (state) => state.theme.brandMode;
 export const selectAvailableThemes = () => themes;
