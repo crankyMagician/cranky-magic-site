@@ -11,7 +11,6 @@ import {
     SiExpress,
     SiDocker,
     SiKubernetes,
-    SiAmazonwebservices,
     SiGooglecloud,
     SiMongodb,
     SiPostgresql,
@@ -23,7 +22,6 @@ import {
     SiTailwindcss,
     SiMui,
     SiSass,
-    SiCss3,
     SiHtml5,
     SiGit,
     SiGithub,
@@ -77,7 +75,6 @@ import {
     SiSentry,
     SiAuth0,
     SiStripe,
-    SiOpenai,
     SiTensorflow,
     SiPytorch,
     SiNumpy,
@@ -160,8 +157,8 @@ const TECH_ICON_MAP = {
     'sql server': { icon: FaDatabase, color: '#CC2927', label: 'SQL Server' },
 
     // Cloud & DevOps
-    'aws': { icon: SiAmazonwebservices, color: '#FF9900', label: 'AWS' },
-    'amazon web services': { icon: SiAmazonwebservices, color: '#FF9900', label: 'AWS' },
+    'aws': { icon: FaCloud, color: '#FF9900', label: 'AWS' },
+    'amazon web services': { icon: FaCloud, color: '#FF9900', label: 'AWS' },
     'azure': { icon: FaCloud, color: '#0078D4', label: 'Azure' },
     'microsoft azure': { icon: FaCloud, color: '#0078D4', label: 'Azure' },
     'gcp': { icon: SiGooglecloud, color: '#4285F4', label: 'GCP' },
@@ -196,8 +193,8 @@ const TECH_ICON_MAP = {
     'material-ui': { icon: SiMui, color: '#007FFF', label: 'Material UI' },
     'sass': { icon: SiSass, color: '#CC6699', label: 'Sass' },
     'scss': { icon: SiSass, color: '#CC6699', label: 'SCSS' },
-    'css': { icon: SiCss3, color: '#1572B6', label: 'CSS' },
-    'css3': { icon: SiCss3, color: '#1572B6', label: 'CSS3' },
+    'css': { icon: FaCode, color: '#1572B6', label: 'CSS' },
+    'css3': { icon: FaCode, color: '#1572B6', label: 'CSS3' },
     'html': { icon: SiHtml5, color: '#E34F26', label: 'HTML' },
     'html5': { icon: SiHtml5, color: '#E34F26', label: 'HTML5' },
 
@@ -238,7 +235,7 @@ const TECH_ICON_MAP = {
     'kafka': { icon: SiApachekafka, color: '#231F20', label: 'Kafka' },
 
     // AI/ML
-    'openai': { icon: SiOpenai, color: '#412991', label: 'OpenAI' },
+    'openai': { icon: FaBrain, color: '#412991', label: 'OpenAI' },
     'tensorflow': { icon: SiTensorflow, color: '#FF6F00', label: 'TensorFlow' },
     'pytorch': { icon: SiPytorch, color: '#EE4C2C', label: 'PyTorch' },
     'numpy': { icon: SiNumpy, color: '#013243', label: 'NumPy' },
