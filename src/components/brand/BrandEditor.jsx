@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
@@ -44,6 +44,7 @@ import { contrastRatio } from '../../themes/colorMath';
 import { BUNDLED_FONTS, isBundledFont, fontsFromTypography } from '../../themes/brandFonts';
 import { getTypographyStylesById } from '../../themes/typography';
 import { SCHEMES, randomSeed, randomScheme, generateBrandColors } from '../../themes/paletteGenerator';
+import ColorPicker from './ColorPicker';
 
 const COMPANY_FIELDS = ['name', 'tagline', 'website', 'portal'];
 const LOGO_TEXT_FIELDS = ['app', 'appDark', 'appAccent', 'appAccentDark', 'email', 'emailDark', 'emailAccent'];
@@ -54,24 +55,19 @@ const subKeysFor = (group) =>
         ? ['main', 'light', 'dark', 'contrastText', 'text', 'icon']
         : ['main', 'light', 'dark', 'contrastText'];
 
-const Swatch = ({ value, onChange, testId }) => (
+// Alpha is off everywhere in this editor: these fields feed ringle's colour block, whose
+// schema is hex, and isHex silently drops anything else. The text field beside the picker
+// is the "type it yourself" route and keeps its original testid.
+const Swatch = ({ value, onChange, testId, label, quickPicks = [] }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box
-            component="input"
-            type="color"
-            value={isHex(value) ? value : '#000000'}
-            onChange={(e) => onChange(e.target.value)}
-            data-testid={testId}
-            sx={{
-                width: 40,
-                height: 32,
-                p: 0,
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                cursor: 'pointer',
-                background: 'none',
-            }}
+        <ColorPicker
+            value={isHex(value) ? value : undefined}
+            onChange={onChange}
+            allowAlpha={false}
+            quickPicks={quickPicks}
+            testId={testId}
+            label={label}
+            size={40}
         />
         <TextField
             size="small"
@@ -107,7 +103,7 @@ const ContrastBadge = ({ foreground, background, label, testId }) => {
     );
 };
 
-const ColorGroupRow = ({ group, values, onChange, background }) => {
+const ColorGroupRow = ({ group, values, onChange, background, quickPicks }) => {
     const [open, setOpen] = useState(false);
     const keys = subKeysFor(group);
     const isStatus = STATUS_GROUPS.includes(group);
@@ -122,6 +118,8 @@ const ColorGroupRow = ({ group, values, onChange, background }) => {
                     value={values?.main}
                     onChange={(v) => onChange(group, 'main', v)}
                     testId={`color-${group}-main`}
+                    label={`${group} main`}
+                    quickPicks={quickPicks}
                 />
                 <ContrastBadge
                     foreground={values?.contrastText}
@@ -162,6 +160,8 @@ const ColorGroupRow = ({ group, values, onChange, background }) => {
                                     value={values?.[key]}
                                     onChange={(v) => onChange(group, key, v)}
                                     testId={`color-${group}-${key}`}
+                                    label={`${group} ${key}`}
+                                    quickPicks={quickPicks}
                                 />
                             </Box>
                         </Grid>
@@ -254,7 +254,20 @@ const BrandEditor = () => {
         e.target.value = '';
     }, [applyImport]);
 
-    const colors = customBrand?.colors?.[brandMode] || {};
+    const colors = useMemo(
+        () => customBrand?.colors?.[brandMode] || {},
+        [customBrand, brandMode],
+    );
+
+    // Colours already chosen in this palette, offered inside every picker so a hue can be
+    // reused without copying a hex by hand.
+    const quickPicks = useMemo(() => ([
+        ...COLOR_GROUPS.map((g) => colors[g]?.main),
+        colors.background?.default,
+        colors.background?.paper,
+        colors.text?.primary,
+        colors.text?.secondary,
+    ].filter(Boolean)), [colors]);
 
     return (
         <Box sx={{ mb: 5 }} data-testid="brand-editor">
@@ -312,7 +325,7 @@ const BrandEditor = () => {
                             Generate a palette
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-                            <Swatch value={seed} onChange={setSeed} testId="generator-seed" />
+                            <Swatch value={seed} onChange={setSeed} testId="generator-seed" label="seed colour" quickPicks={quickPicks} />
                             <TextField
                                 select
                                 size="small"
@@ -360,6 +373,7 @@ const BrandEditor = () => {
                                     values={colors[group]}
                                     onChange={onColorChange}
                                     background={colors.background?.default}
+                                    quickPicks={quickPicks}
                                 />
                             ))}
 
@@ -376,6 +390,8 @@ const BrandEditor = () => {
                                                     value={colors.background?.[key]}
                                                     onChange={(v) => onColorChange('background', key, v)}
                                                     testId={`color-background-${key}`}
+                                                    label={`background ${key}`}
+                                                    quickPicks={quickPicks}
                                                 />
                                             </Box>
                                         </Grid>
@@ -396,6 +412,8 @@ const BrandEditor = () => {
                                                     value={colors.text?.[key]}
                                                     onChange={(v) => onColorChange('text', key, v)}
                                                     testId={`color-text-${key}`}
+                                                    label={`text ${key}`}
+                                                    quickPicks={quickPicks}
                                                 />
                                             </Box>
                                         </Grid>
