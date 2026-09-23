@@ -18,7 +18,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 import { updateBrandField, clearPaletteOverride, clearPaletteSection } from '../../reducers/themeSlice';
-import { isHex } from '../../themes/colorMath';
+import { findColorTokens, replaceToken, isSingleColor } from '../../themes/cssColors';
+import ColorPicker from './ColorPicker';
 import {
     PALETTE_SECTIONS,
     ACTION_COLOR_KEYS,
@@ -34,56 +35,22 @@ const effectiveValue = (palette, section, key) => {
 };
 
 /**
- * One value. A colour input appears only when the value is a plain hex, because most of
- * these are rgba strings, gradients or shadow stacks that no colour picker can hold.
- * The preview box paints the raw value, so a gradient shows as a gradient.
+ * One value, in one of three shapes.
+ *
+ * Numbers (the action opacities) stay a number field. A value that is nothing but a
+ * colour gets a single picker. Anything else is a gradient or a shadow stack, and gets
+ * one picker per colour inside it, so the angle, the stop percentages and the blur radii
+ * are never touched by picking a colour. The raw string stays editable underneath for the
+ * parts a colour picker cannot express.
  */
-const ValueField = ({ label, hint, value, overridden, onChange, onReset, testId, numeric }) => (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {!numeric && (
-            <Tooltip title={String(value ?? '')}>
-                <Box
-                    data-testid={`${testId}-preview`}
-                    sx={{
-                        width: 34,
-                        height: 30,
-                        flexShrink: 0,
-                        borderRadius: 1,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        background: value || 'transparent',
-                    }}
-                />
-            </Tooltip>
-        )}
-        {!numeric && isHex(value) && (
-            <Box
-                component="input"
-                type="color"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                data-testid={`${testId}-picker`}
-                sx={{
-                    width: 34, height: 30, p: 0, flexShrink: 0, cursor: 'pointer',
-                    border: '1px solid', borderColor: 'divider', borderRadius: 1, background: 'none',
-                }}
-            />
-        )}
-        <TextField
-            fullWidth
-            size="small"
-            label={label}
-            helperText={hint}
-            type={numeric ? 'number' : 'text'}
-            value={value ?? ''}
-            onChange={(e) => onChange(numeric ? Number(e.target.value) : e.target.value)}
-            inputProps={{
-                'data-testid': testId,
-                spellCheck: false,
-                ...(numeric ? { step: 0.01, min: 0, max: 1 } : {}),
-            }}
-            sx={{ '& input': { fontFamily: 'monospace', fontSize: 12 } }}
-        />
+const ValueField = ({ label, hint, value, overridden, onChange, onReset, testId, numeric, quickPicks }) => {
+    const raw = typeof value === 'string' ? value : '';
+    const tokens = numeric ? [] : findColorTokens(raw);
+    const single = !numeric && isSingleColor(raw);
+
+    const setToken = (token, next) => onChange(replaceToken(raw, token, next));
+
+    const resetButton = (
         <Tooltip title={overridden ? 'Reset to the derived value' : 'Currently derived'}>
             <span>
                 <IconButton
@@ -96,8 +63,111 @@ const ValueField = ({ label, hint, value, overridden, onChange, onReset, testId,
                 </IconButton>
             </span>
         </Tooltip>
-    </Box>
-);
+    );
+
+    if (numeric) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TextField
+                    fullWidth
+                    size="small"
+                    label={label}
+                    helperText={hint}
+                    type="number"
+                    value={value ?? ''}
+                    onChange={(e) => onChange(Number(e.target.value))}
+                    inputProps={{ 'data-testid': testId, step: 0.01, min: 0, max: 1 }}
+                    sx={{ '& input': { fontFamily: 'monospace', fontSize: 12 } }}
+                />
+                {resetButton}
+            </Box>
+        );
+    }
+
+    if (single) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ColorPicker
+                    value={raw}
+                    onChange={onChange}
+                    allowAlpha
+                    quickPicks={quickPicks}
+                    testId={`${testId}-picker`}
+                    label={label}
+                />
+                <TextField
+                    fullWidth
+                    size="small"
+                    label={label}
+                    helperText={hint}
+                    value={raw}
+                    onChange={(e) => onChange(e.target.value)}
+                    inputProps={{ 'data-testid': testId, spellCheck: false }}
+                    sx={{ '& input': { fontFamily: 'monospace', fontSize: 12 } }}
+                />
+                {resetButton}
+            </Box>
+        );
+    }
+
+    return (
+        <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
+                <Tooltip title={raw}>
+                    <Box
+                        data-testid={`${testId}-preview`}
+                        sx={{
+                            width: 34,
+                            height: 30,
+                            flexShrink: 0,
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            background: raw || 'transparent',
+                            boxShadow: /px/.test(raw) ? raw : 'none',
+                        }}
+                    />
+                </Tooltip>
+                <Typography variant="caption" sx={{ fontWeight: 600, flexGrow: 1 }}>
+                    {label}
+                </Typography>
+                {resetButton}
+            </Box>
+
+            <Box
+                sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 0.75 }}
+                data-testid={`${testId}-tokens`}
+            >
+                {tokens.map((token, i) => (
+                    <ColorPicker
+                        key={`${token.start}-${token.value}`}
+                        value={token.kind === 'keyword' ? 'rgba(0, 0, 0, 0)' : token.value}
+                        onChange={(next) => setToken(token, next)}
+                        allowAlpha
+                        quickPicks={quickPicks}
+                        testId={`${testId}-token-${i}`}
+                        label={`${label}, colour ${i + 1}${token.kind === 'keyword' ? ' (transparent)' : ''}`}
+                    />
+                ))}
+                {tokens.length === 0 && (
+                    <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                        no colours in this value
+                    </Typography>
+                )}
+            </Box>
+
+            <TextField
+                fullWidth
+                size="small"
+                helperText={hint}
+                value={raw}
+                onChange={(e) => onChange(e.target.value)}
+                inputProps={{ 'data-testid': testId, spellCheck: false }}
+                sx={{ '& input': { fontFamily: 'monospace', fontSize: 12 } }}
+            />
+        </Box>
+    );
+};
 
 const AdvancedPalette = () => {
     const theme = useTheme();
@@ -127,6 +197,18 @@ const AdvancedPalette = () => {
         dispatch(clearPaletteOverride({ mode: brandMode, section, key }));
     }, [dispatch, brandMode]);
 
+    // The palette's own colours, offered inside every picker so a gradient stop can reuse
+    // a brand colour without hunting for its hex.
+    const quickPicks = useMemo(() => {
+        const p = theme.palette;
+        return [
+            p?.primary?.main, p?.secondary?.main, p?.tertiary?.main,
+            p?.error?.main, p?.warning?.main, p?.info?.main, p?.success?.main,
+            p?.background?.default, p?.background?.paper,
+            p?.text?.primary, p?.text?.secondary,
+        ].filter(Boolean);
+    }, [theme.palette]);
+
     if (!customBrand) return null;
 
     const countOverrides = (section) => (section === 'divider'
@@ -144,6 +226,7 @@ const AdvancedPalette = () => {
             onChange={(v) => setValue(section, key, v)}
             onReset={() => reset(section, key)}
             testId={`adv-${section}-${key}`}
+            quickPicks={quickPicks}
         />
     );
 
