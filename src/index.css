@@ -4,15 +4,23 @@
     box-sizing: border-box;
 }
 
+/* min-height, never height: a fixed height caps the document at the viewport so the
+   page cannot grow with its content, and overflow-x on #root then promotes it to its
+   own scroll container, leaving the window with nothing to scroll. */
 html,
 body,
 #root {
-    height: 100%;
     min-height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
+}
+
+#root {
     display: flex;
     flex-direction: column;
+}
+
+body {
     overflow-x: hidden;
 }
