@@ -18,9 +18,8 @@ import {
     Email as EmailIcon
 } from '@mui/icons-material';
 
-// Import components explicitly with the proper names
-// Check these imports carefully - one of them is likely causing the error
-import Example from '../example/Example';
+// Note: Route configuration is no longer used in main app (collapsed to single-page)
+// This file is kept for reference but no longer imported anywhere
 
 import AboutUs from '../components/common/AboutUs';
 import StreamVideo from '../components/demoComponents/StreamVideo';
